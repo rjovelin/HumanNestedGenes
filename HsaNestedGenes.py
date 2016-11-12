@@ -59,6 +59,76 @@ def FromChromoCoordToGeneCoord(GeneCoord):
     return Genes
 
 
+# use this function to record the coordinates of each transcripts
+def TranscriptsCoord(gff_file):
+    '''
+    (file) -> dict
+    Return a dictionary with the transcript name and the its coordinates
+    '''
+    
+    # open file to read
+    infile = open(gff_file, 'r')
+    # make a dictionnary with chromosome as key and a dictionnary as value
+    # {transcript:[chromosome, start, end, sense]}
+    Transcripts = {}
+    for line in infile:
+        line = line.rstrip()
+        if 'mRNA' in line:
+            line = line.split()
+            if line[2] == 'mRNA':
+                # get the gene name
+                transcript = line[8][line[8].index('transcript:')+11 : line[8].index(';')]
+                # get chromo, start, end positions 0-based, and orientation
+                chromo, start, end, sense = line[0], int(line[3]) -1, int(line[4]), line[6]            
+                # populate the dictionnary 
+                Transcripts[transcript] = [chromo, start, end, sense]
+    # close file after reading
+    infile.close()
+    return Transcripts
+    
+
+
+
+
+
+
+
+#1       ensembl_havana  mRNA    944204  959290  .       -       .       ID=transcript:ENST00000327044;Parent=gene:ENSG00000188976;Name=NOC2L-001;biotype=protein_coding;ccdsid=CCDS3.1;havana_transcript=OTTHUMT00000097869;havana_version=1;tag=basic;transcript_id=ENST00000327044;transcript_support_level=1;version=6
+#1       ensembl_havana  three_prime_UTR 944204  944693  .       -       .       Parent=transcript:ENST00000327044
+#1       ensembl_havana  exon    944204  944800  .       -       .       Parent=transcript:ENST00000327044;Name=ENSE00003486680;constitutive=0;ensembl_end_phase=-1;ensembl_phase=1;exon_id=ENSE00003486680;rank=19;version=1
+#1       ensembl_havana  CDS     944694  944800  .       -       2       ID=CDS:ENSP00000317992;Parent=transcript:ENST00000327044;protein_id=ENSP00000317992
+#1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # use this function to order genes along chromosomes
 def OrderGenesAlongChromo(GeneCoord):
     '''
