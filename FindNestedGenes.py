@@ -8,8 +8,12 @@ Created on Fri Nov 11 16:25:38 2016
 
 import os
 import sys
+import numpy as np
+import random
+import json
+import math
+from HsaNestedGenes import *
 
-# keep only annotated chromos
 
 
 
@@ -17,56 +21,74 @@ import sys
 HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
 MmuGFF = 'Mus_musculus.GRCm38.86.gff3'    
     
-# get the file with valid chromos
-HsaValidChromos = 'H_sapiens_valid_chromos.txt'
-MmuValidChromos = 'M_musculus_valid_chromos.txt'    
-    
+# get the coordinates of human genes on each chromo
+# {chromo: {gene:[chromosome, start, end, sense]}}
+HumanGeneChromoCoord = ChromoGenesCoord(HsaGFF)
+print('got gene coordinates on each chromosome')
+
+# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+HumanGeneCoord = FromChromoCoordToGeneCoord(HumanGeneChromoCoord)
+print('got gene coordinates', len(HumanGeneCoord))
+
+# Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
+HumanOrderedGenes = OrderGenesAlongChromo(HumanGeneChromoCoord)
+print('ordered genes on chromsomes')
+
+# Find overlapping genes {gene1: [gene2, gene3]}
+HumanOverlappingGenes = FindOverlappingGenePairs(HumanGeneChromoCoord, HumanOrderedGenes)
+print('found overlapping genes', len(HumanOverlappingGenes))
+
+# Find genes fully contained in another gene {containing: [contained1, contained2]}
+HumanContainedGenes = FindContainedGenePairs(HumanGeneCoord, HumanOverlappingGenes)
+print('found genes contained in other genes', len(HumanContainedGenes))
+
+
+
+
+
+#
+#
+#
+#
+## get the coordinates of introns # {chromo: {transcript:[(intron_start, intron_end), ...]}}
+#CelIntronCoordChromo = CDSIntronCoord(CelGFF, 'intron')
+#print('extracted intronic coordinates')
+## Map Transcript names to gene names {transcript: gene}
+#CelMapTranscriptGene = TranscriptToGene(CelGFF)
+#print('mapped transcripts to genes')
+## Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
+#CelIntronicCoord = CombineAllGeneRegions(CelIntronCoordChromo, CelMapTranscriptGene)
+#print('combined intron coordinates per gene')
+## Find nested genes {host: [intronic nested genes]}
+#CelHostGenes = FindIntronicNestedGenePairs(CelContainedGenes, CelIntronicCoord, CelGeneCoord)
+#print('identified nested genes', len(CelHostGenes))
+## get elegans expression {wormbase ID gene: [expression at 10 stages]}
+#CelExpressionStage = ExpressionDevelopemtStages('WBPaper00041190.ce.mr.csv')
+#print('expression', len(CelExpressionStage))
+## remove host and nested genes without expression
+#CelHostGenes = FilterHostNestedExpression(CelHostGenes, CelExpressionStage)
+#print('removed host, nested genes without expression', len(CelHostGenes))
+
+
+
+# get the coordinates of mouse genes on each chromo
+# {chromo: {gene:[chromosome, start, end, sense]}}
+MouseGeneChromoCoord = ChromoGenesCoord(MmuGFF)
+print('got gene coordinates on each chromosome')
+
+# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+MouseGeneCoord = FromChromoCoordToGeneCoord(MouseGeneChromoCoord)
+print('got gene coordinates', len(MouseGeneCoord))
+
+# Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
+MouseOrderedGenes = OrderGenesAlongChromo(MouseGeneChromoCoord)
+print('ordered genes on chromsomes')
+
+# Find overlapping genes {gene1: [gene2, gene3]}
+MouseOverlappingGenes = FindOverlappingGenePairs(MouseGeneChromoCoord, MouseOrderedGenes)
+print('found overlapping genes', len(MouseOverlappingGenes))
+
+# Find genes fully contained in another gene {containing: [contained1, contained2]}
+MouseContainedGenes = FindContainedGenePairs(MouseGeneCoord, MouseOverlappingGenes)
+print('found genes contained in other genes', len(MouseContainedGenes))
   
-
-
-
-
-
-
-
-
-  
-
-
-# use this function to record the gene coordinates on each separate chromosome    
-def ChromoGenesCoord(gff_file):
-    '''
-    (file) -> dict
-    Return a dictionnary with chromosome as key and a dictionnary of protein-coding
-    gene coordinates as value
-    '''
-      
-    # open file to read
-    infile = open(gff_file, 'r')
-    # make a dictionnary with chromosome as key and a dictionnary as value
-    # {chromo: {gene:[chromosome, start, end, sense]}}
-    Linkage = {}
-    for line in infile:
-        line = line.rstrip()
-        if 'gene' in line:
-            line = line.split('\t')
-            if line[2] == 'gene':
-                # get biotype
-                biotype = line[8][line[8].index('biotype=')+8: line[8].index(';', line[8].index('biotype=')+8)]
-                # record only protein coding genes
-                if biotype == 'protein_coding':
-                    # get the gene name
-                    gene = line[8][line[8].index('ID=gene:')+8: line[8].index(';')]
-                    # get chromo, start, end positions 0-based, and orientation
-                    chromo, start, end, sense = line[0], int(line[3]) -1, int(line[4]), line[6]            
-                    # check if chromo is recorded
-                    if chromo not in Linkage:
-                        # create a dictionnary
-                        Linkage[chromo] = {}
-                    # populate inner dict with gene : coords
-                    Linkage[chromo][gene] = [chromo, start, end, sense]
-    # close file after reading
-    infile.close()
-    return Linkage
-
-
