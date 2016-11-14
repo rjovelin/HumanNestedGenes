@@ -170,16 +170,6 @@ def GeneCDSCoord(gff_file):
     return CDSPositions
 
 
-
-
-
-###################
-
-
-
-
-
-
 # use this function to get the exon coordinates of all transcripts 
 def GeneExonCoord(gff_file):
     '''
@@ -253,42 +243,6 @@ def GeneIntronCoord(ExonCoord):
                 else:
                     IntronCoord[transcript] = [introncoord]
     return IntronCoord   
-
-
-#1       ensembl_havana  mRNA    944204  959290  .       -       .       ID=transcript:ENST00000327044;Parent=gene:ENSG00000188976;Name=NOC2L-001;biotype=protein_coding;ccdsid=CCDS3.1;havana_transcript=OTTHUMT00000097869;havana_version=1;tag=basic;transcript_id=ENST00000327044;transcript_support_level=1;version=6
-#1       ensembl_havana  three_prime_UTR 944204  944693  .       -       .       Parent=transcript:ENST00000327044
-#1       ensembl_havana  exon    944204  944800  .       -       .       Parent=transcript:ENST00000327044;Name=ENSE00003486680;constitutive=0;ensembl_end_phase=-1;ensembl_phase=1;exon_id=ENSE00003486680;rank=19;version=1
-#1       ensembl_havana  CDS     944694  944800  .       -       2       ID=CDS:ENSP00000317992;Parent=transcript:ENST00000327044;protein_id=ENSP00000317992
-#1
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # use this function to order genes along chromosomes
