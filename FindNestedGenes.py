@@ -52,6 +52,23 @@ HumanMapGeneTranscript = GeneToTranscripts(HsaGFF)
 print('mapped genes to all their transcripts', len(HumanMapGeneTranscript))
 
 
+# get the exon coordinates of all transcript {transcript: [[exon_start, exon_end]]}
+HumanExonCoord = GeneExonCoord(HsaGFF)
+print('got exon coordinates', len(HumanExonCoord))
+
+# get the intron coordinates of all transcripts {transcript: [[intron_start, intron_end]]}
+HumanIntronCoord = GeneIntronCoord(HumanExonCoord)
+print('got intron coordinates', len(HumanIntronCoord))
+
+# get the CDS coordinates of all transcripts {transcript: [[CDS_start, CDS_end]]}
+HumanCDSCoord = GeneCDSCoord(HsaGFF)
+print('got CDS coordinates', len(HumanCDSCoord))
+
+ 
+
+
+
+
 
 
 #
