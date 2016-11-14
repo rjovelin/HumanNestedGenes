@@ -85,8 +85,9 @@ def TranscriptsCoord(gff_file):
     # close file after reading
     infile.close()
     return Transcripts
-    
-
+   
+   
+   
 # use this function to create a dict of transcript : gene pairs
 def TranscriptToGene(gff_file):
     '''
@@ -126,6 +127,29 @@ def GeneToTranscripts(gff_file):
         else:
             genes[gene_name] = [transcript]
     return genes
+
+
+# use this function to map genes with their longest mRNA transcripts
+def LongestTranscript(TranscriptCoordinates, MapGeneTranscript):
+    '''
+    (dict, dict) -> dict
+    Take a dictionary with transcrip coordinates, a dictionary matching all
+    transcripts to each gene and return a dictionary of gene: longest transcript pairs
+    '''
+    # TranscriptCoordinates is in the form {transcript:[chromosome, start, end, sense]}
+    # MapGeneTranscript is in the orm {gene: [transcripts]}
+    # create a dict {gene: longest_transcript}
+    Genes = {}
+    for gene in MapGeneTranscript:
+        # create list to store transcript and their length
+        L = []
+        for transcript in MapGeneTranscript[gene]:
+            L.append([TranscriptCoordinates[transcript][2] - TranscriptCoordinates[transcript][1], transcript])
+        # sort list, get the transcript with maximum length
+        L.sort()
+        longest = L[-1][1]
+        Genes[gene] = longest
+    return Genes
 
 
 # use this function to get the CDS coordinates of all transcripts 
