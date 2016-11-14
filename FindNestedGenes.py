@@ -66,33 +66,16 @@ print('cleaned up intron coordinates of non-mRNA transcripts', len(HumanIntronCo
 # get the CDS coordinates of all transcripts {transcript: [[CDS_start, CDS_end]]}
 HumanCDSCoord = GeneCDSCoord(HsaGFF)
 print('got CDS coordinates', len(HumanCDSCoord))
-#HumanCDSCoord = CleanGeneFeatureCoord(HumanCDSCoord, HumanMapTranscriptGene)
-#print('cleaned up CDS coordinates of non-mRNA transcripts', len(HumanCDSCoord))
+HumanCDSCoord = CleanGeneFeatureCoord(HumanCDSCoord, HumanMapTranscriptGene)
+print('cleaned up CDS coordinates of non-mRNA transcripts', len(HumanCDSCoord))
  
- 
-tsnames = set(HumanMapTranscriptGene.keys())
-print(len(tsnames))
-exonnames = set(HumanExonCoord.keys())
-print(len(exonnames))
-intronnames = set(HumanIntronCoord.keys())
-print(len(intronnames))
-
-extraexons = [i for i in exonnames if i not in tsnames]
-print(len(extraexons))
-if len(extraexons) != 0:
-    print(extraexons[:10])
-    
-extraintrons = [i for i in intronnames if i not in tsnames]
-print(len(extraintrons))
-if len(extraintrons) != 0:
-    print(extraintrons[0:10])
-
-cdsnames = set(HumanCDSCoord.keys())
-extracds = [i for i in cdsnames if i not in tsnames]
-print(len(extracds))
-if len(extracds) != 0:
-    print(extracds[0:10])
-    
+# get the transcript coordinates
+HumanTranscriptCoord = TranscriptsCoord(HsaGFF)
+print('got transcript coordinates', len(HumanTranscriptCoord))
+   
+# get the longest mRNA transcript of each gene
+HumanLongestTranscripts = LongestTranscript(HumanTranscriptCoord, HumanMapGeneTranscript)
+print('got longest transcripts', len(HumanLongestTranscripts))    
 
 
 
