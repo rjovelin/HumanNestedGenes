@@ -508,7 +508,7 @@ def ParseOrthologFile(OrthoFile):
     '''
     
     # create a dict of orthologs
-    Orthos = {}
+    Orthos, Orthologs = {}, {}
     
     infile = open(OrthoFile)
     for line in infile:
@@ -521,10 +521,18 @@ def ParseOrthologFile(OrthoFile):
                 gene1, gene2 = line[0], line[2]
                 # check if ortholofs are 1:1
                 if line[5] == 'ortholog_one2one':
-                    assert gene1 not in Orthos, '1:1 orthologs should map a single gene'
-                    Orthos[gene1] = gene2
+                    if gene1 not in Orthos:
+                        Orthos[gene1] = set()
+                    Orthos[gene1].add(gene2)
+    # check that all orthologs are 1;1 orthologs
+    # make a dict {gene1: gene2}
+    for gene in Orthos:
+        Orthos[gene] = list(Orthos[gene])
+        assert len(Orthos[gene]) == 1, 'there is more than 1 ortholog'
+        Orthologs[gene] = Orthos[gene][0]
+    
     infile.close()
-    return Orthos  
+    return Orthologs  
     
   
   
