@@ -118,7 +118,11 @@ for pair in HumanHostNestedPairs:
 print('host orthos', len(hostorthos))
 print('nested orthos', len(nestedorthos))
 
-
+orthopairs = 0
+for pair in HumanHostNestedPairs:
+    if pair[0] in HumanMouseOrthos and pair[1] in HumanMouseOrthos:
+        orthopairs += 1
+print('ortho pairs', orthopairs)
 
 # reverse the dictionary of orthologs
 MouseHumanOrthos = {}
@@ -234,4 +238,8 @@ for pair in MouseHostNestedPairs:
 print('host orthos', len(hostorthos))
 print('nested orthos', len(nestedorthos))
 
-
+orthopairs = 0
+for pair in MouseHostNestedPairs:
+    if pair[0] in MouseHumanOrthos and pair[1] in MouseHumanOrthos:
+        orthopairs += 1
+print('ortho pairs', orthopairs)
