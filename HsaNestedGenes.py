@@ -497,3 +497,35 @@ def GenePairOrientation(GenePair, GeneCoord):
     '''
     return [GeneCoord[GenePair[0]][-1], GeneCoord[GenePair[1]][-1]] 
   
+  
+# Map humangenes to their orthologs in other species  
+def ParseOrthologFile(OrthoFile):
+    '''
+    (file) -> dict
+    Take a file with orthology assignments 2 species and return a dictionary
+    of orthologs between the 2 species
+    Precondition: consider only 1:1 orthologs, use gene ID of 1st species as key
+    '''
+    
+    # create a dict of orthologs
+    Orthos = {}
+    
+    infile = open(OrthoFile)
+    for line in infile:
+        line = line.rstrip()
+        if line != '':
+            line = line.split('\t')
+            # check that line has enough information
+            if len(line) >= 3:
+                # get gene IDs of the 2 species
+                gene1, gene2 = line[0], line[2]
+                # check if ortholofs are 1:1
+                if line[5] == 'ortholog_one2one':
+                    assert gene1 not in Orthos, '1:1 orthologs should map a single gene'
+                    Orthos[gene1] = gene2
+    infile.close()
+    return Orthos  
+    
+  
+  
+  
