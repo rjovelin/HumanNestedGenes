@@ -289,25 +289,6 @@ def CleanGeneFeatureCoord(GeneFeatureCoord, TranscriptToGene):
     return GeneFeatureCoord
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # use this function to order genes along chromosomes
 def OrderGenesAlongChromo(GeneCoord):
     '''
@@ -413,4 +394,21 @@ def FindContainedGenePairs(GeneCoordinates, Overlap):
                 else:
                     ContainingGenes[containing] = [contained]
     return ContainingGenes
+
+
+# use this function to generate pairs of host and nested genes
+def GetHostNestedPairs(HostNested):
+    '''
+    (dict) -> list
+    Take the dictionary woth host and nested genes and return a list of lists
+    each containing a pair of host and nested gene
+    '''
+    
+    # create a list of lists with [[host, nested]]
+    HostNestedPairs = []
+    for host in HostNested:
+        for nested in HostNested[host]:
+            pair = [host, nested]
+            HostNestedPairs.append(pair)
+    return HostNestedPairs
     
