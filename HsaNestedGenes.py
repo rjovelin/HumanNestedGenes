@@ -396,6 +396,59 @@ def FindContainedGenePairs(GeneCoordinates, Overlap):
     return ContainingGenes
 
 
+
+# use this function to collapse all introns/CDS of all transcripts for a given gene
+def CombineAllGeneRegions(GeneRegionCoord, TranscriptToGene):
+    '''
+    (dict, dict) -> dict
+    Take the dictionary of CDS, exon or intron coordinates for each transcript
+    the dictionary of transcript: gene pairs and return a dictionary with gene
+    name and the coordinates of all gene region (intron, exon or CDS) combined
+    for all transcripts of that gene
+    '''
+    # GeneRegionCoord in the form {transcript:[(region_start, region_end), (region_start, region_end)]}
+    # TranscriptGeneMatches in the form {transcript: gene}
+
+    # create a dict {gene: [(region_start, region_end), (region_start, region_end)]}
+    AllGeneRegions = {}
+    for TS in GeneRegionCoord[chromo]:
+        # get gene name
+        gene = TranscriptToGene[TS]
+        # populate dict with gene name : region coord
+        # add coordinates for that transcript, transform in tuple
+        if gene not in AllGeneRegions:
+            AllGeneRegions[gene] = []
+        for item in GeneRegionCoord[TS]:
+            AllGeneRegions[gene].append(tuple(item))
+    # collapse all identical coordinates
+    for gene in AllGeneRegions:
+        # transform coordinates into set to remove duplicate regions
+        AllGeneRegions[gene] = set(AllGeneRegions[gene])
+        # transform back into list to order coordinates
+        AllGeneRegions[gene] = list(AllGeneRegions[gene])
+        # transform all coordinates into lists
+        for i in range(len(AllGeneRegions[gene])):
+            AllGeneRegions[gene][i] = list(AllGeneRegions[gene][i])
+        # order coordinates by start positions
+        AllGeneRegions[gene].sort()
+    return AllGeneRegions
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # use this function to generate pairs of host and nested genes
 def GetHostNestedPairs(HostNested):
     '''
