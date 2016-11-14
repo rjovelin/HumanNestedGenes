@@ -79,9 +79,15 @@ print('got longest transcripts', len(HumanLongestTranscripts))
 
 
 
+# Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
+HumanCombinedIntronCoord = CombineAllGeneRegions(HumanIntronCoord, HumanMapTranscriptGene)
+
+# identify itnronic nested genes {host_gene: [intronic_nested_gene]}
+HumanHostGenes = FindIntronicNestedGenePairs(HumanContainedGenes, HumanCombinedIntronCoord, HumanGeneCoord)
+print('identified intronic nested genes', len(HumanHostGenes))
 
 # make a list of host-nested gene pairs
-HumanHostNestedPairs = GetHostNestedPairs(HumanContainedGenes)
+HumanHostNestedPairs = GetHostNestedPairs(HumanHostGenes)
 
 same, opposite = 0, 0
 for pair in  HumanHostNestedPairs:
