@@ -189,25 +189,18 @@ def GeneIntronCoord(ExonCoord):
         # check that transcripts has multiple exons (and thus at least 1 intron)
         if len(ExonCoord[transcript]) >= 2:
             # loop over the exon coordinates (already sorted)
-        
-            
-            
-            
-            
-                    # loop over CDS coordinates
-                    for i in range(len(CDSCoord[chromo][transcript]) - 1):
-                        # intron start is end of first exon and intron end is start of next CDS
-                        intronstart = CDSCoord[chromo][transcript][i][-1]
-                        intronend = CDSCoord[chromo][transcript][i+1][0]
-                        assert intronend > intronstart, 'end position should be greater than start position'
-                        introncoord = (intronstart, intronend)
-                        # populate dict
-                        if chromo not in IntronCoord:
-                            IntronCoord[chromo] = {}
-                        if transcript not in IntronCoord[chromo]:
-                            IntronCoord[chromo][transcript] = []
-                        IntronCoord[chromo][transcript].append(introncoord)
-        return IntronCoord   
+            for i in range(len(ExonCoord[transcript]) -1):
+                # intron start is end of first exon and intron end is start of next exon
+                intronstart = ExonCoord[transcript][i][-1]
+                intronend = ExonCoord[transcript][i+1][0]
+                assert intronend > intronstart, 'end position should be rgeater than start position'
+                introncoord = [intronstart, intronend]
+                # populate dict
+                if transcript in IntronCoord:
+                    IntronCoord[transcript].append(introncoord)
+                else:
+                    IntronCoord[transcript] = [introncoord]
+    return IntronCoord   
 
 
 #1       ensembl_havana  mRNA    944204  959290  .       -       .       ID=transcript:ENST00000327044;Parent=gene:ENSG00000188976;Name=NOC2L-001;biotype=protein_coding;ccdsid=CCDS3.1;havana_transcript=OTTHUMT00000097869;havana_version=1;tag=basic;transcript_id=ENST00000327044;transcript_support_level=1;version=6
