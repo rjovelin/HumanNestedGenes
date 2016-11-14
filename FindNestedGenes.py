@@ -80,6 +80,32 @@ print('got longest transcripts', len(HumanLongestTranscripts))
 
 
 
+# make a list of host-nested gene pairs
+HumanHostNestedPairs = GetHostNestedPairs(HumanContainedGenes)
+
+same, opposite = 0, 0
+for pair in  HumanHostNestedPairs:
+    orientation = GenePairOrientation(pair, HumanGeneCoord)
+    assert '-' in orientation or '+' in orientation
+    if len(set(orientation)) == 1:
+        same += 1
+    elif len(set(orientation)) == 2:
+        opposite += 1
+print('same', same)        
+print('opposite', opposite)
+
+
+
+
+
+
+
+
+
+
+
+
+
 ## Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
 #CelIntronicCoord = CombineAllGeneRegions(CelIntronCoordChromo, CelMapTranscriptGene)
 #print('combined intron coordinates per gene')
