@@ -51,34 +51,52 @@ print('mapped transcripts to their parent gene', len(HumanMapTranscriptGene))
 HumanMapGeneTranscript = GeneToTranscripts(HsaGFF)
 print('mapped genes to all their transcripts', len(HumanMapGeneTranscript))
 
-
 # get the exon coordinates of all transcript {transcript: [[exon_start, exon_end]]}
 HumanExonCoord = GeneExonCoord(HsaGFF)
 print('got exon coordinates', len(HumanExonCoord))
+HumanExonCoord = CleanGeneFeatureCoord(HumanExonCoord, HumanMapTranscriptGene)
+print('cleaned up exon coordinates of non-mRNA transcripts', len(HumanExonCoord))
 
 # get the intron coordinates of all transcripts {transcript: [[intron_start, intron_end]]}
 HumanIntronCoord = GeneIntronCoord(HumanExonCoord)
 print('got intron coordinates', len(HumanIntronCoord))
+HumanIntronCoord = CleanGeneFeatureCoord(HumanIntronCoord, HumanMapTranscriptGene)
+print('cleaned up intron coordinates of non-mRNA transcripts', len(HumanIntronCoord))
 
 # get the CDS coordinates of all transcripts {transcript: [[CDS_start, CDS_end]]}
 HumanCDSCoord = GeneCDSCoord(HsaGFF)
 print('got CDS coordinates', len(HumanCDSCoord))
-
+#HumanCDSCoord = CleanGeneFeatureCoord(HumanCDSCoord, HumanMapTranscriptGene)
+#print('cleaned up CDS coordinates of non-mRNA transcripts', len(HumanCDSCoord))
  
+ 
+tsnames = set(HumanMapTranscriptGene.keys())
+print(len(tsnames))
+exonnames = set(HumanExonCoord.keys())
+print(len(exonnames))
+intronnames = set(HumanIntronCoord.keys())
+print(len(intronnames))
+
+extraexons = [i for i in exonnames if i not in tsnames]
+print(len(extraexons))
+if len(extraexons) != 0:
+    print(extraexons[:10])
+    
+extraintrons = [i for i in intronnames if i not in tsnames]
+print(len(extraintrons))
+if len(extraintrons) != 0:
+    print(extraintrons[0:10])
+
+cdsnames = set(HumanCDSCoord.keys())
+extracds = [i for i in cdsnames if i not in tsnames]
+print(len(extracds))
+if len(extracds) != 0:
+    print(extracds[0:10])
+    
 
 
 
 
-
-
-#
-#
-#
-#
-## get the coordinates of introns # {chromo: {transcript:[(intron_start, intron_end), ...]}}
-#CelIntronCoordChromo = CDSIntronCoord(CelGFF, 'intron')
-#print('extracted intronic coordinates')
-#print('mapped transcripts to genes')
 ## Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
 #CelIntronicCoord = CombineAllGeneRegions(CelIntronCoordChromo, CelMapTranscriptGene)
 #print('combined intron coordinates per gene')
