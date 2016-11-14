@@ -104,12 +104,26 @@ print('same', same)
 print('opposite', opposite)
 
 
+# get the 1:1 orthologs between human and mouse
+HumanMouseOrthos = ParseOrthologFile('HumanMouseOrthologs.txt')
+print('mapped human genes to their orthologs in mouse', len(HumanMouseOrthos))
+
+# count the number of host and nested with orthos in mouse
+hostorthos, nestedorthos = set(), set()
+for pair in HumanHostNestedPairs:
+    if pair[0] in HumanMouseOrthos:
+        hostorthos.add(pair[0])
+    if pair[1] in HumanMouseOrthos:
+        nestedorthos.add(pair[1])
+print('host orthos', len(hostorthos))
+print('nested orthos', len(nestedorthos))
 
 
 
-
-
-
+# reverse the dictionary of orthologs
+MouseHumanOrthos = {}
+for gene in HumanMouseOrthos:
+    MouseHumanOrthos[HumanMouseOrthos[gene]] = gene
 
 
 
@@ -210,5 +224,14 @@ print('same', same)
 print('opposite', opposite)
 
 
+# count the number of host and nested with orthos in mouse
+hostorthos, nestedorthos = set(), set()
+for pair in MouseHostNestedPairs:
+    if pair[0] in MouseHumanOrthos:
+        hostorthos.add(pair[0])
+    if pair[1] in MouseHumanOrthos:
+        nestedorthos.add(pair[1])
+print('host orthos', len(hostorthos))
+print('nested orthos', len(nestedorthos))
 
-  
+
