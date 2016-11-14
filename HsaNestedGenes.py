@@ -355,7 +355,7 @@ def FindOverlappingGenePairs(GeneCoord, OrderedGenes):
 
 
 # use this function to identify gene pairs in which a gene is fully contained in another gene
-def FindContainedGenePairs(GeneCoordinates, Overlap):
+def FindContainedGenePairs(GeneCoord, Overlap):
     '''
     (dict, dict) -> dict
     Take the dictionary with gene coordinate, the dictionary with overlapping
@@ -363,7 +363,7 @@ def FindContainedGenePairs(GeneCoordinates, Overlap):
     fully contained in another gene
     '''
  
-    # GeneCoordinates is in the form {gene:[chromo, start, end, sense]}
+    # GeneCoord is in the form {gene:[chromo, start, end, sense]}
     # Overlap is in the form {gene1: [gene2, gene3]}
         
     # create a dict with gene containing other genes {containing: [contained1, contained2]}
@@ -373,8 +373,8 @@ def FindContainedGenePairs(GeneCoordinates, Overlap):
         # check if each gene in the overlapping gene is fully located within the over gene 
         for gene2 in Overlap[gene1]:
             # check if one of the 2 genes is fully contained in the other gene
-            coord1 = set(range(GeneCoordinates[gene1][1], GeneCoordinates[gene1][2])) 
-            coord2 = set(range(GeneCoordinates[gene2][1], GeneCoordinates[gene2][2]))
+            coord1 = set(range(GeneCoord[gene1][1], GeneCoord[gene1][2])) 
+            coord2 = set(range(GeneCoord[gene2][1], GeneCoord[gene2][2]))
             FullyContained = False            
             if coord1.issubset(coord2):
                 # gene1 is contained within gene2
@@ -411,7 +411,7 @@ def CombineAllGeneRegions(GeneRegionCoord, TranscriptToGene):
 
     # create a dict {gene: [(region_start, region_end), (region_start, region_end)]}
     AllGeneRegions = {}
-    for TS in GeneRegionCoord[chromo]:
+    for TS in GeneRegionCoord:
         # get gene name
         gene = TranscriptToGene[TS]
         # populate dict with gene name : region coord
@@ -434,19 +434,42 @@ def CombineAllGeneRegions(GeneRegionCoord, TranscriptToGene):
     return AllGeneRegions
    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+# use this function to identify nested genes contained in the intron of their host genes
+def FindIntronicNestedGenePairs(ContainedGenes, IntronicCoord, GeneCoord):
+    '''
+    (dict, dict, dict) -> dict
+    Take the dictionary of genes with genes fully located within them,
+    the dictionary of intron coordinates for each gene, the genomic coordinates
+    of each gene and return a dictionary of host genes with nested genes fully
+    contained within introns    
+    '''
+    
+    # ContainedGenes in the form {containing gene: [list of contained genes]}
+    # IntronicCoord is in the form {gene: [list of intron coord]}
+    # GeneCoordinates is the form {gene:[chromosome, start, end, sense]}   
+   
+    # create a dict {host: {intronic nested genes}    
+    HostGenes = {}
+    for gene in ContainedGenes:
+        # check if gene has introns
+        if gene in IntronicCoord:
+            # check if the contained genes are located within introns of the containing gene
+            # get coordinates of each contained gene
+            for contained in ContainedGenes[gene]:
+                containedcoord = set(range(GeneCoord[contained][1], GeneCoord[contained][2]))
+                # loop over intron coordinates of the containing gene
+                for intron in IntronicCoord[gene]:
+                    introncoord = set(range(intron[0], intron[1]))
+                    # check if contained gene resides within intron
+                    if containedcoord.issubset(introncoord):
+                        # record host: nested gene pairs
+                        if gene not in HostGenes:
+                            HostGenes[gene] = set()
+                        HostGenes[gene].add(contained)
+    # convert sets to lists
+    for gene in HostGenes:
+        HostGenes[gene] = list(HostGenes[gene])
+    return HostGenes
 
 
 # use this function to generate pairs of host and nested genes
