@@ -128,13 +128,65 @@ def GeneToTranscripts(gff_file):
     return genes
 
 
+# use this function to get the CDS coordinates of all transcripts 
+def GeneCDSCoord(gff_file):
+    '''
+    (file, str) -> dict
+    Return a dictionnary with transcript : CDS positions list pairs    
+    '''
+    
+    # open file for reading
+    infile = open(gff_file, 'r')
+    # make a dictionnary with chromosome as key and a dictionnary as value
+    # {transcript:[(region_start, region_end), (region_start, region_end)]}
+    CDSPositions = {}
+    for line in infile:
+        line = line.rstrip()
+        if 'CDS' in line:
+            line = line.split('\t')
+            if line[2] == 'CDS':
+                # get start and end positions 0-based
+                start, end = int(line[3]) -1, int(line[4])
+                # check that exon correspond to one transcript (in some GFF format,
+                # exons for more than 1 transcript are collapsed in a single line)
+                assert line[8].count('transcript') == 1, 'exon matches multiple transcripts'
+                # get the parent transcript
+                transcript = line[8][line[8].index('Parent=transcript:')+len('Parent=transcript:'):line[8].index(';protein')]
+                # populate dict                
+                if transcript not in CDSPositions:
+                    CDSPositions[transcript] = [[start, end]]
+                else:
+                    CDSPositions[transcript].append([start, end])
+    # sort exon coordinates
+    for transcript in CDSPositions:
+        CDSPositions[transcript].sort()
+        
+    for transcript in CDSPositions:
+        for i in range(0, len(CDSPositions[transcript])-1):
+            for j in range(i+1, len(CDSPositions[transcript])):
+                assert CDSPositions[transcript][j][0] > CDSPositions[transcript][i][1]
+    # close file after reading
+    infile.close()
+    return CDSPositions
+
+
+
+
+
+###################
+
+
+
+
+
+
 # use this function to get the exon coordinates of all transcripts 
 def GeneExonCoord(gff_file):
     '''
     (file, str) -> dict
     Return a dictionnary with transcript as key and exon positions list pairs
     as value. Note that exons define intron positions but are not necessarily
-    entirely coding'    
+    entirely coding    
     '''
     
     # open file for reading
@@ -144,7 +196,7 @@ def GeneExonCoord(gff_file):
     ExonPositions = {}
     for line in infile:
         line = line.rstrip()
-        if 'CDS' in line:
+        if 'exon' in line:
             line = line.split('\t')
             if line[2] == 'exon':
                 # get start and end positions 0-based
