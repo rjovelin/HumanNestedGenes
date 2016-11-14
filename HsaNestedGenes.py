@@ -235,7 +235,7 @@ def GeneIntronCoord(ExonCoord):
                 # intron start is end of first exon and intron end is start of next exon
                 intronstart = ExonCoord[transcript][i][-1]
                 intronend = ExonCoord[transcript][i+1][0]
-                assert intronend > intronstart, 'end position should be rgeater than start position'
+                assert intronend > intronstart, 'end position should be geater than start position'
                 introncoord = [intronstart, intronend]
                 # populate dict
                 if transcript in IntronCoord:
@@ -243,6 +243,45 @@ def GeneIntronCoord(ExonCoord):
                 else:
                     IntronCoord[transcript] = [introncoord]
     return IntronCoord   
+
+
+# use this function to remove non-valid transcripts from gene feature coordinates
+def CleanGeneFeatureCoord(GeneFeatureCoord, TranscriptToGene):
+    '''
+    (dict, dict) -> dict
+    Take the dictionary of transcript: gene feature coordinates (intron, exon or CDS) 
+    and the dictionary with transcript: gene pairs and return a modified dictionary
+    of feature coordinates with non-mRNA transcripts removed
+    Precondition: Transcript: gene pairs correspond to mRNA transcripts and their
+    parent gene. Gene features includes coordinates of abberant transcript, 
+    non-coding RNAs, etc     
+    '''
+    
+    # create a list of transcripts to remove
+    to_remove = [i for i in GeneFeatureCoord if i not in TranscriptToGene]
+    # remove any non-mRNA transcript not paired with their parent gene
+    for i in to_remove:
+        del GeneFeatureCoord[i]
+    return GeneFeatureCoord
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # use this function to order genes along chromosomes
