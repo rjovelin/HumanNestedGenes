@@ -411,4 +411,13 @@ def GetHostNestedPairs(HostNested):
             pair = [host, nested]
             HostNestedPairs.append(pair)
     return HostNestedPairs
-    
+  
+# use this function to get the orientation of a pair of genes
+def GenePairOrientation(GenePair, GeneCoord):
+    '''
+    (list, dict) -> list
+    Take a pair of gene, a dictionary with the genes coordinates and return a 
+    list with the strand orientation of the 2 genes
+    '''
+    return [GeneCoord[GenePair[0]][-1], GeneCoord[GenePair[1]][-1]] 
+  
