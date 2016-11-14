@@ -173,7 +173,7 @@ print('cleaned up intron coordinates of non-mRNA transcripts', len(MouseIntronCo
 
 # get the CDS coordinates of all transcripts {transcript: [[CDS_start, CDS_end]]}
 MouseCDSCoord = GeneCDSCoord(MmuGFF)
-print('got CDS coordinates', len(MmuCDSCoord))
+print('got CDS coordinates', len(MouseCDSCoord))
 MouseCDSCoord = CleanGeneFeatureCoord(MouseCDSCoord, MouseMapTranscriptGene)
 print('cleaned up CDS coordinates of non-mRNA transcripts', len(MouseCDSCoord))
  
