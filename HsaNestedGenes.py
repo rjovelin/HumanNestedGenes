@@ -128,8 +128,86 @@ def GeneToTranscripts(gff_file):
     return genes
 
 
+# use this function to get the exon coordinates of all transcripts 
+def GeneExonCoord(gff_file):
+    '''
+    (file, str) -> dict
+    Return a dictionnary with transcript as key and exon positions list pairs
+    as value. Note that exons define intron positions but are not necessarily
+    entirely coding'    
+    '''
+    
+    # open file for reading
+    infile = open(gff_file, 'r')
+    # make a dictionnary with chromosome as key and a dictionnary as value
+    # {transcript:[(region_start, region_end), (region_start, region_end)]}
+    ExonPositions = {}
+    for line in infile:
+        line = line.rstrip()
+        if 'CDS' in line:
+            line = line.split('\t')
+            if line[2] == 'exon':
+                # get start and end positions 0-based
+                start, end = int(line[3]) -1, int(line[4])
+                # check that exon correspond to one transcript (in some GFF format,
+                # exons for more than 1 transcript are collapsed in a single line)
+                assert line[8].count('transcript') == 1, 'exon matches multiple transcripts'
+                # get the parent transcript
+                transcript = line[8][line[8].index('Parent=transcript:')+len('Parent=transcript:'):line[8].index(';')]
+                # populate dict                
+                if transcript not in ExonPositions:
+                    ExonPositions[transcript] = [[start, end]]
+                else:
+                    ExonPositions[transcript].append([start, end])
+    # sort exon coordinates
+    for transcript in ExonPositions:
+        ExonPositions[transcript].sort()
+        
+    for transcript in ExonPositions:
+        for i in range(0, len(ExonPositions[transcript])-1):
+            for j in range(i+1, len(ExonPositions[transcript])):
+                assert ExonPositions[transcript][j][0] > ExonPositions[transcript][i][1]
+    # close file after reading
+    infile.close()
+    return ExonPositions
 
 
+# use this function to get the positions of introns for each transcript 
+def GeneIntronCoord(ExonCoord):
+    '''
+    (dict) -> dict
+    Take a dictionary with exon positions for each transcript and return a dictionary
+    with intron positions for each transcript
+    Precondition: exons which are not necessarily coding are delimiting introns, 
+    and are already sorted according to their chromosomal positions
+    '''
+    # create dictionnary to store positions {transcript: [(s1, end1), (s2, end2)]}
+    IntronCoord = {}
+    
+    # loop over transcript
+    for transcript in ExonCoord:
+        # check that transcripts has multiple exons (and thus at least 1 intron)
+        if len(ExonCoord[transcript]) >= 2:
+            # loop over the exon coordinates (already sorted)
+        
+            
+            
+            
+            
+                    # loop over CDS coordinates
+                    for i in range(len(CDSCoord[chromo][transcript]) - 1):
+                        # intron start is end of first exon and intron end is start of next CDS
+                        intronstart = CDSCoord[chromo][transcript][i][-1]
+                        intronend = CDSCoord[chromo][transcript][i+1][0]
+                        assert intronend > intronstart, 'end position should be greater than start position'
+                        introncoord = (intronstart, intronend)
+                        # populate dict
+                        if chromo not in IntronCoord:
+                            IntronCoord[chromo] = {}
+                        if transcript not in IntronCoord[chromo]:
+                            IntronCoord[chromo][transcript] = []
+                        IntronCoord[chromo][transcript].append(introncoord)
+        return IntronCoord   
 
 
 #1       ensembl_havana  mRNA    944204  959290  .       -       .       ID=transcript:ENST00000327044;Parent=gene:ENSG00000188976;Name=NOC2L-001;biotype=protein_coding;ccdsid=CCDS3.1;havana_transcript=OTTHUMT00000097869;havana_version=1;tag=basic;transcript_id=ENST00000327044;transcript_support_level=1;version=6

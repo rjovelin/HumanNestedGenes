@@ -21,6 +21,7 @@ from HsaNestedGenes import *
 HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
 MmuGFF = 'Mus_musculus.GRCm38.86.gff3'    
     
+        
 # get the coordinates of human genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 HumanGeneChromoCoord = ChromoGenesCoord(HsaGFF)
@@ -42,6 +43,13 @@ print('found overlapping genes', len(HumanOverlappingGenes))
 HumanContainedGenes = FindContainedGenePairs(HumanGeneCoord, HumanOverlappingGenes)
 print('found genes contained in other genes', len(HumanContainedGenes))
 
+# Map Transcript names to gene names {transcript: gene}
+HumanMapTranscriptGene = TranscriptToGene(HsaGFF)
+print('mapped transcripts to their parent gene', len(HumanMapTranscriptGene))
+
+# Map genes with all their transcripts {gene: [transcripts]}
+HumanMapGeneTranscript = GeneToTranscripts(HsaGFF)
+print('mapped genes to all their transcripts', len(HumanMapGeneTranscript))
 
 
 
@@ -53,8 +61,6 @@ print('found genes contained in other genes', len(HumanContainedGenes))
 ## get the coordinates of introns # {chromo: {transcript:[(intron_start, intron_end), ...]}}
 #CelIntronCoordChromo = CDSIntronCoord(CelGFF, 'intron')
 #print('extracted intronic coordinates')
-## Map Transcript names to gene names {transcript: gene}
-#CelMapTranscriptGene = TranscriptToGene(CelGFF)
 #print('mapped transcripts to genes')
 ## Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
 #CelIntronicCoord = CombineAllGeneRegions(CelIntronCoordChromo, CelMapTranscriptGene)
