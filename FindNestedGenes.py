@@ -88,6 +88,9 @@ print('identified intronic nested genes', len(HumanHostGenes))
 
 # make a list of host-nested gene pairs
 HumanHostNestedPairs = GetHostNestedPairs(HumanHostGenes)
+print('host-gene pairs in human', len(HumanHostNestedPairs))
+
+
 
 same, opposite = 0, 0
 for pair in  HumanHostNestedPairs:
@@ -147,4 +150,65 @@ print('found overlapping genes', len(MouseOverlappingGenes))
 # Find genes fully contained in another gene {containing: [contained1, contained2]}
 MouseContainedGenes = FindContainedGenePairs(MouseGeneCoord, MouseOverlappingGenes)
 print('found genes contained in other genes', len(MouseContainedGenes))
+  
+# Map Transcript names to gene names {transcript: gene}
+MouseMapTranscriptGene = TranscriptToGene(MmuGFF)
+print('mapped transcripts to their parent gene', len(MouseMapTranscriptGene))
+
+# Map genes with all their transcripts {gene: [transcripts]}
+MouseMapGeneTranscript = GeneToTranscripts(MmuGFF)
+print('mapped genes to all their transcripts', len(MouseMapGeneTranscript))
+
+# get the exon coordinates of all transcript {transcript: [[exon_start, exon_end]]}
+MouseExonCoord = GeneExonCoord(MmuGFF)
+print('got exon coordinates', len(MouseExonCoord))
+MouseExonCoord = CleanGeneFeatureCoord(MouseExonCoord, MouseMapTranscriptGene)
+print('cleaned up exon coordinates of non-mRNA transcripts', len(MouseExonCoord))
+
+# get the intron coordinates of all transcripts {transcript: [[intron_start, intron_end]]}
+MouseIntronCoord = GeneIntronCoord(MouseExonCoord)
+print('got intron coordinates', len(MouseIntronCoord))
+MouseIntronCoord = CleanGeneFeatureCoord(MouseIntronCoord, MouseMapTranscriptGene)
+print('cleaned up intron coordinates of non-mRNA transcripts', len(MouseIntronCoord))
+
+# get the CDS coordinates of all transcripts {transcript: [[CDS_start, CDS_end]]}
+MouseCDSCoord = GeneCDSCoord(MmuGFF)
+print('got CDS coordinates', len(MmuCDSCoord))
+MouseCDSCoord = CleanGeneFeatureCoord(MouseCDSCoord, MouseMapTranscriptGene)
+print('cleaned up CDS coordinates of non-mRNA transcripts', len(MouseCDSCoord))
+ 
+# get the transcript coordinates
+MouseTranscriptCoord = TranscriptsCoord(MmuGFF)
+print('got transcript coordinates', len(MouseTranscriptCoord))
+   
+# get the longest mRNA transcript of each gene
+MouseLongestTranscripts = LongestTranscript(MouseTranscriptCoord, MouseMapGeneTranscript)
+print('got longest transcripts', len(MouseLongestTranscripts))    
+
+
+
+# Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
+MouseCombinedIntronCoord = CombineAllGeneRegions(MouseIntronCoord, MouseMapTranscriptGene)
+
+# identify itnronic nested genes {host_gene: [intronic_nested_gene]}
+MouseHostGenes = FindIntronicNestedGenePairs(MouseContainedGenes, MouseCombinedIntronCoord, MouseGeneCoord)
+print('identified intronic nested genes', len(MouseHostGenes))
+
+# make a list of host-nested gene pairs
+MouseHostNestedPairs = GetHostNestedPairs(MouseHostGenes)
+print('host-gene pairs in mouse', len(MouseHostNestedPairs))
+
+same, opposite = 0, 0
+for pair in  MouseHostNestedPairs:
+    orientation = GenePairOrientation(pair, MouseGeneCoord)
+    assert '-' in orientation or '+' in orientation
+    if len(set(orientation)) == 1:
+        same += 1
+    elif len(set(orientation)) == 2:
+        opposite += 1
+print('same', same)        
+print('opposite', opposite)
+
+
+
   
