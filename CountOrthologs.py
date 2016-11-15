@@ -71,7 +71,7 @@ HumanMacaqueOrthos = ParseOrthologFile('HumanMacaqueOrthologs.txt')
 
 
 HsaOrthoPtr, HsaOrthoMmu, HsaOrthoCfa, PtrOrthoMmu, HsaOrthoMca, PtrOrthoMca = 0, 0, 0, 0, 0, 0
-HsaMmuPtrOrtho, HsaMmuCfaOrtho = 0, 0
+HsaMmuPtrOrtho, HsaMmuCfaOrtho, HsaMcaPtrOrtho = 0, 0, 0
 
 for pair in HumanHostNestedPairs:
     if pair[0] in HumanMouseOrthos and pair[1] in HumanMouseOrthos:
@@ -86,6 +86,8 @@ for pair in HumanHostNestedPairs:
         HsaMmuPtrOrtho += 1
     if pair[0] in HumanMouseOrthos and pair[1] in HumanMouseOrthos and pair[0] in HumanDogOrthos and pair[1] in HumanDogOrthos:
         HsaMmuCfaOrtho += 1
+    if pair[0] in HumanMacaqueOrthos and pair[1] in HumanMacaqueOrthos and pair[0] in HumanChimpOrthos and pair[1] in HumanChimpOrthos:
+        HsaMcaPtrOrtho += 1
     
 
 print('ortho human-mouse', HsaOrthoMmu)
@@ -93,6 +95,7 @@ print('ortho human-dog', HsaOrthoCfa)
 print('ortho human-chimp', HsaOrthoPtr)
 print('ortho human-mouse-dog', HsaMmuCfaOrtho)
 print('ortho human-mouse-chimp', HsaMmuPtrOrtho)
+print('ortho human-chimp-macaque', HsaMcaPtrOrtho)
 
 PtrOrthoMmu = 0
 for pair in ChimpHostNestedPairs:
