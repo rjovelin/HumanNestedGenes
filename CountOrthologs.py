@@ -19,83 +19,114 @@ from HsaNestedGenes import *
 
 
 
+# load dictionaries of host and nested genes 
+# gene names have wormbase ID for cel and cbr, but transcript names for cr
+with open('HumanHostNestedGenes.json') as human_json_data:
+    HumanHostGenes = json.load(human_json_data)
+with open('MouseHostNestedGenes.json') as mouse_json_data:
+    MouseHostGenes = json.load(mouse_json_data)
+with open('DogHostNestedGenes.json') as dog_json_data:
+    DogHostGenes = json.load(dog_json_data)
+with open('ChimpHostNestedGenes.json') as chimp_json_data:
+    ChimpHostGenes = json.load(chimp_json_data)
+with open('MacaqueHostNestedGenes.json') as macaque_json_data:
+    MacaqueHostGenes = json.load(macaque_json_data)
+
+with open('ChimpContainedGenes.json') as chimp_json_data:
+    ChimpContained = json.load(chimp_json_data)
+with open('MouseContainedGenes.json') as mouse_json_data:
+    MouseContained = json.load(mouse_json_data)
+with open('MacaqueContainedGenes.json') as macaque_json_data:
+    MacaqueContained = json.load(macaque_json_data)
+
 # get GFF file
 HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
-    
-    
-        
-# get the coordinates of human genes on each chromo
-# {chromo: {gene:[chromosome, start, end, sense]}}
-HumanGeneChromoCoord = ChromoGenesCoord(HsaGFF)
-print('got gene coordinates on each chromosome')
+MmuGFF = 'Mus_musculus.GRCm38.86.gff3'    
+CfaGFF = 'Canis_familiaris.CanFam3.1.86.gff3'
+PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
+Mca = 'Macaca_mulatta.Mmul_8.0.1.86.gff3' 
 
-# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
-HumanGeneCoord = FromChromoCoordToGeneCoord(HumanGeneChromoCoord)
-print('got gene coordinates', len(HumanGeneCoord))
-
-# Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
-HumanOrderedGenes = OrderGenesAlongChromo(HumanGeneChromoCoord)
-print('ordered genes on chromsomes')
-
-# Find overlapping genes {gene1: [gene2, gene3]}
-HumanOverlappingGenes = FindOverlappingGenePairs(HumanGeneChromoCoord, HumanOrderedGenes)
-print('found overlapping genes', len(HumanOverlappingGenes))
-
-# Find genes fully contained in another gene {containing: [contained1, contained2]}
-HumanContainedGenes = FindContainedGenePairs(HumanGeneCoord, HumanOverlappingGenes)
-print('found genes contained in other genes', len(HumanContainedGenes))
-
-# Map Transcript names to gene names {transcript: gene}
-HumanMapTranscriptGene = TranscriptToGene(HsaGFF)
-print('mapped transcripts to their parent gene', len(HumanMapTranscriptGene))
-
-# get the exon coordinates of all transcript {transcript: [[exon_start, exon_end]]}
-HumanExonCoord = GeneExonCoord(HsaGFF)
-print('got exon coordinates', len(HumanExonCoord))
-HumanExonCoord = CleanGeneFeatureCoord(HumanExonCoord, HumanMapTranscriptGene)
-print('cleaned up exon coordinates of non-mRNA transcripts', len(HumanExonCoord))
-
-# get the intron coordinates of all transcripts {transcript: [[intron_start, intron_end]]}
-HumanIntronCoord = GeneIntronCoord(HumanExonCoord)
-print('got intron coordinates', len(HumanIntronCoord))
-HumanIntronCoord = CleanGeneFeatureCoord(HumanIntronCoord, HumanMapTranscriptGene)
-print('cleaned up intron coordinates of non-mRNA transcripts', len(HumanIntronCoord))
-
-# get the transcript coordinates
-HumanTranscriptCoord = TranscriptsCoord(HsaGFF)
-print('got transcript coordinates', len(HumanTranscriptCoord))
-   
-# Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
-HumanCombinedIntronCoord = CombineAllGeneRegions(HumanIntronCoord, HumanMapTranscriptGene)
-
-# identify itnronic nested genes {host_gene: [intronic_nested_gene]}
-HumanHostGenes = FindIntronicNestedGenePairs(HumanContainedGenes, HumanCombinedIntronCoord, HumanGeneCoord)
-print('identified intronic nested genes', len(HumanHostGenes))
-
-# make a list of host-nested gene pairs
+# make lists of host-nested gene pairs
 HumanHostNestedPairs = GetHostNestedPairs(HumanHostGenes)
 print('host-gene pairs in human', len(HumanHostNestedPairs))
-
+MouseHostNestedPairs = GetHostNestedPairs(MouseHostGenes)
+print('host-gene pairs in mouse', len(MouseHostNestedPairs))
+DogHostNestedPairs = GetHostNestedPairs(DogHostGenes)
+print('host-gene pairs in dog', len(DogHostNestedPairs))
+ChimpHostNestedPairs = GetHostNestedPairs(ChimpHostGenes)
+print('host-gene pairs in chimp', len(ChimpHostNestedPairs))
+MacaqueHostnestedPairs = GetHostNestedPairs(MacaqueHostGenes)
+print('host-gene pairs in macaque', len(MacaqueHostNestedPairs))
 
 # get the 1:1 orthologs between human and mouse
 HumanMouseOrthos = ParseOrthologFile('HumanMouseOrthologs.txt')
 print('mapped human genes to their orthologs in mouse', len(HumanMouseOrthos))
+HumanChimpOrthos = ParseOrthologFile('HumanChimpOrthologs.txt')
+ChimpMouseOrthos = ParseOrthologFile('ChimpMouseOrthologs.txt')
 HumanDogOrthos = ParseOrthologFile('HumanDogOrthologs.txt')
-HumanChickenOrthos = ParseOrthologFile('HumanChickenOrthologs.txt')
-HumanFishOrthos = ParseOrthologFile('HumanZebrafishOrthologs.txt')
+MouseDogOrthos = ParseOrthologFile('MouseDogOrthologs.txt')
+ChimpMacaqueOrthos = ParseOrthologFile('ChimpMacaqueOrthologs.txt')
+HumanMacaqueOrthos = ParseOrthologFile('HumanMacaqueOrthologs.txt')
 
-orthomouse, orthochicken, orthodog, orthofish = 0, 0, 0, 0
+
+
+HsaOrthoPtr, HsaOrthoMmu, HsaOrthoCfa, PtrOrthoMmu, HsaOrthoMca, PtrOrthoMca = 0, 0, 0, 0, 0, 0
+HsaMmuPtrOrtho, HsaMmuCfaOrtho = 0, 0
+
 for pair in HumanHostNestedPairs:
     if pair[0] in HumanMouseOrthos and pair[1] in HumanMouseOrthos:
-        orthomouse += 1
+        HsaOrthoMmu += 1
     if pair[0] in HumanDogOrthos and pair[1] in HumanDogOrthos:
-        orthodog += 1
-    if pair[0] in HumanChickenOrthos and pair[1] in HumanChickenOrthos:
-        orthochicken += 1
-    if pair[0] in HumanFishOrthos and pair[1] in HumanFishOrthos:
-        orthofish += 1
-print('ortho mouse', orthomouse)
-print('ortho dog', orthodog)
-print('ortho chicken', orthochicken)
-print('ortho fish', orthofish)
+        HsaOrthoCfa += 1
+    if pair[0] in HumanChimpOrthos and pair[1] in HumanChimpOrthos:
+        HsaOrthoPtr += 1
+    if pair[0] in HumanMacaqueOrthos and pair[1] in HumanMacaqueOrthos:
+        HsaOrthoMca += 1
+    if pair[0] in HumanMouseOrthos and pair[1] in HumanMouseOrthos and pair[0] in HumanChimpOrthos and pair[1] in HumanChimpOrthos:
+        HsaMmuPtrOrtho += 1
+    if pair[0] in HumanMouseOrthos and pair[1] in HumanMouseOrthos and pair[0] in HumanDogOrthos and pair[1] in HumanDogOrthos:
+        HsaMmuCfaOrtho += 1
+    
 
+print('ortho human-mouse', HsaOrthoMmu)
+print('ortho human-dog', HsaOrthoCfa)
+print('ortho human-chimp', HsaOrthoPtr)
+print('ortho human-mouse-dog', HsaMmuCfaOrtho)
+print('ortho human-mouse-chimp', HsaMmuPtrOrtho)
+
+PtrOrthoMmu = 0
+for pair in ChimpHostNestedPairs:
+    if pair[0] in ChimpMouseOrthos and pair[1] in ChimpMouseOrthos:
+        PtrOrthoMmu += 1
+    if pair[0] in ChimpMacaqueOrthos and pair[1] in ChimpMacaqueOrthos:
+        PtrOrthoMca += 1
+print('orthos chimp-mouse', PtrOrthoMmu)
+print('orthos chimp-macaque', PtrOrthoMca)
+
+# make set of host and nested genes
+chimphostcontained = MakeHostNestedGeneSet(ChimpContained)
+mousehostcontained = MakeHostNestedGeneSet(MouseContained)
+chimphostnested = MakeHostNestedGeneSet(ChimpHostGenes)
+mousehostnested = MakeHostNestedGeneSet(MouseHostGenes)
+
+
+hsaspecific = 0
+hsaspnotcontained = 0
+hsaspecontained = 0
+
+# get the human specific nested pairs
+for pair in HumanHostNestedPairs:
+    if pair[0] in HumanMouseOrthos and pair[1] in HumanMouseOrthos and pair[0] in HumanChimpOrthos and pair[1] in HumanChimpOrthos:
+        if HumanMouseOrthos[pair[0]][0] not in mousehostnested and HumanMouseOrthos[pair[1]][0] not in mousehostnested:
+            if HumanChimpOrthos[pair[0]][0] not in chimphostnested and HumanChimpOrthos[pair[1]][0] not in chimphostnested:
+                hsaspecific += 1
+                if (HumanMouseOrthos[pair[0]][0] in mousehostcontained and HumanMouseOrthos[pair[1]][0] in mousehostcontained) or (HumanChimpOrthos[pair[0]][0] in chimphostcontained and HumanChimpOrthos[pair[1]][0] in chimphostcontained):
+                    hsaspecontained += 1
+                elif HumanMouseOrthos[pair[0]][0] not in mousehostcontained and HumanMouseOrthos[pair[1]][0] not in mousehostcontained and HumanChimpOrthos[pair[0]][0] not in chimphostcontained and HumanChimpOrthos[pair[1]][0] not in chimphostcontained:
+                    hsaspnotcontained += 1
+print('human specific', hsaspecific)
+print('human specific not contained', hsaspnotcontained)
+print('human specific contained', hsaspecontained)            
+            
+                   
+        
