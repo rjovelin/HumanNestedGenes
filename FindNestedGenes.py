@@ -5,6 +5,12 @@ Created on Fri Nov 11 16:25:38 2016
 @author: RJovelin
 """
 
+# use this script to identify nested genes in human, chimp, mouse and dog
+# save dictionary of genes contained in a host genes as a json file
+# save dictionary of intronic nested genes in a host gene as a json file
+
+# usage python3 FindNestedGenes.py
+
 
 import os
 import sys
@@ -15,13 +21,15 @@ import math
 from HsaNestedGenes import *
 
 
-
-
 # get GFF file
 HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
 MmuGFF = 'Mus_musculus.GRCm38.86.gff3'    
+CfaGFF = 'Canis_familiaris.CanFam3.1.86.gff3'
+PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
     
-        
+    
+# find contained and intronic genes in human   
+    
 # get the coordinates of human genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 HumanGeneChromoCoord = ChromoGenesCoord(HsaGFF)
@@ -58,153 +66,168 @@ print('combined introns for each gene', len(HumanCombinedIntronCoord))
 HumanHostGenes = FindIntronicNestedGenePairs(HumanContainedGenes, HumanCombinedIntronCoord, HumanGeneCoord)
 print('identified intronic nested genes', len(HumanHostGenes))
 
-# make a list of host-nested gene pairs
-HumanHostNestedPairs = GetHostNestedPairs(HumanHostGenes)
-print('host-gene pairs in human', len(HumanHostNestedPairs))
+# get gene expression in human
+# filter nested genes based on expression
+
+# save contained genes as json file
+newfile = open('HumanContainedGenes.json', 'w')
+json.dump(HumanContainedGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
+# save intronic nested genes as json file
+newfile = open('HumanHostNestedGenes.json', 'w')
+json.dump(HumanHostGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
 
 
-
-same, opposite = 0, 0
-for pair in  HumanHostNestedPairs:
-    orientation = GenePairOrientation(pair, HumanGeneCoord)
-    assert '-' in orientation or '+' in orientation
-    if len(set(orientation)) == 1:
-        same += 1
-    elif len(set(orientation)) == 2:
-        opposite += 1
-print('same', same)        
-print('opposite', opposite)
-
-
-# get the 1:1 orthologs between human and mouse
-HumanMouseOrthos = ParseOrthologFile('HumanMouseOrthologs.txt')
-print('mapped human genes to their orthologs in mouse', len(HumanMouseOrthos))
-
-# count the number of host and nested with orthos in mouse
-hostorthos, nestedorthos = set(), set()
-for pair in HumanHostNestedPairs:
-    if pair[0] in HumanMouseOrthos:
-        hostorthos.add(pair[0])
-    if pair[1] in HumanMouseOrthos:
-        nestedorthos.add(pair[1])
-print('host orthos', len(hostorthos))
-print('nested orthos', len(nestedorthos))
-
-orthopairs = 0
-for pair in HumanHostNestedPairs:
-    if pair[0] in HumanMouseOrthos and pair[1] in HumanMouseOrthos:
-        orthopairs += 1
-print('ortho pairs', orthopairs)
-
-# reverse the dictionary of orthologs
-MouseHumanOrthos = {}
-for gene in HumanMouseOrthos:
-    MouseHumanOrthos[HumanMouseOrthos[gene]] = gene
-
-
-
-#print('identified nested genes', len(CelHostGenes))
-## get elegans expression {wormbase ID gene: [expression at 10 stages]}
-#CelExpressionStage = ExpressionDevelopemtStages('WBPaper00041190.ce.mr.csv')
-#print('expression', len(CelExpressionStage))
-## remove host and nested genes without expression
-#CelHostGenes = FilterHostNestedExpression(CelHostGenes, CelExpressionStage)
-#print('removed host, nested genes without expression', len(CelHostGenes))
-
-
+# find contained and intronic nested genes in mouse
 
 # get the coordinates of mouse genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 MouseGeneChromoCoord = ChromoGenesCoord(MmuGFF)
 print('got gene coordinates on each chromosome')
-
 # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
 MouseGeneCoord = FromChromoCoordToGeneCoord(MouseGeneChromoCoord)
 print('got gene coordinates', len(MouseGeneCoord))
-
 # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
 MouseOrderedGenes = OrderGenesAlongChromo(MouseGeneChromoCoord)
 print('ordered genes on chromsomes')
-
 # Find overlapping genes {gene1: [gene2, gene3]}
 MouseOverlappingGenes = FindOverlappingGenePairs(MouseGeneChromoCoord, MouseOrderedGenes)
 print('found overlapping genes', len(MouseOverlappingGenes))
-
 # Find genes fully contained in another gene {containing: [contained1, contained2]}
 MouseContainedGenes = FindContainedGenePairs(MouseGeneCoord, MouseOverlappingGenes)
 print('found genes contained in other genes', len(MouseContainedGenes))
-  
 # Map Transcript names to gene names {transcript: gene}
 MouseMapTranscriptGene = TranscriptToGene(MmuGFF)
 print('mapped transcripts to their parent gene', len(MouseMapTranscriptGene))
-
-# Map genes with all their transcripts {gene: [transcripts]}
-MouseMapGeneTranscript = GeneToTranscripts(MmuGFF)
-print('mapped genes to all their transcripts', len(MouseMapGeneTranscript))
-
 # get the exon coordinates of all transcript {transcript: [[exon_start, exon_end]]}
 MouseExonCoord = GeneExonCoord(MmuGFF)
 print('got exon coordinates', len(MouseExonCoord))
 MouseExonCoord = CleanGeneFeatureCoord(MouseExonCoord, MouseMapTranscriptGene)
 print('cleaned up exon coordinates of non-mRNA transcripts', len(MouseExonCoord))
-
 # get the intron coordinates of all transcripts {transcript: [[intron_start, intron_end]]}
 MouseIntronCoord = GeneIntronCoord(MouseExonCoord)
 print('got intron coordinates', len(MouseIntronCoord))
 MouseIntronCoord = CleanGeneFeatureCoord(MouseIntronCoord, MouseMapTranscriptGene)
 print('cleaned up intron coordinates of non-mRNA transcripts', len(MouseIntronCoord))
-
-# get the CDS coordinates of all transcripts {transcript: [[CDS_start, CDS_end]]}
-MouseCDSCoord = GeneCDSCoord(MmuGFF)
-print('got CDS coordinates', len(MouseCDSCoord))
-MouseCDSCoord = CleanGeneFeatureCoord(MouseCDSCoord, MouseMapTranscriptGene)
-print('cleaned up CDS coordinates of non-mRNA transcripts', len(MouseCDSCoord))
- 
-# get the transcript coordinates
-MouseTranscriptCoord = TranscriptsCoord(MmuGFF)
-print('got transcript coordinates', len(MouseTranscriptCoord))
-   
-# get the longest mRNA transcript of each gene
-MouseLongestTranscripts = LongestTranscript(MouseTranscriptCoord, MouseMapGeneTranscript)
-print('got longest transcripts', len(MouseLongestTranscripts))    
-
-
-
 # Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
 MouseCombinedIntronCoord = CombineAllGeneRegions(MouseIntronCoord, MouseMapTranscriptGene)
-
+print('combined introns for each gene', len(MouseCombinedIntronCoord))
 # identify itnronic nested genes {host_gene: [intronic_nested_gene]}
 MouseHostGenes = FindIntronicNestedGenePairs(MouseContainedGenes, MouseCombinedIntronCoord, MouseGeneCoord)
 print('identified intronic nested genes', len(MouseHostGenes))
 
-# make a list of host-nested gene pairs
-MouseHostNestedPairs = GetHostNestedPairs(MouseHostGenes)
-print('host-gene pairs in mouse', len(MouseHostNestedPairs))
 
-same, opposite = 0, 0
-for pair in  MouseHostNestedPairs:
-    orientation = GenePairOrientation(pair, MouseGeneCoord)
-    assert '-' in orientation or '+' in orientation
-    if len(set(orientation)) == 1:
-        same += 1
-    elif len(set(orientation)) == 2:
-        opposite += 1
-print('same', same)        
-print('opposite', opposite)
+# get gene expression in mouse
+# filter nested genes based on expression
+
+# save contained genes as json file
+newfile = open('MouseContainedGenes.json', 'w')
+json.dump(MouseContainedGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
+# save intronic nested genes as json file
+newfile = open('MouseHostNestedGenes.json', 'w')
+json.dump(MouseHostGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
 
 
-# count the number of host and nested with orthos in mouse
-hostorthos, nestedorthos = set(), set()
-for pair in MouseHostNestedPairs:
-    if pair[0] in MouseHumanOrthos:
-        hostorthos.add(pair[0])
-    if pair[1] in MouseHumanOrthos:
-        nestedorthos.add(pair[1])
-print('host orthos', len(hostorthos))
-print('nested orthos', len(nestedorthos))
+# find contained and intronic nested genes in dog
 
-orthopairs = 0
-for pair in MouseHostNestedPairs:
-    if pair[0] in MouseHumanOrthos and pair[1] in MouseHumanOrthos:
-        orthopairs += 1
-print('ortho pairs', orthopairs)
+# get the coordinates of human genes on each chromo
+# {chromo: {gene:[chromosome, start, end, sense]}}
+DogGeneChromoCoord = ChromoGenesCoord(CfaGFF)
+print('got gene coordinates on each chromosome')
+# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+DogGeneCoord = FromChromoCoordToGeneCoord(DogGeneChromoCoord)
+print('got gene coordinates', len(DogGeneCoord))
+# Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
+DogOrderedGenes = OrderGenesAlongChromo(DogGeneChromoCoord)
+print('ordered genes on chromsomes')
+# Find overlapping genes {gene1: [gene2, gene3]}
+DogOverlappingGenes = FindOverlappingGenePairs(DogGeneChromoCoord, DogOrderedGenes)
+print('found overlapping genes', len(DogOverlappingGenes))
+# Find genes fully contained in another gene {containing: [contained1, contained2]}
+DogContainedGenes = FindContainedGenePairs(DogGeneCoord, DogOverlappingGenes)
+print('found genes contained in other genes', len(DogContainedGenes))
+# Map Transcript names to gene names {transcript: gene}
+DogMapTranscriptGene = TranscriptToGene(CfaGFF)
+print('mapped transcripts to their parent gene', len(DogMapTranscriptGene))
+# get the exon coordinates of all transcript {transcript: [[exon_start, exon_end]]}
+DogExonCoord = GeneExonCoord(CfaGFF)
+print('got exon coordinates', len(DogExonCoord))
+DogExonCoord = CleanGeneFeatureCoord(DogExonCoord, DogMapTranscriptGene)
+print('cleaned up exon coordinates of non-mRNA transcripts', len(DogExonCoord))
+# get the intron coordinates of all transcripts {transcript: [[intron_start, intron_end]]}
+DogIntronCoord = GeneIntronCoord(DogExonCoord)
+print('got intron coordinates', len(DogIntronCoord))
+DogIntronCoord = CleanGeneFeatureCoord(DogIntronCoord, DogMapTranscriptGene)
+print('cleaned up intron coordinates of non-mRNA transcripts', len(DogIntronCoord))
+# Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
+DogCombinedIntronCoord = CombineAllGeneRegions(DogIntronCoord, DogMapTranscriptGene)
+print('combined introns for each gene', len(DogCombinedIntronCoord))
+# identify itnronic nested genes {host_gene: [intronic_nested_gene]}
+DogHostGenes = FindIntronicNestedGenePairs(DogContainedGenes, DogCombinedIntronCoord, DogGeneCoord)
+print('identified intronic nested genes', len(DogHostGenes))
+
+# get gene expression in human
+# filter nested genes based on expression
+
+# save contained genes as json file
+newfile = open('DogContainedGenes.json', 'w')
+json.dump(DogContainedGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
+# save intronic nested genes as json file
+newfile = open('DogHostNestedGenes.json', 'w')
+json.dump(DogHostGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
+
+
+# find contained and intronic genes in chimp   
+    
+# get the coordinates of human genes on each chromo
+# {chromo: {gene:[chromosome, start, end, sense]}}
+ChimpGeneChromoCoord = ChromoGenesCoord(PtrGFF)
+print('got gene coordinates on each chromosome')
+# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+ChimpGeneCoord = FromChromoCoordToGeneCoord(ChimpGeneChromoCoord)
+print('got gene coordinates', len(ChimpGeneCoord))
+# Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
+ChimpOrderedGenes = OrderGenesAlongChromo(ChimpGeneChromoCoord)
+print('ordered genes on chromsomes')
+# Find overlapping genes {gene1: [gene2, gene3]}
+ChimpOverlappingGenes = FindOverlappingGenePairs(ChimpGeneChromoCoord, ChimpOrderedGenes)
+print('found overlapping genes', len(ChimpOverlappingGenes))
+# Find genes fully contained in another gene {containing: [contained1, contained2]}
+ChimpContainedGenes = FindContainedGenePairs(ChimpGeneCoord, ChimpOverlappingGenes)
+print('found genes contained in other genes', len(ChimpContainedGenes))
+# Map Transcript names to gene names {transcript: gene}
+ChimpMapTranscriptGene = TranscriptToGene(PtrGFF)
+print('mapped transcripts to their parent gene', len(ChimpMapTranscriptGene))
+# get the exon coordinates of all transcript {transcript: [[exon_start, exon_end]]}
+ChimpExonCoord = GeneExonCoord(PtrGFF)
+print('got exon coordinates', len(ChimpExonCoord))
+ChimpExonCoord = CleanGeneFeatureCoord(ChimpExonCoord, ChimpMapTranscriptGene)
+print('cleaned up exon coordinates of non-mRNA transcripts', len(ChimpExonCoord))
+# get the intron coordinates of all transcripts {transcript: [[intron_start, intron_end]]}
+ChimpIntronCoord = GeneIntronCoord(ChimpExonCoord)
+print('got intron coordinates', len(ChimpIntronCoord))
+ChimpIntronCoord = CleanGeneFeatureCoord(ChimpIntronCoord, ChimpMapTranscriptGene)
+print('cleaned up intron coordinates of non-mRNA transcripts', len(ChimpIntronCoord))
+# Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
+ChimpCombinedIntronCoord = CombineAllGeneRegions(ChimpIntronCoord, ChimpMapTranscriptGene)
+print('combined introns for each gene', len(ChimpCombinedIntronCoord))
+# identify itnronic nested genes {host_gene: [intronic_nested_gene]}
+ChimpHostGenes = FindIntronicNestedGenePairs(ChimpContainedGenes, ChimpCombinedIntronCoord, ChimpGeneCoord)
+print('identified intronic nested genes', len(ChimpHostGenes))
+
+# get gene expression in human
+# filter nested genes based on expression
+
+# save contained genes as json file
+newfile = open('ChimpContainedGenes.json', 'w')
+json.dump(ChimpContainedGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
+# save intronic nested genes as json file
+newfile = open('ChimpHostNestedGenes.json', 'w')
+json.dump(ChimpHostGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
