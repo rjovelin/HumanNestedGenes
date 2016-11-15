@@ -26,7 +26,7 @@ HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
 MmuGFF = 'Mus_musculus.GRCm38.86.gff3'    
 CfaGFF = 'Canis_familiaris.CanFam3.1.86.gff3'
 PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
-    
+Mca = 'Macaca_mulatta.Mmul_8.0.1.86.gff3'    
     
 # find contained and intronic genes in human   
     
@@ -230,4 +230,56 @@ newfile.close()
 # save intronic nested genes as json file
 newfile = open('ChimpHostNestedGenes.json', 'w')
 json.dump(ChimpHostGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
+
+
+
+# find contained and intronic genes in macaque 
+    
+# get the coordinates of human genes on each chromo
+# {chromo: {gene:[chromosome, start, end, sense]}}
+MacaqueGeneChromoCoord = ChromoGenesCoord(McaGFF)
+print('got gene coordinates on each chromosome')
+# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+MacaqueGeneCoord = FromChromoCoordToGeneCoord(MacaqueGeneChromoCoord)
+print('got gene coordinates', len(MacaqueGeneCoord))
+# Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
+MacaqueOrderedGenes = OrderGenesAlongChromo(MacaqueGeneChromoCoord)
+print('ordered genes on chromsomes')
+# Find overlapping genes {gene1: [gene2, gene3]}
+MacaqueOverlappingGenes = FindOverlappingGenePairs(MacaqueGeneChromoCoord, MacaqueOrderedGenes)
+print('found overlapping genes', len(MacaqueOverlappingGenes))
+# Find genes fully contained in another gene {containing: [contained1, contained2]}
+MacaqueContainedGenes = FindContainedGenePairs(MacaqueGeneCoord, MacaqueOverlappingGenes)
+print('found genes contained in other genes', len(MacaqueContainedGenes))
+# Map Transcript names to gene names {transcript: gene}
+MacaqueMapTranscriptGene = TranscriptToGene(McaGFF)
+print('mapped transcripts to their parent gene', len(MacaqueMapTranscriptGene))
+# get the exon coordinates of all transcript {transcript: [[exon_start, exon_end]]}
+MacaqueExonCoord = GeneExonCoord(McaGFF)
+print('got exon coordinates', len(MacaqueExonCoord))
+MacaqueExonCoord = CleanGeneFeatureCoord(MacaqueExonCoord, MacaqueMapTranscriptGene)
+print('cleaned up exon coordinates of non-mRNA transcripts', len(MacaqueExonCoord))
+# get the intron coordinates of all transcripts {transcript: [[intron_start, intron_end]]}
+MacaqueIntronCoord = GeneIntronCoord(MacaqueExonCoord)
+print('got intron coordinates', len(MacaqueIntronCoord))
+MacaqueIntronCoord = CleanGeneFeatureCoord(MacaqueIntronCoord, MacaqueMapTranscriptGene)
+print('cleaned up intron coordinates of non-mRNA transcripts', len(MacaqueIntronCoord))
+# Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
+MacaqueCombinedIntronCoord = CombineAllGeneRegions(MacaqueIntronCoord, MacaqueMapTranscriptGene)
+print('combined introns for each gene', len(MacaqueCombinedIntronCoord))
+# identify itnronic nested genes {host_gene: [intronic_nested_gene]}
+MacaqueHostGenes = FindIntronicNestedGenePairs(MacaqueContainedGenes, MacaqueCombinedIntronCoord, MacaqueGeneCoord)
+print('identified intronic nested genes', len(MacaqueHostGenes))
+
+# get gene expression in human
+# filter nested genes based on expression
+
+# save contained genes as json file
+newfile = open('MacaqueContainedGenes.json', 'w')
+json.dump(MacaqueContainedGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
+# save intronic nested genes as json file
+newfile = open('MacaqueHostNestedGenes.json', 'w')
+json.dump(MacaqueHostGenes, newfile, sort_keys = True, indent = 4)
 newfile.close()
