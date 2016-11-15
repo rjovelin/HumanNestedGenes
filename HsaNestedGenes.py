@@ -520,20 +520,34 @@ def ParseOrthologFile(OrthoFile):
                 # get gene IDs of the 2 species
                 gene1, gene2 = line[0], line[2]
                 # check if ortholofs are 1:1
-                if line[5] == 'ortholog_one2one':
+                if line[5] == 'ortholog_one2one' or line[5] == 'ortholog_one2many':
                     if gene1 not in Orthos:
                         Orthos[gene1] = set()
                     Orthos[gene1].add(gene2)
-    # check that all orthologs are 1;1 orthologs
-    # make a dict {gene1: gene2}
-    for gene in Orthos:
-        Orthos[gene] = list(Orthos[gene])
-        assert len(Orthos[gene]) == 1, 'there is more than 1 ortholog'
-        Orthologs[gene] = Orthos[gene][0]
+#    # check that all orthologs are 1;1 orthologs
+#    # make a dict {gene1: gene2}
+#    for gene in Orthos:
+#        Orthos[gene] = list(Orthos[gene])
+#        assert len(Orthos[gene]) == 1, 'there is more than 1 ortholog'
+#        Orthologs[gene] = Orthos[gene][0]
     
     infile.close()
-    return Orthologs  
-    
+    #return Orthologs  
+    return Orthos
   
   
-  
+# use this function to make a set of host and nested genes
+def MakeHostNestedGeneSet(HostGenes):
+    '''
+    (dict) -> set
+    Take the dictionary of host: nested genes (or contained) and return a set
+    of host and nested genes (or contained) 
+    '''
+    # HostGenes is in the form {gene: [transcripts]}
+    hostnested = set()
+    for i in HostGenes:
+        hostnested.add(i)
+        for j in HostGenes[i]:
+            hostnested.add(j)
+    return hostnested
+     
