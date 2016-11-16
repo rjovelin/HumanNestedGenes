@@ -26,7 +26,7 @@ HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
 MmuGFF = 'Mus_musculus.GRCm38.86.gff3'    
 CfaGFF = 'Canis_familiaris.CanFam3.1.86.gff3'
 PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
-Mca = 'Macaca_mulatta.Mmul_8.0.1.86.gff3'    
+McaGFF = 'Macaca_mulatta.Mmul_8.0.1.86.gff3'    
     
 # find contained and intronic genes in human   
     

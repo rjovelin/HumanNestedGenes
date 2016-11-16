@@ -55,7 +55,7 @@ DogHostNestedPairs = GetHostNestedPairs(DogHostGenes)
 print('host-gene pairs in dog', len(DogHostNestedPairs))
 ChimpHostNestedPairs = GetHostNestedPairs(ChimpHostGenes)
 print('host-gene pairs in chimp', len(ChimpHostNestedPairs))
-MacaqueHostnestedPairs = GetHostNestedPairs(MacaqueHostGenes)
+MacaqueHostNestedPairs = GetHostNestedPairs(MacaqueHostGenes)
 print('host-gene pairs in macaque', len(MacaqueHostNestedPairs))
 
 # get the 1:1 orthologs between human and mouse
