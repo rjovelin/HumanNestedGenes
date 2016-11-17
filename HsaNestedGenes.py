@@ -567,10 +567,9 @@ def ParseOrthologFile(OrthoFile):
                     # check that genes are ensembl gene IDs
                     for i in [gene1, gene2, gene3]:
                         assert 'ENS' in i, 'gene id is not valid'
-                    # check if ortholofs are 1:1
                     assert 'ortholog' in line[5] and 'ortholog' in line[10], 'ortholog should be in homology type'
                     # record 1:1 orthologs
-                    if line[5] == 'ortholog_one2one' and line[10] == 'ortholog_one2one':
+                    if (line[5] == 'ortholog_one2one' or line[5] == 'ortholog_one2many') and (line[10] == 'ortholog_one2one' or line[10] == 'ortholog_one2many'):
                         if gene1 not in Orthos:
                             Orthos[gene1] = [set(), set()]
                         Orthos[gene1][0].add(gene2)
