@@ -434,6 +434,84 @@ def CombineAllGeneRegions(GeneRegionCoord, TranscriptToGene):
     return AllGeneRegions
    
 
+
+# use this function to filter out contained genes that do share exons or introns with their host genes
+def FindContainedGenesSharingExonIntron(ContainedGenes, IntronicCoord, ExonicCoord, GeneCoord):
+    '''
+    (dict, dict, dict, dict) -> dict
+    Take the dictionary of genes with genes fully located within them,
+    the dictionary of intron coordinates for each gene, the dictionary of exon 
+    coordinates for each gene, the genomic coordinates of each gene and return
+    a dictionary of host genes and nested genes with overlapping exons and/or introns    
+    '''
+    
+    # ContainedGenes in the form {containing gene: [list of contained genes]}
+    # IntronicCoord is in the form {gene: [list of intron coord]}
+    # ExonicCoord is in the form {gene: [list of exon coord]}    
+    # GeneCoordinates is the form {gene:[chromosome, start, end, sense]}   
+   
+    # create a dict {host: {contained genes}    
+    HostGenes = {}
+    for gene in ContainedGenes:
+        # check if the contained genes share exon and/or introns with the host gene
+        for contained in ContainedGenes[gene]:
+            assert GeneCoord[gene][0] == GeneCoord[contained][0], 'host and nested have different chromo'
+            # set up boolean to be updated if the contained share exon/intron
+            ShareFeature = False
+            # check if the contained gene has introns
+            if contained in IntronicCoord:
+                # loop over of introns of the contained gene
+                for containedintron in IntronicCoord[contained]:
+                    # get coordinates of the introns of the contained gene
+                    containedintroncoord = set(range(containedintron[0], containedintron[1]))
+                    # check if host gene has introns
+                    if gene in IntronicCoord:
+                        # loop over intron coordinates of the containing gene
+                        for intron in IntronicCoord[gene]:
+                            introncoord = set(range(intron[0], intron[1]))
+                            # check if introns overlap
+                            if len(containedintroncoord.intersection(introncoord)) != 0:
+                                # update boolean
+                                ShareFeature = True
+                    # loop over exon coordinates of the host gene
+                    for exon in ExonicCoord[gene]:
+                        exoncoord = set(range(exon[0], exon[1]))
+                        # check if intron and exon overlap
+                        if len(containedintroncoord.intersection(exoncoord)) != 0:
+                            # update boolean
+                            ShareFeature = True
+            # loop over exons of the contained gene
+            for containedexon in ExonicCoord[contained]:
+                # get coordinates of the exons of the contained gene
+                containedexoncoord = set(range(containedexon[0], containedexon[1]))
+                # check if host gene has introns
+                if gene in IntronicCoord:
+                    # loop over intron coordinates of the containing gene
+                    for intron in IntronicCoord[gene]:
+                        introncoord = set(range(intron[0], intron[1]))
+                        # check if exon and intron overlap
+                        if len(containedexoncoord.intersection(introncoord)) != 0:
+                            # update boolean
+                            ShareFeature = True
+                # loop over exon coordinates of the host gene
+                for exon in ExonicCoord[gene]:
+                    exoncoord = set(range(exon[0], exon[1]))
+                    # check if exons overlap
+                    if len(containedexoncoord.intersection(exoncoord)) != 0:
+                        # update boolean
+                        ShareFeature = True       
+            # check if contained genes overlaps with feature
+            if ShareFeature == True:
+                # record host: nested gene pairs
+                if gene not in HostGenes:
+                    HostGenes[gene] = set()
+                HostGenes[gene].add(contained)
+    # convert sets to lists
+    for gene in HostGenes:
+        HostGenes[gene] = list(HostGenes[gene])
+    return HostGenes
+    
+
 # use this function to identify nested genes contained in the intron of their host genes
 def FindIntronicNestedGenePairs(ContainedGenes, IntronicCoord, GeneCoord):
     '''
