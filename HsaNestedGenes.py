@@ -586,8 +586,7 @@ def ParseOrthologFile(OrthoFile):
     for gene in Orthos:
         Orthos[gene][0] = list(Orthos[gene][0])
         Orthos[gene][1] = list(Orthos[gene][1])
-        assert len(Orthos[gene][0]) == len(Orthos[gene][1]) == 1, 'there is more than 1 ortholog'
-        
+            
     infile.close()
     #return Orthologs  
     return Orthos
