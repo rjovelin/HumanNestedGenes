@@ -498,6 +498,48 @@ def GenePairOrientation(GenePair, GeneCoord):
     return [GeneCoord[GenePair[0]][-1], GeneCoord[GenePair[1]][-1]] 
   
   
+## Map humangenes to their orthologs in other species  
+#def ParseOrthologFile(OrthoFile):
+#    '''
+#    (file) -> dict
+#    Take a file with orthology assignments 2 species and return a dictionary
+#    of orthologs between the 2 species
+#    Precondition: consider only 1:1 orthologs, use gene ID of 1st species as key
+#    '''
+#    
+#    # create a dict of orthologs
+#    Orthos, Orthologs = {}, {}
+#    
+#    infile = open(OrthoFile)
+#    for line in infile:
+#        line = line.rstrip()
+#        if line != '':
+#            line = line.split('\t')
+#            # check that line has enough information
+#            if len(line) >= 3:
+#                # get gene IDs of the 2 species
+#                gene1, gene2 = line[0], line[2]
+#                # check if ortholofs are 1:1
+#                if line[5] == 'ortholog_one2one' or line[5] == 'ortholog_one2many':
+#                    if gene1 not in Orthos:
+#                        Orthos[gene1] = set()
+#                    Orthos[gene1].add(gene2)
+##    # check that all orthologs are 1;1 orthologs
+##    # make a dict {gene1: gene2}
+##    for gene in Orthos:
+##        Orthos[gene] = list(Orthos[gene])
+##        assert len(Orthos[gene]) == 1, 'there is more than 1 ortholog'
+##        Orthologs[gene] = Orthos[gene][0]
+#
+#    for gene in Orthos:
+#        Orthos[gene] = list(Orthos[gene])
+#    
+#    infile.close()
+#    #return Orthologs  
+#    return Orthos
+  
+
+
 # Map humangenes to their orthologs in other species  
 def ParseOrthologFile(OrthoFile):
     '''
@@ -511,19 +553,30 @@ def ParseOrthologFile(OrthoFile):
     Orthos, Orthologs = {}, {}
     
     infile = open(OrthoFile)
+    infile.readline()
     for line in infile:
         line = line.rstrip()
         if line != '':
-            line = line.split('\t')
-            # check that line has enough information
-            if len(line) >= 3:
-                # get gene IDs of the 2 species
-                gene1, gene2 = line[0], line[2]
-                # check if ortholofs are 1:1
-                if line[5] == 'ortholog_one2one' or line[5] == 'ortholog_one2many':
-                    if gene1 not in Orthos:
-                        Orthos[gene1] = set()
-                    Orthos[gene1].add(gene2)
+            # check that there is a ortholog in both species
+            if 'ortholog' in line:
+                if line.count('ortholog') == 2:
+                    line = line.split('\t')
+                    assert len(line) == 12
+                    # get gene IDs of the 3 species
+                    gene1, gene2, gene3 = line[0], line[2], line[7]
+                    # check that genes are ensembl gene IDs
+                    for i in [gene1, gene2, gene3]:
+                        assert 'ENS' in i, 'gene id is not valid'
+                    # check if ortholofs are 1:1
+                    assert 'ortholog' in line[5] and 'ortholog' in line[10], 'ortholog should be in homology type'
+                    # record 1:1 orthologs
+                    if line[5] == 'ortholog_one2one' and line[10] == 'ortholog_one2one':
+                        if gene1 not in Orthos:
+                            Orthos[gene1] = [set(), set()]
+                        Orthos[gene1][0].add(gene2)
+                        Orthos[gene1][1].add(gene3)
+                              
+                        
 #    # check that all orthologs are 1;1 orthologs
 #    # make a dict {gene1: gene2}
 #    for gene in Orthos:
@@ -532,13 +585,46 @@ def ParseOrthologFile(OrthoFile):
 #        Orthologs[gene] = Orthos[gene][0]
 
     for gene in Orthos:
-        Orthos[gene] = list(Orthos[gene])
-    
+        Orthos[gene][0] = list(Orthos[gene][0])
+        Orthos[gene][1] = list(Orthos[gene][1])
+        assert len(Orthos[gene][0]) == len(Orthos[gene][1]) == 1, 'there is more than 1 ortholog'
+        
     infile.close()
     #return Orthologs  
     return Orthos
-  
-  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
 # use this function to make a set of host and nested genes
 def MakeHostNestedGeneSet(HostGenes):
     '''
