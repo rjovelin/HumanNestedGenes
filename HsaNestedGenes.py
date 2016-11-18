@@ -677,8 +677,10 @@ def ParseOrthologFile(OrthoFile):
 # use this function to parse the primate expression data file
 def ParsePrimateExpressionData(ExpressionFile, species):
     '''
-    
-    
+    (file) -> dict
+    Take the file with expression (RPKM) for each gene and individual and tissu
+    in primates and return a dictionary for a given species with median expression
+    across individuakls for each of the tissues
     '''
     
     # create a lambda function to convert the string values into floats
@@ -728,4 +730,8 @@ def MakeHostNestedGeneSet(HostGenes):
         for j in HostGenes[i]:
             hostnested.add(j)
     return hostnested
-     
+
+
+
+
+
