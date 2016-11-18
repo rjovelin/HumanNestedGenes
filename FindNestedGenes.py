@@ -34,6 +34,12 @@ McaGFF = 'Macaca_mulatta.Mmul_8.0.1.86.gff3'
 # {chromo: {gene:[chromosome, start, end, sense]}}
 HumanGeneChromoCoord = ChromoGenesCoord(HsaGFF)
 print('got gene coordinates on each chromosome')
+# map each gene to its mRNA transcripts
+HumanMapGeneTranscript = GeneToTranscripts(HsaGFF)
+print('mapped each gene to its mRNA transcripts', len(HumanMapGeneTranscript))
+# remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
+HumanGeneChromoCoord = FilterOutGenesWithoutValidTranscript(HumanGeneChromoCoord, HumanMapGeneTranscript)
+print('removed genes lacking a mRNA transcript')
 # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
 HumanGeneCoord = FromChromoCoordToGeneCoord(HumanGeneChromoCoord)
 print('got gene coordinates', len(HumanGeneCoord))
@@ -65,24 +71,16 @@ print('combined introns for each gene', len(HumanCombinedIntronCoord))
 # combine all exon from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
 HumanCombinedExonCoord = CombineAllGeneRegions(HumanExonCoord, HumanMapTranscriptGene)
 print('combined exons for each gene', len(HumanCombinedExonCoord))
+# find host and nested genes sharing exonic and/or intronic regions
+HumanHostSharing = FindContainedGenesSharingExonIntron(HumanContainedGenes, HumanCombinedIntronCoord, HumanCombinedExonCoord, HumanGeneCoord)
+print('found host and nested genes sharing exons/introns', len(HumanHostSharing))
+# identify itnronic nested genes {host_gene: [intronic_nested_gene]}
+HumanHostGenes = FindIntronicNestedGenePairs(HumanContainedGenes, HumanCombinedIntronCoord, HumanGeneCoord)
+print('identified intronic nested genes', len(HumanHostGenes))
 
 
-## find host and nested genes sharing exonic and/or intronic regions
-#HumanHostSharing = FindContainedGenesSharingExonIntron(HumanContainedGenes, HumanCombinedIntronCoord, HumanCombinedExonCoord, HumanGeneCoord)
-#print('found host and nested genes sharing exons/introns', len(HumanHostSharing))
-## identify itnronic nested genes {host_gene: [intronic_nested_gene]}
-#HumanHostGenes = FindIntronicNestedGenePairs(HumanContainedGenes, HumanCombinedIntronCoord, HumanGeneCoord)
-#print('identified intronic nested genes', len(HumanHostGenes))
 
 
-humangenes = GeneToTranscripts(HsaGFF)
-
-
-print('in gene coord', 'ENSG00000272921' in HumanGeneCoord)
-print('in contained gene', 'ENSG00000272921' in HumanContainedGenes)
-print('in gene to transcript', 'ENSG00000272921' in humangenes)
-print('in intron coord', 'ENSG00000272921' in HumanIntronCoord)
-print('in exon coord', 'ENSG00000272921' in HumanExonCoord)
 
 
 
