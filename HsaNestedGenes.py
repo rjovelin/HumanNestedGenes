@@ -6,6 +6,7 @@ Created on Fri Nov 11 21:04:34 2016
 """
 
 import numpy as np
+import math
 
 
 # use this function to record the gene coordinates on each separate chromosome    
@@ -716,6 +717,77 @@ def ParsePrimateExpressionData(ExpressionFile, species):
     return expression
 
 
+# use this function to remove genes without expression
+def RemoveGenesLackingExpression(ExpressionProfile):
+    '''
+    (dict) -> dict
+    Take the dictionary of expression profile for each gene and return a modified
+    dictionary excluding genes that are not expressed in any tissue
+    '''
+    
+    # create a list of genes to remove
+    to_remove = [gene for gene in ExpressionProfile if sum(ExpressionProfile[gene]) == 0]    
+    for gene in to_remove:
+        del ExpressionProfile[gene]
+    return ExpressionProfile
+
+# use this function to transform absulte expression into relative expression
+def TransformRelativeExpression(ExpressionProfile):
+    '''
+    (dict) -> dict
+    Take the dictionary with absolute expression expression level in each tissue
+    for each gene and return a dictionary with gene as key and list of relative
+    expression as value
+    '''
+    # create a dict {gene: [list of relative expression]}
+    RelativeExpression = {}
+    for gene in ExpressionProfile:
+        # initialize value with empty list
+        RelativeExpression[gene] = []
+        # transform the expression level at each stage
+        for i in range(len(ExpressionProfile[gene])):
+            # divide absolue level by sum of absolute expressions
+            RelativeExpression[gene].append(ExpressionProfile[gene][i] / sum(ExpressionProfile[gene]))
+    return RelativeExpression
+
+
+# use this function to compute the euclidian distance between expression vectors
+def EuclidianDistance(L1, L2):
+    '''
+    (list, list) -> float
+    Take 2 lists of expression levels (lists have the same length) and return 
+    the euclidian distance between the two vectors
+    '''
+    # set up distance
+    D = 0
+    # loop over list 1
+    for i in range(len(L1)):
+        D = D + (L1[i] - L2[i])**2
+    # take the square root
+    D = math.sqrt(D)
+    return D
+
+
+# use this function to compute the expression distance (euclidian distance) among gene pairs
+def ComputeExpressionDivergenceGenePairs(L, ExpressionProfile):
+    '''
+    (list, dict) -> list
+    Take a list of inner lists with gene pairs, the dictionary of expression
+    profiles for each gene and return a list of euclidian distances measuring
+    the expression divergence between the 2 genes in each pair    
+    '''
+    # create a list to store the expression divergence
+    Divergence = []
+    # loop over the list of gene pairs
+    for i in range(len(L)):
+        # compute divergence between the 2 genes in the given pair
+        gene1, gene2 = L[i][0], L[i][1]        
+        D = EuclidianDistance(ExpressionProfile[gene1], ExpressionProfile[gene2])
+        Divergence.append(D)
+    return Divergence
+
+
+
 # use this function to make a set of host and nested genes
 def MakeHostNestedGeneSet(HostGenes):
     '''
@@ -732,6 +804,44 @@ def MakeHostNestedGeneSet(HostGenes):
     return hostnested
 
 
-
-
-
+# use this function to generate sets of gene pairs separated by a given distance
+def GenerateSetsGenePairsDistance(GeneCoord, OrderedGenes, ExpressionProfile):
+    '''
+    (dict, dict, dict) -> tuple
+    Take the dictionary of gene coordinates, the dictionary of ordered genes
+    along each chromosome, the dictionary of gene: expression pairs and return a
+    tuple with lists of gene pairs separated by a given distance (in bp):
+    proximal, intermediate and distant
+    '''
+        
+    # make lists of gene pairs [[gene1, gene2], ....[gene n, gene n+1]]
+    Proximal, Moderate, Intermediate, Distant = [], [], [], []
+    # loop over chromosomes
+    for chromo in OrderedGenes:
+        # loop over the list of ordered genes
+        for i in range(len(OrderedGenes[chromo])):
+            # check that gene is not host or nested, has expression
+            if OrderedGenes[chromo][i] in ExpressionProfile:
+                # get the end position of gene 1
+                EndGene1 = GeneCoord[OrderedGenes[chromo][i]][2]                
+                # grab 2nd gene to form a pair                
+                for j in range(i+1, len(OrderedGenes[chromo])):
+                    # check that gene is not host or nested and has expression
+                    if OrderedGenes[chromo][j] in ExpressionProfile:
+                        # get the start position of gene 2
+                        StartGene2 = GeneCoord[OrderedGenes[chromo][j]][1]
+                        # check if distance is less that 500 bp
+                        D = StartGene2 - EndGene1
+                        if D >= 0 and D < 1000:
+                            # add gene pair to Proximal
+                            Proximal.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
+                        elif D >= 1000 and D < 10000:
+                            # add gene pair to Intermediate
+                            Moderate.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
+                        elif D >= 10000 and D < 50000:
+                            # add gene pair to Intermediate
+                            Intermediate.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
+                        elif D >= 50000:
+                            # add gene pair to Distant
+                            Distant.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
+    return Proximal, Moderate, Intermediate, Distant

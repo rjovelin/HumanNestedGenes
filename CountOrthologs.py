@@ -54,32 +54,32 @@ PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
 McaGFF = 'Macaca_mulatta.Mmul_8.0.1.86.gff3' 
 
 
-# make lists of host-nested gene pairs
-HumanHostNestedPairs = GetHostNestedPairs(HumanHostGenes)
-print('host-gene pairs in human', len(HumanHostNestedPairs))
-MouseHostNestedPairs = GetHostNestedPairs(MouseHostGenes)
-print('host-gene pairs in mouse', len(MouseHostNestedPairs))
-DogHostNestedPairs = GetHostNestedPairs(DogHostGenes)
-print('host-gene pairs in dog', len(DogHostNestedPairs))
-ChimpHostNestedPairs = GetHostNestedPairs(ChimpHostGenes)
-print('host-gene pairs in chimp', len(ChimpHostNestedPairs))
-MacaqueHostNestedPairs = GetHostNestedPairs(MacaqueHostGenes)
-print('host-gene pairs in macaque', len(MacaqueHostNestedPairs))
-
-
-
-
 ## make lists of host-nested gene pairs
-#HumanHostNestedPairs = GetHostNestedPairs(HumanContained)
+#HumanHostNestedPairs = GetHostNestedPairs(HumanHostGenes)
 #print('host-gene pairs in human', len(HumanHostNestedPairs))
-#MouseHostNestedPairs = GetHostNestedPairs(MouseContained)
+#MouseHostNestedPairs = GetHostNestedPairs(MouseHostGenes)
 #print('host-gene pairs in mouse', len(MouseHostNestedPairs))
-#DogHostNestedPairs = GetHostNestedPairs(DogContained)
+#DogHostNestedPairs = GetHostNestedPairs(DogHostGenes)
 #print('host-gene pairs in dog', len(DogHostNestedPairs))
-#ChimpHostNestedPairs = GetHostNestedPairs(ChimpContained)
+#ChimpHostNestedPairs = GetHostNestedPairs(ChimpHostGenes)
 #print('host-gene pairs in chimp', len(ChimpHostNestedPairs))
-#MacaqueHostNestedPairs = GetHostNestedPairs(MacaqueContained)
+#MacaqueHostNestedPairs = GetHostNestedPairs(MacaqueHostGenes)
 #print('host-gene pairs in macaque', len(MacaqueHostNestedPairs))
+
+
+
+
+# make lists of host-nested gene pairs
+HumanHostNestedPairs = GetHostNestedPairs(HumanContained)
+print('host-gene pairs in human', len(HumanHostNestedPairs))
+MouseHostNestedPairs = GetHostNestedPairs(MouseContained)
+print('host-gene pairs in mouse', len(MouseHostNestedPairs))
+DogHostNestedPairs = GetHostNestedPairs(DogContained)
+print('host-gene pairs in dog', len(DogHostNestedPairs))
+ChimpHostNestedPairs = GetHostNestedPairs(ChimpContained)
+print('host-gene pairs in chimp', len(ChimpHostNestedPairs))
+MacaqueHostNestedPairs = GetHostNestedPairs(MacaqueContained)
+print('host-gene pairs in macaque', len(MacaqueHostNestedPairs))
 
 
 infile = open('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt')
@@ -131,19 +131,72 @@ for gene in orthos:
             print(gene, orthologs[gene][1], orthos[gene][1])            
             break
 
-#
-#
-#
-## get the coordinates of human genes on each chromo
-## {chromo: {gene:[chromosome, start, end, sense]}}
-#HumanGeneChromoCoord = ChromoGenesCoord(HsaGFF)
-## map each gene to its mRNA transcripts
-#HumanMapGeneTranscript = GeneToTranscripts(HsaGFF)
-## remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
-#HumanGeneChromoCoord = FilterOutGenesWithoutValidTranscript(HumanGeneChromoCoord, HumanMapGeneTranscript)
-## get the coordinates of each gene {gene:[chromosome, start, end, sense]}
-#HumanGeneCoord = FromChromoCoordToGeneCoord(HumanGeneChromoCoord)
-#
+
+# get the coordinates of human genes on each chromo
+# {chromo: {gene:[chromosome, start, end, sense]}}
+HumanGeneChromoCoord = ChromoGenesCoord(HsaGFF)
+# map each gene to its mRNA transcripts
+HumanMapGeneTranscript = GeneToTranscripts(HsaGFF)
+# remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
+HumanGeneChromoCoord = FilterOutGenesWithoutValidTranscript(HumanGeneChromoCoord, HumanMapGeneTranscript)
+# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+HumanGeneCoord = FromChromoCoordToGeneCoord(HumanGeneChromoCoord)
+# Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
+HumanOrderedGenes = OrderGenesAlongChromo(HumanGeneChromoCoord)
+print('ordered genes on chromsomes')
+
+
+# get expression profile of human genes
+HumanExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
+print('parsed expression data')
+
+# remove genes wuthout expression
+HumanExpression = RemoveGenesLackingExpression(HumanExpression)
+  
+
+
+i = 10
+for gene in HumanExpression:
+    if sum(HumanExpression[gene]) == 0:
+        print('no expression', gene)
+        i -= 1
+        if i == 0:
+            break
+
+
+
+# get relative expression
+HumanExpression = TransformRelativeExpression(HumanExpression)
+print('transformed relative expression')
+
+
+Proximal, Moderate, Intermediate, Distant = GenerateSetsGenePairsDistance(HumanGeneCoord, HumanOrderedGenes, HumanExpression)
+print('generate gene pairs')
+
+# filter human nested pairs based on expression
+to_remove = []
+for pair in HumanHostNestedPairs:
+    if pair[0] not in HumanExpression or pair[1] not in HumanExpression:
+        to_remove.append(pair)
+for pair in to_remove:
+    HumanHostNestedPairs.remove(pair)
+
+
+NestedDiv = ComputeExpressionDivergenceGenePairs(HumanHostNestedPairs, HumanExpression)
+ProximalDiv = ComputeExpressionDivergenceGenePairs(Proximal, HumanExpression)
+ModerateDiv = ComputeExpressionDivergenceGenePairs(Moderate, HumanExpression)
+IntermediateDiv = ComputeExpressionDivergenceGenePairs(Intermediate, HumanExpression)
+DistantDiv = ComputeExpressionDivergenceGenePairs(Distant, HumanExpression)
+
+print('nested', len(NestedDiv), np.median(NestedDiv), np.mean(NestedDiv))
+print('proximal', len(ProximalDiv), np.median(ProximalDiv), np.mean(ProximalDiv))
+print('moderate', len(ModerateDiv), np.median(ModerateDiv), np.mean(ModerateDiv))
+print('intermediate', len(IntermediateDiv), np.median(IntermediateDiv), np.mean(IntermediateDiv))
+print('distant', len(DistantDiv), np.median(DistantDiv), np.mean(DistantDiv))
+
+
+
+
 ## get the coordinates of human genes on each chromo
 ## {chromo: {gene:[chromosome, start, end, sense]}}
 #ChimpGeneChromoCoord = ChromoGenesCoord(PtrGFF)
