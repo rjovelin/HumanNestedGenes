@@ -43,6 +43,28 @@ def ChromoGenesCoord(gff_file):
     return Linkage
 
 
+# use this function to remove genes that lack a mRNA transcript
+def FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript):
+    '''
+    (dict, dict) -> dict    
+    Take the dictionary with gene coordinates on each chromosome, the dictionary
+    of gene: transcript pairs and return a modified dictionary of gene coordinates
+    of each chromo for genes that have mRNA transcripts (ie. remove gene that only have
+    abberant transcripts, NMD processed transcripts, etc)
+    '''
+    
+    # GeneChromoCoord is in the form # {chromo: {gene:[chromosome, start, end, sense]}}
+    # MapGeneTranscript is in the form {gene : [transcripts]}
+    
+    # remove genes lacking mRNA transcripts before ordering genes on chromos
+    for chromo in GeneChromoCoord:
+        to_remove = [gene for gene in GeneChromoCoord[chromo] if gene not in MapGeneTranscript]
+        if len(to_remove) != 0:
+            for gene in to_remove:
+                del GeneChromoCoord[chromo][gene]
+    return GeneChromoCoord
+    
+
 # use this function to get the coordinates of all protein coding genes
 def FromChromoCoordToGeneCoord(GeneCoord):
     '''
@@ -88,45 +110,46 @@ def TranscriptsCoord(gff_file):
    
    
    
-# use this function to create a dict of transcript : gene pairs
-def TranscriptToGene(gff_file):
-    '''
-    (file) -> dict
-    Returns a dictionnary with transcript : gene pairs from the gff annotation file
-    '''
-    #create a dictionnary of transcript : gene pairs
-    transcripts_genes = {}
-    # open file for reading
-    infile = open(gff_file, 'r')
-    for line in infile:
-        if 'mRNA' in line:
-            line = line.rstrip().split('\t')
-            if line[2] == 'mRNA':
-                transcript = line[8][line[8].index('transcript:')+11 : line[8].index(';')]
-                gene = line[8][line[8].index('Parent=gene:')+12 : line[8].index(';', line[8].index('Parent'))]
-                transcripts_genes[transcript] = gene
-    infile.close()
-    return transcripts_genes
-
-
-# use this function to create a dict of gene : list of transcripts pairs
-def GeneToTranscripts(gff_file):
-    '''
-    (file) -> dict
-    Returns a dictionnary with gene as key and a list of transcripts as value
-    '''
-
-    # get the dictionnary of transcripts : gene names pairs
-    transcripts_genes = TranscriptToGene(gff_file)
-    # create a reverse dictionnary of {gene : [transcripts]} pairs
-    genes = {}
-    for transcript in transcripts_genes:
-        gene_name = transcripts_genes[transcript]
-        if gene_name in genes:
-            genes[gene_name].append(transcript)
-        else:
-            genes[gene_name] = [transcript]
-    return genes
+## use this function to create a dict of transcript : gene pairs
+#def TranscriptToGene(gff_file):
+#    '''
+#    (file) -> dict
+#    Returns a dictionnary with transcript : gene pairs from the gff annotation file
+#    '''
+#    #create a dictionnary of transcript : gene pairs
+#    transcripts_genes = {}
+#    # open file for reading
+#    infile = open(gff_file, 'r')
+#    for line in infile:
+#        if 'mRNA' in line:
+#            line = line.rstrip().split('\t')
+#            if line[2] == 'mRNA':
+#                transcript = line[8][line[8].index('transcript:')+11 : line[8].index(';')]
+#                gene = line[8][line[8].index('Parent=gene:')+12 : line[8].index(';', line[8].index('Parent'))]
+#                transcripts_genes[transcript] = gene
+#    infile.close()
+#    return transcripts_genes
+#
+#
+## use this function to create a dict of gene : list of transcripts pairs
+#def GeneToTranscripts(gff_file):
+#    '''
+#    (file) -> dict
+#    Returns a dictionnary with gene as key and a list of transcripts as value
+#    '''
+#
+#    # get the dictionnary of transcripts : gene names pairs
+#    transcripts_genes = TranscriptToGene(gff_file)
+#    # create a reverse dictionnary of {gene : [transcripts]} pairs
+#    genes = {}
+#    for transcript in transcripts_genes:
+#        gene_name = transcripts_genes[transcript]
+#        if gene_name in genes:
+#            genes[gene_name].append(transcript)
+#        else:
+#            genes[gene_name] = [transcript]
+#    return genes
+#
 
 
 # use this function to map genes with their longest mRNA transcripts
