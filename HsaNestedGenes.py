@@ -110,46 +110,67 @@ def TranscriptsCoord(gff_file):
    
    
    
-## use this function to create a dict of transcript : gene pairs
-#def TranscriptToGene(gff_file):
-#    '''
-#    (file) -> dict
-#    Returns a dictionnary with transcript : gene pairs from the gff annotation file
-#    '''
-#    #create a dictionnary of transcript : gene pairs
-#    transcripts_genes = {}
-#    # open file for reading
-#    infile = open(gff_file, 'r')
-#    for line in infile:
-#        if 'mRNA' in line:
-#            line = line.rstrip().split('\t')
-#            if line[2] == 'mRNA':
-#                transcript = line[8][line[8].index('transcript:')+11 : line[8].index(';')]
-#                gene = line[8][line[8].index('Parent=gene:')+12 : line[8].index(';', line[8].index('Parent'))]
-#                transcripts_genes[transcript] = gene
-#    infile.close()
-#    return transcripts_genes
-#
-#
-## use this function to create a dict of gene : list of transcripts pairs
-#def GeneToTranscripts(gff_file):
-#    '''
-#    (file) -> dict
-#    Returns a dictionnary with gene as key and a list of transcripts as value
-#    '''
-#
-#    # get the dictionnary of transcripts : gene names pairs
-#    transcripts_genes = TranscriptToGene(gff_file)
-#    # create a reverse dictionnary of {gene : [transcripts]} pairs
-#    genes = {}
-#    for transcript in transcripts_genes:
-#        gene_name = transcripts_genes[transcript]
-#        if gene_name in genes:
-#            genes[gene_name].append(transcript)
-#        else:
-#            genes[gene_name] = [transcript]
-#    return genes
-#
+# use this function to create a dict of transcript : gene pairs
+def TranscriptToGene(gff_file):
+    '''
+    (file) -> dict
+    Returns a dictionnary with transcript : gene pairs from the gff annotation file
+    '''
+ 
+    # create a set of protein-coding genes
+    ProteinCoding = set()
+    # open file for reading
+    infile = open(gff_file, 'r')
+    for line in infile:
+        line = line.rstrip()
+        if 'gene' in line and not line.startswith('#'):
+            line = line.split('\t')
+            if line[2] == 'gene':
+                # get biotype
+                biotype = line[8][line[8].index('biotype=')+8: line[8].index(';', line[8].index('biotype=')+8)]
+                # record only protein coding genes
+                if biotype == 'protein_coding':
+                    # get the gene name
+                    gene = line[8][line[8].index('ID=gene:')+8: line[8].index(';')]
+                    ProteinCoding.add(gene)
+    infile.close()
+    
+    #create a dictionnary of transcript : gene pairs
+    transcripts_genes = {}
+    # open file for reading
+    infile = open(gff_file, 'r')
+    for line in infile:
+        if 'mRNA' in line:
+            line = line.rstrip().split('\t')
+            if line[2] == 'mRNA':
+                transcript = line[8][line[8].index('transcript:')+11 : line[8].index(';')]
+                gene = line[8][line[8].index('Parent=gene:')+12 : line[8].index(';', line[8].index('Parent'))]
+                # keep mRNAs of protein coding genes 
+                if gene in ProteinCoding:
+                    transcripts_genes[transcript] = gene
+    infile.close()
+    return transcripts_genes
+
+
+# use this function to create a dict of gene : list of transcripts pairs
+def GeneToTranscripts(gff_file):
+    '''
+    (file) -> dict
+    Returns a dictionnary with gene as key and a list of transcripts as value
+    '''
+
+    # get the dictionnary of transcripts : gene names pairs
+    transcripts_genes = TranscriptToGene(gff_file)
+    # create a reverse dictionnary of {gene : [transcripts]} pairs
+    genes = {}
+    for transcript in transcripts_genes:
+        gene_name = transcripts_genes[transcript]
+        if gene_name in genes:
+            genes[gene_name].append(transcript)
+        else:
+            genes[gene_name] = [transcript]
+    return genes
+
 
 
 # use this function to map genes with their longest mRNA transcripts
