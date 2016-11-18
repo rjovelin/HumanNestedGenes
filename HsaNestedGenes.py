@@ -5,6 +5,8 @@ Created on Fri Nov 11 21:04:34 2016
 @author: Richard
 """
 
+import numpy as np
+
 
 # use this function to record the gene coordinates on each separate chromosome    
 def ChromoGenesCoord(gff_file):
@@ -620,55 +622,13 @@ def GenePairOrientation(GenePair, GeneCoord):
     return [GeneCoord[GenePair[0]][-1], GeneCoord[GenePair[1]][-1]] 
   
   
-## Map humangenes to their orthologs in other species  
-#def ParseOrthologFile(OrthoFile):
-#    '''
-#    (file) -> dict
-#    Take a file with orthology assignments 2 species and return a dictionary
-#    of orthologs between the 2 species
-#    Precondition: consider only 1:1 orthologs, use gene ID of 1st species as key
-#    '''
-#    
-#    # create a dict of orthologs
-#    Orthos, Orthologs = {}, {}
-#    
-#    infile = open(OrthoFile)
-#    for line in infile:
-#        line = line.rstrip()
-#        if line != '':
-#            line = line.split('\t')
-#            # check that line has enough information
-#            if len(line) >= 3:
-#                # get gene IDs of the 2 species
-#                gene1, gene2 = line[0], line[2]
-#                # check if ortholofs are 1:1
-#                if line[5] == 'ortholog_one2one' or line[5] == 'ortholog_one2many':
-#                    if gene1 not in Orthos:
-#                        Orthos[gene1] = set()
-#                    Orthos[gene1].add(gene2)
-##    # check that all orthologs are 1;1 orthologs
-##    # make a dict {gene1: gene2}
-##    for gene in Orthos:
-##        Orthos[gene] = list(Orthos[gene])
-##        assert len(Orthos[gene]) == 1, 'there is more than 1 ortholog'
-##        Orthologs[gene] = Orthos[gene][0]
-#
-#    for gene in Orthos:
-#        Orthos[gene] = list(Orthos[gene])
-#    
-#    infile.close()
-#    #return Orthologs  
-#    return Orthos
-  
-
-
-# Map humangenes to their orthologs in other species  
+# Map humangenes to their orthologs in 2 other species  
 def ParseOrthologFile(OrthoFile):
     '''
     (file) -> dict
-    Take a file with orthology assignments 2 species and return a dictionary
-    of orthologs between the 2 species
-    Precondition: consider only 1:1 orthologs, use gene ID of 1st species as key
+    Take a file with orthology assignment between 3 species and return a dictionary
+    of orthologs between the 3 species. Consider only 1:1 orthologs, use gene ID
+    of 1st species as key
     '''
     
     # create a dict of orthologs
@@ -683,68 +643,77 @@ def ParseOrthologFile(OrthoFile):
             if 'ortholog' in line:
                 if line.count('ortholog') == 2:
                     line = line.split('\t')
-                    assert len(line) == 12
+                    assert len(line) == 8
                     # get gene IDs of the 3 species
-                    gene1, gene2, gene3 = line[0], line[2], line[7]
+                    gene1, gene2, gene3 = line[0], line[2], line[5]
                     # check that genes are ensembl gene IDs
                     for i in [gene1, gene2, gene3]:
                         assert 'ENS' in i, 'gene id is not valid'
-                    assert 'ortholog' in line[5] and 'ortholog' in line[10], 'ortholog should be in homology type'
+                    assert 'ortholog' in line[3] and 'ortholog' in line[6], 'ortholog should be in homology type'
                     # record 1:1 orthologs
-                    if (line[5] == 'ortholog_one2one' or line[5] == 'ortholog_one2many') and (line[10] == 'ortholog_one2one' or line[10] == 'ortholog_one2many'):
+                    if line[3] == 'ortholog_one2one' and line[6] == 'ortholog_one2one':
                         if gene1 not in Orthos:
                             Orthos[gene1] = [set(), set()]
-                        Orthos[gene1][0].add(gene2)
-                        Orthos[gene1][1].add(gene3)
-                              
-                        
-#    # check that all orthologs are 1;1 orthologs
-#    # make a dict {gene1: gene2}
-#    for gene in Orthos:
-#        Orthos[gene] = list(Orthos[gene])
-#        assert len(Orthos[gene]) == 1, 'there is more than 1 ortholog'
-#        Orthologs[gene] = Orthos[gene][0]
-
+                            Orthos[gene1][0].add(gene2)
+                            Orthos[gene1][1].add(gene3)
+                        else:
+                            Orthos[gene1][0].add(gene2)
+                            Orthos[gene1][1].add(gene3)
+    infile.close()                      
+    
+    # check that all orthologs are 1;1 orthologs
+    # make a dict {gene1: [gene2, gene3]}
     for gene in Orthos:
+        assert len(Orthos[gene][0]) == len(Orthos[gene][1]) == 1, 'there is more than 1 ortholog'
         Orthos[gene][0] = list(Orthos[gene][0])
-        Orthos[gene][1] = list(Orthos[gene][1])
-            
-    infile.close()
+        Orthos[gene][1] = list(Orthos[gene][1])        
+        Orthologs[gene] = [Orthos[gene][0][0], Orthos[gene][1][0]]
+    print(len(Orthos), len(Orthologs))
     #return Orthologs  
-    return Orthos
+    return Orthologs
 
 
 
+# use this function to parse the primate expression data file
+def ParsePrimateExpressionData(ExpressionFile, species):
+    '''
+    
+    
+    '''
+    
+    # create a lambda function to convert the string values into floats
+    ExpVal = lambda x: float(x)
+    
+    infile = open(ExpressionFile)
+    infile.readline()
+    
+    # create a dict with medium expression across individuals for the different organs
+    # {gene_ID: [brain, cerebellum, heart, kidney, liver, testis]}    
+    expression = {}
+    for line in infile:
+        line = line.rstrip()
+        if line != '':
+            line = line.split('\t')
+            # get gene ID, extract the expression values for each organ
+            if species == 'human':
+                gene = line[0]
+                brexp, cbexp, htexp = list(map(ExpVal, line[5:11])), list(map(ExpVal, line[11:13])), list(map(ExpVal, line[13:16]))
+                kdexp, lvexp, tsexp = list(map(ExpVal, line[16: 19])), list(map(ExpVal, line[19: 21])), list(map(ExpVal, line[21: 23]))
+            elif species == 'chimp':
+                gene = line[1]
+                brexp, cbexp, htexp = list(map(ExpVal, line[23: 29])), list(map(ExpVal, line[29: 31])), list(map(ExpVal, line[31: 33]))
+                kdexp, lvexp, tsexp = list(map(ExpVal, line[33: 35])), list(map(ExpVal, line[35: 37])), list(map(ExpVal, line[37]))
+            elif species == 'macaque':
+                gene = line[4]
+                brexp, cbexp, htexp = list(map(ExpVal, line[70: 73])), list(map(ExpVal, line[73: 75])), list(map(ExpVal, line[75: 77]))
+                kdexp, lvexp, tsexp = list(map(ExpVal, line[77: 79])), list(map(ExpVal, line[79: 81])), list(map(ExpVal, line[81:]))
+            # get the median expression level per tissue
+            assert gene not in expression, 'gene is already recorded'
+            expression[gene] = [np.median(brexp), np.median(cbexp), np.median(htexp), np.median(kdexp), np.median(lvexp), np.median(tsexp)]
+    infile.close()
+    return expression
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
 # use this function to make a set of host and nested genes
 def MakeHostNestedGeneSet(HostGenes):
     '''
