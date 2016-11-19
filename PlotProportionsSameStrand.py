@@ -133,11 +133,6 @@ ax.spines["left"].set_visible(True)
 for spine in ax.spines.values():
     spine.set_position(('outward', 5))
     
-## add a light grey horizontal grid to the plot, semi-transparent, 
-#ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
-## hide these grids behind plot objects
-#ax.set_axisbelow(True)
-
 # do not show ticks
 plt.tick_params(
     axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
