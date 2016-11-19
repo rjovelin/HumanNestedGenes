@@ -168,4 +168,5 @@ ax.legend(handles = [S, O], loc = (-0.1, 1), fontsize = 8, frameon = False, ncol
 plt.tight_layout()
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig('ProportionSameOppositeStrands.pdf', bbox_inches = 'tight')
+fig.savefig('ProportionSameOppositeStrands.eps', bbox_inches = 'tight')
