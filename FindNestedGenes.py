@@ -84,9 +84,6 @@ for i in range(len(GFFs)):
     print('identified intronic nested genes', len(SpHostGenes))
 
     # save contained genes as json file
-
-    GFFs = [HsaGFF, PtrGFF, GgoGFF, PabGFF, MmlGFF]
-    
     if i == 0:
         newfile = open('HumanContainedGenes.json', 'w')
         json.dump(SpHostSharing, newfile, sort_keys = True, indent = 4)
