@@ -52,7 +52,6 @@ print('host-gene pairs in orang-outan', len(OrangOutanHostNestedPairs))
 MacaqueHostNestedPairs = GetHostNestedPairs(MacaqueHostGenes)
 print('host-gene pairs in macaque', len(MacaqueHostNestedPairs))
 
-
 # get GFF file
 HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
 PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
@@ -66,7 +65,6 @@ GFFs = [HsaGFF, PtrGFF, GgoGFF, PabGFF, MmlGFF]
 
 # make a list of host-nested pai lists
 Pairs = [HumanHostNestedPairs, ChimpHostNestedPairs, GorillaHostNestedPairs, OrangOutanHostNestedPairs, MacaqueHostNestedPairs]
-
 
 # create parallel lists of proportions for same strand and opposite strand 
 # for species ordered according to the GFF list
@@ -98,21 +96,13 @@ for i in range(len(GFFs)):
     OppositeStrand.append(opposite / (same + opposite))
 
 
-
-
-
-
 # plot proportions for each species
 
 # make a list of species names
 SpeciesNames = ['Hsa', 'Ptr', 'Ggo', 'Pab', 'Mml']
 
-
-colorscheme = ['#a6cee3','#1f78b4','#b2df8a']
-
-
 # create figure
-fig = plt.figure(1, figsize = (2.5, 3))
+fig = plt.figure(1, figsize = (2.5, 2.8))
 
 # create subplot in figure
 # add a plot to figure (N row, N column, plot N)
@@ -124,13 +114,15 @@ ax.bar([0, 0.4, 0.8, 1.2, 1.6], OppositeStrand, width = 0.3, label = 'opposite s
 ax.bar([0, 0.4, 0.8, 1.2, 1.6], SameStrand, width = 0.3, bottom = OppositeStrand, label = 'same strand', color= '#91bfdb')
 
 
-
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
 # write label for y axis
 ax.set_ylabel('Proportion of gene pairs', color = 'black', size = 10, ha = 'center', **FigFont)
 # write label for x axis
 plt.xticks([0.15, 0.55, 0.95, 1.35, 1.75], SpeciesNames, ha = 'center', fontsize = 10, **FigFont)
+        
+# limit the y axis value range
+plt.ylim([0, 1])   
         
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
@@ -170,7 +162,7 @@ plt.margins(0.05)
 # add legend
 S = mpatches.Patch(facecolor = '#91bfdb' , edgecolor = 'black', linewidth = 1, label= 'same')
 O = mpatches.Patch(facecolor = '#fc8d59' , edgecolor = 'black', linewidth = 1, label= 'opposite')
-ax.legend(handles = [S, O], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
+ax.legend(handles = [S, O], loc = (-0.1, 1), fontsize = 8, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
 plt.tight_layout()
