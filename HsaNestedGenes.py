@@ -681,7 +681,8 @@ def ParsePrimateExpressionData(ExpressionFile, species):
     (file) -> dict
     Take the file with expression (RPKM) for each gene and individual and tissu
     in primates and return a dictionary for a given species with median expression
-    across individuakls for each of the tissues
+    across individuals for each of the tissues. (note that orangutan has no
+    expression in testis)
     '''
     
     # create a lambda function to convert the string values into floats
@@ -705,17 +706,28 @@ def ParsePrimateExpressionData(ExpressionFile, species):
             elif species == 'chimp':
                 gene = line[1]
                 brexp, cbexp, htexp = list(map(ExpVal, line[23: 29])), list(map(ExpVal, line[29: 31])), list(map(ExpVal, line[31: 33]))
-                kdexp, lvexp, tsexp = list(map(ExpVal, line[33: 35])), list(map(ExpVal, line[35: 37])), list(map(ExpVal, line[37]))
+                kdexp, lvexp, tsexp = list(map(ExpVal, line[33: 35])), list(map(ExpVal, line[35: 37])), list(map(ExpVal, line[37:38]))
+            elif species == 'gorilla':
+                gene = line[2]
+                brexp, cbexp, htexp = list(map(ExpVal, line[50: 52])), list(map(ExpVal, line[52: 54])), list(map(ExpVal, line[54: 56]))
+                kdexp, lvexp, tsexp = list(map(ExpVal, line[56: 58])), list(map(ExpVal, line[58: 60])), list(map(ExpVal, line[60:61]))
+            elif species == 'orangoutan':
+                gene = line[3]
+                brexp, cbexp, htexp = list(map(ExpVal, line[61: 63])), list(map(ExpVal, line[63:64])), list(map(ExpVal, line[64: 66]))
+                kdexp, lvexp = list(map(ExpVal, line[66: 68])), list(map(ExpVal, line[68:70])) 
             elif species == 'macaque':
                 gene = line[4]
                 brexp, cbexp, htexp = list(map(ExpVal, line[70: 73])), list(map(ExpVal, line[73: 75])), list(map(ExpVal, line[75: 77]))
                 kdexp, lvexp, tsexp = list(map(ExpVal, line[77: 79])), list(map(ExpVal, line[79: 81])), list(map(ExpVal, line[81:]))
             # get the median expression level per tissue
             assert gene not in expression, 'gene is already recorded'
-            expression[gene] = [np.median(brexp), np.median(cbexp), np.median(htexp), np.median(kdexp), np.median(lvexp), np.median(tsexp)]
+            # check species (orang outan has no expression in testis)
+            if species == 'orangoutan':
+                expression[gene] = [np.median(brexp), np.median(cbexp), np.median(htexp), np.median(kdexp), np.median(lvexp)]
+            else:
+                expression[gene] = [np.median(brexp), np.median(cbexp), np.median(htexp), np.median(kdexp), np.median(lvexp), np.median(tsexp)]
     infile.close()
     return expression
-
 
 # use this function to remove genes without expression
 def RemoveGenesLackingExpression(ExpressionProfile):
