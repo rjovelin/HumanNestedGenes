@@ -845,3 +845,27 @@ def GenerateSetsGenePairsDistance(GeneCoord, OrderedGenes, ExpressionProfile):
                             # add gene pair to Distant
                             Distant.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
     return Proximal, Moderate, Intermediate, Distant
+
+
+# use this function to remove nested gene pairs without expression
+def FilterGenePairsWithoutExpression(HostNestedPairs, ExpressionProfile):
+    '''
+    (list, dict) -> list
+    Take the list of gene pairs and the dictionary of expression profile for
+    each gene and return a modified list of gene pairs in whhich pairs of gene
+    lacking expression are removed
+    Precondition: genes without expression in the expression profile dictionary
+    have been removed    
+    '''
+    
+    # filter gene pairs based on expression
+    to_remove = []
+    for pair in HostNestedPairs:
+        # remove gene pair if at least one of the gene is not expressed
+        if pair[0] not in ExpressionProfile or pair[1] not in ExpressionProfile:
+            to_remove.append(pair)
+    for pair in to_remove:
+        HostNestedPairs.remove(pair)
+    return HostNestedPairs
+
+
