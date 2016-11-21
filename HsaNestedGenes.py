@@ -799,23 +799,6 @@ def ComputeExpressionDivergenceGenePairs(L, ExpressionProfile):
     return Divergence
 
 
-
-# use this function to make a set of host and nested genes
-def MakeHostNestedGeneSet(HostGenes):
-    '''
-    (dict) -> set
-    Take the dictionary of host: nested genes (or contained) and return a set
-    of host and nested genes (or contained) 
-    '''
-    # HostGenes is in the form {gene: [transcripts]}
-    hostnested = set()
-    for i in HostGenes:
-        hostnested.add(i)
-        for j in HostGenes[i]:
-            hostnested.add(j)
-    return hostnested
-
-
 # use this function to generate sets of gene pairs separated by a given distance
 def GenerateSetsGenePairsDistance(GeneCoord, OrderedGenes, ExpressionProfile):
     '''
@@ -879,5 +862,131 @@ def FilterGenePairsWithoutExpression(HostNestedPairs, ExpressionProfile):
     for pair in to_remove:
         HostNestedPairs.remove(pair)
     return HostNestedPairs
+
+
+
+# use this function to make a set of host and nested genes
+def MakeHostNestedGeneSet(HostGenes):
+    '''
+    (dict) -> set
+    Take the dictionary of host: nested genes (or contained) and return a set
+    of host and nested genes (or contained) 
+    '''
+    # HostGenes is in the form {gene: [transcripts]}
+    hostnested = set()
+    for i in HostGenes:
+        hostnested.add(i)
+        for j in HostGenes[i]:
+            hostnested.add(j)
+    return hostnested
+
+
+# use this function to match the longest transcript of the nested genes to transcripts of the host genes
+def MatchHostTranscriptWithNestedTranscript(HostGenes, MapGeneTranscript, GeneLongestTranscript, TranscriptCoordinates, IntronCoordinates):
+    '''
+    (dict, dict, dict, dict, dict) -> int
+    Take the dictionary of host: nested genes, the dictionary of gene and
+    transcript pairs, the dictionary of gene: longest transcript pairs,
+    the dictionary of transcript coordinates, the dictionary of intron positions
+    for each transcript and return a dictionary of host transcripts (in priority
+    the longest) with the longest transcript of their nested genes
+    '''
+
+    # HostGenes is in the form {gene: [list of nested genes]}
+    # MapGeneTranscript is in the form {gene: [transcripts]}
+    # GeneLongestTranscript is the form {gene: longest_transcript}
+    # TranscriptCoordinates is in the form {transcript: [chromo, start, end, orientation]}
+    # IntronCoordinates if the form {transcript: [(intron_start, intron_end), ...]}  
+    
+    # create a dict {host_TS: [nested_TS]}
+    HostNestedTranscripts = {}    
+    # create a dict to store the host: nested gene pairs
+    # for which the longest nested transcript is not in the longest host transcript    
+    CheckAgain = {}
+    
+    # loop over nested genes
+    # check if the longest transcript of the nested gene is in the longest
+    # transcript of the host gene
+    for gene in HostGenes:
+        # get the gene's longest transcript
+        LongestHost = GeneLongestTranscript[gene]
+        # loop over the gene's nested genes
+        for nested in HostGenes[gene]:
+            # get the longest transcript of the nested gene
+            LongestNested = GeneLongestTranscript[nested]
+            # get the coordinates of the longest transcript of the nested gene
+            nestedcoord = set(range(TranscriptCoordinates[LongestNested][1], TranscriptCoordinates[LongestNested][2]))
+            # set up boolean, update when nested transcript is found in the host transcript            
+            FoundNested = False
+            # loop over the intron in the longest transcript of the host gene
+            for intron in IntronCoordinates[LongestHost]:
+                introncoord = set(range(intron[0], intron[1]))
+                # check if transcript is within the intron
+                if nestedcoord.issubset(introncoord):
+                    # nested transcript is contained in the intron
+                    # match nested transcript to host transcript, exit loop
+                    if LongestHost not in HostNestedTranscripts:
+                        HostNestedTranscripts[LongestHost] = []
+                    HostNestedTranscripts[LongestHost].append(LongestNested)
+                    FoundNested = True
+                    break
+            # record host gene: nested gene pair if not found            
+            if FoundNested == False:
+                if gene not in CheckAgain:
+                    CheckAgain[gene] = []
+                CheckAgain[gene].append(nested)
+    
+    # check if some nested genes have not been matched
+    if len(CheckAgain) != 0:
+        # create a set of nested genes that have already been matched
+        AlreadyMatched = set()
+        # loop over the host genes
+        for gene in CheckAgain:
+            # loop over all transcripts of the host gene
+            for TS in MapGeneTranscript[gene]:
+                # check if host transcript has introns
+                if TS in IntronCoordinates:
+                    # do not consider the longest transcript
+                    if TS != GeneLongestTranscript[gene]:
+                        # loop over the nested genes
+                        for nested in CheckAgain[gene]:
+                            # check that nested gene is not already recorded
+                            if nested not in AlreadyMatched:
+                                # always grab the longest transcript of the nested gene
+                                LongestNested = GeneLongestTranscript[nested]
+                                # get the coordinates of the longest transcript of the nested gene
+                                nestedcoord = set(range(TranscriptCoordinates[LongestNested][1], TranscriptCoordinates[LongestNested][2]))
+                                # set up boolean, update when nested transcript is found in the host transcript            
+                                FoundNested = False
+                                # loop over the introns of the host transcript
+                                for intron in IntronCoordinates[TS]:
+                                    introncoord = set(range(intron[0], intron[1]))
+                                    # check if transcript is within the intron
+                                    if nestedcoord.issubset(introncoord):
+                                        # nested transcript is contained within the intron
+                                        # match nested transcript to host transcript, exit loop
+                                        if TS not in HostNestedTranscripts:
+                                            HostNestedTranscripts[TS] = []
+                                        HostNestedTranscripts[TS].append(LongestNested)
+                                        FoundNested = True
+                                        # nested gene is recorded
+                                        AlreadyMatched.add(nested)
+                                        break
+        # check that all nested genes (and therefore all host transcripts) have been matched
+        nestedgenes = set()
+        for gene in CheckAgain:
+            for i in CheckAgain[gene]:
+                nestedgenes.add(i)
+        assert nestedgenes == AlreadyMatched, 'not all nested genes have been matched'
+    return HostNestedTranscripts
+
+
+
+
+
+
+
+
+
 
 
