@@ -981,12 +981,155 @@ def MatchHostTranscriptWithNestedTranscript(HostGenes, MapGeneTranscript, GeneLo
     return HostNestedTranscripts
 
 
+# use this function to collect the number of introns for host, nested and un-nested genes 
+def CollectIntronNumbers(UnNestedGenes, HostNestedTranscriptMatches, GeneLongestTranscript, TranscriptCoordinates, IntronCoordinates):
+    '''
+    (set, dict, dict, dict, dict) -> (list, list, list)
+    Take the dictionary of host: nested gene genes, the dictionary of host
+    transcripts: longest nested transcripts pairs, the dictionary of gene coordinates,
+    the dictionary of gene: longest transcript pairs, the dictionary of intron
+    positions for each transcript and the dictionary of transcript coordinates 
+    and return a tuple with lists containing the number of introns for
+    the transcript of the host, nested and un-nested genes    
+    '''
+    # GeneLongestTranscript is in the form {gene: longest_transcript}
+    # HostNestedTranscriptMatches if in the form {host_TS: [nested_TS]}
+    # GeneCoord is in the form {gene: [chromo, start, end, orientation]}
+    # GeneLongestTranscript is in the form {gene: longest_transcript}
+    # IntronCoordinates is in the form {transcript: [(intron_start, intron_end), ...]}
+    # TranscriptCoordinates is in the form {transcript:[chromosome, start, end, sense]}
+
+    # initialize empty list to store the number of itnrons
+    HostNum, NestedNum, OthersNum = [], [], []
+    # loop over host transcripts 
+    for hostTS in HostNestedTranscriptMatches:
+        # check that this transcript has intron
+        assert hostTS in IntronCoordinates, 'transcript of host gene should have introns'
+        # count the number of introns        
+        HostNum.append(len(IntronCoordinates[hostTS]))
+        # loop over nested transcripts
+        for nestedTS in HostNestedTranscriptMatches[hostTS]:
+            # check that transcript has introns
+            if nestedTS in IntronCoordinates:
+                # count the number of introns
+                NestedNum.append(len(IntronCoordinates[nestedTS]))
+            else:
+                # check that transcript has coordinates
+                assert nestedTS in TranscriptCoordinates, 'nested TS should have coordinates'
+                # transcript is intronless, add 0
+                NestedNum.append(0)
+    # loop over un-nested genes
+    for gene in UnNestedGenes:
+        # get the longest transcript
+        TS = GeneLongestTranscript[gene]
+        # check if gene has introns
+        if TS in IntronCoordinates:
+            # count the number of introns
+            OthersNum.append(len(IntronCoordinates[TS]))
+        else:
+            # check that transcript has coordinates
+            assert TS in TranscriptCoordinates, 'un-nested gene should have coordinates'
+            # transcript is intronless, add 0
+            OthersNum.append(0)
+    return HostNum, NestedNum, OthersNum
 
 
+# use this function to get the intron length of the host transcripts
+def CollectHostGeneIntronLength(HostNestedTranscriptMatches, TranscriptCoordinates, IntronCoordinates):
+    '''
+    (dict, dict, dict) -> (list, list)
+    Take the dictionary of host transcripts: nested transcripts, the dictionary
+    of transcript coordinates, the dictionary of intron coordinates and return
+    a tuple with lists of intron length for gene-containing introns (minus the
+    length of all transcripts inside) and introns without genes.     
+    '''
+    # HostNestedTranscriptMatches if in the form {host_TS: [nested_TS]}
+    # TranscriptCoordinates is in the form {transcript: [chromo, start, end, orientation]}
+    # IntronCoordinates if the form {transcript: [(intron_start, intron_end), ...]}  
+    
+    # create lists to store intron length
+    GeneContainingIntron, NoGeneIntron = [], []    
+    # loop over host transcripts 
+    for hostTS in HostNestedTranscriptMatches:
+        # loop over the host transcript's introns
+        for HostIntron in IntronCoordinates[hostTS]:
+            IntronWithGene = False
+            # get intron coordinates and intron length
+            introncoord = set(range(HostIntron[0], HostIntron[1]))
+            intronlength = set(range(HostIntron[0], HostIntron[1]))
+            # loop over nested transcripts, remove length of transcript
+            # length of any transcripts found in intron      
+            for nestedTS in HostNestedTranscriptMatches[hostTS]:
+                # get the coordinates of the nested transcript
+                nestedcoord = set(range(TranscriptCoordinates[nestedTS][1], TranscriptCoordinates[nestedTS][2]))
+                # check if nested transcript is contained in intron
+                if nestedcoord.issubset(introncoord):
+                    # update boolean if any transcript is found in intron
+                    IntronWithGene = True
+                    # remove the positions of the nested transcript from intron
+                    intronlength -= nestedcoord 
+            # check if intron contains a gene
+            if IntronWithGene == True:
+                GeneContainingIntron.append(len(intronlength))
+            elif IntronWithGene == False:
+                NoGeneIntron.append(len(intronlength))
+    return GeneContainingIntron, NoGeneIntron
 
 
+# use this function to get the intron length of nested transcripts
+def CollectNestedGeneIntronLength(HostNestedTranscriptMatches, TranscriptCoordinates, IntronCoordinates):
+    '''
+    (dict, dict, dict, dict) -> list
+    Take the dictionary of host transcripts: nested transcripts, the dictionary
+    of transcript coordinates, the dictionary of intron coordinates and return
+    a list of intron length for nested genes     
+    '''
+    # HostNestedTranscriptMatches if in the form {host_TS: [nested_TS]}
+    # TranscriptCoordinates is in the form {transcript: [chromo, start, end, orientation]}
+    # IntronCoordinates if the form {transcript: [(intron_start, intron_end), ...]}  
+    
+    # create a list of intron length
+    IntronLength = []
+    # loop over host transcripts 
+    for hostTS in HostNestedTranscriptMatches:
+        # loop over nested transcripts
+        for nestedTS in HostNestedTranscriptMatches[hostTS]:
+            if nestedTS in IntronCoordinates:
+                # loop over the introns of the nested transcript
+                for intron in IntronCoordinates[nestedTS]:
+                    IntronLength.append(len(set(range(intron[0], intron[1]))))
+            else:
+                assert nestedTS in TranscriptCoordinates, 'transcript should have coordinates'
+                IntronLength.append(0)
+    return IntronLength
 
 
-
-
-
+# use this function to get the intron length of un-nested transcripts
+def CollectUnNestedGeneIntronLength(UnNestedGenes,  GeneLongestTranscript, TranscriptCoordinates, IntronCoordinates):
+    '''
+    (set, dict, dict, dict) -> list
+    Take the set of un-nested genes, the dictionary of gene: longest transcript,
+    the dictionary of transcript coordinates, the dictionary of intron coordinates
+    and return a list of intron length for nested genes     
+    '''
+    # GeneLongestTranscript is in the form {gene: longest_transcript}
+    # TranscriptCoordinates is in the form {transcript: [chromo, start, end, orientation]}
+    # IntronCoordinates if the form {transcript: [(intron_start, intron_end), ...]}  
+    
+    # create a list of intron length
+    IntronLength = []
+    # loop over un-nested genes
+    for gene in UnNestedGenes:
+        # get the longest transcript
+        TS = GeneLongestTranscript[gene]
+        # check if gene has introns
+        if TS in IntronCoordinates:
+            # loop over introns of the transcript
+            for intron in IntronCoordinates[TS]:
+                IntronLength.append(len(set(range(intron[0], intron[1]))))
+        else:
+            # check that transcript has coordinates
+            assert TS in TranscriptCoordinates, 'un-nested gene should have coordinates'
+            # transcript is intronless, add 0
+            IntronLength.append(0)
+    return IntronLength
