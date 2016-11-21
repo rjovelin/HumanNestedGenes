@@ -184,17 +184,11 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax, 
            error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
-    
+    # write label for y and x axis    
     if YAxis == True:
-        # write label for y and x axis
         ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-    
-    
-    #ax.set_xlabel(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
+    ax.set_xlabel(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
         
-    plt.title(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-    
-    
     # add a range for the Y axis
     plt.ylim([0, YMax])
     # do not show lines around figure  
@@ -205,25 +199,17 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax, 
         ax.spines["left"].set_visible(True)  
     elif YAxis == False:
         ax.spines["left"].set_visible(False)
-    # offset the spines
-    for spine in ax.spines.values():
-        spine.set_position(('outward', 5))
-    
-    # add a light grey horizontal grid to the plot, semi-transparent, 
-    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
-    # hide these grids behind plot objects
-    ax.set_axisbelow(True)
-    
+        
     if YAxis == True:
         # do not show ticks
         plt.tick_params(
             axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
             which='both',      # both major and minor ticks are affected
-            bottom='on',      # ticks along the bottom edge are off
+            bottom='off',      # ticks along the bottom edge are off
             top='off',         # ticks along the top edge are off
             right = 'off',
             left = 'on',          
-            labelbottom='on', # labels along the bottom edge are on
+            labelbottom='off', # labels along the bottom edge are on
             colors = 'black',
             labelsize = 8,
             direction = 'out') # ticks are outside the frame when bottom = 'on'  
@@ -232,19 +218,19 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax, 
         plt.tick_params(
             axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
             which='both',      # both major and minor ticks are affected
-            bottom='on',      # ticks along the bottom edge are off
+            bottom='off',      # ticks along the bottom edge are off
             top='off',         # ticks along the top edge are off
             right = 'off',
             left = 'off',          
-            labelbottom='on', # labels along the bottom edge are on
+            labelbottom='off', # labels along the bottom edge are on
             colors = 'black',
             labelsize = 8,
             labelleft = 'off',
             direction = 'out') # ticks are outside the frame when bottom = 'on'  
     
-    # write label for x axis
-    ax.set_xticks([0.15, 0.55, 0.95, 1.35, 1.75])
-    ax.set_xticklabels(['Incl', 'Prox', 'Mod', 'Inter', 'Dist'], rotation = 0, ha = 'center', fontsize = 8, **FigFont)   
+    ## write label for x axis
+    #ax.set_xticks([0.15, 0.55, 0.95, 1.35, 1.75])
+    #ax.set_xticklabels(['Incl', 'Prox', 'Mod', 'Inter', 'Dist'], rotation = 0, ha = 'center', fontsize = 8, **FigFont)   
     
     if YAxis == True:
         # Set the tick labels font name
@@ -256,7 +242,7 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax, 
 
 
 # create figure
-fig = plt.figure(1, figsize = (6.5, 3))
+fig = plt.figure(1, figsize = (7, 2.5))
 
 # plot data
 ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Expression divergence', 0.71, True)
@@ -265,21 +251,35 @@ ax3 = CreateAx(5, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Expression di
 ax4 = CreateAx(5, 1, 4, fig, OrangOutanMeans, OrangOutanSEM, 'Orangutan', 'Expression divergence', 0.71, False)
 ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Expression divergence', 0.71, False)
 
-## annotate figure to add significance
-## significant comparisons were already determined, just need to add letters to show significance
-## get the x and y coordinates
-#CelDiff = ['A', 'B', 'C', 'D', 'A']
-#CbrDiff = ['A', 'B', 'C', 'A', 'D']
-#CrmDiff = ['A', 'B', 'B', 'C', 'A']
-#ypos = [19] * 5
-#xpos =  [0.15, 0.55, 0.95, 1.35, 1.75]
-#for i in range(len(CelDiff)):
-#    ax1.text(xpos[i], ypos[i], CelDiff[i], horizontalalignment='center',
-#             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
-#    ax2.text(xpos[i], ypos[i], CbrDiff[i], horizontalalignment='center',
-#             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
-#    ax3.text(xpos[i], ypos[i], CrmDiff[i], horizontalalignment='center',
-#             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
+# annotate figure to add significance
+# significant comparisons were already determined, just need to add letters to show significance
+# get the x and y coordinates
+HumanDiff = ['A', 'B', 'C', 'AD', 'AE']
+ChimpDiff = ['A', 'B', 'AD', 'AE', 'C']
+GorillaDiff = ['A', 'B', 'C', 'A', 'D']
+OrangutanDiff = ['A', 'B', 'C', 'AD', 'AE']
+MacaqueDiff = ['A', 'B', 'AD', 'AE', 'C']
+ypos = [0.62] * 5
+xpos =  [0.15, 0.55, 0.95, 1.35, 1.75]
+for i in range(len(HumanDiff)):
+    ax1.text(xpos[i], ypos[i], HumanDiff[i], horizontalalignment='center',
+             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
+    ax2.text(xpos[i], ypos[i], ChimpDiff[i], horizontalalignment='center',
+             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
+    ax3.text(xpos[i], ypos[i], GorillaDiff[i], horizontalalignment='center',
+             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
+    ax4.text(xpos[i], ypos[i], OrangutanDiff[i], horizontalalignment='center',
+             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
+    ax5.text(xpos[i], ypos[i], MacaqueDiff[i], horizontalalignment='center',
+             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
+
+# add legend relative to ax1 using ax1 coordinates
+N = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Nested')
+P = mpatches.Patch(facecolor = '#edf8fb', edgecolor = 'black', linewidth = 1, label= 'Proximal')
+M = mpatches.Patch(facecolor = '#b2e2e2', edgecolor = 'black', linewidth = 1, label= 'Moderate')
+I = mpatches.Patch(facecolor = '#66c2a4', edgecolor = 'black', linewidth = 1, label= 'Intermediate')
+D = mpatches.Patch(facecolor = '#238b45', edgecolor = 'black', linewidth = 1, label= 'Distant')
+ax1.legend(handles = [N, P, M, I, D], loc = (0.5, 1), fontsize = 8, frameon = False, ncol = 5)
 
 # make sure subplots do not overlap
 plt.tight_layout()
