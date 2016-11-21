@@ -146,23 +146,22 @@ for i in range(len(MacaqueExpDiv)):
     MacaqueSEM.append(np.std(MacaqueExpDiv[i]) / math.sqrt(len(MacaqueExpDiv[i])))
 
 
-
-
-## perform statistical tests between gene categories in all 3 species
-## create dict to store results {species: [P_host-nested, P_host-unnested, P_nested-unnested]}
-#PValues = {}
-## loop over inner lists in data list
-#for i in range(len(AllData)):
-#    # initialize dict with empty list
-#    PValues[SpeciesNames[i]] = []
-#    # loop over inner list, compare gene categories
-#    for j in range(0, len(AllData[i]) -1):
-#        for k in range(j+1, len(AllData[i])):
-#            P = stats.ranksums(AllData[i][j], AllData[i][k])[1]
-#            PValues[SpeciesNames[i]].append(P)
-## print p values
-#for species in PValues:
-#    print(species, PValues[species])
+# perform statistical tests between gene categories in all species
+# create dict to store results {species: [P_host-nested, P_host-unnested, P_nested-unnested]}
+AllData = [HumanExpDiv, ChimpExpDiv, GorillaExpDiv, OrangOutanExpDiv, MacaqueExpDiv]
+PValues = {}
+# loop over inner lists in data list
+for i in range(len(AllData)):
+    # initialize dict with empty list
+    PValues[species[i]] = []
+    # loop over inner list, compare gene categories
+    for j in range(0, len(AllData[i]) -1):
+        for k in range(j+1, len(AllData[i])):
+            P = stats.ranksums(AllData[i][j], AllData[i][k])[1]
+            PValues[species[i]].append(P)
+# print p values
+for sp in PValues:
+    print(sp, PValues[sp])
 
 
 # create a function to format the subplots
@@ -240,32 +239,31 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax, 
             labelbottom='on', # labels along the bottom edge are on
             colors = 'black',
             labelsize = 8,
+            labelleft = 'off',
             direction = 'out') # ticks are outside the frame when bottom = 'on'  
-    
-    
-    
     
     # write label for x axis
     ax.set_xticks([0.15, 0.55, 0.95, 1.35, 1.75])
     ax.set_xticklabels(['Incl', 'Prox', 'Mod', 'Inter', 'Dist'], rotation = 0, ha = 'center', fontsize = 8, **FigFont)   
-     
-    # Set the tick labels font name
-    for label in ax.get_yticklabels():
-        label.set_fontname('Arial')
+    
+    if YAxis == True:
+        # Set the tick labels font name
+        for label in ax.get_yticklabels():
+            label.set_fontname('Arial')
     # create a margin around the x axis
     plt.margins(0.1)
     return ax      
 
 
 # create figure
-fig = plt.figure(1, figsize = (6, 3))
+fig = plt.figure(1, figsize = (6.5, 3))
 
 # plot data
-ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Expression\ndivergence', 0.8, True)
-ax2 = CreateAx(5, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Expression\ndivergence', 0.8, False)
-ax3 = CreateAx(5, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Expression\ndivergence', 0.8, False)
-ax4 = CreateAx(5, 1, 4, fig, OrangOutanMeans, OrangOutanSEM, 'Orangutan', 'Expression\ndivergence', 0.8, False)
-ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Expression\ndivergence', 0.8, False)
+ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Expression divergence', 0.71, True)
+ax2 = CreateAx(5, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Expression divergence', 0.71, False)
+ax3 = CreateAx(5, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Expression divergence', 0.71, False)
+ax4 = CreateAx(5, 1, 4, fig, OrangOutanMeans, OrangOutanSEM, 'Orangutan', 'Expression divergence', 0.71, False)
+ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Expression divergence', 0.71, False)
 
 ## annotate figure to add significance
 ## significant comparisons were already determined, just need to add letters to show significance
