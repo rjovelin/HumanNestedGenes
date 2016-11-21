@@ -166,7 +166,7 @@ for i in range(len(MacaqueExpDiv)):
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax):
+def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax, YAxis):
     '''
     (int, int, int, list, figure_object, str, int, list, list)
     Take the number of a column, and rows in the figure object and the position of
@@ -185,16 +185,27 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax):
            error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
-    # write label for y and x axis
-    ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-    ax.set_xlabel(XLabel, style = 'italic', color = 'black',  size = 8, ha = 'center', **FigFont)
+    
+    if YAxis == True:
+        # write label for y and x axis
+        ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
+    
+    
+    #ax.set_xlabel(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
+        
+    plt.title(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
+    
+    
     # add a range for the Y axis
     plt.ylim([0, YMax])
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
-    ax.spines["right"].set_visible(False)    
-    ax.spines["left"].set_visible(True)  
+    ax.spines["right"].set_visible(False)
+    if YAxis == True:
+        ax.spines["left"].set_visible(True)  
+    elif YAxis == False:
+        ax.spines["left"].set_visible(False)
     # offset the spines
     for spine in ax.spines.values():
         spine.set_position(('outward', 5))
@@ -203,20 +214,37 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax):
     ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
     # hide these grids behind plot objects
     ax.set_axisbelow(True)
-
-    # do not show ticks
-    plt.tick_params(
-        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-        which='both',      # both major and minor ticks are affected
-        bottom='on',      # ticks along the bottom edge are off
-        top='off',         # ticks along the top edge are off
-        right = 'off',
-        left = 'on',          
-        labelbottom='on', # labels along the bottom edge are on
-        colors = 'black',
-        labelsize = 8,
-        direction = 'out') # ticks are outside the frame when bottom = 'on'  
-     
+    
+    if YAxis == True:
+        # do not show ticks
+        plt.tick_params(
+            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+            which='both',      # both major and minor ticks are affected
+            bottom='on',      # ticks along the bottom edge are off
+            top='off',         # ticks along the top edge are off
+            right = 'off',
+            left = 'on',          
+            labelbottom='on', # labels along the bottom edge are on
+            colors = 'black',
+            labelsize = 8,
+            direction = 'out') # ticks are outside the frame when bottom = 'on'  
+    elif YAxis == False:
+        # do not show ticks
+        plt.tick_params(
+            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+            which='both',      # both major and minor ticks are affected
+            bottom='on',      # ticks along the bottom edge are off
+            top='off',         # ticks along the top edge are off
+            right = 'off',
+            left = 'off',          
+            labelbottom='on', # labels along the bottom edge are on
+            colors = 'black',
+            labelsize = 8,
+            direction = 'out') # ticks are outside the frame when bottom = 'on'  
+    
+    
+    
+    
     # write label for x axis
     ax.set_xticks([0.15, 0.55, 0.95, 1.35, 1.75])
     ax.set_xticklabels(['Incl', 'Prox', 'Mod', 'Inter', 'Dist'], rotation = 0, ha = 'center', fontsize = 8, **FigFont)   
@@ -230,14 +258,14 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax):
 
 
 # create figure
-fig = plt.figure(1, figsize = (2.5, 5))
+fig = plt.figure(1, figsize = (6, 3))
 
 # plot data
-ax1 = CreateAx(1, 5, 1, fig, HumanMeans, HumanSEM, 'H. sapiens', 'Expression\ndivergence', 1)
-ax2 = CreateAx(1, 5, 2, fig, ChimpMeans, ChimpSEM, 'P. troglodytes', 'Expression\ndivergence', 1)
-ax3 = CreateAx(1, 5, 3, fig, GorillaMeans, GorillaSEM, 'C. remanei', 'Expression\ndivergence', 1)
-ax4 = CreateAx(1, 5, 4, fig, OrangOutanMeans, OrangOutanSEM, 'C. remanei', 'Expression\ndivergence', 1)
-ax5 = CreateAx(1, 5, 5, fig, MacaqueMeans, MacaqueSEM, 'C. remanei', 'Expression\ndivergence', 1)
+ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Expression\ndivergence', 0.8, True)
+ax2 = CreateAx(5, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Expression\ndivergence', 0.8, False)
+ax3 = CreateAx(5, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Expression\ndivergence', 0.8, False)
+ax4 = CreateAx(5, 1, 4, fig, OrangOutanMeans, OrangOutanSEM, 'Orangutan', 'Expression\ndivergence', 0.8, False)
+ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Expression\ndivergence', 0.8, False)
 
 ## annotate figure to add significance
 ## significant comparisons were already determined, just need to add letters to show significance
