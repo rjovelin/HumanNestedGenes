@@ -284,8 +284,7 @@ ax1.legend(handles = [N, P, M, I, D], loc = (0.5, 1), fontsize = 8, frameon = Fa
 # make sure subplots do not overlap
 plt.tight_layout()
 
-outputfile = 'truc'
 # save figure
-fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
-#fig.savefig(outputfile + '.png', bbox_inches = 'tight')
+fig.savefig('ExpressionDivergenceDistance.pdf', bbox_inches = 'tight')
+fig.savefig('ExpressionDivergenceDistance.eps', bbox_inches = 'tight')
 
