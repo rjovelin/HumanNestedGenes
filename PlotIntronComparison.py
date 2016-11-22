@@ -280,7 +280,7 @@ def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
 
 
 # create figure
-fig = plt.figure(1, figsize = (5, 3))
+fig = plt.figure(1, figsize = (5, 2.5))
 
 # plot data
 if PlottingVariable == 'IntronNumber':
@@ -299,7 +299,7 @@ elif PlottingVariable == 'IntronLength':
 
 # make lists with bracket and star positions
 if PlottingVariable == 'IntronNumber':
-    XPos = [[0.1, 0.28, 15.5, 0.2, 16], [0.1, 0.5, 16.5, 0.3, 17], [0.32, 0.5, 15.5, 0.4, 16]]
+    XPos = [[0.1, 0.28, 15.5, 0.2, 16], [0.1, 0.5, 16.5, 0.3, 17.5], [0.32, 0.5, 15.5, 0.4, 16]]
 elif PlottingVariable == 'IntronLength':
     XPos = [[0.1, 0.28, 720, 0.2, 740], [0.1, 0.5, 760, 0.3, 800], [0.32, 0.5, 720, 0.4, 740]]
     
