@@ -140,6 +140,6 @@ newfile.write(header + '\n')
 
 # loop over species:
 for i in range(len(SpeciesNames)):
-    line = '\t'.join([SpeciesNames[0], str(IntronlessSame[i]), str(IntronlessOpposite[i]), str(IntronSame[i]), str(IntronOpposite[i])])
+    line = '\t'.join([SpeciesNames[0], str(IntronlessSame[i]), str(IntronlessOpposite[i]), str(IntronSame[i]), str(IntronOpposite[i]), str(PVal[i])])
     newfile.write(line + '\n')
 newfile.close()
