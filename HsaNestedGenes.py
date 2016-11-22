@@ -763,6 +763,52 @@ def TransformRelativeExpression(ExpressionProfile):
     return RelativeExpression
 
 
+# use this function to compute the expression breadth of expressed genes
+def ExpressionBreadth(ExpressionProfile):
+    '''
+    
+    
+    '''
+    
+    
+    pass
+
+
+
+# use this function to compute expression specificity of a single gene
+def ComputeTau(L):
+    '''
+    (list) -> float
+    Take a list with expression level values of a single gene and return the
+    expression specificity (tau) index of this gene. tau ranges from 0 to 1 and
+    high values indicates tissue-specific expression     
+    '''
+    
+    tau = 0
+    # loop over list of expression values, add 1 - (value / maximum value)
+    for i in range(len(L)):
+        tau += (1 - (L[i] / max(L)))
+    # divide tau by number of tissues -1
+    return tau / (len(L) -1)
+
+
+
+# use this function to compute expression specificity of each gene
+def ExpressionSpecificity(ExpressionProfile):
+    '''
+    (dict) -> dict
+    Take the dictionary with expression profiles for each gene and return a 
+    dictionary with expression specificity
+    Precondition: genes without expression have been removed
+    '''
+    
+    # create a dict {gene: tau}
+    specificity = {}
+    # loop over genes with expression profiles
+    for gene in ExpressionProfile:
+        specificity[gene] = ComputeTau[ExpressionProfile[gene]]
+    return specificity
+
 # use this function to compute the euclidian distance between expression vectors
 def EuclidianDistance(L1, L2):
     '''
