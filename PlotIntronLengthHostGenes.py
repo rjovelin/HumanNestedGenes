@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib import rc
 rc('mathtext', default='regular')
+import matplotlib.gridspec as gridspec
 import json
 import random
 import copy
@@ -259,7 +260,7 @@ def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
 
 
 # create figure
-fig = plt.figure(1, figsize = (3.5, 2))
+fig = plt.figure(1, figsize = (3.8, 2))
 
 # plot data
 ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Intron length (Kbp)', 70, True)
@@ -295,13 +296,80 @@ Wo = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, l
 ax1.legend(handles = [W, Wo], loc = (0.5, 1.2), fontsize = 8, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
-plt.tight_layout()
+#plt.tight_layout()
 
-plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+#plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 # tight_layout() can take keyword arguments of pad, w_pad and h_pad.
 # These control the extra padding around the figure border and between subplots.
 # The pads are specified in fraction of fontsize.
 
+
+gs1 = gridspec.GridSpec(1, )
+gs1.update(wspace=0.3, hspace=0.05) # set the spacing between axes. 
+
+
+
+
+
+'''
+You can use plt.subplots_adjust to change the spacing between the subplots Link
+
+subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=None)
+
+left  = 0.125  # the left side of the subplots of the figure
+right = 0.9    # the right side of the subplots of the figure
+bottom = 0.1   # the bottom of the subplots of the figure
+top = 0.9      # the top of the subplots of the figure
+wspace = 0.2   # the amount of width reserved for blank space between subplots
+hspace = 0.5   # the amount of height reserved for white space between subplots
+
+
+OR
+
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+images = [np.random.rand(40, 40) for x in range(68)]
+gs = mpl.gridspec.GridSpec(1, 5) # n rows and columns
+gs.update(wspace=0.1, hspace=0.1, left=0.1, right=0.4, bottom=0.1, top=0.9) 
+for i in range(68):
+    plt.subplot(gs[i])
+    plt.imshow(images[i])
+    plt.axis('off')
+plt.show()
+
+OR
+
+
+7
+down vote
+accepted
+When you call update, you're applying those parameters to all of the subplots in that particular gridspec. If you want to use different parameters for different subplots, you can make multiple gridspecs. However, you'll need to make sure they are the correct size and don't overlap. One way do to that is with nested gridspecs. Since the total height of the bottom two plots is 6 times the top, the outer gridspec will have a height ratio of [1, 6].
+
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+
+
+def do_stuff(cell): #just so the plots show up
+    ax = plt.subplot(cell)
+    ax.plot()
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+plt.subplots_adjust(hspace=0.0)
+#make outer gridspec
+outer = gridspec.GridSpec(2, 1, height_ratios = [1, 6]) 
+#make nested gridspecs
+gs1 = gridspec.GridSpecFromSubplotSpec(1, 1, subplot_spec = outer[0])
+gs2 = gridspec.GridSpecFromSubplotSpec(2, 1, subplot_spec = outer[1], hspace = .05)
+for cell in gs1:
+    do_stuff(cell)
+for cell in gs2:
+    do_stuff(cell)
+plt.show()
+
+'''
 
 
 ## build outputfile with arguments
