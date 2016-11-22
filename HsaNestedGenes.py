@@ -1229,7 +1229,7 @@ def GenerateUnNestedGenePairs(HostGenes, GeneCoord, OrderedGenes, ExpressionProf
                         StartGene2 = GeneCoord[OrderedGenes[chromo][j]][1]
                         # check if distance is less that 500 bp
                         D = StartGene2 - EndGene1
-                        if D >= 0 and D <= 5000:
+                        if D >= 0 and D <= 3000:
                             # add gene pair and update counter
                             ToDrawFrom[chromo][k] = [OrderedGenes[chromo][i], OrderedGenes[chromo][j]]
                             k += 1
