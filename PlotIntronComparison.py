@@ -115,6 +115,10 @@ for i in range(len(GFFs)):
         NestedNum = CollectNestedGeneIntronLength(SpMatches, SpTranscriptCoordinates, SpIntronCoord)
         # get intron length for un-nested genes
         OthersNum = CollectUnNestedGeneIntronLength(SpUnNestedGenes,  SpGeneLongestTranscript, SpTranscriptCoordinates, SpIntronCoord)
+        # convert bp to Kbp
+        HostNum = list(map(lambda x: x/1000, HostNum))
+        NestedNum = list(map(lambda x: x/1000, NestedNum))
+        OthersNum = list(map(lambda x: x/1000, OthersNum))
     # populate lists
     HostIntron.append(HostNum)
     NestedIntron.append(NestedNum)
@@ -290,18 +294,18 @@ if PlottingVariable == 'IntronNumber':
     ax4 = CreateAx(5, 1, 4, fig, OrangutanMeans, OrangutanSEM, 'Orangutan', 'Number of introns per gene', 20, False)
     ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Number of introns per gene', 20, False)
 elif PlottingVariable == 'IntronLength':
-    ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Intron length (bp)', 5000, True)
-    ax2 = CreateAx(5, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Intron length (bp)', 5000, False)
-    ax3 = CreateAx(5, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Intron length (bp)', 5000, False)
-    ax4 = CreateAx(5, 1, 4, fig, OrangutanMeans, OrangutanSEM, 'Orangutan', 'Intron length (bp)', 5000, False)
-    ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Intron length (bp)', 5000, False)
+    ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Intron length (Kbp)', 20, True)
+    ax2 = CreateAx(5, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Intron length (Kbp)', 20, False)
+    ax3 = CreateAx(5, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Intron length (Kbp)', 20, False)
+    ax4 = CreateAx(5, 1, 4, fig, OrangutanMeans, OrangutanSEM, 'Orangutan', 'Intron length (Kbp)', 20, False)
+    ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Intron length (Kbp)', 20, False)
 
 
 # make lists with bracket and star positions
 if PlottingVariable == 'IntronNumber':
     XPos = [[0.1, 0.28, 15.5, 0.2, 16], [0.1, 0.5, 16.5, 0.3, 17.5], [0.32, 0.5, 15.5, 0.4, 16]]
 elif PlottingVariable == 'IntronLength':
-    XPos = [[0.1, 0.28, 720, 0.2, 740], [0.1, 0.5, 760, 0.3, 800], [0.32, 0.5, 720, 0.4, 740]]
+    XPos = [[0.1, 0.28, 16, 0.2, 16.5], [0.1, 0.5, 17, 0.3, 18], [0.32, 0.5, 16, 0.4, 16.5]]
     
 
 # annotate figure to add significance
@@ -321,6 +325,12 @@ for i in range(len(Significance['macaque'])):
     if Significance['macaque'][i] != '':
         ax5 = AddSignificance(ax5, Significance['macaque'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
  
+
+# add legend relative to ax1 using ax1 coordinates
+H = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'Hosts')
+N = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Nested')
+U = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'Un-nested')
+ax1.legend(handles = [H, N, U], loc = (0.5, 1), fontsize = 8, frameon = False, ncol = 3)
 
 # make sure subplots do not overlap
 plt.tight_layout()
