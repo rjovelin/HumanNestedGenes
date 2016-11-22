@@ -259,7 +259,7 @@ def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
 
 
 # create figure
-fig = plt.figure(1, figsize = (3.8, 2.5))
+fig = plt.figure(1, figsize = (3.5, 2))
 
 # plot data
 ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Intron length (Kbp)', 70, True)
@@ -269,7 +269,7 @@ ax4 = CreateAx(5, 1, 4, fig, OrangutanMeans, OrangutanSEM, 'Orangutan', 'Intron 
 ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Intron length (Kbp)', 70, False)
 
 # make lists with bracket and star positions
-XPos = [[0.1, 0.28, 16, 0.2, 16.5], [0.1, 0.5, 17, 0.3, 18], [0.32, 0.5, 16, 0.4, 16.5]]
+XPos = [[0.1, 0.28, 68, 0.2, 73]]
     
 # annotate figure to add significance
 for i in range(len(Significance['human'])):
@@ -290,12 +290,19 @@ for i in range(len(Significance['macaque'])):
  
 
 # add legend relative to ax1 using ax1 coordinates
-W = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'Hosts')
-Wo = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Nested')
-ax1.legend(handles = [W, Wo], loc = (0.5, 1), fontsize = 8, frameon = False, ncol = 2)
+W = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'With genes')
+Wo = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Without genes')
+ax1.legend(handles = [W, Wo], loc = (0.5, 1.2), fontsize = 8, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
 plt.tight_layout()
+
+plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+# tight_layout() can take keyword arguments of pad, w_pad and h_pad.
+# These control the extra padding around the figure border and between subplots.
+# The pads are specified in fraction of fontsize.
+
+
 
 ## build outputfile with arguments
 #if PlottingVariable == 'IntronNumber':
