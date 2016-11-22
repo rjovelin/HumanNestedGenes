@@ -58,7 +58,7 @@ MmlGFF = 'Macaca_mulatta.Mmul_8.0.1.86.gff3'
 # make a list of primate GFF files
 GFFs = [HsaGFF, PtrGFF, GgoGFF, PabGFF, MmlGFF]
 # make a list of species names
-SpeciesNames = ['human', 'chimp', 'gorilla', 'orangutan', 'macaque']
+SpeciesNames = ['human', 'chimp', 'gorilla', 'orangoutan', 'macaque']
 # make a list of host:nested genes dictionaries
 HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes, OrangOutanHostGenes, MacaqueHostGenes]
 
@@ -314,9 +314,9 @@ for i in range(len(Significance['chimp'])):
 for i in range(len(Significance['gorilla'])):
     if Significance['gorilla'][i] != '':
         ax3 = AddSignificance(ax3, Significance['gorilla'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
-for i in range(len(Significance['orangutan'])):
-    if Significance['orangutan'][i] != '':
-        ax4 = AddSignificance(ax4, Significance['orangutan'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
+for i in range(len(Significance['orangoutan'])):
+    if Significance['orangoutan'][i] != '':
+        ax4 = AddSignificance(ax4, Significance['orangoutan'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
 for i in range(len(Significance['macaque'])):
     if Significance['macaque'][i] != '':
         ax5 = AddSignificance(ax5, Significance['macaque'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
