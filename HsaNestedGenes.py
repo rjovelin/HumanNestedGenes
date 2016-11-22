@@ -766,13 +766,21 @@ def TransformRelativeExpression(ExpressionProfile):
 # use this function to compute the expression breadth of expressed genes
 def ExpressionBreadth(ExpressionProfile):
     '''
-    
-    
+    (dict) -> dict
+    Take the dictionary with expression profiles for each gene and return a 
+    dictionary with the number of tissues in which the gene is expressed
+    Precondition: genes without expression have been removed    
     '''
     
-    
-    pass
-
+    # create a dictionary {gene: number of tissues with expression}
+    breadth = {}
+    # loop over genes with expression profiles
+    for gene in ExpressionProfile:
+        # count the number of tissues with non-0 expression
+        Ntissues = [i for i in ExpressionProfile[gene] if i != 0]
+        Ntissues = len(Ntissues)
+        breadth[gene] = Ntissues
+    return breadth
 
 
 # use this function to compute expression specificity of a single gene
@@ -790,8 +798,6 @@ def ComputeTau(L):
         tau += (1 - (L[i] / max(L)))
     # divide tau by number of tissues -1
     return tau / (len(L) -1)
-
-
 
 # use this function to compute expression specificity of each gene
 def ExpressionSpecificity(ExpressionProfile):
