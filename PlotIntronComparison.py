@@ -335,12 +335,12 @@ ax1.legend(handles = [H, N, U], loc = (0.5, 1), fontsize = 8, frameon = False, n
 # make sure subplots do not overlap
 plt.tight_layout()
 
-## build outputfile with arguments
-#if PlottingVariable == 'IntronNumber':
-#    outputfile = 'IntronNumberDiffAllGenes'
-#elif PlottingVariable == 'IntronLength':
-#    outputfile = 'IntronLengthDiffAllGenes'
+# build outputfile with arguments
+if PlottingVariable == 'IntronNumber':
+    outputfile = 'IntronNumberDiffAllGenes'
+elif PlottingVariable == 'IntronLength':
+    outputfile = 'IntronLengthDiffAllGenes'
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-#fig.savefig(outputfile + '.png', bbox_inches = 'tight')
+fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
 
