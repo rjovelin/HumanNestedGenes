@@ -58,7 +58,7 @@ MmlGFF = 'Macaca_mulatta.Mmul_8.0.1.86.gff3'
 # make a list of primate GFF files
 GFFs = [HsaGFF, PtrGFF, GgoGFF, PabGFF, MmlGFF]
 # make a list of species names
-SpeciesNames = ['human', 'chimp', 'gorilla', 'orangoutan', 'macaque']
+SpeciesNames = ['human', 'chimp', 'gorilla', 'orangutan', 'macaque']
 # make a list of host:nested genes dictionaries
 HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes, OrangOutanHostGenes, MacaqueHostGenes]
 
@@ -150,7 +150,7 @@ def GetMeanSEM(L):
 HumanMeans, HumanSEM = GetMeanSEM(HumanIntron)
 ChimpMeans, ChimpSEM = GetMeanSEM(ChimpIntron)
 GorillaMeans, GorillaSEM = GetMeanSEM(GorillaIntron)
-OrangOutanMeans, OrangOutanSEM = GetMeanSEM(OrangutanIntron)
+OrangutanMeans, OrangutanSEM = GetMeanSEM(OrangutanIntron)
 MacaqueMeans, MacaqueSEM = GetMeanSEM(MacaqueIntron)
 
 # perform statistical tests between gene categories in all species
@@ -188,7 +188,7 @@ for species in SpeciesNames:
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax):
+def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax, YAxis):
     '''
     (int, int, int, list, figure_object, str, int, list, list)
     Take the number of a column, and rows in the figure object and the position of
@@ -210,8 +210,9 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax):
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for y and x axis
-    ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-    ax.set_xlabel(XLabel, style = 'italic', color = 'black',  size = 8, ha = 'center', **FigFont)
+    if YAxis == True:
+        ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
+    ax.set_xlabel(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
     
     # add a range for the Y axis
     plt.ylim([0, YMax])
@@ -220,36 +221,44 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax):
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
     ax.spines["right"].set_visible(False)    
-    ax.spines["left"].set_visible(True)  
-    # offset the spines
-    for spine in ax.spines.values():
-        spine.set_position(('outward', 5))
+    if YAxis == True:
+        ax.spines["left"].set_visible(True)  
+    elif YAxis == False:
+        ax.spines["left"].set_visible(False)
     
-    # add a light grey horizontal grid to the plot, semi-transparent, 
-    ax.yaxis.grid(True, linestyle='-', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
-    # hide these grids behind plot objects
-    ax.set_axisbelow(True)
-
-    # do not show ticks
-    plt.tick_params(
-        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-        which='both',      # both major and minor ticks are affected
-        bottom='on',      # ticks along the bottom edge are off
-        top='off',         # ticks along the top edge are off
-        right = 'off',
-        left = 'on',          
-        labelbottom='on', # labels along the bottom edge are on
-        colors = 'black',
-        labelsize = 8,
-        direction = 'out') # ticks are outside the frame when bottom = 'on'  
+    if YAxis == True:
+        # do not show ticks
+        plt.tick_params(
+            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+            which='both',      # both major and minor ticks are affected
+            bottom='off',      # ticks along the bottom edge are off
+            top='off',         # ticks along the top edge are off
+            right = 'off',
+            left = 'on',          
+            labelbottom='off', # labels along the bottom edge are on
+            colors = 'black',
+            labelsize = 8,
+            direction = 'out') # ticks are outside the frame when bottom = 'on'  
+    elif YAxis == False:
+        # do not show ticks
+        plt.tick_params(
+            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+            which='both',      # both major and minor ticks are affected
+            bottom='off',      # ticks along the bottom edge are off
+            top='off',         # ticks along the top edge are off
+            right = 'off',
+            left = 'off',          
+            labelbottom='off', # labels along the bottom edge are on
+            colors = 'black',
+            labelsize = 8,
+            labelleft = 'off',
+            direction = 'out') # ticks are outside the frame when bottom = 'on'      
      
-    # write label for x axis
-    ax.set_xticks([0.1, 0.3, 0.5])
-    ax.set_xticklabels(['Hosts', 'Nested', 'Others'], rotation = 30, ha = 'right', fontsize = 8, **FigFont)   
+    if YAxis == True:
+        # Set the tick labels font name
+        for label in ax.get_yticklabels():
+            label.set_fontname('Arial')   
      
-    # Set the tick labels font name
-    for label in ax.get_yticklabels():
-        label.set_fontname('Arial')
     # create a margin around the x axis
     plt.margins(0.1)
     return ax      
@@ -275,43 +284,44 @@ fig = plt.figure(1, figsize = (5, 3))
 
 # plot data
 if PlottingVariable == 'IntronNumber':
-    ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Number of introns per gene', 50)
-    ax2 = CreateAx(5, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Number of introns per gene', 50)
-    ax3 = CreateAx(5, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Number of introns per gene', 50)
-    ax4 = CreateAx(5, 1, 4, fig, OrangutanMeans, OrangutanSEM, 'Orangutan', 'Number of introns per gene', 50)
-    ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Number of introns per gene', 50)
+    ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Number of introns per gene', 20, True)
+    ax2 = CreateAx(5, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Number of introns per gene', 20, False)
+    ax3 = CreateAx(5, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Number of introns per gene', 20, False)
+    ax4 = CreateAx(5, 1, 4, fig, OrangutanMeans, OrangutanSEM, 'Orangutan', 'Number of introns per gene', 20, False)
+    ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Number of introns per gene', 20, False)
+elif PlottingVariable == 'IntronLength':
+    ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Intron length (bp)', 5000, True)
+    ax2 = CreateAx(5, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Intron length (bp)', 5000, False)
+    ax3 = CreateAx(5, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Intron length (bp)', 5000, False)
+    ax4 = CreateAx(5, 1, 4, fig, OrangutanMeans, OrangutanSEM, 'Orangutan', 'Intron length (bp)', 5000, False)
+    ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Intron length (bp)', 5000, False)
 
 
-
-
-
-#elif PlottingVariable == 'IntronLength':
-#    ax1 = CreateAx(3, 1, 1, fig, CelMeans, CelSEM, 'C. elegans', 'Intron length (bp)', 800)
-#    ax2 = CreateAx(3, 1, 2, fig, CbrMeans, CbrSEM, 'C. briggsae', 'Intron length (bp)', 1000)
-#    ax3 = CreateAx(3, 1, 3, fig, CrmMeans, CrmSEM, 'C. remanei', 'Intron length (bp)', 600)
-
-## make lists with bracket and star positions
-#if PlottingVariable == 'IntronNumber':
-#    CelPos = [[0.1, 0.28, 11.5, 0.2, 12], [0.1, 0.5, 13, 0.3, 14], [0.32, 0.5, 11.5, 0.4, 12]]
-#    CbrPos = [[0.1, 0.28, 11.5, 0.2, 12], [0.1, 0.5, 13, 0.3, 14], [0.32, 0.5, 11.5, 0.4, 12]]
-#    CrmPos = [[0.1, 0.28, 12.8, 0.2, 13.3], [0.1, 0.5, 14, 0.3, 15], [0.32, 0.5, 12.8, 0.4, 13.3]]
-#elif PlottingVariable == 'IntronLength':
-#    CelPos = [[0.1, 0.28, 720, 0.2, 740], [0.1, 0.5, 760, 0.3, 800], [0.32, 0.5, 720, 0.4, 740]]
-#    CbrPos = [[0.1, 0.28, 940, 0.2, 970], [0.1, 0.5, 980, 0.3, 1030], [0.32, 0.5, 940, 0.4, 970]]
-#    CrmPos = [[0.1, 0.28, 460, 0.2, 480], [0.1, 0.5, 490, 0.3, 530], [0.32, 0.5, 460, 0.4, 480]]
-#
-## annotate figure to add significance
-#for i in range(len(Significance['Cel'])):
-#    if Significance['Cel'][i] != '':
-#        ax1 = AddSignificance(ax1, Significance['Cel'][i], CelPos[i][0], CelPos[i][1], CelPos[i][2], CelPos[i][3], CelPos[i][4])
-#for i in range(len(Significance['Cbr'])):
-#    if Significance['Cbr'][i]  != '':
-#        ax2 = AddSignificance(ax2, Significance['Cbr'][i], CbrPos[i][0], CbrPos[i][1], CbrPos[i][2], CbrPos[i][3], CbrPos[i][4])
-#for i in range(len(Significance['Crm'])):
-#    if Significance['Crm'][i] != '':
-#        ax3 = AddSignificance(ax3, Significance['Crm'][i], CrmPos[i][0], CrmPos[i][1], CrmPos[i][2], CrmPos[i][3], CrmPos[i][4])
+# make lists with bracket and star positions
+if PlottingVariable == 'IntronNumber':
+    XPos = [[0.1, 0.28, 15.5, 0.2, 16], [0.1, 0.5, 16.5, 0.3, 17], [0.32, 0.5, 15.5, 0.4, 16]]
+elif PlottingVariable == 'IntronLength':
+    XPos = [[0.1, 0.28, 720, 0.2, 740], [0.1, 0.5, 760, 0.3, 800], [0.32, 0.5, 720, 0.4, 740]]
     
+
+# annotate figure to add significance
+for i in range(len(Significance['human'])):
+    if Significance['human'][i] != '':
+        ax1 = AddSignificance(ax1, Significance['human'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
+for i in range(len(Significance['chimp'])):
+    if Significance['chimp'][i]  != '':
+        ax2 = AddSignificance(ax2, Significance['chimp'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
+for i in range(len(Significance['gorilla'])):
+    if Significance['gorilla'][i] != '':
+        ax3 = AddSignificance(ax3, Significance['gorilla'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
+for i in range(len(Significance['orangutan'])):
+    if Significance['orangutan'][i] != '':
+        ax4 = AddSignificance(ax4, Significance['orangutan'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
+for i in range(len(Significance['macaque'])):
+    if Significance['macaque'][i] != '':
+        ax5 = AddSignificance(ax5, Significance['macaque'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
  
+
 # make sure subplots do not overlap
 plt.tight_layout()
 
