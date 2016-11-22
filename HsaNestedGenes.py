@@ -1185,3 +1185,65 @@ def CollectUnNestedGeneIntronLength(UnNestedGenes,  GeneLongestTranscript, Trans
             # transcript is intronless, add 0
             IntronLength.append(0)
     return IntronLength
+
+
+###################
+
+
+# use this function to generate un-nested pairs of genes to randomly draw
+def GenerateUnNestedGenePairs(HostGenes, GeneCoord, OrderedGenes, ExpressionProfile):
+    '''
+    (dict, dict, dict, dict) -> dict
+    Take the dictionary of host and nested genes, the dictionary of gene coordinates,
+    the dictionary of ordered genes along each chromosome, the dictionary of
+    gene: expression pairs and return a dictionary of pairs of number: gene pair on each chromsome
+    that are distant of 500 bp at most
+    '''
+    
+    # make a set of nested and host genes
+    IncludingNestedGenes = set()
+    for gene in HostGenes:
+        IncludingNestedGenes.add(gene)
+        for nested in HostGenes[gene]:
+            IncludingNestedGenes.add(nested)
+    
+    # make a dictionary with chromsome as key and number: gene pairs {chromo: {num: [gene1, gene2]}}    
+    ToDrawFrom = {}
+    # loop over chromosomes
+    for chromo in OrderedGenes:
+        # set up counter
+        k = 0
+        # add chromo as key and intialize inner dict
+        ToDrawFrom[chromo] = {}
+        # loop over the list of ordered genes
+        for i in range(len(OrderedGenes[chromo])):
+            # check that gene is not host or nested, has expression
+            if OrderedGenes[chromo][i] in ExpressionProfile and OrderedGenes[chromo][i] not in IncludingNestedGenes:
+                # get the end position of gene 1
+                EndGene1 = GeneCoord[OrderedGenes[chromo][i]][2]                
+                # grab 2nd gene to form a pair                
+                for j in range(i+1, len(OrderedGenes[chromo])):
+                    # check that gene is not host or nested and has expression
+                    if OrderedGenes[chromo][j] in ExpressionProfile and OrderedGenes[chromo][j] not in IncludingNestedGenes:
+                        # get the start position of gene 2
+                        StartGene2 = GeneCoord[OrderedGenes[chromo][j]][1]
+                        # check if distance is less that 500 bp
+                        D = StartGene2 - EndGene1
+                        if D >= 0 and D <= 5000:
+                            # add gene pair and update counter
+                            ToDrawFrom[chromo][k] = [OrderedGenes[chromo][i], OrderedGenes[chromo][j]]
+                            k += 1
+    return ToDrawFrom
+
+
+
+
+
+
+
+
+
+
+
+
+
