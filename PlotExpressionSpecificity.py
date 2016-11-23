@@ -6,10 +6,9 @@ Created on Tue Nov 22 17:24:13 2016
 """
 
 
-# use this script to plot the number of introns, or the intron length between host,
-# nested and un-nested genes
+# use this script to plot expression specificity for host, nested and control genes
 
-# usage python3 PlotIntronComparison.py [option]:
+# usage python3 PlotExpressionSpecificity.py 
 
 
 # import modules
