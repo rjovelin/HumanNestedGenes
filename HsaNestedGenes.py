@@ -812,7 +812,7 @@ def ExpressionSpecificity(ExpressionProfile):
     specificity = {}
     # loop over genes with expression profiles
     for gene in ExpressionProfile:
-        specificity[gene] = ComputeTau[ExpressionProfile[gene]]
+        specificity[gene] = ComputeTau(ExpressionProfile[gene])
     return specificity
 
 # use this function to compute the euclidian distance between expression vectors
