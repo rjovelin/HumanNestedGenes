@@ -104,8 +104,8 @@ for i in range(len(GFFs)):
 HumanTau = [HostSpecificity[0], NestedSpecificity[0]]
 ChimpTau = [HostSpecificity[1], NestedSpecificity[1]]
 GorillaTau = [HostSpecificity[2], NestedSpecificity[2]]
-OrangutanTau = [HostSpecificity[3], HostSpecificity[3]]
-Macaque = [HostSpecificity[4], HostSpecificity[4]]
+OrangutanTau = [HostSpecificity[3], NestedSpecificity[3]]
+MacaqueTau = [HostSpecificity[4], NestedSpecificity[4]]
 
 # make a list with all the list data
 AllData = [HumanTau, ChimpTau, GorillaTau, OrangutanTau, MacaqueTau]
@@ -148,7 +148,11 @@ for i in range(len(AllData)):
 for sp in PValues:
     print(sp, PValues[sp])
 
-
+print(HumanMeans)
+print(ChimpMeans)
+print(GorillaMeans)
+print(OrangutanMeans)
+print(MacaqueMeans)
 
 
 #    # print number of genes on each chromo
