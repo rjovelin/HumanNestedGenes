@@ -61,6 +61,7 @@ HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes, OrangOutanHostGen
 # make parallel lists to store expression specificity of host and nested genes [[human], [chimp], [gorilla], [orangutan], [macaque]]
 HostSpecificity, NestedSpecificity, ControlSpecificity = [], [], []
 
+
 # loop over GFF files, find nested and intronic=nested genes in each species 
 for i in range(len(GFFs)):
     print(GFFs[i][:GFFs[i].index('.')], SpeciesNames[i])
@@ -97,7 +98,7 @@ for i in range(len(GFFs)):
     for pair in SpHostNestedPairs:
         # get the chromosome of the host and nested genes
         chromo = SpGeneCoord[pair[0]][0]
-        assert chromo == SpGeneCoord[pair[1]][0], 'chromosome of host and nested genes do not match'
+        assert chromo == SpGeneCoord[pair[1]][0], 'chromosome of host and nested genes do not match'        
         # draw 2 genes at random on chromo to match tthe host and nested genes
         for j in range(2):
             k = random.randint(0, len(SpGenesToDrawFrom[chromo]) -1)
@@ -116,13 +117,23 @@ for i in range(len(GFFs)):
     NestedSpecificity.append(taunested)
     ControlSpecificity.append(taucontrol)
 
-
 # make lists of gene specificity for each species     
 HumanTau = [HostSpecificity[0], NestedSpecificity[0], ControlSpecificity[0]]
 ChimpTau = [HostSpecificity[1], NestedSpecificity[1], ControlSpecificity[1]]
 GorillaTau = [HostSpecificity[2], NestedSpecificity[2], ControlSpecificity[2]]
 OrangutanTau = [HostSpecificity[3], NestedSpecificity[3], ControlSpecificity[3]]
 MacaqueTau = [HostSpecificity[4], NestedSpecificity[4], ControlSpecificity[4]]
+
+print(list(map(lambda x: len(x), HumanTau)))
+print(list(map(lambda x: len(x), ChimpTau)))
+print(list(map(lambda x: len(x), GorillaTau)))
+print(list(map(lambda x: len(x), OrangutanTau)))
+print(list(map(lambda x: len(x), MacaqueTau)))
+
+
+
+
+
 
 # make a list with all the list data
 AllData = [HumanTau, ChimpTau, GorillaTau, OrangutanTau, MacaqueTau]
@@ -322,9 +333,6 @@ ax1.legend(handles = [H, N, U], loc = (0.5, 1), fontsize = 8, frameon = False, n
 # make sure subplots do not overlap
 plt.tight_layout()
 
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-#fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
-
-
-
-
+outputfile = 'ExpressionSpecificity'
+fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
