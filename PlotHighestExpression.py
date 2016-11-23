@@ -57,8 +57,8 @@ SpeciesNames = ['human', 'chimp', 'gorilla', 'orangoutan', 'macaque']
 # make a list of host:nested genes dictionaries
 HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes, OrangOutanHostGenes, MacaqueHostGenes]
 
-# make parallel lists to store expression specificity of host and nested genes [[human], [chimp], [gorilla], [orangutan], [macaque]]
-HostSpecificity, NestedSpecificity, ControlSpecificity = [], [], []
+# make parallel lists to store gene proportions for each species and gene type [[human], [chimp], [gorilla], [orangutan], [macaque]]
+HostHighest, NestedHighest, ControlHighest = [], [], []
 
 
 # loop over GFF files, find nested and intronic=nested genes in each species 
@@ -79,10 +79,6 @@ for i in range(len(GFFs)):
     SpExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', SpeciesNames[i])
     # remove genes wuthout expression
     SpExpression = RemoveGenesLackingExpression(SpExpression)
-    # get relative expression
-    SpExpression = TransformRelativeExpression(SpExpression)
-    # compute expression specificity for all genes
-    SpTau = ExpressionSpecificity(SpExpression)    
     # make a set of host and nested genes (include all host and nested even if not expressed)    
     SpNestedConformation = MakeHostNestedGeneSet(HostGenes[i])    
     # generate a dict of expressed genes on each chromo to randomly draw from
@@ -102,106 +98,70 @@ for i in range(len(GFFs)):
         for j in range(2):
             k = random.randint(0, len(SpGenesToDrawFrom[chromo]) -1)
             SpControl.append(SpGenesToDrawFrom[chromo][k])
-    # create lists to store specificity for host and nested genes for that species
-    tauhost, taunested, taucontrol = [], [], []
+    # create lists to count the number of genes with highest expression in each tissues
+    # [brain, cerebellum, heart, kidney, liver, testis]   
+    hosthigh, nestedhigh, controlhigh = [0]*6, [0]*6, [0]*6
+    # loop over the control genes, determine the tissue with highest expression, update counter
+    for control in SpControl:
+        # get the index of the maximum expression value
+        pos = SpExpression[control].index(max(SpExpression[control]))
+        # check that there is a single maximum expression value
+        assert SpExpression[control].count(max(SpExpression[control])) == 1, 'control has > 1 max value'
+        # update counter list at pos index
+        controlhigh[pos] += 1
     # loop over gene pairs:
     for pair in SpHostNestedPairs:
-        # populate lists
-        tauhost.append(SpTau[pair[0]])
-        taunested.append(SpTau[pair[1]])
-    # loop over control genes
-    for control in SpControl:
-        taucontrol.append(SpTau[control])
-    HostSpecificity.append(tauhost)
-    NestedSpecificity.append(taunested)
-    ControlSpecificity.append(taucontrol)
-
-# make lists of gene specificity for each species     
-HumanTau = [HostSpecificity[0], NestedSpecificity[0], ControlSpecificity[0]]
-ChimpTau = [HostSpecificity[1], NestedSpecificity[1], ControlSpecificity[1]]
-GorillaTau = [HostSpecificity[2], NestedSpecificity[2], ControlSpecificity[2]]
-OrangutanTau = [HostSpecificity[3], NestedSpecificity[3], ControlSpecificity[3]]
-MacaqueTau = [HostSpecificity[4], NestedSpecificity[4], ControlSpecificity[4]]
-
-print(list(map(lambda x: len(x), HumanTau)))
-print(list(map(lambda x: len(x), ChimpTau)))
-print(list(map(lambda x: len(x), GorillaTau)))
-print(list(map(lambda x: len(x), OrangutanTau)))
-print(list(map(lambda x: len(x), MacaqueTau)))
-
-
-
-
-
-
-# make a list with all the list data
-AllData = [HumanTau, ChimpTau, GorillaTau, OrangutanTau, MacaqueTau]
-
-# create a function to get the mean and SEM of items in a list
-def GetMeanSEM(L):
-    '''
-    (list) -> (list, list)
-    Take a list of inner lists of numbers and return a list with mean values
-    and a parallel list with SEM values for each item of the outter list
-    '''
-    # create lists of mean and SEM
-    MeanVal, SEMVal = [], []
-    # loop over the outter ist
-    for i in range(len(L)):
-        MeanVal.append(np.mean(L[i]))
-        SEMVal.append(np.std(L[i]) / math.sqrt(len(L[i])))
-    return MeanVal, SEMVal
+        # get the index of the maximum expression value for the host and nested genes
+        poshost = SpExpression[pair[0]].index(max(SpExpression[pair[0]]))         
+        posnested = SpExpression[pair[1]].index(max(SpExpression[pair[1]]))
+        # check that there is a single maximum expression value
+        assert SpExpression[pair[0]].count(max(SpExpression[pair[0]])) == 1, 'host has > 1 max value'        
+        assert SpExpression[pair[1]].count(max(SpExpression[pair[1]])) == 1, 'nested has > 1 max value'
+        # update counter list as position index
+        hosthigh[poshost] += 1
+        nestedhigh[posnested] += 1
+    # divide counts by total of genes in each category to get the proportions
+    for m in range(len(hosthigh)):
+        hosthigh[m] = hosthigh[m] / len(SpHostNestedPairs)
+    for m in range(len(nestedhigh)):
+        nestedhigh[m] = nestedhigh[m] / len(SpHostNestedPairs)
+    for m in range(len(controlhigh)):
+        controlhigh[m] = controlhigh[m] / len(SpControl)
+    # populate lists
+    HostHighest.append(hosthigh)
+    NestedHighest.append(nestedhigh)    
+    ControlHighest.append(controlhigh)
     
-# create lists with means and with SEM
-HumanMeans, HumanSEM = GetMeanSEM(HumanTau)
-ChimpMeans, ChimpSEM = GetMeanSEM(ChimpTau)
-GorillaMeans, GorillaSEM = GetMeanSEM(GorillaTau)
-OrangutanMeans, OrangutanSEM = GetMeanSEM(OrangutanTau)
-MacaqueMeans, MacaqueSEM = GetMeanSEM(MacaqueTau)
-
-# perform statistical tests between gene categories in all species
-# create dict to store results {species: [P_host-nested, P_host-unnested, P_nested-unnested]}
-PValues = {}
-# loop over inner lists in data list
-for i in range(len(AllData)):
-    # initialize dict with empty list
-    PValues[SpeciesNames[i]] = []
-    # loop over inner list, compare gene categories
-    for j in range(0, len(AllData[i]) -1):
-        for k in range(j+1, len(AllData[i])):
-            P = stats.ranksums(AllData[i][j], AllData[i][k])[1]
-            PValues[SpeciesNames[i]].append(P)
-# print p values
-for sp in PValues:
-    print(sp, PValues[sp])
-
-print(HumanMeans)
-print(ChimpMeans)
-print(GorillaMeans)
-print(OrangutanMeans)
-print(MacaqueMeans)
-
-
-# create a dict with significance level as stars
-Significance = {}
-for species in SpeciesNames:
-    # initialize dict with empty list
-    Significance[species] = [] 
-    # get the significance level
-    for pval in PValues[species]:
-        if pval >= 0.05:
-            Significance[species].append('')
-        elif pval < 0.05 and pval >= 0.01:
-            Significance[species].append('*')
-        elif pval < 0.01 and pval >= 0.001:
-            Significance[species].append('**')
-        elif pval < 0.001:
-            Significance[species].append('***')
-  
-
+# make lists with the proportions of host, nested and control; genes in each tissues
+# [brain, cerebellum, heart, kidney, liver, testis]   
+HumanExp = []
+for i in range(len(HostHighest[0])):
+    HumanExp.append(HostHighest[0][i])
+    HumanExp.append(NestedHighest[0][i])
+    HumanExp.append(ControlHighest[0][i])
+ChimpExp = []
+for i in range(len(HostHighest[1])):
+    ChimpExp.append(HostHighest[1][i])
+    ChimpExp.append(NestedHighest[1][i])
+    ChimpExp.append(ControlHighest[1][i])
+GorillaExp = []
+for i in range(len(HostHighest[2])):
+    GorillaExp.append(HostHighest[2][i])
+    GorillaExp.append(NestedHighest[2][i])
+    GorillaExp.append(ControlHighest[2][i])
+OrangutanExp = []
+for i in range(len(HostHighest[3])):
+    OrangutanExp.append(HostHighest[3][i])
+    OrangutanExp.append(NestedHighest[3][i])
+    OrangutanExp.append(ControlHighest[3][i])
+MacaqueExp = []
+for i in range(len(HostHighest[4])):
+    MacaqueExp.append(HostHighest[4][i])
+    MacaqueExp.append(NestedHighest[4][i])
+    MacaqueExp.append(ControlHighest[4][i])
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax, YAxis):
+def CreateAx(Columns, Rows, Position, figure, Expression, XLabel, YLabel, YMax, XAxis):
     '''
     (int, int, int, list, figure_object, str, int, list, list)
     Take the number of a column, and rows in the figure object and the position of
@@ -216,16 +176,24 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax, 
     # set colors
     colorscheme = ['#a6cee3','#1f78b4','#b2df8a']
     # plot nucleotide divergence
-    ax.bar([0, 0.2, 0.4], Means, 0.2, yerr = SEM, color = colorscheme,
+    ax.bar([0, 0.2, 0.4,
+            0.7, 0.9, 1.1,
+            1.4, 1.6, 1.8,
+            2.1, 2.3, 2.5,
+            2.8, 3, 3.2,
+            3.5, 3.7, 3.9], Expression, 0.2, color = colorscheme,
            edgecolor = 'black', linewidth = 1,
            error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
 
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
-    # write label for y and x axis
-    if YAxis == True:
-        ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
+    # write y axis label
+    ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
     ax.set_xlabel(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
+    
+    if XAxis == True:
+        # write x ticks
+        plt.xticks([0.2, 0.9, 1.6, 2.3, 3, 3.7], ['brain', 'cerebellum', 'heart', 'kidney', 'liver', 'testis'], rotation = 'vertical', fontsize = 8, **FigFont)
     
     # add a range for the Y axis
     plt.ylim([0, YMax])
@@ -234,12 +202,22 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax, 
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
     ax.spines["right"].set_visible(False)    
-    if YAxis == True:
-        ax.spines["left"].set_visible(True)  
-    elif YAxis == False:
-        ax.spines["left"].set_visible(False)
-    
-    if YAxis == True:
+    ax.spines["left"].set_visible(True)  
+        
+    if XAxis == True:
+        # do not show ticks
+        plt.tick_params(
+            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+            which='both',      # both major and minor ticks are affected
+            bottom='on',      # ticks along the bottom edge are off
+            top='off',         # ticks along the top edge are off
+            right = 'off',
+            left = 'on',          
+            labelbottom='on', # labels along the bottom edge are on
+            colors = 'black',
+            labelsize = 8,
+            direction = 'out') # ticks are outside the frame when bottom = 'on'  
+    elif XAxis == False:
         # do not show ticks
         plt.tick_params(
             axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
@@ -251,77 +229,26 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, XLabel, YLabel, YMax, 
             labelbottom='off', # labels along the bottom edge are on
             colors = 'black',
             labelsize = 8,
-            direction = 'out') # ticks are outside the frame when bottom = 'on'  
-    elif YAxis == False:
-        # do not show ticks
-        plt.tick_params(
-            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-            which='both',      # both major and minor ticks are affected
-            bottom='off',      # ticks along the bottom edge are off
-            top='off',         # ticks along the top edge are off
-            right = 'off',
-            left = 'off',          
-            labelbottom='off', # labels along the bottom edge are on
-            colors = 'black',
-            labelsize = 8,
-            labelleft = 'off',
             direction = 'out') # ticks are outside the frame when bottom = 'on'      
      
-    if YAxis == True:
-        # Set the tick labels font name
-        for label in ax.get_yticklabels():
-            label.set_fontname('Arial')   
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')   
      
     # create a margin around the x axis
     plt.margins(0.1)
     return ax      
 
 
-# use this function to annotate the graph with significance levels
-def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
-    '''
-    (ax, str, num, num, num, num, num) -> ax
-    Take a matplotlib ax object, the significance level (as stars), the positions
-    of the bracket and star and return the ax with annotated significance level
-    '''
-    ax.annotate("", xy=(XLine1, YLine), xycoords='data', xytext=(XLine2, YLine), textcoords='data',
-                 arrowprops=dict(arrowstyle="-", ec='#aaaaaa', connectionstyle="bar,fraction=0.2", linewidth = 1))
-    # add stars for significance
-    ax.text(XText, YText, SignificanceLevel, horizontalalignment='center', verticalalignment='center',
-            color = 'grey', fontname = 'Arial', size = 6)
-    return ax
-
-
 # create figure
-fig = plt.figure(1, figsize = (5, 2.5))
+fig = plt.figure(1, figsize = (5, 8))
 
 # plot data
-ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Expression specificity', 1, True)
-ax2 = CreateAx(5, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Expression specificity', 1, False)
-ax3 = CreateAx(5, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Expression specificity', 1, False)
-ax4 = CreateAx(5, 1, 4, fig, OrangutanMeans, OrangutanSEM, 'Orangutan', 'Expression specificity', 1, False)
-ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Expression specificity', 1, False)
-
-# make lists with bracket and star positions
-XPos = [[0.1, 0.28, 0.8, 0.2, 0.85], [0.1, 0.5, 0.9, 0.3, 0.95], [0.32, 0.5, 0.8, 0.4, 0.85]]
-
-# annotate figure to add significance
-for i in range(len(Significance['human'])):
-    if Significance['human'][i] != '':
-        ax1 = AddSignificance(ax1, Significance['human'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
-for i in range(len(Significance['chimp'])):
-    if Significance['chimp'][i]  != '':
-        ax2 = AddSignificance(ax2, Significance['chimp'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
-for i in range(len(Significance['gorilla'])):
-    if Significance['gorilla'][i] != '':
-        ax3 = AddSignificance(ax3, Significance['gorilla'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
-for i in range(len(Significance['orangoutan'])):
-    if Significance['orangoutan'][i] != '':
-        ax4 = AddSignificance(ax4, Significance['orangoutan'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
-for i in range(len(Significance['macaque'])):
-    if Significance['macaque'][i] != '':
-        ax5 = AddSignificance(ax5, Significance['macaque'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
- 
+ax1 = CreateAx(1, 5, 1, fig, HumanExp, 'Human', 'Proportion of genes', 1, False)
+ax2 = CreateAx(1, 5, 2, fig, ChimpExp, 'Chimp', 'Proportion of genes', 1, False)
+ax3 = CreateAx(1, 5, 3, fig, GorillaExp, 'Gorilla', 'Proportion of genes', 1, False)
+ax4 = CreateAx(1, 5, 4, fig, OrangutanExp, 'Orangutan', 'Proportion of genes', 1, False)
+ax5 = CreateAx(1, 5, 5, fig, MacaqueExp, 'Macaque', 'Proportion of genes', 1, True)
 
 # add legend relative to ax1 using ax1 coordinates
 H = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'Hosts')
