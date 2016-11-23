@@ -1187,9 +1187,6 @@ def CollectUnNestedGeneIntronLength(UnNestedGenes,  GeneLongestTranscript, Trans
     return IntronLength
 
 
-###################
-
-
 # use this function to generate un-nested pairs of genes to randomly draw
 def GenerateUnNestedGenePairs(HostGenes, GeneCoord, OrderedGenes, ExpressionProfile):
     '''
@@ -1237,7 +1234,31 @@ def GenerateUnNestedGenePairs(HostGenes, GeneCoord, OrderedGenes, ExpressionProf
 
 
 
-
+# use this function to generate un-nested genes to randomly draw
+def GenerateAllUnNestedGenes(HostNestedGeneSet, OrderedGenes, ExpressionStage):
+    '''
+    (set, dict, dict) -> dict
+    Take the set of host and nested genes, the dictionary of ordered genes
+    along each chromosome, the dictionary of gene: expression pairs and return 
+    a dictionary of pairs of number: un-nested gene on each chromsome
+    '''
+    
+    # make a dictionary with chromsome as key and number: gene {chromo: {num: gene}}    
+    ToDrawGenesFrom = {}
+    # loop over chromosomes
+    for chromo in OrderedGenes:
+        # set up counter
+        k = 0
+        # add chromo as key and intialize inner dict
+        ToDrawGenesFrom[chromo] = {}
+        # loop over the list of ordered genes
+        for i in range(len(OrderedGenes[chromo])):
+            # check that gene is not host or nested, has expression
+            if OrderedGenes[chromo][i] in ExpressionStage and OrderedGenes[chromo][i] not in HostNestedGeneSet:
+                # add gene pair and update counter
+                ToDrawGenesFrom[chromo][k] = OrderedGenes[chromo][i]
+                k += 1
+    return ToDrawGenesFrom
 
 
 
