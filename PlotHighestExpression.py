@@ -161,7 +161,7 @@ for i in range(len(HostHighest[4])):
     MacaqueExp.append(ControlHighest[4][i])
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Expression, XLabel, YLabel, YMax, XAxis):
+def CreateAx(Columns, Rows, Position, figure, Expression, XLabel, YLabel, YMax):
     '''
     (int, int, int, list, figure_object, str, int, list, list)
     Take the number of a column, and rows in the figure object and the position of
@@ -191,9 +191,8 @@ def CreateAx(Columns, Rows, Position, figure, Expression, XLabel, YLabel, YMax, 
     ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
     ax.set_xlabel(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
     
-    if XAxis == True:
-        # write x ticks
-        plt.xticks([0.2, 0.9, 1.6, 2.3, 3, 3.7], ['brain', 'cerebellum', 'heart', 'kidney', 'liver', 'testis'], rotation = 'vertical', fontsize = 8, **FigFont)
+    # write x ticks
+    plt.xticks([0.3, 1, 1.7, 2.4, 3.1, 3.8], ['br', 'cb', 'ht', 'kd', 'lv', 'ts'], ha = 'center', fontsize = 8, **FigFont)
     
     # add a range for the Y axis
     plt.ylim([0, YMax])
@@ -204,57 +203,43 @@ def CreateAx(Columns, Rows, Position, figure, Expression, XLabel, YLabel, YMax, 
     ax.spines["right"].set_visible(False)    
     ax.spines["left"].set_visible(True)  
         
-    if XAxis == True:
-        # do not show ticks
-        plt.tick_params(
-            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-            which='both',      # both major and minor ticks are affected
-            bottom='on',      # ticks along the bottom edge are off
-            top='off',         # ticks along the top edge are off
-            right = 'off',
-            left = 'on',          
-            labelbottom='on', # labels along the bottom edge are on
-            colors = 'black',
-            labelsize = 8,
-            direction = 'out') # ticks are outside the frame when bottom = 'on'  
-    elif XAxis == False:
-        # do not show ticks
-        plt.tick_params(
-            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-            which='both',      # both major and minor ticks are affected
-            bottom='off',      # ticks along the bottom edge are off
-            top='off',         # ticks along the top edge are off
-            right = 'off',
-            left = 'on',          
-            labelbottom='off', # labels along the bottom edge are on
-            colors = 'black',
-            labelsize = 8,
-            direction = 'out') # ticks are outside the frame when bottom = 'on'      
-     
+    # do not show ticks
+    plt.tick_params(
+        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+        which='both',      # both major and minor ticks are affected
+        bottom='on',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        right = 'off',
+        left = 'on',          
+        labelbottom='on', # labels along the bottom edge are on
+        colors = 'black',
+        labelsize = 8,
+        direction = 'out') # ticks are outside the frame when bottom = 'on'  
+         
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')   
      
     # create a margin around the x axis
-    plt.margins(0.1)
+    #plt.margins(0.1)
     return ax      
 
 
 # create figure
-fig = plt.figure(1, figsize = (5, 8))
+fig = plt.figure(1, figsize = (3.5, 7.5))
 
 # plot data
-ax1 = CreateAx(1, 5, 1, fig, HumanExp, 'Human', 'Proportion of genes', 1, False)
-ax2 = CreateAx(1, 5, 2, fig, ChimpExp, 'Chimp', 'Proportion of genes', 1, False)
-ax3 = CreateAx(1, 5, 3, fig, GorillaExp, 'Gorilla', 'Proportion of genes', 1, False)
-ax4 = CreateAx(1, 5, 4, fig, OrangutanExp, 'Orangutan', 'Proportion of genes', 1, False)
-ax5 = CreateAx(1, 5, 5, fig, MacaqueExp, 'Macaque', 'Proportion of genes', 1, True)
+ax1 = CreateAx(1, 5, 1, fig, HumanExp, 'Human', 'Proportion of genes', 0.41)
+ax2 = CreateAx(1, 5, 2, fig, ChimpExp, 'Chimp', 'Proportion of genes', 0.41)
+ax3 = CreateAx(1, 5, 3, fig, GorillaExp, 'Gorilla', 'Proportion of genes', 0.41)
+ax4 = CreateAx(1, 5, 4, fig, OrangutanExp, 'Orangutan', 'Proportion of genes', 0.41)
+ax5 = CreateAx(1, 5, 5, fig, MacaqueExp, 'Macaque', 'Proportion of genes', 0.41)
 
 # add legend relative to ax1 using ax1 coordinates
 H = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'Hosts')
 N = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Nested')
 U = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'Control')
-ax1.legend(handles = [H, N, U], loc = (0.5, 1), fontsize = 8, frameon = False, ncol = 3)
+ax1.legend(handles = [H, N, U], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
 
 # make sure subplots do not overlap
 plt.tight_layout()
