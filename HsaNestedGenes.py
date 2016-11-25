@@ -1261,12 +1261,8 @@ def GenerateAllUnNestedGenes(HostNestedGeneSet, OrderedGenes, ExpressionStage):
     return ToDrawGenesFrom
 
 
-
-
-
-
 # use this function to sort young and ancestral nesting events
-def SortYoungOldNestingEvents(FirstSpOrthologs, FirstSpHostGenes, SecondSpHostgenes, OutGroupHostGenes, FirstSpHostNestedPairs):
+def InferYoungOldNestingEvents(FirstSpOrthologs, FirstSpHostGenes, SecondSpHostgenes, OutGroupHostGenes, FirstSpHostNestedPairs):
     '''
     (dict, dict, dict, dict, list) -> (list, list)
     Take a dictionary with ortholog gene trios, the dictionary of host: nested
@@ -1277,7 +1273,7 @@ def SortYoungOldNestingEvents(FirstSpOrthologs, FirstSpHostGenes, SecondSpHostge
     '''    
     
     # create lists of host-nested gene pairs that are old (present in second
-    # species, or second species and elegans) or young (not found in elegans
+    # species, or second species and outgroup) or young (not found in outgroup
     # and not found in the second species, ie species-specific)    
     old, young = [], []
     # loop over the gene pairs    
@@ -1286,13 +1282,13 @@ def SortYoungOldNestingEvents(FirstSpOrthologs, FirstSpHostGenes, SecondSpHostge
         if pair[0] in FirstSpOrthologs and pair[1] in FirstSpOrthologs:
             # check if gene pair is nested in second species and outgroup
             # get ortholog of host in 2nd species
-            hostorthosp2 = FirstSpOrthologs[pair[0]][1]
+            hostorthosp2 = FirstSpOrthologs[pair[0]][0]
             # get ortholog of nested in 2nd species
-            nestedorthosp2 = FirstSpOrthologs[pair[1]][1]
+            nestedorthosp2 = FirstSpOrthologs[pair[1]][0]
             # get ortholog of host in outgroup
-            hostorthoout = FirstSpOrthologs[pair[0]][0]
+            hostorthoout = FirstSpOrthologs[pair[0]][1]
             # get ortholog of nested gene in outgroup
-            nestedorthoout = FirstSpOrthologs[pair[1]][0]
+            nestedorthoout = FirstSpOrthologs[pair[1]][1]
             # check if orthologs are nested in other species
             if hostorthosp2 in SecondSpHostgenes:
                 if nestedorthosp2 in SecondSpHostgenes[hostorthosp2]:
@@ -1330,6 +1326,3 @@ def SortYoungOldNestingEvents(FirstSpOrthologs, FirstSpHostGenes, SecondSpHostge
             
     return old, young
     
-
-
-
