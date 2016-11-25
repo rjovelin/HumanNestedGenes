@@ -106,19 +106,36 @@ for gene in HumanOrthologs:
     ChimpOrthologs[HumanOrthologs[gene][0]] = [gene, HumanOrthologs[gene][1]]
 
 # make lists of old and yound host:nested pairs
-HumanOld, HumanYoung = SortYoungOldNestingEvents(HumanOrthologs, HostGenes[0], HostGenes[1], HostGenes[2], HumanHostNestedPairs)
-ChimpOld, ChimpYoung = SortYoungOldNestingEvents(ChimpOrthologs, HostGenes[1], HostGenes[0], HostGenes[2], ChimpHostNestedPairs)
+HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HostGenes[0], HostGenes[1], HostGenes[2], HumanHostNestedPairs)
+ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, HostGenes[1], HostGenes[0], HostGenes[2], ChimpHostNestedPairs)
  
 
 # make list of ancestral un-nested gene pairs
 humanancestral, chimpancestral = [], []
 
+to_remove = []
+for pair in HumanYoung:
+    ortho1, ortho2 = HumanOrthologs[pair[0]][0], HumanOrthologs[pair[1]][0]
+    if ortho1 not in ChimpExpression or ortho2 not in ChimpExpression:
+        to_remove.append(pair)
+for pair in to_remove:
+    HumanYoung.remove(pair)
+        
 for pair in HumanYoung:
     ortho1, ortho2 = HumanOrthologs[pair[0]][0], HumanOrthologs[pair[1]][0]
     assert ortho1 in ChimpExpression
     assert ortho2 in ChimpExpression
     chimpancestral.append([ortho1, ortho2])
 
+
+to_remove = []
+for pair in ChimpYoung:
+    ortho1, ortho2 = ChimpOrthologs[pair[0]][0], ChimpOrthologs[pair[1]][0]
+    if ortho1 not in HumanExpression or ortho2 not in HumanExpression:
+        to_remove.append(pair)
+for pair in to_remove:
+    ChimpYoung.remove(pair)
+    
 for pair in ChimpYoung:
     ortho1, ortho2 = ChimpOrthologs[pair[0]][0], ChimpOrthologs[pair[1]][0]
     assert ortho1 in HumanExpression
@@ -128,6 +145,20 @@ for pair in ChimpYoung:
 
 print(len(HumanOld), len(HumanYoung), len(humanancestral))
 print(len(ChimpOld), len(ChimpYoung), len(chimpancestral))
+
+# compute divergence between young human nested pairs and their un-nested orthologs in chimp
+HumanYoungDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
+ChimpUnNestedDiv = ComputeExpressionDivergenceGenePairs(chimpancestral, ChimpExpression)
+
+# compute divergence between young chimp nested pairs and their un-nested orthologs in human
+ChimpYoungDiv = ComputeExpressionDivergenceGenePairs(ChimpYoung, ChimpExpression)
+HumanUnNestedDiv = ComputeExpressionDivergenceGenePairs(humanancestral, HumanExpression)
+
+print(len(HumanYoungDiv), np.mean(HumanYoungDiv), len(ChimpUnNestedDiv), np.mean(ChimpUnNestedDiv), stats.ranksums(HumanYoungDiv, ChimpUnNestedDiv)[1])
+
+
+print(len(ChimpYoungDiv), np.mean(ChimpYoungDiv), len(HumanUnNestedDiv), np.mean(HumanUnNestedDiv), stats.ranksums(ChimpYoungDiv, HumanUnNestedDiv)[1])
+
 
 
 ## compute divergence
