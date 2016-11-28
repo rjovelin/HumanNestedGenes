@@ -191,8 +191,8 @@ print(len(YoungInternal), len(YoungExternal))
 
 
 # compute divergence between young human nested pairs and their un-nested orthologs in chimp
-YoungInternDiv = ComputeExpressionDivergenceOrthologs(YoungIntern, HumanExpression, ChimpExpression)
+YoungInternalDiv = ComputeExpressionDivergenceOrthologs(YoungInternal, HumanExpression, ChimpExpression)
 YoungExternalDiv = ComputeExpressionDivergenceOrthologs(YoungExternal, HumanExpression, ChimpExpression)
 
-print(len(YoungInternDiv), np.mean(YoungInternDiv), len(YoungExternalDiv), np.mean(YoungExternalDiv), stats.ranksums(YoungInternDiv, YoungExternalDiv)[1])
+print(len(YoungInternalDiv), np.mean(YoungInternalDiv), len(YoungExternalDiv), np.mean(YoungExternalDiv), stats.ranksums(YoungInternalDiv, YoungExternalDiv)[1])
 
