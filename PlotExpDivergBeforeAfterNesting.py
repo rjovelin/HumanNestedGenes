@@ -172,7 +172,7 @@ for pair in HumanYoung:
     extortho, internortho = HumanOrthologs[pair[0]][0], HumanOrthologs[pair[1]][0]
     if extortho in ChimpExpression:
         assert pair[0] in HumanExpression
-        YoungExternal.append([pair[0], exortho])
+        YoungExternal.append([pair[0], extortho])
     if internortho in ChimpExpression:
         assert pair[1] in HumanExpression
         YoungInternal.append([pair[1], internortho])
