@@ -161,17 +161,38 @@ print(len(ChimpYoungDiv), np.mean(ChimpYoungDiv), len(HumanUnNestedDiv), np.mean
 
 
 
-## compute divergence
-#crmderivedDiv = ComputeExpressionDivergenceGenePairs(crmyoung, CrmRelativeExpression)
-#cbrancestral = ComputeExpressionDivergenceGenePairs(cbrancestral, CbrRelativeExpression)
-#print(len(crmderivedDiv), np.mean(crmderivedDiv), len(cbrancestral), np.mean(cbrancestral), stats.ranksums(crmderivedDiv, cbrancestral)[1])
-#    
-#for pair in cbryoung:
-#    hostorthosp2 = CbrOrthos[pair[0]][1]
-#    nestedorthosp2 = CbrOrthos[pair[1]][1]
-#    crmancestral.append([hostorthosp2, nestedorthosp2])
-#    
-#    
-#cbrderivedDiv = ComputeExpressionDivergenceGenePairs(cbryoung, CbrRelativeExpression)
-#crmancestralDiv = ComputeExpressionDivergenceGenePairs(crmancestral, CrmRelativeExpression)
-#print(len(cbrderivedDiv), np.mean(cbrderivedDiv), len(crmancestralDiv), np.mean(crmancestralDiv), stats.ranksums(cbrderivedDiv, crmancestralDiv))
+YoungInternal, YoungExternal = [], []
+
+# make lists of old and yound host:nested pairs
+HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HostGenes[0], HostGenes[1], HostGenes[2], HumanHostNestedPairs)
+ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, HostGenes[1], HostGenes[0], HostGenes[2], ChimpHostNestedPairs)
+ 
+for pair in HumanYoung:
+    # get the ortholog of the host and nested genes
+    extortho, internortho = HumanOrthologs[pair[0]][0], HumanOrthologs[pair[1]][0]
+    if extortho in ChimpExpression:
+        assert pair[0] in HumanExpression
+        YoungExternal.append([pair[0], exortho])
+    if internortho in ChimpExpression:
+        assert pair[1] in HumanExpression
+        YoungInternal.append([pair[1], internortho])
+        
+for pair in ChimpYoung:
+    # get the ortholog of the host and nested genes
+    extortho, internortho = ChimpOrthologs[pair[0]][0], ChimpOrthologs[pair[1]][0]
+    if extortho in HumanExpression:
+        assert pair[0] in ChimpExpression
+        YoungExternal.append([extortho, pair[0]])
+    if internortho in HumanExpression:
+        assert pair[1] in ChimpExpression
+        YoungInternal.append([internortho, pair[1]])
+        
+print(len(YoungInternal), len(YoungExternal))
+
+
+# compute divergence between young human nested pairs and their un-nested orthologs in chimp
+YoungInternDiv = ComputeExpressionDivergenceOrthologs(YoungIntern, HumanExpression, ChimpExpression)
+YoungExternalDiv = ComputeExpressionDivergenceOrthologs(YoungExternal, HumanExpression, ChimpExpression)
+
+print(len(YoungInternDiv), np.mean(YoungInternDiv), len(YoungExternalDiv), np.mean(YoungExternalDiv), stats.ranksums(YoungInternDiv, YoungExternalDiv)[1])
+
