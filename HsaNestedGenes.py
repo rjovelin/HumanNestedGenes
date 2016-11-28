@@ -851,6 +851,24 @@ def ComputeExpressionDivergenceGenePairs(L, ExpressionProfile):
     return Divergence
 
 
+# use this function to compute the expression distance (euclidian distance) among pairs of orthologs
+def ComputeExpressionDivergenceOrthologs(L, ExpressionProfileSp1, ExpressionProfileSp2):
+    '''
+    (list, dict, dict) -> list
+    Take a list of inner lists with pairs of orthologs and return a list of euclidian
+    distances measuring the expression divergence between the 2 genes in each pair    
+    '''
+    # create a list to store the expression divergence
+    Divergence = []
+    # loop over the list of gene pairs
+    for i in range(len(L)):
+        # compute divergence between the 2 genes in the given pair
+        gene1, gene2 = L[i][0], L[i][1]        
+        D = EuclidianDistance(ExpressionProfileSp1[gene1], ExpressionProfileSp2[gene2])
+        Divergence.append(D)
+    return Divergence
+
+
 # use this function to generate sets of gene pairs separated by a given distance
 def GenerateSetsGenePairsDistance(GeneCoord, OrderedGenes, ExpressionProfile):
     '''
