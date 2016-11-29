@@ -80,14 +80,19 @@ for i in range(len(GFFs)):
     SpHostGenes = FindIntronicNestedGenePairs(SpContainedGenes, SpCombinedIntronCoord, SpGeneCoord)
     print('identified intronic nested genes', len(SpHostGenes))
 
-    # save contained genes as json file
+    
     if i == 0:
+        # save contained genes as json file
         newfile = open('HumanContainedGenes.json', 'w')
         json.dump(SpHostSharing, newfile, sort_keys = True, indent = 4)
         newfile.close()
         # save intronic nested genes as json file
         newfile = open('HumanHostNestedGenes.json', 'w')
         json.dump(SpHostGenes, newfile, sort_keys = True, indent = 4)
+        newfile.close()
+        # save overlapping genes as json file
+        newfile = open('HumanOverlappingGenes.json', 'w')
+        json.dump(SpOverlappingGenes, newfile, sort_keys = True, indent = 4)
         newfile.close()
     elif i == 1:
         # save contained genes as json file
@@ -98,6 +103,10 @@ for i in range(len(GFFs)):
         newfile = open('ChimpHostNestedGenes.json', 'w')
         json.dump(SpHostGenes, newfile, sort_keys = True, indent = 4)
         newfile.close()
+        # save overlapping genes as json file
+        newfile = open('ChimpOverlappingGenes.json', 'w')
+        json.dump(SpOverlappingGenes, newfile, sort_keys = True, indent = 4)
+        newfile.close()
     elif i == 2:
         newfile = open('GorillaContainedGenes.json', 'w')
         json.dump(SpHostSharing, newfile, sort_keys = True, indent = 4)
@@ -106,4 +115,9 @@ for i in range(len(GFFs)):
         newfile = open('GorillaHostNestedGenes.json', 'w')
         json.dump(SpHostGenes, newfile, sort_keys = True, indent = 4)
         newfile.close()
+        # save overlapping genes as json file
+        newfile = open('GorillaOverlappingGenes.json', 'w')
+        json.dump(SpOverlappingGenes, newfile, sort_keys = True, indent = 4)
+        newfile.close()
+        
 
