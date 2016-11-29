@@ -5,9 +5,9 @@ Created on Fri Nov 11 16:25:38 2016
 @author: RJovelin
 """
 
-# use this script to identify nested genes in primates 
-# save dictionary of genes contained in a host genes as a json file
-# save dictionary of intronic nested genes in a host gene as a json file
+# use this script to identify overlapping genes, nested and itnronic nested genes
+# in human, chimp and gorilla
+# save dictionaries of overlapping and hosy:nested genes as json files
 
 # usage python3 FindNestedGenes.py
 
@@ -25,12 +25,9 @@ from HsaNestedGenes import *
 HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
 PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
 GgoGFF = 'Gorilla_gorilla.gorGor3.1.86.gff3'
-PabGFF = 'Pongo_abelii.PPYG2.86.gff3'
-MmlGFF = 'Macaca_mulatta.Mmul_8.0.1.86.gff3'    
-    
     
 # make a list of primate GFF files
-GFFs = [HsaGFF, PtrGFF, GgoGFF, PabGFF, MmlGFF]
+GFFs = [HsaGFF, PtrGFF, GgoGFF]
 
 # loop over GFF files, find nested and intronic=nested genes in each species 
 for i in range(len(GFFs)):
@@ -109,22 +106,4 @@ for i in range(len(GFFs)):
         newfile = open('GorillaHostNestedGenes.json', 'w')
         json.dump(SpHostGenes, newfile, sort_keys = True, indent = 4)
         newfile.close()
-    elif i == 3:
-        newfile = open('OrangOutanContainedGenes.json', 'w')
-        json.dump(SpHostSharing, newfile, sort_keys = True, indent = 4)
-        newfile.close()
-        # save intronic nested genes as json file
-        newfile = open('OrangOutanHostNestedGenes.json', 'w')
-        json.dump(SpHostGenes, newfile, sort_keys = True, indent = 4)
-        newfile.close()
-    elif i == 4:
-        # save contained genes as json file
-        newfile = open('MacaqueContainedGenes.json', 'w')
-        json.dump(SpHostSharing, newfile, sort_keys = True, indent = 4)
-        newfile.close()
-        # save intronic nested genes as json file
-        newfile = open('MacaqueHostNestedGenes.json', 'w')
-        json.dump(SpHostGenes, newfile, sort_keys = True, indent = 4)
-        newfile.close()
-
 
