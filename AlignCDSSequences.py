@@ -45,7 +45,6 @@ HumanGeneLongestTranscript = LongestTranscript(HumanTranscriptCoordinates, Human
 # get all the CDS sequences in human
 HumanCDS = ConvertCDSToFasta('Homo_sapiens.GRCh38.cds.all.fa')
 print('human CDS', len(HumanCDS))
-
 # match the sequence of the longest transcript to its parent gene
 HumanCodingSeq = {}
 for gene in HumanGeneLongestTranscript:
@@ -55,8 +54,10 @@ for gene in HumanGeneLongestTranscript:
     sequence = HumanCDS[transcript]
     HumanCodingSeq[gene] = sequence
 
-print(len(HumanCodingSeq), len(HumanGeneCoord))
-
+print(len(HumanCodingSeq))
+# remove genes with sequences not multiple of 3, lacking start codons, with internal stop codons
+HumanCodingSeq = FilerOutCDSSequences(HumanCodingSeq)
+print(len(HumanCodingSeq))
 
 
 # get the coordinates of genes on each chromo
@@ -77,9 +78,32 @@ ChimpGeneLongestTranscript = LongestTranscript(ChimpTranscriptCoordinates, Chimp
 # get all the CDS sequences in human
 ChimpCDS = ConvertCDSToFasta('Pan_troglodytes.CHIMP2.1.4.cds.all.fa')
 print('chimp CDS', len(ChimpCDS))
+# match the sequence of the longest transcript to its parent gene
+ChimpCodingSeq = {}
+for gene in ChimpGeneLongestTranscript:
+    # get transcript name
+    transcript = ChimpGeneLongestTranscript[gene]
+    # get the corresponding sequence
+    sequence = ChimpCDS[transcript]
+    ChimpCodingSeq[gene] = sequence
+
+print(len(ChimpCodingSeq))
+# remove genes with sequences not multiple of 3, lacking start codons, with internal stop codons
+ChimpCodingSeq = FilerOutCDSSequences(ChimpCodingSeq)
+print(len(ChimpCodingSeq))
 
 
+# get the 1:1 orthologs between human-chimp-gorilla
+HsaPtrGgoOrthos = ParseOrthologFile('HumanChimpGorillaOrthologs.txt')
+# create a dict with human-chimp orthologs
+HumanChimpOrthos = {}
+for gene in HsaPtrGgoOrthos:
+    HumanChimpOrthos[gene] = HsaPtrGgoOrthos[gene][0]
 
+total = 0
+# count the number of orthologs with sequences
+for gene in HumanChimpOrthos:
+    if gene in HumanCodingSeq and HumanChimpOrthos[gene] in ChimpCodingSeq:
+        total += 1
 
-
-
+print(total)
