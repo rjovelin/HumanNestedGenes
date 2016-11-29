@@ -1344,3 +1344,101 @@ def InferYoungOldNestingEvents(FirstSpOrthologs, FirstSpHostGenes, SecondSpHostg
             
     return old, young
     
+
+# use this function to translate a coding sequence into a protein
+def TranslateCDS(CDS):
+    '''
+    (str) -> str
+    Translate a coding sequence into a protein sequence according to the standard
+    genetic code.
+    Precondition: the cosing sequence needs to be in frame (ie, frame 1)
+    >>> TranslateCDS('ATGGCCATGGCGCCCAGAACTGAGATCAATAGTACCCGTATTAACGGGTGA')
+    MAMAPRTEINSTRING*
+    >>> cds_translate('ATGTACTAA')
+    MY*
+    '''
+    # use standard genetic code
+    genetic_code = {'TTT': 'F', 'CTT': 'L', 'ATT': 'I', 'GTT': 'V',
+                   'TTC': 'F', 'CTC': 'L', 'ATC': 'I', 'GTC': 'V',
+                   'TTA': 'L', 'CTA': 'L', 'ATA': 'I', 'GTA': 'V',
+                   'TTG': 'L', 'CTG': 'L', 'ATG': 'M', 'GTG': 'V',
+                   'TCT': 'S', 'CCT': 'P', 'ACT': 'T', 'GCT': 'A',
+                   'TCC': 'S', 'CCC': 'P', 'ACC': 'T', 'GCC': 'A',
+                   'TCA': 'S', 'CCA': 'P', 'ACA': 'T', 'GCA': 'A',
+                   'TCG': 'S', 'CCG': 'P', 'ACG': 'T', 'GCG': 'A',
+                   'TAT': 'Y', 'CAT': 'H', 'AAT': 'N', 'GAT': 'D',
+                   'TAC': 'Y', 'CAC': 'H', 'AAC': 'N', 'GAC': 'D',
+                   'TAA': '*', 'CAA': 'Q', 'AAA': 'K', 'GAA': 'E',
+                   'TAG': '*', 'CAG': 'Q', 'AAG': 'K', 'GAG': 'E',
+                   'TGT': 'C', 'CGT': 'R', 'AGT': 'S', 'GGT': 'G',
+                   'TGC': 'C', 'CGC': 'R', 'AGC': 'S', 'GGC': 'G',
+                   'TGA': '*', 'CGA': 'R', 'AGA': 'R', 'GGA': 'G',
+                   'TGG': 'W', 'CGG': 'R', 'AGG': 'R', 'GGG': 'G'}
+    # convert CDS sequence to upper cases to map codon to genetic code dict
+    CDS = CDS.upper()
+    # initialize protein sequence, and update with amino acids
+    protein = ''
+    for i in range(0, len(CDS), 3):
+        codon = CDS[i:i+3]
+        if codon not in genetic_code:
+            protein += 'X'
+        else:
+            protein += genetic_code[codon]
+    return protein
+
+
+# use this function to reverse complement a DNA sequence
+def ReverseComplement(dna):
+    '''
+    (str) -> (str)
+    Return the reverse complementary sequence of string dna
+    >>> ReverseComplement('atcg')
+    'cgat'
+    '''
+    # use only valid nucleotides, all other bases are converted to Ns
+    valid_bases = {'A', 'T', 'C', 'G'}
+    # convert sequence to upper cases
+    DNA = dna.upper()
+    dna_comp = ''
+    for i in DNA:
+        if i == 'A':
+            dna_comp += 'T'
+        elif i == 'T':
+            dna_comp += 'A'
+        elif i == 'C':
+            dna_comp += 'G'
+        elif i == 'G':
+            dna_comp += 'C'
+        elif i not in valid_bases:
+            dna_comp += 'N'
+    reverse_comp_dna = ''
+    for i in reversed(dna_comp):
+        reverse_comp_dna += i
+    if dna.islower():
+        reverse_comp_dna = reverse_comp_dna.lower()
+    return reverse_comp_dna
+
+
+# use this function to convert the CDS file to a dictionary
+def ConvertCDSToFasta(CDSFile):
+    '''
+    (file) -> dict
+    Take a file with fasta sequences and return a dictionnary with
+    transcript ID key and single string sequence as value
+    '''
+    CDS = {}
+    infile = open(CDSFile, 'r')
+    for line in infile:
+        line = line.rstrip()
+        if line != '':
+            if line.startswith('>'):
+                name = line[1:line.index('.')]
+                CDS[name] = ""
+            else:
+                CDS[name] += line
+    infile.close
+    return CDS
+    
+    
+ 
+    
