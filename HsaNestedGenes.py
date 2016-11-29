@@ -1433,12 +1433,40 @@ def ConvertCDSToFasta(CDSFile):
         if line != '':
             if line.startswith('>'):
                 name = line[1:line.index('.')]
+                assert name not in CDS
                 CDS[name] = ""
             else:
-                CDS[name] += line
+                CDS[name] += line.upper()
     infile.close
     return CDS
     
     
- 
+# use this function to filter out genes with weird sequences
+def FilerOutCDSSequences(CodingSeq):
+    '''
+    (dict) -> dict
+    Take a dictionary with gene: CDS pairs and return modified dictionary
+    in which sequences without start codon, not mulctiple of 3 and with extra 
+    stop codons are removed
+    '''
     
+    # create a set of genes to remove
+    to_remove = set()
+    for gene in CodingSeq:
+        protein = TranslateCDS(CodingSeq[gene])
+        # remove genes with more than 1 stop codon
+        if protein.count('*') > 1:
+            to_remove.add(gene)
+        # remove genes with internal stop codons
+        if protein.count('*') == 1 and protein[-1] != '*':
+            to_remove.add(gene)
+        # remove genes without start codons
+        if CodingSeq[gene][:3] != 'ATG':
+            to_remove.add(gene)
+        # remove sequences that are not multiple of 3
+        if len(CodingSeq[gene]) % 3 != 0:
+            to_remove.add(gene)
+    for gene in to_remove:
+        del CodingSeq[gene]
+    return CodingSeq
+
