@@ -38,27 +38,21 @@ with open('ChimpHostNestedGenes.json') as chimp_json_data:
     ChimpHostGenes = json.load(chimp_json_data)
 with open('GorillaHostNestedGenes.json') as gorilla_json_data:
     GorillaHostGenes = json.load(gorilla_json_data)
-with open('OrangOutanHostNestedGenes.json') as orangoutan_json_data:
-    OrangOutanHostGenes = json.load(orangoutan_json_data)
-with open('MacaqueHostNestedGenes.json') as macaque_json_data:
-    MacaqueHostGenes = json.load(macaque_json_data)
 
 # get GFF file
 HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
 PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
 GgoGFF = 'Gorilla_gorilla.gorGor3.1.86.gff3'
-PabGFF = 'Pongo_abelii.PPYG2.86.gff3'
-MmlGFF = 'Macaca_mulatta.Mmul_8.0.1.86.gff3' 
 
 # make a list of primate GFF files
-GFFs = [HsaGFF, PtrGFF, GgoGFF, PabGFF, MmlGFF]
+GFFs = [HsaGFF, PtrGFF, GgoGFF]
 # make a list of species names
-SpeciesNames = ['human', 'chimp', 'gorilla', 'orangoutan', 'macaque']
+SpeciesNames = ['human', 'chimp', 'gorilla']
 # make a list of host:nested genes dictionaries
-HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes, OrangOutanHostGenes, MacaqueHostGenes]
+HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes]
 
 # create lists to store intron length of gene-containing and without genes for
-# host genes in each speciest [[human], [chimp], [gorilla], [orang-outan], [macaque]]
+# host genes in each speciest [[human], [chimp], [gorilla]]
 ContainingIntron, NoGeneIntron = [], []
 
 # loop over GFF files, find nested and intronic=nested genes in each species 
@@ -73,12 +67,6 @@ for i in range(len(GFFs)):
     SpGeneChromoCoord = FilterOutGenesWithoutValidTranscript(SpGeneChromoCoord, SpMapGeneTranscript)
     # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
     SpGeneCoord = FromChromoCoordToGeneCoord(SpGeneChromoCoord)
-    # get expression profile of the species genes
-    SpExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', SpeciesNames[i])
-    # remove genes wuthout expression
-    SpExpression = RemoveGenesLackingExpression(SpExpression)
-    # get relative expression
-    SpExpression = TransformRelativeExpression(SpExpression)
     # Map Transcript names to gene names {transcript: gene}
     SpMapTranscriptGene = TranscriptToGene(GFFs[i])
     # get the coordinates of all exons    
@@ -106,11 +94,9 @@ for i in range(len(GFFs)):
 HumanIntron = [ContainingIntron[0], NoGeneIntron[0]]
 ChimpIntron = [ContainingIntron[1], NoGeneIntron[1]]
 GorillaIntron = [ContainingIntron[2], NoGeneIntron[2]]
-OrangutanIntron = [ContainingIntron[3], NoGeneIntron[3]]
-MacaqueIntron = [ContainingIntron[4], NoGeneIntron[4]]
 
 # create a list of list with all data
-AllData = [HumanIntron, ChimpIntron, GorillaIntron, OrangutanIntron, MacaqueIntron]
+AllData = [HumanIntron, ChimpIntron, GorillaIntron]
 
 # create a function to get the mean and SEM of items in a list
 def GetMeanSEM(L):
@@ -131,8 +117,6 @@ def GetMeanSEM(L):
 HumanMeans, HumanSEM = GetMeanSEM(HumanIntron)
 ChimpMeans, ChimpSEM = GetMeanSEM(ChimpIntron)
 GorillaMeans, GorillaSEM = GetMeanSEM(GorillaIntron)
-OrangutanMeans, OrangutanSEM = GetMeanSEM(OrangutanIntron)
-MacaqueMeans, MacaqueSEM = GetMeanSEM(MacaqueIntron)
 
 # perform statistical tests between gene categories in all species
 # create dict to store results {species: [P_host-nested, P_host-unnested, P_nested-unnested]}
@@ -263,11 +247,9 @@ def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
 fig = plt.figure(1, figsize = (3.5, 2))
 
 # plot data
-ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Intron length (Kbp)', 70, True)
-ax2 = CreateAx(5, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Intron length (Kbp)', 70, False)
-ax3 = CreateAx(5, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Intron length (Kbp)', 70, False)
-ax4 = CreateAx(5, 1, 4, fig, OrangutanMeans, OrangutanSEM, 'Orangutan', 'Intron length (Kbp)', 70, False)
-ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Intron length (Kbp)', 70, False)
+ax1 = CreateAx(3, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Intron length (Kbp)', 70, True)
+ax2 = CreateAx(3, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Intron length (Kbp)', 70, False)
+ax3 = CreateAx(3, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Intron length (Kbp)', 70, False)
 
 # make lists with bracket and star positions
 XPos = [[0.1, 0.28, 68, 0.2, 73]]
@@ -282,13 +264,6 @@ for i in range(len(Significance['chimp'])):
 for i in range(len(Significance['gorilla'])):
     if Significance['gorilla'][i] != '':
         ax3 = AddSignificance(ax3, Significance['gorilla'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
-for i in range(len(Significance['orangoutan'])):
-    if Significance['orangoutan'][i] != '':
-        ax4 = AddSignificance(ax4, Significance['orangoutan'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
-for i in range(len(Significance['macaque'])):
-    if Significance['macaque'][i] != '':
-        ax5 = AddSignificance(ax5, Significance['macaque'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
- 
 
 # add legend relative to ax1 using ax1 coordinates
 W = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'With genes')
