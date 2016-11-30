@@ -119,7 +119,7 @@ for gene in HumanChimpOrthos:
 files = os.listdir('./HumanChimpPairs')
 
 # fasta files have a .tfa extension
-for filename in files[:10]:
+for filename in files:
     # get a outputfile name for the protein translation
     protein = filename[:-4] + '_p.tfa'
     # translate dna sequence into protein sequence
