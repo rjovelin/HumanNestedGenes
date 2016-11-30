@@ -119,10 +119,11 @@ for gene in HumanChimpOrthos:
 files = os.listdir('./HumanChimpPairs')
 
 # fasta files have a .tfa extension
-for filename in files:
+for filename in files[:10]:
     # get a outputfile name for the protein translation
-    protein = filename[:-3] + '_p.tfa'
+    protein = filename[:-4] + '_p.tfa'
     # translate dna sequence into protein sequence
+    #t_coffee -other_pg seq_reformat -in ORTHOMCL7896.tfa -action +translate -output fasta_seq > ORTHOMCL7896_p.tfa
     dnaToPepCommand = "t_coffee -other_pg seq_reformat -in " + './HumanChimpPairs/' + filename + " -action +translate -output fasta_seq > " + protein
     print(dnaToPepCommand)
     os.system(dnaToPepCommand)
@@ -131,22 +132,40 @@ for filename in files:
     os.system("sed -i 's/o/-/g '" + protein)
 
     # align protein sequences
+    #t_coffee ORTHOMCL7896_p.tfa
     alignPepCommand = "t_coffee " + protein
     print(alignPepCommand)
     os.system(alignPepCommand)
 
+    # back-translate protein alignment to DNA in MSA format
+    #t_coffee -other_pg seq_reformat -in ORTHOMCL7896.tfa -in2 ORTHOMCL7896_p.aln -action +thread_dna_on_prot_aln -output clustalw >ORTHOMCL7896.aln
     # get name for aligned proteins
-    protein_ali = protein[:-3] + '.aln'
+    protein_ali = protein[:-4] + '.aln'
     # get name for aligned DNA
-    DNA_ali = filename[:-3] +'.aln'
-    backtransCommand = 't_coffee -other_pg seq_reformat -in ' + './HumanChimpPairs/' + filename + ' -in2 ' + './HumanChimpPairs/' + protein_ali + ' -action +thread_dna_on_prot_aln' +\
+    DNA_ali = filename[:-4] +'.aln'
+    backtransCommand = 't_coffee -other_pg seq_reformat -in ' + './HumanChimpPairs/' + filename + ' -in2 ' + protein_ali + ' -action +thread_dna_on_prot_aln' +\
                        ' -output clustalw > ' + DNA_ali
     print(backtransCommand)
     os.system(backtransCommand)
 
     # convert clustal format to fasta format
-    DNA_ali_fasta = filename[:-3] + '_aln.tfa'
-    convertDNAalignToFastaCommand = 't_coffee -other_pg seq_reformat -in' + './HumanChimpPairs/' + DNA_ali + '-output fasta_aln > ' + DNA_ali_fasta
+    #t_coffee -other_pg seq_reformat -in ORTHOMCL7896.aln -output fasta_aln > ORTHOMCL7896_aln.tfa
+    DNA_ali_fasta = filename[:-4] + '_aln.tfa'
+    convertDNAalignToFastaCommand = 't_coffee -other_pg seq_reformat -in ' + DNA_ali + ' -output fasta_aln > ' + DNA_ali_fasta
     print(convertDNAalignToFastaCommand)
     os.system(convertDNAalignToFastaCommand)
+
+
+##translate multi-fasta DNA to AA
+#t_coffee -other_pg seq_reformat -in ORTHOMCL7896.tfa -action +translate -output fasta_seq > ORTHOMCL7896_p.tfa
+##align AA sequences
+#t_coffee ORTHOMCL7896_p.tfa
+##convert AA alignment to fasta format
+#t_coffee -other_pg seq_reformat -in ORTHOMCL7896_p.aln -output fasta_aln > ORTHOMCL7896_p-aln.tfa
+##back-translate AA alignment to DNA in MSA format
+#t_coffee -other_pg seq_reformat -in ORTHOMCL7896.tfa -in2 ORTHOMCL7896_p.aln -action +thread_dna_on_prot_aln -output clustalw >ORTHOMCL7896.aln
+##convert DNA alignment to fasta format
+#t_coffee -other_pg seq_reformat -in ORTHOMCL7896.aln -output fasta_aln > ORTHOMCL7896_aln.tfa
+
 print('done aligning sequences')
+
