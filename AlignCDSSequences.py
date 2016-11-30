@@ -95,7 +95,7 @@ for gene in HsaPtrGgoOrthos:
 
 
 # create a directory named pairs
-os.mkdir('./pairs/')
+os.mkdir('./HumanChimpPairs/')
 
 
 # save orthologous sequences into separate files
@@ -104,7 +104,7 @@ for gene in HumanChimpOrthos:
     if gene in HumanCodingSeq and HumanChimpOrthos[gene] in ChimpCodingSeq:
         # save human: chimp orthologous sequences in separate fasta files
         # use human and chimp gene names in filename 
-        newfile = open('./pairs/' + gene + '_' + HumanChimpOrthos[gene] + '.tfa', 'w')
+        newfile = open('./HumanChimpPairs/' + gene + '_' + HumanChimpOrthos[gene] + '.tfa', 'w')
         # write human gene and its sequence
         newile.write('>' + gene + '\n')
         newfile.write(HumanCodingSeq[gene] + '\n')
@@ -116,14 +116,14 @@ for gene in HumanChimpOrthos:
 # run to-coffee command lines to align protein sequences and get codon-based DNA alignments
 
 # make a list of fasta files with un-aligned orthologous sequences
-files = os.listdir('./pairs')
+files = os.listdir('./HumanChimpPairs')
 
 # fasta files have a .tfa extension
 for filename in files:
     # get a outputfile name for the protein translation
     protein = filename[:-3] + '_p.tfa'
     # translate dna sequence into protein sequence
-    dnaToPepCommand = "t_coffee -other_pg seq_reformat -in " + './pairs/' + filename + " -action +translate -output fasta_seq > " + protein
+    dnaToPepCommand = "t_coffee -other_pg seq_reformat -in " + './HumanChimpPairs/' + filename + " -action +translate -output fasta_seq > " + protein
     print(dnaToPepcommand)
     os.system(dnaToPepcommand)
     # when sequences have different length, t-coffee padds the short sequence with 'o'
@@ -139,13 +139,13 @@ for filename in files:
     protein_ali = protein[:-3] + '.aln'
     # get name for aligned DNA
     DNA_ali = filename[:-3] +'.aln'
-    backtransCommand = 't_coffee -other_pg seq_reformat -in ' + './pairs/' + filename + ' -in2 ' + './pairs/' + protein_ali + ' -action +thread_dna_on_prot_aln' +\
+    backtransCommand = 't_coffee -other_pg seq_reformat -in ' + './HumanChimpPairs/' + filename + ' -in2 ' + './HumanChimpPairs/' + protein_ali + ' -action +thread_dna_on_prot_aln' +\
                        ' -output clustalw > ' + DNA_ali
     print(backtransCommand)
     os.system(backtransCommand)
 
     # convert clustal format to fasta format
     DNA_ali_fasta = filename[:-3] + '_aln.tfa'
-    convertDNAalignToFastaCommand = 't_coffee -other_pg seq_reformat -in' + './pairs'/ + DNA_ali + '-output fasta_aln > ' + DNA_ali_fasta
+    convertDNAalignToFastaCommand = 't_coffee -other_pg seq_reformat -in' + './HumanChimpPairs/' + DNA_ali + '-output fasta_aln > ' + DNA_ali_fasta
     print(convertDNAalignToFastaCommand)
     os.system(convertDNAalignToFastaCommand)
