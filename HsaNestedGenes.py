@@ -1501,7 +1501,7 @@ def RemoveTerminalStop(CodingSeq):
     for gene in CodingSeq:
         if CodingSeq[gene][-3:].upper() in ['TAA', 'TAG', 'TGA']:
             # remove terminal stop
-            CodingSeq[gene] = CodingSeq[gene][-3:]
+            CodingSeq[gene] = CodingSeq[gene][:-3]
     return CodingSeq
                    
 
