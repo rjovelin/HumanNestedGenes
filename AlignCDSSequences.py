@@ -106,7 +106,7 @@ for gene in HumanChimpOrthos:
         # use human and chimp gene names in filename 
         newfile = open('./HumanChimpPairs/' + gene + '_' + HumanChimpOrthos[gene] + '.tfa', 'w')
         # write human gene and its sequence
-        newile.write('>' + gene + '\n')
+        newfile.write('>' + gene + '\n')
         newfile.write(HumanCodingSeq[gene] + '\n')
         newfile.write('>' + HumanChimpOrthos[gene] + '\n')
         newfile.write(ChimpCodingSeq[HumanChimpOrthos[gene]] + '\n')
