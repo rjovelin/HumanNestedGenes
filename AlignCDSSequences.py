@@ -149,3 +149,4 @@ for filename in files:
     convertDNAalignToFastaCommand = 't_coffee -other_pg seq_reformat -in' + './HumanChimpPairs/' + DNA_ali + '-output fasta_aln > ' + DNA_ali_fasta
     print(convertDNAalignToFastaCommand)
     os.system(convertDNAalignToFastaCommand)
+print('done aligning sequences')
