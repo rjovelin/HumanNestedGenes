@@ -1424,7 +1424,7 @@ def ConvertCDSToFasta(CDSFile):
     '''
     (file) -> dict
     Take a file with fasta sequences and return a dictionnary with
-    transcript ID key and single string sequence as value
+    gene name as key and single string sequence as value
     '''
     CDS = {}
     infile = open(CDSFile, 'r')
@@ -1439,7 +1439,27 @@ def ConvertCDSToFasta(CDSFile):
                 CDS[name] += line.upper()
     infile.close
     return CDS
-    
+
+# use this function to convert a fasta file to a dictionary
+def ConvertFasta(fasta):
+    '''
+    (file) -> dict
+    Take a file with fasta sequences and return a dictionnary with gene: sequence
+    '''
+    # convert nematode genomes into a dictionnary
+    genome = {}
+    infile = open(fasta, 'r')
+    for line in infile:
+        line = line.rstrip()
+        if line != '':
+            if line.startswith('>'):
+                genome[line[1:]] = ""
+                seq_name = line[1:]
+            else:
+                genome[seq_name] += line
+    infile.close
+    return genome
+
     
 # use this function to filter out genes with weird sequences
 def FilerOutCDSSequences(CodingSeq):
@@ -1484,4 +1504,5 @@ def RemoveTerminalStop(CodingSeq):
             CodingSeq[gene] = CodingSeq[gene][-3:]
     return CodingSeq
                    
-                   
+
+
