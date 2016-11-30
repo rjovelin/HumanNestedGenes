@@ -1470,3 +1470,18 @@ def FilerOutCDSSequences(CodingSeq):
         del CodingSeq[gene]
     return CodingSeq
 
+
+# use this function to remove the terminal stop codon
+def RemoveTerminalStop(CodingSeq):
+    '''
+    (dict) -> dict
+    Take the dictionary of gene: CDS pairs and return a modified dictionary 
+    in which the terminal stop codons have been removed from the coding sequences
+    '''
+    for gene in CodingSeq:
+        if CodingSeq[gene][-3:].upper() in ['TAA', 'TAG', 'TGA']:
+            # remove terminal stop
+            CodingSeq[gene] = CodingSeq[gene][-3:]
+    return CodingSeq
+                   
+                   
