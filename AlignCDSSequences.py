@@ -124,8 +124,8 @@ for filename in files:
     protein = filename[:-3] + '_p.tfa'
     # translate dna sequence into protein sequence
     dnaToPepCommand = "t_coffee -other_pg seq_reformat -in " + './HumanChimpPairs/' + filename + " -action +translate -output fasta_seq > " + protein
-    print(dnaToPepcommand)
-    os.system(dnaToPepcommand)
+    print(dnaToPepCommand)
+    os.system(dnaToPepCommand)
     # when sequences have different length, t-coffee padds the short sequence with 'o'
     # replace 'o' with '-'
     os.system("sed -i 's/o/-/g '" + protein)
