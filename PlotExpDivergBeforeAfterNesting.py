@@ -155,11 +155,16 @@ ChimpYoungDiv = ComputeExpressionDivergenceGenePairs(ChimpYoung, ChimpExpression
 HumanUnNestedDiv = ComputeExpressionDivergenceGenePairs(humanancestral, HumanExpression)
 
 print(len(HumanYoungDiv), np.mean(HumanYoungDiv), len(ChimpUnNestedDiv), np.mean(ChimpUnNestedDiv), stats.ranksums(HumanYoungDiv, ChimpUnNestedDiv)[1])
-
-
 print(len(ChimpYoungDiv), np.mean(ChimpYoungDiv), len(HumanUnNestedDiv), np.mean(HumanUnNestedDiv), stats.ranksums(ChimpYoungDiv, HumanUnNestedDiv)[1])
 
 
+
+
+
+
+
+########### compare expression divergence between young nested genes and their un-nested orthologs
+########### compare expression divergence between youn host genes and their un-nested orthologs
 
 YoungInternal, YoungExternal = [], []
 
@@ -195,4 +200,65 @@ YoungInternalDiv = ComputeExpressionDivergenceOrthologs(YoungInternal, HumanExpr
 YoungExternalDiv = ComputeExpressionDivergenceOrthologs(YoungExternal, HumanExpression, ChimpExpression)
 
 print(len(YoungInternalDiv), np.mean(YoungInternalDiv), len(YoungExternalDiv), np.mean(YoungExternalDiv), stats.ranksums(YoungInternalDiv, YoungExternalDiv)[1])
+
+######################################################
+######################################################
+###### compare sequence divergence between young nested genes and their un-nested orthologs
+###### compare sequence divergence between young host genes and their un-nested orthologs
+
+# parse the se divergence file to extract dN
+HumandN, ChimpdN = {}, {}
+infile = open('HumanChimpSeqDiverg.txt')
+infile.readline()
+for line in infile:
+    if line.startswith('ENS'):
+        line = line.rstrip().split('\t')
+        HumandN[line[0]] = float(line[2])
+        ChimpdN[line[1]] = float(line[2])
+infile.close()
+
+YoungInternalSeq, YoungExternalSeq = [], []
+
+# make lists of old and yound host:nested pairs
+HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HostGenes[0], HostGenes[1], HostGenes[2], HumanHostNestedPairs)
+ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, HostGenes[1], HostGenes[0], HostGenes[2], ChimpHostNestedPairs)
+ 
+for pair in HumanYoung:
+    # get dN for the host and nested gene
+    if pair[0] in HumandN:
+        YoungExternalSeq.append(HumandN[pair[0]])
+    if pair[1] in HumandN:
+        YoungInternalSeq.append(HumandN[pair[1]])
+        
+        
+for pair in ChimpYoung:
+    # get dN for the host and nested genes
+    if pair[0] in ChimpdN:
+        YoungExternalSeq.append(ChimpdN[pair[0]])
+    if pair[1] in ChimpdN:
+        YoungInternalSeq.append(ChimpdN[pair[1]])
+
+
+print(len(YoungInternalSeq), np.mean(YoungInternalSeq), len(YoungExternalSeq), np.mean(YoungExternalSeq), stats.ranksums(YoungInternalSeq, YoungExternalSeq)[1])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
