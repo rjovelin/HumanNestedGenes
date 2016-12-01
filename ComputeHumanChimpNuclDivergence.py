@@ -77,6 +77,10 @@ for filename in files:
         newfile.close()
 print('done generating codeml control files')
 
+# copy necessary files to directory with input and control files
+# copy files to working directory
+os.system('cp 2NG.dN 2NG.dS 2NG.t 4fold.nuc lnf HumanChimpTree.tre.txt rst rst1 rub ./HumanChimpCodeml/')
+
 # go to directory containing control files and input files
 os.chdir('./HumanChimpCodeml/')
 
