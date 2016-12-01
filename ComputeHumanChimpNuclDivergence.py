@@ -26,7 +26,7 @@ for filename in files:
     # check that file is the t-coffee DNA alignment file
     if filename[-8:] == '_aln.tfa':
         # convert sequences to dictionnary
-        alignment = ConvertFasta(filename)
+        alignment = ConvertFasta('./HumanChimpPairs/' + filename)
         # get the name of the file without '_aln.tfa'
         name = filename[:-8]
         # make a list with gene names as they appear in the file
