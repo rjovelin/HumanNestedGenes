@@ -623,6 +623,28 @@ def GenePairOrientation(GenePair, GeneCoord):
     return [GeneCoord[GenePair[0]][-1], GeneCoord[GenePair[1]][-1]] 
   
   
+# use this function to get the proportions of same and opposite strand pairs  
+def GetSameOppositeStrandProportions(GenePairs, GeneCoord):
+    '''
+    (list, dict) -> (float, float)
+    Take the list of gene pairs, the dictionary of gene coordinates and return
+    the proportions of gene pairs with same strand and with opposite strand
+    Precondition: genes without valid mRNAs have been filtered out 
+    '''
+  
+    # count the number of same strand and opposite strand pairs
+    same, opposite = 0, 0
+    for pair in GenePairs:
+        orientation = set(GenePairOrientation(pair, GeneCoord))
+        if len(orientation) == 1:
+            same += 1
+        else:
+             assert len(orientation) == 2, 'there should be only 2 different signs'
+             opposite += 1
+    # return proportions
+    return (same / (same + opposite), opposite / (same + opposite))
+  
+  
 # Map humangenes to their orthologs in 2 other species  
 def ParseOrthologFile(OrthoFile):
     '''
