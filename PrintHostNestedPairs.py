@@ -61,7 +61,7 @@ GgoGFF = 'Gorilla_gorilla.gorGor3.1.86.gff3'
 # make a list of primate GFF files
 GFFs = [HsaGFF, PtrGFF, GgoGFF]
 # make a list of species names
-SpeciesNames = ['human', 'chimp', 'gorilla', 'orangoutan', 'macaque']
+SpeciesNames = ['human', 'chimp', 'gorilla']
 # make a list of host:nested genes dictionaries
 HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes]
 # make a list of host:contained genes dictionaries
