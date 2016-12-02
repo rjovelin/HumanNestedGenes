@@ -303,7 +303,7 @@ for i in range(len(Significance['gorilla'])):
 H = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'Hosts')
 N = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Nested')
 U = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'Un-nested')
-ax1.legend(handles = [H, N, U], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
+ax1.legend(handles = [H, N, U], loc = (-0.2, 1.05), fontsize = 8, frameon = False, ncol = 3)
 
 # make sure subplots do not overlap
 plt.tight_layout()
