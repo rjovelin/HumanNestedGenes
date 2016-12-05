@@ -612,7 +612,25 @@ def GetHostNestedPairs(HostNested):
             pair = [host, nested]
             HostNestedPairs.append(pair)
     return HostNestedPairs
-  
+
+
+# use this script to remove gene pairs from the higher hierarchical level
+def RemoveGenePairsFromHigherLevel(HigherLevelPairs, LowerLevelPairs):
+    '''
+    (list, list) -> dict
+    Take the list of gene pairs from a higher inclusive level (ie. overlapping, 
+    contained) and remove the gene pairs from the lower lovel (contained,
+    intronic nested) to generate pairs of genes that do not overlapp and that 
+    correspond to a unique gene organization
+    Precondition: first gene in pair is the first gene on chromo    
+    '''
+    # loop over gene pairs from lower hierarchical level
+    for pair in LowerLevelPairs:
+        if pair in HigherLevelPairs:
+           HigherLevelPairs.remove(pair) 
+    return HigherLevelPairs
+    
+      
 # use this function to get the orientation of a pair of genes
 def GenePairOrientation(GenePair, GeneCoord):
     '''
