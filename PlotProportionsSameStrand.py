@@ -141,7 +141,7 @@ for i in range(len(OverlappingPairs)):
 # plot proportions for each species
 
 # create figure
-fig = plt.figure(1, figsize = (3, 2.5))
+fig = plt.figure(1, figsize = (3.5, 2.5))
 
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, OppositeStrand, SameStrand, XLabel, YAxis):
