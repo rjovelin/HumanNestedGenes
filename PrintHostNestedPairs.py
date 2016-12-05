@@ -88,6 +88,13 @@ for i in range(len(GFFs)):
     print('total number of host-nested pairs', SpeciesNames[i], len(SpHostNestedPairs))
     print('total number of host-contained pairs', SpeciesNames[i], len(SpHostContainedPairs))
     print('total number of overlapping pairs', SpeciesNames[i], len(SpOverlappingPairs))
+    # remove gene pairs from higher hierarchical level present in lower hierarchical level    
+    # make a list of overlaping genes that are not contained
+    SpOverlappingPairs = RemoveGenePairsFromHigherLevel(SpOverlappingPairs, SpHostContainedPairs)
+    # make a list of contained genes that are not host:intronic nested genes
+    SpHostContainedPairs = RemoveGenePairsFromHigherLevel(SpHostContainedPairs, SpHostNestedPairs)
+    print('number of overlapping-not contained gene pairs', SpeciesNames[i], len(SpOverlappingPairs))
+    print('number of contained-not nested gene pairs', SpeciesNames[i], len(SpHostContainedPairs))
     # remove gene pairs with genes lacking expression
     SpHostNestedPairs = FilterGenePairsWithoutExpression(SpHostNestedPairs, SpExpression)
     SpHostContainedPairs = FilterGenePairsWithoutExpression(SpHostContainedPairs, SpExpression)

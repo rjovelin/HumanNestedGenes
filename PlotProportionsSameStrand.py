@@ -76,6 +76,23 @@ GorillaOverlappingPairs = GetHostNestedPairs(GorillaOverlappingGenes)
 print('gorilla overlapping gene pairs', len(GorillaOverlappingPairs))
 
 
+# remove gene pairs from higher hierarchical level present in lower hierarchical level    
+# make a list of overlaping genes that are not contained
+HumanOverlappingPairs = RemoveGenePairsFromHigherLevel(HumanOverlappingPairs, HumanHostContainedPairs)
+print('human overlapping-not contained gene pairs', len(HumanOverlappingPairs))
+ChimpOverlappingPairs = RemoveGenePairsFromHigherLevel(ChimpOverlappingPairs, ChimpHostContainedPairs)
+print('chimp overlapping-not contained gene pairs', len(ChimpOverlappingPairs))
+GorillaOverlappingPairs = RemoveGenePairsFromHigherLevel(GorillaOverlappingPairs, GorillaHostContainedPairs)
+print('gorilla overlapping-not contained gene pairs', len(GorillaOverlappingPairs))
+
+# make a list of contained genes that are not host:intronic nested genes
+HostContainedPairs = RemoveGenePairsFromHigherLevel(HumanHostContainedPairs, HumanHostNestedPairs)
+print('host-contained-not nested pairs in human', len(HumanHostContainedPairs))
+ChimpHostContainedPairs = RemoveGenePairsFromHigherLevel(ChimpHostContainedPairs, ChimpHostNestedPairs)
+print('host-contained-not nested pairs in chimp', len(ChimpHostContainedPairs))
+GorillaHostContainedPairs = RemoveGenePairsFromHigherLevel(GorillaHostContainedPairs, GorillaHostNestedPairs)
+print('host-contained-not nested pairs in gorilla', len(GorillaHostContainedPairs))
+
 # get GFF file
 HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
 PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
