@@ -244,7 +244,7 @@ def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
 
 
 # create figure
-fig = plt.figure(1, figsize = (3.5, 2))
+fig = plt.figure(1, figsize = (2.5, 1.5))
 
 # plot data
 ax1 = CreateAx(3, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Intron length (Kbp)', 70, True)
@@ -268,7 +268,7 @@ for i in range(len(Significance['gorilla'])):
 # add legend relative to ax1 using ax1 coordinates
 W = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'With genes')
 Wo = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Without genes')
-ax1.legend(handles = [W, Wo], loc = (0.5, 1.1), fontsize = 8, frameon = False, ncol = 2)
+ax1.legend(handles = [W, Wo], loc = (-0.4, 1.1), fontsize = 8, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
 #plt.tight_layout()
