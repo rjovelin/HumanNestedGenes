@@ -75,7 +75,6 @@ print('chimp overlapping gene pairs', len(ChimpOverlappingPairs))
 GorillaOverlappingPairs = GetHostNestedPairs(GorillaOverlappingGenes)
 print('gorilla overlapping gene pairs', len(GorillaOverlappingPairs))
 
-
 # remove gene pairs from higher hierarchical level present in lower hierarchical level    
 # make a list of overlaping genes that are not contained
 HumanOverlappingPairs = RemoveGenePairsFromHigherLevel(HumanOverlappingPairs, HumanHostContainedPairs)
