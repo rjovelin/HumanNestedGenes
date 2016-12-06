@@ -6,9 +6,9 @@ Created on Fri Nov 25 11:38:39 2016
 """
 
 
-# use this script to plot expression divergence before and after nesting
+# use this script to plot expression divergence before young and old overlapped/nested genes
 
-# usage python3 PlotExpDivergBeforeAfterNesting.py 
+# usage python3 PlotExpDivergYoungOld.py 
 
 
 # import modules
