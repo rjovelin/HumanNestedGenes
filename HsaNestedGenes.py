@@ -624,10 +624,20 @@ def RemoveGenePairsFromHigherLevel(HigherLevelPairs, LowerLevelPairs):
     correspond to a unique gene organization
     Precondition: first gene in pair is the first gene on chromo    
     '''
+    
+    # create a list of gene pairs to remove
+    to_remove = []
     # loop over gene pairs from lower hierarchical level
-    for pair in LowerLevelPairs:
-        if pair in HigherLevelPairs:
-           HigherLevelPairs.remove(pair) 
+    for i in range(len(LowerLevelPairs)):
+        # loop over gene pairs from higher hierarchical level 
+        for j in range(len(HigherLevelPairs)):
+            # compare the 2 gene pairs, ignore gene order
+            if set(LowerLevelPairs[i]) == set(HigherLevelPairs[j]):
+                # remove pair from higher hierarchical level 
+                to_remove.append(HigherLevelPairs[j])
+    # remove gene pairs from higher hierarchical level    
+    for pair in to_remove:
+        HigherLevelPairs.remove(pair) 
     return HigherLevelPairs
     
       
