@@ -38,6 +38,87 @@ with open('ChimpHostNestedGenes.json') as chimp_json_data:
 with open('GorillaHostNestedGenes.json') as gorilla_json_data:
     GorillaHostGenes = json.load(gorilla_json_data)
 
+# load dictionaries of host and contained genes
+with open('HumanContainedGenes.json') as human_json_data:
+    HumanContainedGenes = json.load(human_json_data)
+with open('ChimpContainedGenes.json') as chimp_json_data:
+    ChimpContainedGenes = json.load(chimp_json_data)
+with open('GorillaContainedGenes.json') as gorilla_json_data:
+    GorillaContainedGenes = json.load(gorilla_json_data)
+
+# load dictionaries with overlapping genes
+with open('HumanOverlappingGenes.json') as human_json_data:
+    HumanOverlappingGenes = json.load(human_json_data)
+with open('ChimpOverlappingGenes.json') as chimp_json_data:
+    ChimpOverlappingGenes = json.load(chimp_json_data)
+with open('GorillaOverlappingGenes.json') as gorilla_json_data:
+    GorillaOverlappingGenes = json.load(gorilla_json_data)
+        
+
+## get GFF file
+#HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
+#PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
+#GgoGFF = 'Gorilla_gorilla.gorGor3.1.86.gff3'
+#
+## make a list of primate GFF files
+#GFFs = [HsaGFF, PtrGFF, GgoGFF]
+## make a list of species names
+#SpeciesNames = ['human', 'chimp', 'gorilla']
+## make a list of host:nested genes dictionaries
+#HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes]
+## make a list of host:contained genes dictionaries
+#HostContained = [HumanContainedGenes, ChimpContainedGenes, GorillaContainedGenes]
+## make a list of overlapping genes dictionaries
+#Overlapping = [HumanOverlappingGenes, ChimpOverlappingGenes, GorillaOverlappingGenes]
+#
+#
+## loop over GFF files
+#for i in range(len(GFFs)):
+#    print(GFFs[i][:GFFs[i].index('.')], SpeciesNames[i])
+#    # get expression profile of the species genes
+#    SpExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', SpeciesNames[i])
+#    # remove genes wuthout expression
+#    SpExpression = RemoveGenesLackingExpression(SpExpression)
+#    # get relative expression
+#    SpExpression = TransformRelativeExpression(SpExpression)
+#    # make a list of host-nested gene pairs
+#    SpHostNestedPairs = GetHostNestedPairs(HostGenes[i])
+#    # make a list of host-contained gene pairs
+#    SpHostContainedPairs = GetHostNestedPairs(HostContained[i])
+#    # make a list of overlapping gene pairs
+#    SpOverlappingPairs = GetHostNestedPairs(Overlapping[i])
+#    # assert each gene pair is found only once in each level of genomic organization
+#    for pair in SpHostNestedPairs:
+#        assert SpHostNestedPairs.count(pair) == 1
+#    for pair in SpHostContainedPairs:
+#        assert SpHostContainedPairs.count(pair) == 1
+#    for pair in SpOverlappingPairs:
+#        assert SpOverlappingPairs.count(pair) == 1
+#    
+#    print('total number of host-nested pairs', SpeciesNames[i], len(SpHostNestedPairs))
+#    print('total number of host-contained pairs', SpeciesNames[i], len(SpHostContainedPairs))
+#    print('total number of overlapping pairs', SpeciesNames[i], len(SpOverlappingPairs))
+#    # remove gene pairs from higher hierarchical level present in lower hierarchical level    
+#    # count gene pairs before filtering gene pairs
+#    a, b = len(SpOverlappingPairs), len(SpHostContainedPairs)
+#    # make a list of overlaping genes that are not contained
+#    SpOverlappingPairs = RemoveGenePairsFromHigherLevel(SpOverlappingPairs, SpHostContainedPairs)
+#    assert a == len(SpHostContainedPairs) + len(SpOverlappingPairs)    
+#    # make a list of contained genes that are not host:intronic nested genes
+#    SpHostContainedPairs = RemoveGenePairsFromHigherLevel(SpHostContainedPairs, SpHostNestedPairs)
+#    assert b == len(SpHostContainedPairs) + len(SpHostNestedPairs)  
+#    print('number of overlapping-not contained gene pairs', SpeciesNames[i], len(SpOverlappingPairs))
+#    print('number of contained-not nested gene pairs', SpeciesNames[i], len(SpHostContainedPairs))
+#    # remove gene pairs with genes lacking expression
+#    SpHostNestedPairs = FilterGenePairsWithoutExpression(SpHostNestedPairs, SpExpression)
+#    SpHostContainedPairs = FilterGenePairsWithoutExpression(SpHostContainedPairs, SpExpression)
+#    SpOverlappingPairs = FilterGenePairsWithoutExpression(SpOverlappingPairs, SpExpression)
+#    print('number of host-nested pairs with expression', SpeciesNames[i], len(SpHostNestedPairs))
+#    print('number of host-contained pairs with expression', SpeciesNames[i], len(SpHostContainedPairs))
+#    print('number of overlapping pairs with expression', SpeciesNames[i], len(SpOverlappingPairs))
+
+
+
 # get GFF file
 HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
 PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
@@ -48,8 +129,18 @@ GgoGFF = 'Gorilla_gorilla.gorGor3.1.86.gff3'
 GFFs = [HsaGFF, PtrGFF, GgoGFF]
 # make a list of species names
 SpeciesNames = ['human', 'chimp', 'gorilla']
+
+
+
 # make a list of host:nested genes dictionaries
-HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes]
+#HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes]
+
+
+#HostGenes = [HumanContainedGenes, ChimpContainedGenes, GorillaContainedGenes]
+
+HostGenes = [HumanOverlappingGenes, ChimpOverlappingGenes, GorillaOverlappingGenes]
+
+
 
 
 # get expression profile of the species genes
