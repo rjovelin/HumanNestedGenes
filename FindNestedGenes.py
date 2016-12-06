@@ -70,12 +70,6 @@ for i in range(len(GFFs)):
     # Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
     SpCombinedIntronCoord = CombineAllGeneRegions(SpIntronCoord, SpMapTranscriptGene)
     print('combined introns for each gene', len(SpCombinedIntronCoord))
-    # combine all exon from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
-    SpCombinedExonCoord = CombineAllGeneRegions(SpExonCoord, SpMapTranscriptGene)
-    print('combined exons for each gene', len(SpCombinedExonCoord))
-    # find host and nested genes sharing exonic and/or intronic regions
-    SpHostSharing = FindContainedGenesSharingExonIntron(SpContainedGenes, SpCombinedIntronCoord, SpCombinedExonCoord, SpGeneCoord)
-    print('found host and nested genes sharing exons/introns', len(SpHostSharing))
     # identify itnronic nested genes {host_gene: [intronic_nested_gene]}
     SpHostGenes = FindIntronicNestedGenePairs(SpContainedGenes, SpCombinedIntronCoord, SpGeneCoord)
     print('identified intronic nested genes', len(SpHostGenes))
@@ -84,7 +78,7 @@ for i in range(len(GFFs)):
     if i == 0:
         # save contained genes as json file
         newfile = open('HumanContainedGenes.json', 'w')
-        json.dump(SpHostSharing, newfile, sort_keys = True, indent = 4)
+        json.dump(SpContainedGenes, newfile, sort_keys = True, indent = 4)
         newfile.close()
         # save intronic nested genes as json file
         newfile = open('HumanHostNestedGenes.json', 'w')
@@ -97,7 +91,7 @@ for i in range(len(GFFs)):
     elif i == 1:
         # save contained genes as json file
         newfile = open('ChimpContainedGenes.json', 'w')
-        json.dump(SpHostSharing, newfile, sort_keys = True, indent = 4)
+        json.dump(SpContainedGenes, newfile, sort_keys = True, indent = 4)
         newfile.close()
         # save intronic nested genes as json file
         newfile = open('ChimpHostNestedGenes.json', 'w')
@@ -109,7 +103,7 @@ for i in range(len(GFFs)):
         newfile.close()
     elif i == 2:
         newfile = open('GorillaContainedGenes.json', 'w')
-        json.dump(SpHostSharing, newfile, sort_keys = True, indent = 4)
+        json.dump(SpContainedGenes, newfile, sort_keys = True, indent = 4)
         newfile.close()
         # save intronic nested genes as json file
         newfile = open('GorillaHostNestedGenes.json', 'w')
