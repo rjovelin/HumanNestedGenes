@@ -76,7 +76,7 @@ ax = fig.add_subplot(1, 1, 1)
 # Create a horizontal bar plot for proportions of opposite strand pairs
 ax.bar([0, 0.6], Opposite, width = 0.5, label = 'opposite strand', color= '#fc8d59')
 # Create a horizontal bar plot for proportions of same strand pairs
-ax.bar([0, 0.6], Same, width = 0.5, bottom = OppositeStrand, label = 'same strand', color= '#91bfdb')
+ax.bar([0, 0.6], Same, width = 0.5, bottom = Opposite, label = 'same strand', color= '#91bfdb')
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
 # write label for y and x axis
