@@ -81,7 +81,6 @@ ax.bar([0, 0.6], Same, width = 0.5, bottom = Opposite, label = 'same strand', co
 FigFont = {'fontname':'Arial'}   
 # write label for y and x axis
 ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = 8, ha = 'center', **FigFont)
-ax.set_xlabel(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
 # write label for x axis
 plt.xticks([0.25, 0.85], ['Ovl', 'Nst'], ha = 'center', fontsize = 10, **FigFont)
 # limit the y axis value range
