@@ -50,9 +50,9 @@ HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
     
 # get gene coordinates in each species
 # get gene coordinates on each chromo
-HumanGeneChromoCoord = ChromoGenesCoord(GFFs[0])
+HumanGeneChromoCoord = ChromoGenesCoord(HsaGFF)
 # map each gene to its mRNA transcripts
-HumanMapGeneTranscript = GeneToTranscripts(GFFs[0])
+HumanMapGeneTranscript = GeneToTranscripts(HsaGFF)
 # remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
 HumanGeneChromoCoord = FilterOutGenesWithoutValidTranscript(HumanGeneChromoCoord, HumanMapGeneTranscript)
 # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
