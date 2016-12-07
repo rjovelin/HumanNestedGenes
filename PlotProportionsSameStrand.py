@@ -68,7 +68,7 @@ Same.append(GetSameOppositeStrandProportions(HumanHostNestedPairs, HumanGeneCoor
 Opposite.append(GetSameOppositeStrandProportions(HumanHostNestedPairs, HumanGeneCoord)[1])
 
 # create figure
-fig = plt.figure(1, figsize = (3.5, 2.5))
+fig = plt.figure(1, figsize = (2, 2))
 
 # create subplot in figure
 # add a plot to figure (N row, N column, plot N)
