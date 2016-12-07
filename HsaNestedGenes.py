@@ -985,7 +985,7 @@ def FilterGenePairsWithoutExpression(HostNestedPairs, ExpressionProfile):
 
 
 
-# use this function to make a set of host and nested genes
+# use this function to make a set of genes with full or partial overlap
 def MakeFullPartialOverlapGeneSet(OverlapGenes):
     '''
     (dict) -> set
@@ -1001,6 +1001,20 @@ def MakeFullPartialOverlapGeneSet(OverlapGenes):
             WithOverlap.add(j)
     return WithOverlap
 
+# use this function to make a set of non-overlapping genes
+def MakeNonOverlappingGeneSet(OverlappingGenes, GeneCoord):
+    '''
+    (dict, dict) -> set     
+    Take the dictionary of genes that are overlapping and the dictionary of
+    gene coordinates and return a set of genes that are not overlapping
+    '''
+    # make a set of genes with overlapping coordinates
+    WithOverlap = MakeFullPartialOverlapGeneSet(OverlappingGenes)
+    # make a set of all genes
+    AllGenes = set(GeneCoord.keys())
+    # return a set of genes that do not overlap
+    return AllGenes - WithOverlap 
+    
 
 # use this function to match the longest transcript of the nested genes to transcripts of the host genes
 def MatchHostTranscriptWithNestedTranscript(HostGenes, MapGeneTranscript, GeneLongestTranscript, TranscriptCoordinates, IntronCoordinates):
