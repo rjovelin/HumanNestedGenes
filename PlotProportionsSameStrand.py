@@ -72,7 +72,7 @@ fig = plt.figure(1, figsize = (3.5, 2.5))
 
 # create subplot in figure
 # add a plot to figure (N row, N column, plot N)
-ax = figure.add_subplot(1, 1, 1)
+ax = fig.add_subplot(1, 1, 1)
 # Create a horizontal bar plot for proportions of opposite strand pairs
 ax.bar([0, 0.6], Opposite, width = 0.5, label = 'opposite strand', color= '#fc8d59')
 # Create a horizontal bar plot for proportions of same strand pairs
