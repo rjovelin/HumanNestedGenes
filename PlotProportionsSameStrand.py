@@ -82,7 +82,7 @@ FigFont = {'fontname':'Arial'}
 # write label for y and x axis
 ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = 8, ha = 'center', **FigFont)
 # write label for x axis
-plt.xticks([0.25, 0.85], ['Ovl', 'Nst'], ha = 'center', fontsize = 10, **FigFont)
+plt.xticks([0.25, 0.85], ['Overlap', 'Nested'], ha = 'center', fontsize = 10, **FigFont)
 # limit the y axis value range
 plt.ylim([0, 1])   
 # do not show lines around figure  
@@ -113,7 +113,7 @@ plt.margins(0.1)
 # add legend
 S = mpatches.Patch(facecolor = '#91bfdb' , edgecolor = 'black', linewidth = 1, label= 'same')
 O = mpatches.Patch(facecolor = '#fc8d59' , edgecolor = 'black', linewidth = 1, label= 'opposite')
-ax.legend(handles = [S, O], loc = (0.3, 1), fontsize = 8, frameon = False, ncol = 2)
+ax.legend(handles = [S, O], loc = (-0.2, 1), fontsize = 8, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
 plt.tight_layout()
