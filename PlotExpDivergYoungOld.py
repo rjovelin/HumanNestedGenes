@@ -133,12 +133,12 @@ SpeciesNames = ['human', 'chimp', 'gorilla']
 
 
 # make a list of host:nested genes dictionaries
-#HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes]
+HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes]
 
 
 #HostGenes = [HumanContainedGenes, ChimpContainedGenes, GorillaContainedGenes]
 
-HostGenes = [HumanOverlappingGenes, ChimpOverlappingGenes, GorillaOverlappingGenes]
+#HostGenes = [HumanOverlappingGenes, ChimpOverlappingGenes, GorillaOverlappingGenes]
 
 
 
@@ -150,7 +150,7 @@ HumanExpression = RemoveGenesLackingExpression(HumanExpression)
 # get relative expression
 HumanExpression = TransformRelativeExpression(HumanExpression)
 # make a set of host and nested genes (include all host and nested even if not expressed)    
-HumanNestedConformation = MakeHostNestedGeneSet(HostGenes[0])    
+HumanNestedConformation = MakeFullPartialOverlapGeneSet(HostGenes[0])    
 # make a list of host-nested gene pairs
 HumanHostNestedPairs = GetHostNestedPairs(HostGenes[0])
 # remove gene pairs with genes lacking expression
@@ -164,7 +164,7 @@ ChimpExpression = RemoveGenesLackingExpression(ChimpExpression)
 # get relative expression
 ChimpExpression = TransformRelativeExpression(ChimpExpression)
 # make a set of host and nested genes (include all host and nested even if not expressed)    
-ChimpNestedConformation = MakeHostNestedGeneSet(HostGenes[1])    
+ChimpNestedConformation = MakeFullPartialOverlapGeneSet(HostGenes[1])    
 # make a list of host-nested gene pairs
 ChimpHostNestedPairs = GetHostNestedPairs(HostGenes[1])
 # remove gene pairs with genes lacking expression
@@ -178,7 +178,7 @@ GorillaExpression = RemoveGenesLackingExpression(GorillaExpression)
 # get relative expression
 GorillaExpression = TransformRelativeExpression(GorillaExpression)
 # make a set of host and nested genes (include all host and nested even if not expressed)    
-GorillaNestedConformation = MakeHostNestedGeneSet(HostGenes[2])    
+GorillaNestedConformation = MakeFullPartialOverlapGeneSet(HostGenes[2])    
 # make a list of host-nested gene pairs
 GorillaHostNestedPairs = GetHostNestedPairs(HostGenes[2])
 # remove gene pairs with genes lacking expression
@@ -191,10 +191,29 @@ ChimpOrthologs = {}
 for gene in HumanOrthologs:
     ChimpOrthologs[HumanOrthologs[gene][0]] = [gene, HumanOrthologs[gene][1]]
 
+
+# make lists of overlapping gene pairs
+HumanOverlappingPairs = GetHostNestedPairs(HumanOverlappingGenes)
+ChimpOverlappingPairs = GetHostNestedPairs(ChimpOverlappingGenes)
+GorillaOverlappingPairs = GetHostNestedPairs(GorillaOverlappingGenes)
+
+HumanContainedPairs = GetHostNestedPairs(HumanContainedGenes)
+ChimpContainedPairs = GetHostNestedPairs(ChimpContainedGenes)
+GorillaContainedPairs = GetHostNestedPairs(GorillaContainedGenes)
+
+
 # make lists of old and yound host:nested pairs
-HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HostGenes[0], HostGenes[1], HostGenes[2], HumanHostNestedPairs)
-ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, HostGenes[1], HostGenes[0], HostGenes[2], ChimpHostNestedPairs)
+#HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HostGenes[0], HostGenes[1], HostGenes[2], HumanHostNestedPairs)
+#ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, HostGenes[1], HostGenes[0], HostGenes[2], ChimpHostNestedPairs)
  
+
+
+HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HumanContainedPairs, ChimpContainedPairs, GorillaContainedPairs, HumanHostNestedPairs)
+ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, ChimpContainedPairs, HumanContainedPairs, GorillaContainedPairs, ChimpHostNestedPairs)
+
+print('human nested pairs', len(HumanHostNestedPairs))
+print('human old pairs', len(HumanOld))
+print('human young', len(HumanYoung))
 
 # make list of ancestral un-nested gene pairs
 humanancestral, chimpancestral = [], []
@@ -255,9 +274,19 @@ print(len(ChimpYoungDiv), np.mean(ChimpYoungDiv), len(HumanUnNestedDiv), np.mean
 YoungInternal, YoungExternal = [], []
 
 # make lists of old and yound host:nested pairs
-HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HostGenes[0], HostGenes[1], HostGenes[2], HumanHostNestedPairs)
-ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, HostGenes[1], HostGenes[0], HostGenes[2], ChimpHostNestedPairs)
- 
+#HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HostGenes[0], HostGenes[1], HostGenes[2], HumanHostNestedPairs)
+#ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, HostGenes[1], HostGenes[0], HostGenes[2], ChimpHostNestedPairs)
+
+
+
+#HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HumanOverlappingPairs, ChimpOverlappingPairs, GorillaOverlappingPairs, HumanHostNestedPairs)
+#ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, ChimpOverlappingPairs, HumanOverlappingPairs, GorillaOverlappingPairs, ChimpHostNestedPairs)
+
+HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HumanContainedPairs, ChimpContainedPairs, GorillaContainedPairs, HumanHostNestedPairs)
+ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, ChimpContainedPairs, HumanContainedPairs, GorillaContainedPairs, ChimpHostNestedPairs)
+
+
+
 for pair in HumanYoung:
     # get the ortholog of the host and nested genes
     extortho, internortho = HumanOrthologs[pair[0]][0], HumanOrthologs[pair[1]][0]
@@ -306,8 +335,19 @@ infile.close()
 YoungInternalSeq, YoungExternalSeq = [], []
 
 # make lists of old and yound host:nested pairs
-HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HostGenes[0], HostGenes[1], HostGenes[2], HumanHostNestedPairs)
-ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, HostGenes[1], HostGenes[0], HostGenes[2], ChimpHostNestedPairs)
+#HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HostGenes[0], HostGenes[1], HostGenes[2], HumanHostNestedPairs)
+#ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, HostGenes[1], HostGenes[0], HostGenes[2], ChimpHostNestedPairs)
+
+
+
+#HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HumanOverlappingPairs, ChimpOverlappingPairs, GorillaOverlappingPairs, HumanHostNestedPairs)
+#ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, ChimpOverlappingPairs, HumanOverlappingPairs, GorillaOverlappingPairs, ChimpHostNestedPairs)
+
+HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HumanContainedPairs, ChimpContainedPairs, GorillaContainedPairs, HumanHostNestedPairs)
+ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, ChimpContainedPairs, HumanContainedPairs, GorillaContainedPairs, ChimpHostNestedPairs)
+
+
+
  
 for pair in HumanYoung:
     # get dN for the host and nested gene
