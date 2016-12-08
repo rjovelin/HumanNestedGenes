@@ -113,7 +113,7 @@ plt.margins(0.1)
 # add legend
 S = mpatches.Patch(facecolor = '#91bfdb' , edgecolor = 'black', linewidth = 1, label= 'same')
 O = mpatches.Patch(facecolor = '#fc8d59' , edgecolor = 'black', linewidth = 1, label= 'opposite')
-ax.legend(handles = [S, O], loc = (-0.2, 1), fontsize = 8, frameon = False, ncol = 2)
+ax.legend(handles = [S, O], loc = (-0.3, 1.05), fontsize = 8, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
 plt.tight_layout()
