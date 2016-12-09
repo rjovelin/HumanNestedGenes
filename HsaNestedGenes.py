@@ -1386,9 +1386,7 @@ def InferYoungOldNestingEvents(FirstSpOrthologs, SecondSpOverlapPairs, OutGroupO
             elif {hostorthosp2, nestedorthosp2} in SecondOverlap and {hostorthoout, nestedorthoout} in OutGroupOverlap:
                 # gene pair is overlapping in 2nd species and outgroup, infer old nested pair
                 old.append(pair)
-            elif {hostorthosp2, nestedorthosp2} not in SecondOverlap and {hostorthoout, nestedorthoout} in OutGroupOverlap:
-                # gene pair is not overlapping in 2nd species and outgroup, infer old nested pair
-                old.append(pair)
+
     return old, young
 
 
