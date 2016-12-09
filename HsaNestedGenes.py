@@ -1002,14 +1002,14 @@ def MakeFullPartialOverlapGeneSet(OverlapGenes):
     return WithOverlap
 
 # use this function to make a set of non-overlapping genes
-def MakeNonOverlappingGeneSet(OverlappingGenes, GeneCoord):
+def MakeNonOverlappingGeneSet(OverlapGenes, GeneCoord):
     '''
     (dict, dict) -> set     
     Take the dictionary of genes that are overlapping and the dictionary of
     gene coordinates and return a set of genes that are not overlapping
     '''
     # make a set of genes with overlapping coordinates
-    WithOverlap = MakeFullPartialOverlapGeneSet(OverlappingGenes)
+    WithOverlap = MakeFullPartialOverlapGeneSet(OverlapGenes)
     # make a set of all genes
     AllGenes = set(GeneCoord.keys())
     # return a set of genes that do not overlap
