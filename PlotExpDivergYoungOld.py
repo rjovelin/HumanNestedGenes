@@ -217,7 +217,7 @@ for pair in YoungInternal:
         if gene in HumanExpSpecificity:
             assert gene in HumanExpression
             # match by expression specificity
-            if HumanExpSpecificity[pair[0]] - 0.01 <= HumanExpSpecificity[gene] <= HumanExpSpecificity[pair[0]] + 0.01:
+            if HumanExpSpecificity[pair[0]] - 0.05 <= HumanExpSpecificity[gene] <= HumanExpSpecificity[pair[0]] + 0.05:
                 # match by tissue with highest expression
                 if HumanExpression[gene].index(max(HumanExpression[gene])) == HumanExpression[pair[0]].index(max(HumanExpression[pair[0]])):
                     # check that matching gene has a un-nested chimp ortholog
@@ -238,7 +238,7 @@ for pair in YoungInternal:
                 PossibleGenes.remove(i)
         else:
             PossibleGenes.remove(i)
-    if len(PossibleGenes) != 0:
+    if len(PossibleGenes) == 0:
         to_remove.append(pair)                
             
-print(len(to_remove), len(InternalLike))
+print(len(YoungInternal), len(to_remove), len(InternalLike))
