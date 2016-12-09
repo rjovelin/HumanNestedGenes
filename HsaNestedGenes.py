@@ -1412,26 +1412,20 @@ def GenerateAllUnNestedGenes(NoOverlap, OrderedGenes):
 
 
 # use this function to sort young and ancestral nesting events
-def InferYoungOldNestingEvents(FirstSpOrthologs, FirstSpOverlapPairs, SecondSpOverlapPairs, OutGroupOverlapPairs, FirstSpHostNestedPairs):
+def InferYoungOldNestingEvents(FirstSpOrthologs, SecondSpOverlapPairs, OutGroupOverlapPairs, FirstSpHostNestedPairs):
     '''
-    (dict, dict, dict, dict, list) -> (list, list)
-    Take a dictionary with ortholog gene trios, the dictionary of host: nested
-    pairs in the focal species, the sister-species and the outgroup and the list
-    of host:nested pairs in the focal species and return a tuple with list of 
-    host: nested pairs that are infered to be old and young (before the divergence
-    of the 2 species or after)
+    (dict, list, list, list) -> (list, list)
+    Take a dictionary with ortholog gene trios, the lists of overlapping gene
+    pairs in the sister species and in the outgroup and the list of host:nested
+    pairs in the focal species and return a tuple with list of host: nested pairs
+    that are infered to be old and young (before the divergence of the 2 species or after)
     '''   
-    
-    
     # create lists of sets of gene pairs to remove the order between genes
-    FirstOverlap, SecondOverlap, OutGroupOverlap = [], [], []
-    for pair in FirstSpOverlapPairs:
-        FirstOverlap.append(set(pair))
+    SecondOverlap, OutGroupOverlap = [], []
     for pair in SecondSpOverlapPairs:
         SecondOverlap.append(set(pair))
     for pair in OutGroupOverlapPairs:
         OutGroupOverlap.append(set(pair))
-    
     # create lists of host-nested gene pairs that are old (present in second
     # species, or second species and outgroup) or young (not found in outgroup
     # and not found in the second species, ie species-specific)    
