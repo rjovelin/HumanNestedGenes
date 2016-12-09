@@ -194,6 +194,10 @@ print(len(YoungInternalDiv), np.mean(YoungInternalDiv), len(YoungExternalDiv), n
 # create pairs of random internal-like and external-like genes in human and their un-nested orthologs in chimp
 InternalLike, ExternalLike = [], []
 
+# create a list of pairs to remove
+to_remove = []
+
+
 # for each human gene, match a random un-nested gene with similar characterisitics
 for pair in YoungInternal:
     # get the chromosome of the human gene
@@ -234,5 +238,7 @@ for pair in YoungInternal:
                 PossibleGenes.remove(i)
         else:
             PossibleGenes.remove(i)
-    assert len(PossibleGenes) != 0                
+    if len(PossibleGenes) != 0:
+        to_remove.append(pair)                
             
+print(len(to_remove), len(InternalLike))
