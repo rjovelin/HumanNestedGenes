@@ -6,7 +6,8 @@ Created on Fri Nov 25 11:38:39 2016
 """
 
 
-# use this script to plot expression divergence before young and old overlapped/nested genes
+# use this script to plot expression divergence between external their
+# un-nested orthologs and between internal and their un-nested orthologs
 
 # usage python3 PlotExpDivergYoungOld.py 
 
@@ -57,8 +58,6 @@ with open('GorillaOverlappingGenes.json') as gorilla_json_data:
 
 # make a list of host:nested genes dictionaries
 HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes]
-#HostGenes = [HumanContainedGenes, ChimpContainedGenes, GorillaContainedGenes]
-#HostGenes = [HumanOverlappingGenes, ChimpOverlappingGenes, GorillaOverlappingGenes]
 
 # get human GFF file
 HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
@@ -144,13 +143,6 @@ ToDrawFrom = GenerateAllUnNestedGenes(HumanNonNestedGeneSet, HumanOrderedGenes)
 
 
 # infer young and old nesting events in human and chimp
-
-#HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, HumanContainedPairs, ChimpContainedPairs, GorillaContainedPairs, HumanHostNestedPairs)
-#ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, ChimpContainedPairs, HumanContainedPairs, GorillaContainedPairs, ChimpHostNestedPairs)
-
-#HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, ChimpOverlappingPairs, GorillaOverlappingPairs, HumanHostNestedPairs)
-#ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, HumanOverlappingPairs, GorillaOverlappingPairs, ChimpHostNestedPairs)
-
 HumanOld, HumanYoung = InferYoungOldNestingEvents(HumanOrthologs, ChimpHostNestedPairs, GorillaHostNestedPairs, HumanHostNestedPairs)
 ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthologs, HumanHostNestedPairs, GorillaHostNestedPairs, ChimpHostNestedPairs)
 
@@ -304,5 +296,160 @@ InternalDiv = ComputeExpressionDivergenceOrthologs(InternalLike, HumanExpression
 # compare expression divergence between young external and external-like and between young internal and internal-like
 print(len(YoungExternalDiv), np.mean(YoungExternalDiv), len(ExternalDiv), np.mean(ExternalDiv), stats.ranksums(YoungExternalDiv, ExternalDiv)[1])
 print(len(YoungInternalDiv), np.mean(YoungInternalDiv), len(InternalDiv), np.mean(InternalDiv), stats.ranksums(YoungInternalDiv, InternalDiv)[1])
+
+
+############################################
+
+
+# compare expression divergence between old nested genes and their un-nested orthologs
+# compare expression divergence between old host genes and their un-nested orthologs
+
+# populate lists with old genes and their un-nested orthologs 
+OldInternal, OldExternal = [], []
+# get pairs of human old external and internal genes and their nested chimp orthologs
+for pair in HumanOld:
+    # get the ortholog of the host and nested genes
+    extortho, internortho = HumanOrthologs[pair[0]][0], HumanOrthologs[pair[1]][0]
+    # check that these genes are nested
+    if extortho in ChimpNestedGeneSet and internortho in ChimpNestedGeneSet:
+        if extortho in ChimpExpression:
+            assert pair[0] in HumanExpression
+            OldExternal.append([pair[0], extortho])
+        if internortho in ChimpExpression:
+            assert pair[1] in HumanExpression
+            OldInternal.append([pair[1], internortho])
+# get pairs of chimp young external and internal genes and their un-nested human orthologs      
+for pair in ChimpOld:
+    # get the ortholog of the host and nested genes
+    extortho, internortho = ChimpOrthologs[pair[0]][0], ChimpOrthologs[pair[1]][0]
+    # check that these genes are nested
+    if extortho in HumanNestedGeneSet and internortho in HumanNestedGeneSet:
+        if extortho in HumanExpression:
+            assert pair[0] in ChimpExpression
+            OldExternal.append([extortho, pair[0]])
+        if internortho in HumanExpression:
+            assert pair[1] in ChimpExpression
+            OldInternal.append([internortho, pair[1]])
+print(len(HumanOld), len(ChimpOld), len(OldInternal), len(OldExternal), len(HumanOld) + len(ChimpOld), len(OldInternal) + len(OldExternal))
+
+
+# compute divergence between old nested pairs and their nested orthologs 
+OldInternalDiv = ComputeExpressionDivergenceOrthologs(OldInternal, HumanExpression, ChimpExpression)
+OldExternalDiv = ComputeExpressionDivergenceOrthologs(OldExternal, HumanExpression, ChimpExpression)
+print(len(OldInternalDiv), np.mean(OldInternalDiv), len(OldExternalDiv), np.mean(OldExternalDiv), stats.ranksums(OldInternalDiv, OldExternalDiv)[1])
+
+# create pairs of random internal-like and external-like genes in human and their un-nested orthologs in chimp
+InternalLike, ExternalLike = [], []
+
+# create a list of pairs to remove when genes have no match
+to_remove = []
+
+# for each human gene, match a random un-nested gene with similar characterisitics
+for pair in OldInternal:
+    # get the chromosome of the human gene
+    chromo = HumanGeneCoord[pair[0]][0]
+    # create a list of genes corresponding to all possible genes on chromo to draw from
+    PossibleGenes = list(ToDrawFrom[chromo].keys())
+    # draw a random gene on that chromo with matching characteristics
+    NotFound = True
+    while len(PossibleGenes) != 0 and NotFound == True:
+        i = random.choice(PossibleGenes)
+        gene = ToDrawFrom[chromo][i]
+        # assert gene not nested
+        assert gene not in HumanNestedGeneSet
+        # match gene by expression specificity (+- 0.01)
+        if gene in HumanExpSpecificity:
+            assert gene in HumanExpression
+            # match by expression specificity
+            if HumanExpSpecificity[pair[0]] - 0.05 <= HumanExpSpecificity[gene] <= HumanExpSpecificity[pair[0]] + 0.05:
+                # match by tissue with highest expression
+                if HumanExpression[gene].index(max(HumanExpression[gene])) == HumanExpression[pair[0]].index(max(HumanExpression[pair[0]])):
+                    # check that matching gene has a un-nested chimp ortholog
+                    if gene in HumanOrthologs:
+                        # check that ortholog is not nested and is expressed
+                        if HumanOrthologs[gene][0] not in ChimpNestedGeneSet and HumanOrthologs[gene][0] in ChimpExpression:
+                            # found internal-like gene, populate list
+                            InternalLike.append([gene, HumanOrthologs[gene][0]])
+                            # update boolean
+                            NotFound = False
+                        else:
+                            PossibleGenes.remove(i)
+                    else:
+                        PossibleGenes.remove(i)
+                else:
+                    PossibleGenes.remove(i)
+            else:
+                PossibleGenes.remove(i)
+        else:
+            PossibleGenes.remove(i)
+    if len(PossibleGenes) == 0:
+        to_remove.append(pair)                
+print(len(OldInternal), len(to_remove), len(InternalLike))
+
+if len(to_remove) != 0:
+    for pair in to_remove:
+        OldInternal.remove(pair)
+
+
+# create a list of pairs to remove when genes have no match
+to_remove = []
+
+# for each human gene, match a random un-nested gene with similar characterisitics
+for pair in OldExternal:
+    # get the chromosome of the human gene
+    chromo = HumanGeneCoord[pair[0]][0]
+    # create a list of genes corresponding to all possible genes on chromo to draw from
+    PossibleGenes = list(ToDrawFrom[chromo].keys())
+    # draw a random gene on that chromo with matching characteristics
+    NotFound = True
+    while len(PossibleGenes) != 0 and NotFound == True:
+        i = random.choice(PossibleGenes)
+        gene = ToDrawFrom[chromo][i]
+        # assert gene not nested
+        assert gene not in HumanNestedGeneSet
+        # match gene by expression specificity (+- 0.01)
+        if gene in HumanExpSpecificity:
+            assert gene in HumanExpression
+            # match by expression specificity
+            if HumanExpSpecificity[pair[0]] - 0.05 <= HumanExpSpecificity[gene] <= HumanExpSpecificity[pair[0]] + 0.05:
+                # match by tissue with highest expression
+                if HumanExpression[gene].index(max(HumanExpression[gene])) == HumanExpression[pair[0]].index(max(HumanExpression[pair[0]])):
+                    # check that matching gene has a un-nested chimp ortholog
+                    if gene in HumanOrthologs:
+                        # check that ortholog is not nested and is expressed
+                        if HumanOrthologs[gene][0] not in ChimpNestedGeneSet and HumanOrthologs[gene][0] in ChimpExpression:
+                            # found internal-like gene, populate list
+                            ExternalLike.append([gene, HumanOrthologs[gene][0]])
+                            # update boolean
+                            NotFound = False
+                        else:
+                            PossibleGenes.remove(i)
+                    else:
+                        PossibleGenes.remove(i)
+                else:
+                    PossibleGenes.remove(i)
+            else:
+                PossibleGenes.remove(i)
+        else:
+            PossibleGenes.remove(i)
+    if len(PossibleGenes) == 0:
+        to_remove.append(pair)                
+print(len(OldExternal), len(to_remove), len(ExternalLike))
+
+if len(to_remove) != 0:
+    for pair in to_remove:
+        OldExternal.remove(pair)
+
+# compute divergence between young nested pairs and their un-nested orthologs 
+OldInternalDiv = ComputeExpressionDivergenceOrthologs(OldInternal, HumanExpression, ChimpExpression)
+OldExternalDiv = ComputeExpressionDivergenceOrthologs(OldExternal, HumanExpression, ChimpExpression)
+print(len(OldInternalDiv), np.mean(OldInternalDiv), len(OldExternalDiv), np.mean(OldExternalDiv), stats.ranksums(OldInternalDiv, OldExternalDiv)[1])
+
+# compute divergence between external like and their un-nested orthologs
+ExternalDiv = ComputeExpressionDivergenceOrthologs(ExternalLike, HumanExpression, ChimpExpression)
+InternalDiv = ComputeExpressionDivergenceOrthologs(InternalLike, HumanExpression, ChimpExpression)
+# compare expression divergence between young external and external-like and between young internal and internal-like
+print(len(OldExternalDiv), np.mean(OldExternalDiv), len(ExternalDiv), np.mean(ExternalDiv), stats.ranksums(OldExternalDiv, ExternalDiv)[1])
+print(len(OldInternalDiv), np.mean(OldInternalDiv), len(InternalDiv), np.mean(InternalDiv), stats.ranksums(OldInternalDiv, InternalDiv)[1])
 
 
