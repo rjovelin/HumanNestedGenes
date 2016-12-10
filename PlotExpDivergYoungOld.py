@@ -194,20 +194,17 @@ print(len(YoungInternalDiv), np.mean(YoungInternalDiv), len(YoungExternalDiv), n
 # create pairs of random internal-like and external-like genes in human and their un-nested orthologs in chimp
 InternalLike, ExternalLike = [], []
 
-# create a list of pairs to remove
+# create a list of pairs to remove when genes have no match
 to_remove = []
-
 
 # for each human gene, match a random un-nested gene with similar characterisitics
 for pair in YoungInternal:
     # get the chromosome of the human gene
     chromo = HumanGeneCoord[pair[0]][0]
-    print(len(ToDrawFrom[chromo]))
     # create a list of genes corresponding to all possible genes on chromo to draw from
     PossibleGenes = list(ToDrawFrom[chromo].keys())
     # draw a random gene on that chromo with matching characteristics
     NotFound = True
-    print(len(InternalLike))
     while len(PossibleGenes) != 0 and NotFound == True:
         i = random.choice(PossibleGenes)
         gene = ToDrawFrom[chromo][i]
@@ -222,8 +219,8 @@ for pair in YoungInternal:
                 if HumanExpression[gene].index(max(HumanExpression[gene])) == HumanExpression[pair[0]].index(max(HumanExpression[pair[0]])):
                     # check that matching gene has a un-nested chimp ortholog
                     if gene in HumanOrthologs:
-                        # check that ortholog is not nested
-                        if HumanOrthologs[gene][0] not in ChimpNestedGeneSet:
+                        # check that ortholog is not nested and is expressed
+                        if HumanOrthologs[gene][0] not in ChimpNestedGeneSet and HumanOrthologs[gene][0] in ChimpExpression:
                             # found internal-like gene, populate list
                             InternalLike.append([gene, HumanOrthologs[gene][0]])
                             # update boolean
@@ -240,5 +237,72 @@ for pair in YoungInternal:
             PossibleGenes.remove(i)
     if len(PossibleGenes) == 0:
         to_remove.append(pair)                
-            
 print(len(YoungInternal), len(to_remove), len(InternalLike))
+
+if len(to_remove) != 0:
+    for pair in to_remove:
+        YoungInternal.remove(pair)
+
+
+# create a list of pairs to remove when genes have no match
+to_remove = []
+
+# for each human gene, match a random un-nested gene with similar characterisitics
+for pair in YoungExternal:
+    # get the chromosome of the human gene
+    chromo = HumanGeneCoord[pair[0]][0]
+    # create a list of genes corresponding to all possible genes on chromo to draw from
+    PossibleGenes = list(ToDrawFrom[chromo].keys())
+    # draw a random gene on that chromo with matching characteristics
+    NotFound = True
+    while len(PossibleGenes) != 0 and NotFound == True:
+        i = random.choice(PossibleGenes)
+        gene = ToDrawFrom[chromo][i]
+        # assert gene not nested
+        assert gene not in HumanNestedGeneSet
+        # match gene by expression specificity (+- 0.01)
+        if gene in HumanExpSpecificity:
+            assert gene in HumanExpression
+            # match by expression specificity
+            if HumanExpSpecificity[pair[0]] - 0.05 <= HumanExpSpecificity[gene] <= HumanExpSpecificity[pair[0]] + 0.05:
+                # match by tissue with highest expression
+                if HumanExpression[gene].index(max(HumanExpression[gene])) == HumanExpression[pair[0]].index(max(HumanExpression[pair[0]])):
+                    # check that matching gene has a un-nested chimp ortholog
+                    if gene in HumanOrthologs:
+                        # check that ortholog is not nested and is expressed
+                        if HumanOrthologs[gene][0] not in ChimpNestedGeneSet and HumanOrthologs[gene][0] in ChimpExpression:
+                            # found internal-like gene, populate list
+                            ExternalLike.append([gene, HumanOrthologs[gene][0]])
+                            # update boolean
+                            NotFound = False
+                        else:
+                            PossibleGenes.remove(i)
+                    else:
+                        PossibleGenes.remove(i)
+                else:
+                    PossibleGenes.remove(i)
+            else:
+                PossibleGenes.remove(i)
+        else:
+            PossibleGenes.remove(i)
+    if len(PossibleGenes) == 0:
+        to_remove.append(pair)                
+print(len(YoungExternal), len(to_remove), len(ExternalLike))
+
+if len(to_remove) != 0:
+    for pair in to_remove:
+        YoungExternal.remove(pair)
+
+# compute divergence between young nested pairs and their un-nested orthologs 
+YoungInternalDiv = ComputeExpressionDivergenceOrthologs(YoungInternal, HumanExpression, ChimpExpression)
+YoungExternalDiv = ComputeExpressionDivergenceOrthologs(YoungExternal, HumanExpression, ChimpExpression)
+print(len(YoungInternalDiv), np.mean(YoungInternalDiv), len(YoungExternalDiv), np.mean(YoungExternalDiv), stats.ranksums(YoungInternalDiv, YoungExternalDiv)[1])
+
+# compute divergence between external like and their un-nested orthologs
+ExternalDiv = ComputeExpressionDivergenceOrthologs(ExternalLike, HumanExpression, ChimpExpression)
+InternalDiv = ComputeExpressionDivergenceOrthologs(InternalLike, HumanExpression, ChimpExpression)
+# compare expression divergence between young external and external-like and between young internal and internal-like
+print(len(YoungExternalDiv), np.mean(YoungExternalDiv), len(ExternalDiv), np.mean(ExternalDiv), stats.ranksums(YoungExternalDiv, ExternalDiv)[1])
+print(len(YoungInternalDiv), np.mean(YoungInternalDiv), len(InternalDiv), np.mean(InternalDiv), stats.ranksums(YoungInternalDiv, InternalDiv)[1])
+
+
