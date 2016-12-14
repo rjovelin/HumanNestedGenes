@@ -5,38 +5,11 @@ Created on Wed Dec 14 15:53:18 2016
 @author: RJovelin
 """
 
+# use this script to classify overlapping genes into groups
 
+# usage ClassifyOverlappingGenes.py
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# -*- coding: utf-8 -*-
-"""
-Created on Fri Nov 11 16:25:38 2016
-
-@author: RJovelin
-"""
-
-# use this script to identify overlapping genes, nested and itnronic nested genes
-# in human, chimp and gorilla
-# save dictionaries of overlapping and hosy:nested genes as json files
-
-# usage python3 FindNestedGenes.py
-
-
+#import modules
 import os
 import sys
 import numpy as np
@@ -44,6 +17,24 @@ import random
 import json
 import math
 from HsaNestedGenes import *
+
+
+# load dictionaries with overlapping genes
+with open('HumanOverlappingGenes.json') as human_json_data:
+    HumanOverlappingGenes = json.load(human_json_data)
+with open('ChimpOverlappingGenes.json') as chimp_json_data:
+    ChimpOverlappingGenes = json.load(chimp_json_data)
+with open('GorillaOverlappingGenes.json') as gorilla_json_data:
+    GorillaOverlappingGenes = json.load(gorilla_json_data)
+
+# make pairs of overlapping genes
+
+
+
+
+
+
+
 
 
 # get GFF file
