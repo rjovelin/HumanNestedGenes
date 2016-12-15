@@ -244,7 +244,7 @@ def GeneCDSCoord(gff_file):
 # use this function to get the exon coordinates of all transcripts 
 def GeneExonCoord(gff_file):
     '''
-    (file, str) -> dict
+    (file) -> dict
     Return a dictionnary with transcript as key and exon positions list pairs
     as value. Note that exons define intron positions but are not necessarily
     entirely coding    
@@ -252,7 +252,7 @@ def GeneExonCoord(gff_file):
     
     # open file for reading
     infile = open(gff_file, 'r')
-    # make a dictionnary with chromosome as key and a dictionnary as value
+    # make a dictionnary of exon coorddinates for each transcript
     # {transcript:[(region_start, region_end), (region_start, region_end)]}
     ExonPositions = {}
     for line in infile:
