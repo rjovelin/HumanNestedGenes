@@ -29,14 +29,9 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
-
-
-
-
 # get the species to consider from the command line
 CurrSpecies = sys.argv[1]
 assert CurrSpecies in ['human', 'chimp', 'gorilla'], 'species name is not valid'
-
 
 # load dictionary of overlapping genes
 if CurrSpecies == 'human':
@@ -52,13 +47,6 @@ json_data.close()
 # make pairs of overlapping genes
 OverlappingPairs = GetHostNestedPairs(OverlappingGenes)
 
-
-# compute the distribution of overlap length
-# compute the ratio of overlap to gene length
-
-
-
-
 # get GFF file
 if CurrSpecies == 'human':
     GFF = 'Homo_sapiens.GRCh38.86.gff3'
@@ -67,8 +55,6 @@ elif CurrSpecies == 'chimp':
 elif CurrSpecies == 'gorilla':
     GFF = 'Gorilla_gorilla.gorGor3.1.86.gff3'
     
-
-
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 GeneChromoCoord = ChromoGenesCoord(GFF)
@@ -85,32 +71,6 @@ print('got gene coordinates', len(GeneCoord))
 # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
 OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
 print('ordered genes on chromsomes')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Find genes fully contained in another gene {containing: [contained1, contained2]}
-ContainedGenes = FindContainedGenePairs(GeneCoord, OverlappingGenes)
-print('found genes contained in other genes', len(ContainedGenes))
 # Map Transcript names to gene names {transcript: gene}
 MapTranscriptGene = TranscriptToGene(GFF)
 print('mapped transcripts to their parent gene', len(MapTranscriptGene))
@@ -127,48 +87,65 @@ print('cleaned up intron coordinates of non-mRNA transcripts', len(IntronCoord))
 # Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
 CombinedIntronCoord = CombineAllGeneRegions(IntronCoord, MapTranscriptGene)
 print('combined introns for each gene', len(CombinedIntronCoord))
-# identify itnronic nested genes {host_gene: [intronic_nested_gene]}
-HostGenes = FindIntronicNestedGenePairs(ContainedGenes, CombinedIntronCoord, GeneCoord)
-print('identified intronic nested genes', len(HostGenes))
+# get the CDS coordinates of all transcripts {transcript: [[CDS_exon, CDS_end]]}
+CDSCoord = GeneCDSCoord(GFF)
+print('got CDS coordinates', len(CDSCoord))
+CDSCoord = CleanGeneFeatureCoord(CDSCoord, MapTranscriptGene)
+print('cleaned up CDS coordinates of non-mRNA transcripts', len(CDSCoord))
+
+
+# create lists for groups of overlapping genes
+Nested, SharingCDS, Interleaved, Piggyback, Convergent, Divergent = [], [], [], [], [], []
+
+
+
+
+# loop over overlapping gene pairs
+for pair in OverlappingPairs:
+    for i in MapGeneTranscript[pair[0]]:
+        for j in MapGeneTranscript[pair[1]]:
+            for m in CDSCoord[i]:
+                for k in CDSCoord[j]:
+                    coord1 = set(range(m[0], m[1]))
+                    coord2 = set(range(k[0], k[1]))
+                    if len(coord1.intersection(coord2)) != 0:
+                        SharingCDS.append([pair[0], pair[1]])
+
+
+
+print(len(SharingCDS))
+Shared = []
+for i in SharingCDS:
+    if i not in Shared:
+        Shared.append(i)
+print(len(Shared))
+            
+same = []
+diff = []
+            
+for pair in Shared:
+    assert GeneCoord[pair[0]][-1] in ['+', '-']
+    if GeneCoord[pair[0]][-1] != GeneCoord[pair[1]][-1]:
+        diff.append([pair[0], pair[1]])
+    else:
+        same.append([pair[0], pair[1]])            
+            
+            
+            
+            
+print('same', len(same), same[0])
+print('diff', len(diff), diff[0])
+
+
+
+
+
+
+
+
+
+## identify itnronic nested genes {host_gene: [intronic_nested_gene]}
+#HostGenes = FindIntronicNestedGenePairs(ContainedGenes, CombinedIntronCoord, GeneCoord)
+#print('identified intronic nested genes', len(HostGenes))
 
     
-#    if i == 0:
-#        # save contained genes as json file
-#        newfile = open('HumanContainedGenes.json', 'w')
-#        json.dump(SpContainedGenes, newfile, sort_keys = True, indent = 4)
-#        newfile.close()
-#        # save intronic nested genes as json file
-#        newfile = open('HumanHostNestedGenes.json', 'w')
-#        json.dump(SpHostGenes, newfile, sort_keys = True, indent = 4)
-#        newfile.close()
-#        # save overlapping genes as json file
-#        newfile = open('HumanOverlappingGenes.json', 'w')
-#        json.dump(SpOverlappingGenes, newfile, sort_keys = True, indent = 4)
-#        newfile.close()
-#    elif i == 1:
-#        # save contained genes as json file
-#        newfile = open('ChimpContainedGenes.json', 'w')
-#        json.dump(SpContainedGenes, newfile, sort_keys = True, indent = 4)
-#        newfile.close()
-#        # save intronic nested genes as json file
-#        newfile = open('ChimpHostNestedGenes.json', 'w')
-#        json.dump(SpHostGenes, newfile, sort_keys = True, indent = 4)
-#        newfile.close()
-#        # save overlapping genes as json file
-#        newfile = open('ChimpOverlappingGenes.json', 'w')
-#        json.dump(SpOverlappingGenes, newfile, sort_keys = True, indent = 4)
-#        newfile.close()
-#    elif i == 2:
-#        newfile = open('GorillaContainedGenes.json', 'w')
-#        json.dump(SpContainedGenes, newfile, sort_keys = True, indent = 4)
-#        newfile.close()
-#        # save intronic nested genes as json file
-#        newfile = open('GorillaHostNestedGenes.json', 'w')
-#        json.dump(SpHostGenes, newfile, sort_keys = True, indent = 4)
-#        newfile.close()
-#        # save overlapping genes as json file
-#        newfile = open('GorillaOverlappingGenes.json', 'w')
-#        json.dump(SpOverlappingGenes, newfile, sort_keys = True, indent = 4)
-#        newfile.close()
-        
-
