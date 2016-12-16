@@ -320,19 +320,6 @@ Created on Mon Nov 21 21:47:14 2016
 # usage python3 PlotIntronLengthHostGenes.py
 
 
-
-
-
-# create figure
-fig = plt.figure(1, figsize = (2.5, 1.5))
-
-# plot data
-ax1 = CreateAx(3, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Intron length (Kbp)', 70, True)
-ax2 = CreateAx(3, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Intron length (Kbp)', 70, False)
-ax3 = CreateAx(3, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Intron length (Kbp)', 70, False)
-
-    
-
 # add legend relative to ax1 using ax1 coordinates
 W = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'With genes')
 Wo = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Without genes')
