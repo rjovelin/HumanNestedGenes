@@ -18,6 +18,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import matplotlib.gridspec as gridspec
 from matplotlib import rc
 rc('mathtext', default='regular')
 import json
