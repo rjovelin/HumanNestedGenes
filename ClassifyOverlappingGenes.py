@@ -179,37 +179,3 @@ newfile = open(CurrSpecies.title() + 'DivergentGenes.json', 'w')
 json.dump(DivergentGenes, newfile, sort_keys = True, indent = 4)
 newfile.close()
 
-
-
-
- 
-with open('HumanNestedGenes.json') as json_data:
-    a = json.load(json_data)
-with open('HumanPiggyBackGenes.json') as json_data:
-    b = json.load(json_data)
-with open('HumanConvergentGenes.json') as json_data:
-    c = json.load(json_data)
-with open('HumanDivergentGenes.json') as json_data:
-    d = json.load(json_data)
-
-a = GetHostNestedPairs(a)
-a.sort()
-Nested.sort()
-assert a == Nested
-
-b = GetHostNestedPairs(b)
-b.sort()
-Piggyback.sort()
-assert b == Piggyback
-
-c = GetHostNestedPairs(c)
-c.sort()
-Convergent.sort()
-assert c == Convergent
-
-d = GetHostNestedPairs(d)
-d.sort()
-Divergent.sort()
-assert d == Divergent
-
-
