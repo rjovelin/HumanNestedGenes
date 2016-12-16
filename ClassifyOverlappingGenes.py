@@ -189,6 +189,8 @@ with open('HumanPiggyBackGenes.json') as json_data:
     b = json.load(json_data)
 with open('HumanConvergentGenes.json') as json_data:
     c = json.load(json_data)
+with open('HumanDivergentGenes.json') as json_data:
+    d = json.load(json_data)
 
 a = GetHostNestedPairs(a)
 a.sort()
