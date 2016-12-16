@@ -143,7 +143,7 @@ for i in PValues:
 
 # create a dict with significance level as stars
 Significance = {}
-for i in Pvalues:
+for i in PValues:
     # initialize dict with empty list
     Significance[i] = [] 
     # get the significance level
@@ -157,7 +157,6 @@ for i in Pvalues:
         elif pval < 0.001:
             Significance[i].append('***')
   
-
 
 # BarPos = [0, 0.2, 0.4] for num and length
 # colorscheme = ['#a6cee3','#1f78b4','#b2df8a'] for num or length
@@ -257,7 +256,7 @@ for i in range(len(Significance['length'])):
     if Significance['length'][i]  != '':
         ax2 = AddSignificance(ax2, Significance['length'][i], XPosLength[i][0], XPosLength[i][1], XPosLength[i][2], XPosLength[i][3], XPosLength[i][4])
 for i in range(len(Significance['host'])):
-    if Significance['Host'][i] != '':
+    if Significance['host'][i] != '':
         ax3 = AddSignificance(ax3, Significance['host'][i], XPosHost[i][0], XPosHost[i][1], XPosHost[i][2], XPosHost[i][3], XPosHost[i][4])
 
 
