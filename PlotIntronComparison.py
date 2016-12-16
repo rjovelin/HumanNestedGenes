@@ -144,7 +144,7 @@ for i in PValues:
 
 # create a dict with significance level as stars
 Significance = {}
-for i in PValues:
+for i in Pvalues:
     # initialize dict with empty list
     Significance[i] = [] 
     # get the significance level
@@ -158,6 +158,13 @@ for i in PValues:
         elif pval < 0.001:
             Significance[i].append('***')
   
+
+# BarPos = [0, 0.2, 0.4] for num and length
+# colorscheme = ['#a6cee3','#1f78b4','#b2df8a'] for num or length
+
+# set colors
+# colorscheme = ['#a6cee3','#1f78b4'] for host introns
+# barpos = [0, 0.2] for host iontrons 
 
 # BarPos = [0, 0.2, 0.4] for num and length
 # colorscheme = ['#a6cee3','#1f78b4','#b2df8a'] for num or length
@@ -291,12 +298,6 @@ plt.tight_layout()
 #gs.update(wspace=0.3, hspace=0) # set the spacing between axes. 
 
 
-
-
-
-
-
-
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 fig.savefig('truc.eps', bbox_inches = 'tight')
@@ -304,6 +305,7 @@ fig.savefig('truc.eps', bbox_inches = 'tight')
 
 
 #############################
+
 
 
 #
@@ -336,3 +338,32 @@ fig.savefig('truc.eps', bbox_inches = 'tight')
 #gs.update(wspace=0.3, hspace=0) # set the spacing between axes. 
 #
 
+#
+#
+## -*- coding: utf-8 -*-
+#"""
+#Created on Mon Nov 21 21:47:14 2016
+#
+#@author: Richard
+#"""
+#
+## use this script to plot intron length of host genes for gene-containing introns
+## and introns without genes
+#
+## usage python3 PlotIntronLengthHostGenes.py
+#
+#
+## add legend relative to ax1 using ax1 coordinates
+#W = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'With genes')
+#Wo = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Without genes')
+#ax1.legend(handles = [W, Wo], loc = (-0.4, 1.1), fontsize = 8, frameon = False, ncol = 2)
+#
+## make sure subplots do not overlap
+##plt.tight_layout()
+## one can control padding between subplots with w_pad and h_pad 
+##plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
+#
+## padding between subplots can also be controlled with gridspec
+#gs = gridspec.GridSpec(1, 5) # N rows and columns
+#gs.update(wspace=0.3, hspace=0) # set the spacing between axes. 
+#

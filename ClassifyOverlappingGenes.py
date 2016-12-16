@@ -5,7 +5,7 @@ Created on Wed Dec 14 15:53:18 2016
 @author: RJovelin
 """
 
-# use this script to classify overlapping genes into groups
+# use this script to classify overlapping genes into 4 groups
 
 # usage ClassifyOverlappingGenes.py [options]
 # [human/chimp/gorilla]: species to consider
@@ -58,94 +58,124 @@ elif CurrSpecies == 'gorilla':
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 GeneChromoCoord = ChromoGenesCoord(GFF)
-print('got gene coordinates on each chromosome')
 # map each gene to its mRNA transcripts
 MapGeneTranscript = GeneToTranscripts(GFF)
-print('mapped each gene to its mRNA transcripts', len(MapGeneTranscript))
 # remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
 GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
-print('removed genes lacking a mRNA transcript')
 # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
 GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
-print('got gene coordinates', len(GeneCoord))
 # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
 OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
-print('ordered genes on chromsomes')
 # Map Transcript names to gene names {transcript: gene}
 MapTranscriptGene = TranscriptToGene(GFF)
-print('mapped transcripts to their parent gene', len(MapTranscriptGene))
 # get the exon coordinates of all transcript {transcript: [[exon_start, exon_end]]}
 ExonCoord = GeneExonCoord(GFF)
-print('got exon coordinates', len(ExonCoord))
 ExonCoord = CleanGeneFeatureCoord(ExonCoord, MapTranscriptGene)
-print('cleaned up exon coordinates of non-mRNA transcripts', len(ExonCoord))
 # get the intron coordinates of all transcripts {transcript: [[intron_start, intron_end]]}
 IntronCoord = GeneIntronCoord(ExonCoord)
-print('got intron coordinates', len(IntronCoord))
 IntronCoord = CleanGeneFeatureCoord(IntronCoord, MapTranscriptGene)
-print('cleaned up intron coordinates of non-mRNA transcripts', len(IntronCoord))
 # Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
 CombinedIntronCoord = CombineAllGeneRegions(IntronCoord, MapTranscriptGene)
-print('combined introns for each gene', len(CombinedIntronCoord))
-# get the CDS coordinates of all transcripts {transcript: [[CDS_exon, CDS_end]]}
-CDSCoord = GeneCDSCoord(GFF)
-print('got CDS coordinates', len(CDSCoord))
-CDSCoord = CleanGeneFeatureCoord(CDSCoord, MapTranscriptGene)
-print('cleaned up CDS coordinates of non-mRNA transcripts', len(CDSCoord))
 
+
+
+# define 4 categories of overlapping genes:
+# 1) nested gene pairs: one gene is fully contained within the intron of another gene
+#    both genes can be on the same strand or on opposite strands
+# 2) piggyback gene pairs: both gene have the same orientation
+#    overlap can be partial or complete
+# 3) convergent gene pairs: both genes have different orientation
+#    first gene on chromosome is +, second gene on chromo is -
+# 4) divergent gene pairs: both genes have different orientation
+#    first gene on chromosome is -, second gene on chromo is +
 
 # create lists for groups of overlapping genes
-Nested, SharingCDS, Interleaved, Piggyback, Convergent, Divergent = [], [], [], [], [], []
+Nested, Piggyback, Convergent, Divergent = [], [], [], []
 
+# find intronic nested genes first
+ContainedGenes = FindContainedGenePairs(GeneCoord, OverlappingGenes)
+# identify itnronic nested genes {host_gene: [intronic_nested_gene]}
+HostGenes = FindIntronicNestedGenePairs(ContainedGenes, CombinedIntronCoord, GeneCoord)
+# make a list of Host, nested gene pairs
+Nested = GetHostNestedPairs(HostGenes)
 
+# make a list of set of genes to remove nested relationships
+NestedSets = []
+for pair in Nested:
+    NestedSets.append(set(pair))
 
-
+# find piggyback genes, convergent and divergent genes
 # loop over overlapping gene pairs
+# first gene in the pair comes first on chromosome
+# but sometimes both members of the pair have same starting position
 for pair in OverlappingPairs:
-    for i in MapGeneTranscript[pair[0]]:
-        for j in MapGeneTranscript[pair[1]]:
-            for m in CDSCoord[i]:
-                for k in CDSCoord[j]:
-                    coord1 = set(range(m[0], m[1]))
-                    coord2 = set(range(k[0], k[1]))
-                    if len(coord1.intersection(coord2)) != 0:
-                        SharingCDS.append([pair[0], pair[1]])
-
-
-
-print(len(SharingCDS))
-Shared = []
-for i in SharingCDS:
-    if i not in Shared:
-        Shared.append(i)
-print(len(Shared))
+    # check that pair is not nested
+    if set(pair) not in NestedSets:
+        # check orientation of both genes
+        if GeneCoord[pair[0]][-1] == GeneCoord[pair[1]][-1]:
+            # same orientation, piggyback gene pairs
+            Piggyback.append(pair)
+        elif GeneCoord[pair[0]][-1] != GeneCoord[pair[1]][-1]:
+            # check orientation of first and second gene in the pair
+            assert GeneCoord[pair[0]][1] <= GeneCoord[pair[1]][1]
+            if GeneCoord[pair[0]][-1] == '+':
+                assert GeneCoord[pair[1]][-1] == '-'
+                # convergent gene pair
+                Convergent.append(pair)
+            elif GeneCoord[pair[0]][-1] == '-':
+                assert GeneCoord[pair[1]][-1] == '+'
+                # divergent gene pairs
+                Divergent.append(pair)
             
-same = []
-diff = []
-            
-for pair in Shared:
-    assert GeneCoord[pair[0]][-1] in ['+', '-']
-    if GeneCoord[pair[0]][-1] != GeneCoord[pair[1]][-1]:
-        diff.append([pair[0], pair[1]])
+
+print('nested', len(Nested))
+print('piggyback', len(Piggyback))
+print('convergent', len(Convergent))
+print('divergent', len(Divergent))
+
+assert len(OverlappingPairs) == len(Nested) + len(Piggyback) + len(Convergent) + len(Divergent)
+
+
+# save overlapping relationships to json files
+
+# save nested genes as json file
+newfile = open(CurrSpecies.title() + 'NestedGenes.json', 'w')
+json.dump(HostGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
+
+# create a dictionary with Piggyback genes
+PiggyBackGenes = {}
+for pair in Piggyback:
+    # use first gene in pair as key
+    if pair[0] in PiggyBackGenes:
+        PiggyBackGenes[pair[0]].append(pair[1])
     else:
-        same.append([pair[0], pair[1]])            
-            
-            
-            
-            
-print('same', len(same), same[0])
-print('diff', len(diff), diff[0])
+        PiggyBackGenes[pair[0]] = [pair[1]]
+newfile = open(CurrSpecies.title() + 'PiggyBackGenes.json', 'w')
+json.dump(PiggyBackGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
 
+# create a dictionary with convergent genes
+ConvergentGenes = {}
+for pair in Convergent:
+    # use first gene in pair as key
+    if pair[0] in ConvergentGenes:
+        ConvergentGenes[pair[0]].append(pair[1])
+    else:
+        ConvergentGenes[pair[0]] = [pair[1]]
+newfile = open(CurrSpecies.title() + 'ConvergentGenes.json', 'w')
+json.dump(ConvergentGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
 
+# create a dictionary with divergent genes
+DivergentGenes = {}
+for pair in Divergent:
+    # use first gene in pair as key
+    if pair[0] in DivergentGenes:
+        DivergentGenes[pair[0]].append(pair[1])
+    else:
+        DivergentGenes[pair[0]] = [pair[1]]
+newfile = open(CurrSpecies.title() + 'DivergentGenes.json', 'w')
+json.dump(DivergentGenes, newfile, sort_keys = True, indent = 4)
+newfile.close()
 
-
-
-
-
-
-
-## identify itnronic nested genes {host_gene: [intronic_nested_gene]}
-#HostGenes = FindIntronicNestedGenePairs(ContainedGenes, CombinedIntronCoord, GeneCoord)
-#print('identified intronic nested genes', len(HostGenes))
-
-    
