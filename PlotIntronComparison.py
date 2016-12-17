@@ -259,7 +259,7 @@ for i in range(len(Significance['host'])):
 # add subplot labels
 ax1.text(-0.35, 21.5, 'A', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
-ax1.text(1, 21.5, 'B', horizontalalignment='center', verticalalignment='center',
+ax1.text(0.8, 21.5, 'B', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
 ax1.text(2.1, 21.5, 'C', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
