@@ -237,12 +237,12 @@ fig = plt.figure(1, figsize = (4.5, 2.5))
 # plot data for intron numner
 ax1 = CreateAx(3, 1, 1, fig, NumMeans, NumSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Hst', 'Nst', 'Un'], ['#a6cee3','#1f78b4','#b2df8a'], 'Number of introns per gene', 20)
 ax2 = CreateAx(3, 1, 2, fig, LengthMeans, LengthSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Hst', 'Nst', 'Un'], ['#a6cee3','#1f78b4','#b2df8a'], 'Intron length (Kbp)', 20)
-ax3 = CreateAx(3, 1, 3, fig, HostIntronMeans, HostIntronSEM, [0, 0.2], [0.1, 0.3], ['With', 'Without'], ['#a6cee3','#1f78b4'], 'Intron length (Kbp)', 70)
+ax3 = CreateAx(3, 1, 3, fig, HostIntronMeans, HostIntronSEM, [0, 0.2], [0.1, 0.3], ['With', 'None'], ['#a6cee3','#1f78b4'], 'Intron length (Kbp)', 70)
 
 # make lists with bracket and star positions
-XPosNum = [[0.1, 0.28, 15.5, 0.2, 16], [0.1, 0.5, 16.5, 0.3, 17.5], [0.32, 0.5, 15.5, 0.4, 16]]
-XPosLength = [[0.1, 0.28, 16, 0.2, 16.5], [0.1, 0.5, 17, 0.3, 18], [0.32, 0.5, 16, 0.4, 16.5]]
-XPosHost = [[0.1, 0.28, 65, 0.2, 70]]
+XPosNum = [[0.1, 0.28, 16, 0.2, 16.7], [0.1, 0.5, 17, 0.3, 18.2], [0.32, 0.5, 16, 0.4, 16.7]]
+XPosLength = [[0.1, 0.28, 16, 0.2, 16.7], [0.1, 0.5, 17, 0.3, 18.2], [0.32, 0.5, 16, 0.4, 16.7]]
+XPosHost = [[0.1, 0.28, 63, 0.2, 67]]
     
 # annotate figure to add significance
 for i in range(len(Significance['number'])):
@@ -256,32 +256,18 @@ for i in range(len(Significance['host'])):
         ax3 = AddSignificance(ax3, Significance['host'][i], XPosHost[i][0], XPosHost[i][1], XPosHost[i][2], XPosHost[i][3], XPosHost[i][4])
 
 
-## add legend relative to ax1 using ax1 coordinates
-#H = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'Hosts')
-#N = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Nested')
-#U = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'Un-nested')
-#ax1.legend(handles = [H, N, U], loc = (-0.2, 1.05), fontsize = 8, frameon = False, ncol = 3)
-
-
 # add subplot labels
-ax1.text(-0.5, 22, 'A', horizontalalignment='center', verticalalignment='center',
+ax1.text(-0.35, 21.5, 'A', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
-ax1.text(1.5, 22, 'B', horizontalalignment='center', verticalalignment='center',
+ax1.text(1, 21.5, 'B', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
-ax1.text(2, 22, 'C', horizontalalignment='center', verticalalignment='center',
+ax1.text(2.1, 21.5, 'C', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
 
 # make sure subplots do not overlap
 plt.tight_layout()
 
 
-
-# annotate subplots
-ax1.text(-0.5, 1.05, 'A', horizontalalignment='center', verticalalignment='center',
-         color = 'black', fontname = 'Arial', size = 9)
-         
-ax1.text(-0.5, 1.05, 'B', horizontalalignment='center', verticalalignment='center',
-         color = 'black', fontname = 'Arial', size = 9)
          
          
          
@@ -301,7 +287,4 @@ ax1.text(-0.5, 1.05, 'B', horizontalalignment='center', verticalalignment='cente
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 fig.savefig('truc.eps', bbox_inches = 'tight')
 
-
-
-#############################
 
