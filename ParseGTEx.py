@@ -91,8 +91,8 @@ for line in infile:
 infile.close()
 
 # print sample size for each tissue
-for i in Tissue:
-    print(i, len(Tissue[i]))
+for i in Tissues:
+    print(i, len(Tissues[i]))
 
 # create a dict with sample_index: sample_id in normalized FPKM file
 infile = open('Matrix.gtex.rnaseq.fpkmuq.v6p.txt')
