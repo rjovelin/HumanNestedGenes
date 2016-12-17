@@ -203,7 +203,7 @@ newfile.write('\t'.join(header) + '\n')
 # write gene and expression profile
 for gene in MedianExp:
     profile = list(map(lambda x: str(x), MedianExp[gene]))
-    line = [gene] + [profile]
+    line = [gene] + profile
     newfile.write('\t'.join(line) + '\n')
 newfile.close()
  
