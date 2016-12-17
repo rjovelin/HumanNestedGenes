@@ -6,22 +6,7 @@ Created on Fri Dec 16 18:37:02 2016
 """
 
 
-# use this script to parse the GTEX data
-
-
-# match the sample ID in the metadata file with the sample ID in the normalized count file
-# need to replace '.' with '-' in the sample ID name
-# match tissue with sample iD
-# merge tissue subtypes into types (eg, brain, heart, ...)
-# for each gene get the sample size in each tissue
-# for each gene get the median expression in each tissue
-# this represent the exprefofile of the gene
-# take the relative expression
-# from the relative expression, can compute euclidian distance between genes
-# remove 
-
-
-
+# use this script to write a file with median normalized FPKM in each tissue for each gene
 
 # import modules
 # use Agg backend on server without X server
@@ -143,14 +128,32 @@ for gene in Genes:
             Expression[gene][tissue] = []
         # populate list with expression values
         Expression[gene][tissue].append(float(Genes[gene][i]))
-        
-# delete emoty string key
-del Tissues['']
-# Create a list of tissue types
-TissueTypes = [i for i in Tissues]
-# sort list
-TissueTypes.sort()
 
+# QC that all genes have the same expression profile (ie, same tissue list)
+# make a list of expressed genes
+ExpressedGenes = list(Expression.keys())
+# get the list o tissues for one of the expressed genes
+TissueExpression = list(Expression[ExpressedGenes[0]].keys())
+TissueExpression.sort()
+for gene in Expression:
+    a = list(Expression[gene].keys())
+    a.sort()
+    assert a == TissueExpression
+# make a list of expressed tissues not in tissue types from metada
+MissingInTissueExp = [i for i in Tissues if i not in TissueExpression]
+print('missing in expressed tissues', MissingInTissueExp)
+# make a list of metadata tissues not in expressed tissues
+MissingInTissueType = [i for i in TissueExpression if i not in Tissues]
+print('missing in matadata tissues', MissingInTissueType)
+
+# an empty string has 10 sample IDs in metadata
+# remove empty strings from expression dict
+for gene in Expression:
+    assert '' in Expression[gene]
+    del Expression[gene]['']
+# remove empty string from list of expressed tissues
+TissueExpression.remove('')
+TissueExpression.sort()
 
 # create a dict with expression profile for each gene
 # expression profile is the median expression of given gene in each of the tissues 
@@ -161,27 +164,47 @@ MedianExp = {}
 for gene in Expression:
     # initialize list value
     MedianExp[gene] = []
-    # check that each gene is matched to the same number of tissues
-    assert len(Expression[gene]) == len(TissueTypes) + 1
-    # loop over tissue types
-    for tissue in TissueTypes:
+    # loop over tissue expression
+    for tissue in TissueExpression:
         # take the median expression
         MedianExp[gene].append(np.median(Expression[gene][tissue]))
-        
 print(len(MedianExp))
+
 
 # remove genes with no expression in any tissues
 to_remove = []
 for gene in MedianExp:
-    if sum(MedianExp) == 0:
+    if sum(MedianExp[gene]) == 0:
         to_remove.append(gene)
 for gene in to_remove:
-    del MedianExp
-    
+    del MedianExp[gene]
 print(len(MedianExp))
 
+# create a dict with sample size per tissue
+SampleCounts = {}
+# loop over gene with expression
+for gene in Expression:
+    # loop over tissue
+    for tissue in Expression[gene]:
+        if tissue not in SampleCounts:
+            SampleCounts[tissue] = len(Expression[gene][tissue])
+        else:
+            assert SampleCounts[tissue] == len(Expression[gene][tissue])
+# print expressed tissues and sample sizes
+for tissue in SampleCounts:
+    print(tissue, SampleCounts[tissue])
 
-        
-        
+
+# write median normalized fpkm to file
+newfile = open('GTEX_Median_Normalized_FPKM.txt', 'w')
+header = ['Gene'] + TissueExpression
+# write header to file
+newfile.write('\t'.join(header) + '\n')
+# write gene and expression profile
+for gene in MedianExp:
+    profile = list(map(lambda x: str(x), MedianExp[gene]))
+    line = [gene] + [profile]
+    newfile.write('\t'.join(line) + '\n')
+newfile.close()
  
 
