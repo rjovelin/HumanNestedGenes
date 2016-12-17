@@ -167,14 +167,14 @@ for i in PValues:
 # barpos = [0, 0.2] for host iontrons 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, ColorScheme, XLabel, YLabel, YMax):
+def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Ticklabel, ColorScheme, YLabel, YMax):
     '''
-    (int, int, int, figure_object, list, list, list, str, str, int, bool)
+    (int, int, int, figure_object, list, list, list, list, list, str, str, int)
     Take the number of a column, and rows in the figure object and the position of
-    the ax in figure, 2 lists of data, a list of bar positions, a list of colors,
-    a title, a maximum value for the Y axis and return an ax instance in the figure
+    the ax in figure, 2 lists of data, a list of bar positions, the list of tick
+    positions and their labels, a list of colors, a label for the Y axis,
+    a maximum value for the Y axis and return an ax instance in the figure
     '''    
-    
     # create subplot in figure
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
@@ -182,39 +182,34 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, ColorScheme, X
     ax.bar(BarPos, Means, 0.2, yerr = SEM, color = ColorScheme,
            edgecolor = 'black', linewidth = 1,
            error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
-
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
-    # write label for y and x axis
+    # write label for y
     ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-    ax.set_xlabel(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-    
     # add a range for the Y axis
     plt.ylim([0, YMax])
-       
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
     ax.spines["right"].set_visible(False)    
     ax.spines["left"].set_visible(True)  
-        
     # edit tick paramters
     plt.tick_params(
         axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
         which='both',      # both major and minor ticks are affected
-        bottom='off',      # ticks along the bottom edge are off
+        bottom='on',      # ticks along the bottom edge are off
         top='off',         # ticks along the top edge are off
         right = 'off',
         left = 'on',          
-        labelbottom='off', # labels along the bottom edge are on
+        labelbottom='on', # labels along the bottom edge are on
         colors = 'black',
         labelsize = 8,
         direction = 'out') # ticks are outside the frame when bottom = 'on'  
-     
+    # add ticks on the x axis
+    plt.xticks(TickPos, Ticklabel)    
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')   
-    
     # create a margin around the x axis
     plt.margins(0.1)
     return ax      
@@ -240,14 +235,14 @@ def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
 fig = plt.figure(1, figsize = (4.5, 2.5))
 
 # plot data for intron numner
-ax1 = CreateAx(3, 1, 1, fig, NumMeans, NumSEM, [0, 0.2, 0.4], ['#a6cee3','#1f78b4','#b2df8a'], 'Human', 'Number of introns per gene', 20)
-ax2 = CreateAx(3, 1, 2, fig, LengthMeans, LengthSEM, [0, 0.2, 0.4], ['#a6cee3','#1f78b4','#b2df8a'], 'Chimp', 'Intron length (Kbp)', 20)
-ax3 = CreateAx(3, 1, 3, fig, HostIntronMeans, HostIntronSEM, [0, 0.2], ['#a6cee3','#1f78b4'], 'Gorilla', 'Intron length (Kbp)', 70)
+ax1 = CreateAx(3, 1, 1, fig, NumMeans, NumSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Hst', 'Nst', 'Un'], ['#a6cee3','#1f78b4','#b2df8a'], 'Number of introns per gene', 20)
+ax2 = CreateAx(3, 1, 2, fig, LengthMeans, LengthSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Hst', 'Nst', 'Un'], ['#a6cee3','#1f78b4','#b2df8a'], 'Intron length (Kbp)', 20)
+ax3 = CreateAx(3, 1, 3, fig, HostIntronMeans, HostIntronSEM, [0, 0.2], [0.1, 0.3], ['With', 'Without'], ['#a6cee3','#1f78b4'], 'Intron length (Kbp)', 70)
 
 # make lists with bracket and star positions
 XPosNum = [[0.1, 0.28, 15.5, 0.2, 16], [0.1, 0.5, 16.5, 0.3, 17.5], [0.32, 0.5, 15.5, 0.4, 16]]
 XPosLength = [[0.1, 0.28, 16, 0.2, 16.5], [0.1, 0.5, 17, 0.3, 18], [0.32, 0.5, 16, 0.4, 16.5]]
-XPosHost = [[0.1, 0.28, 68, 0.2, 73]]
+XPosHost = [[0.1, 0.28, 65, 0.2, 70]]
     
 # annotate figure to add significance
 for i in range(len(Significance['number'])):
@@ -261,19 +256,20 @@ for i in range(len(Significance['host'])):
         ax3 = AddSignificance(ax3, Significance['host'][i], XPosHost[i][0], XPosHost[i][1], XPosHost[i][2], XPosHost[i][3], XPosHost[i][4])
 
 
+## add legend relative to ax1 using ax1 coordinates
+#H = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'Hosts')
+#N = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Nested')
+#U = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'Un-nested')
+#ax1.legend(handles = [H, N, U], loc = (-0.2, 1.05), fontsize = 8, frameon = False, ncol = 3)
 
 
-
-############## edit from here
-
-
-
-
-# add legend relative to ax1 using ax1 coordinates
-H = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'Hosts')
-N = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Nested')
-U = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'Un-nested')
-ax1.legend(handles = [H, N, U], loc = (-0.2, 1.05), fontsize = 8, frameon = False, ncol = 3)
+# add subplot labels
+ax1.text(-0.5, 22, 'A', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 9)
+ax1.text(1.5, 22, 'B', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 9)
+ax1.text(2, 22, 'C', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 9)
 
 # make sure subplots do not overlap
 plt.tight_layout()
@@ -301,12 +297,6 @@ ax1.text(-0.5, 1.05, 'B', horizontalalignment='center', verticalalignment='cente
 #gs.update(wspace=0.3, hspace=0) # set the spacing between axes. 
 
 
-
-
-
-
-
-
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 fig.savefig('truc.eps', bbox_inches = 'tight')
@@ -314,35 +304,4 @@ fig.savefig('truc.eps', bbox_inches = 'tight')
 
 
 #############################
-
-
-#
-#
-## -*- coding: utf-8 -*-
-#"""
-#Created on Mon Nov 21 21:47:14 2016
-#
-#@author: Richard
-#"""
-#
-## use this script to plot intron length of host genes for gene-containing introns
-## and introns without genes
-#
-## usage python3 PlotIntronLengthHostGenes.py
-#
-#
-## add legend relative to ax1 using ax1 coordinates
-#W = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'With genes')
-#Wo = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Without genes')
-#ax1.legend(handles = [W, Wo], loc = (-0.4, 1.1), fontsize = 8, frameon = False, ncol = 2)
-#
-## make sure subplots do not overlap
-##plt.tight_layout()
-## one can control padding between subplots with w_pad and h_pad 
-##plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
-#
-## padding between subplots can also be controlled with gridspec
-#gs = gridspec.GridSpec(1, 5) # N rows and columns
-#gs.update(wspace=0.3, hspace=0) # set the spacing between axes. 
-#
 
