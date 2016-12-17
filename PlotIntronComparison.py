@@ -237,7 +237,7 @@ def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
 
 
 # create figure
-fig = plt.figure(1, figsize = (3, 2.5))
+fig = plt.figure(1, figsize = (4.5, 2.5))
 
 # plot data for intron numner
 ax1 = CreateAx(3, 1, 1, fig, NumMeans, NumSEM, [0, 0.2, 0.4], ['#a6cee3','#1f78b4','#b2df8a'], 'Human', 'Number of introns per gene', 20)
@@ -280,15 +280,25 @@ plt.tight_layout()
 
 
 
+# annotate subplots
+ax1.text(-0.5, 1.05, 'A', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 9)
+         
+ax1.text(-0.5, 1.05, 'B', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 9)
+         
+         
+         
+
 
 # make sure subplots do not overlap
 #plt.tight_layout()
 # one can control padding between subplots with w_pad and h_pad 
 #plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
-# padding between subplots can also be controlled with gridspec
-gs = gridspec.GridSpec(1, 3) # N rows and columns
-gs.update(wspace=0.3, hspace=0) # set the spacing between axes. 
+## padding between subplots can also be controlled with gridspec
+#gs = gridspec.GridSpec(1, 3) # N rows and columns
+#gs.update(wspace=0.3, hspace=0) # set the spacing between axes. 
 
 
 
