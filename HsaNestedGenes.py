@@ -779,6 +779,32 @@ def ParsePrimateExpressionData(ExpressionFile, species):
     infile.close()
     return expression
 
+
+# use this function to parse the GTEX median expression file
+def ParseGTEXExpression(GTEXExpressionFile):
+    '''
+    (file) -> dict
+    Take the file from GTEX with median expression in each tissue and return a
+    dictionary with gene: list of expression in tissues key, value pairs
+    '''
+    # create a dict to store the expression (median tissue expression FPKM normalized by upper quartiles))
+    Expression = {}
+    infile = open(GTEXExpressionFile)
+    header = infile.readline()
+    for line in infile:
+        if line.startswith('ENS'):
+            line = line.rstrip().split('\t')
+            # get gene name
+            gene = line[0]
+            # get expression profile
+            profile = line[1:]
+            # convert strings to float
+            profile = list(map(lambda x: float(x), profile))
+            Expression[gene] = profile
+    infile.close()
+    return Expression
+
+
 # use this function to remove genes without expression
 def RemoveGenesLackingExpression(ExpressionProfile):
     '''
