@@ -140,17 +140,64 @@ DivergentLengthShort = list(map(ToKb, DivergentLengthShort))
 
 
 # sort lists
-OverlapLengthLong.sort()
-NestedLengthLong.sort()
-PiggybackLengthLong.sort()
-ConvergentLengthLong.sort()
-DivergentLengthLong.sort()
+OverlapLengthLong = np.sort(OverlapLengthLong)
+NestedLengthLong = np.sort(NestedLengthLong)
+PiggybackLengthLong = np.sort(PiggybackLengthLong)
+ConvergentLengthLong = np.sort(ConvergentLengthLong)
+DivergentLengthLong = np.sort(DivergentLengthLong)
 
-OverlapLengthShort.sort()
-NestedLengthShort.sort()
-PiggybackLengthShort.sort()
-ConvergentLengthShort.sort()
-DivergentLengthShort.sort()
+OverlapLengthShort = np.sort(OverlapLengthShort)
+NestedLengthShort = np.sort(NestedLengthShort)
+PiggybackLengthShort = np.sort(PiggybackLengthShort)
+ConvergentLengthShort = np.sort(ConvergentLengthShort)
+DivergentLengthShort = np.sort(DivergentLengthShort)
+
+# compute probabilities
+POverlapLong = np.array(range(len(OverlapLengthLong))) / len(OverlapLengthLong)
+PNestedLong = np.array(range(len(NestedLengthLong))) / len(NestedLengthLong) 
+PPiggyLong = np.array(range(len(PiggybackLengthLong))) / len(PiggybackLengthLong)
+PConvergentLong = np.array(range(len(ConvergentLengthLong))) / len(ConvergentLengthLong)
+PDivergentLong = np.array(range(len(DivergentLengthLong))) / len(DivergentLengthLong)
+
+POverlapShort = np.array(range(len(OverlapLengthShort))) / len(OverlapLengthShort)
+PNestedShort = np.array(range(len(NestedLengthShort))) / len(NestedLengthShort)
+PPiggyShort = np.array(range(len(PiggybackLengthShort))) / len(PiggybackLengthShort)
+PConvergentShort = np.array(range(len(ConvergentLengthShort))) / len(ConvergentLengthShort) 
+PDivergentShort = np.array(range(len(DivergentLengthShort))) / len(DivergentLengthShort) 
+
+
+
+##method 2
+#X2 = np.sort(Z)
+#F2 = np.array(range(N))/float(N)
+#
+#plt.plot(X1[1:], F1)
+#plt.plot(X2, F2)
+#plt.show()
+
+
+
+#import matplotlib.pyplot as plt
+#import numpy as np
+## create some randomly ddistributed data:
+#data = np.random.randn(10000)
+## sort the data:
+#data_sorted = np.sort(data)
+## calculate the proportional values of samples
+#p = 1. * arange(len(data)) / (len(data) - 1)
+## plot the sorted data:
+#fig = figure()
+#ax1 = fig.add_subplot(121)
+#ax1.plot(p, data_sorted)
+#ax1.set_xlabel('$p$')
+#ax1.set_ylabel('$x$')
+#ax2 = fig.add_subplot(122)
+#ax2.plot(data_sorted, p)
+#ax2.set_xlabel('$x$')
+#ax2.set_ylabel('$p$')
+
+
+
 
 
 
@@ -159,24 +206,45 @@ fig = plt.figure(1, figsize = (3.5, 2.5))
 # add a plot to figure (1 row, 1 column, 1 plot)
 ax = fig.add_subplot(1, 1, 1)  
 
+## plot overlap length
+#graph1 = ax.step(NestedLengthLong, np.linspace(0, 1, len(NestedLengthLong), endpoint=False), linewidth = 1.2, color = '#d7191c', alpha = 0.7)
+## plot pibbyback length
+#graph2 = ax.step(PiggybackLengthLong, np.linspace(0, 1, len(PiggybackLengthLong), endpoint=False), linewidth = 1.2, color = '#fdae61', alpha = 0.7)
+## plot convergent length
+#graph3 = ax.step(ConvergentLengthLong, np.linspace(0, 1, len(ConvergentLengthLong), endpoint=False), linewidth = 1.2, color = '#abd9e9', alpha = 0.7)
+## plot divergent length
+#graph4 = ax.step(DivergentLengthLong, np.linspace(0, 1, len(DivergentLengthLong), endpoint=False), linewidth = 1.2, color = '#2c7bb6', alpha = 0.7)
+#
+#
+#graph5 = ax.step(NestedLengthShort, np.linspace(0, 1, len(NestedLengthShort), endpoint=False), linewidth = 1.2, color = '#d7191c', alpha = 0.7)
+## plot pibbyback length
+#graph6 = ax.step(PiggybackLengthShort, np.linspace(0, 1, len(PiggybackLengthShort), endpoint=False), linewidth = 1.2, color = '#fdae61', alpha = 0.7)
+## plot convergent length
+#graph7 = ax.step(ConvergentLengthShort, np.linspace(0, 1, len(ConvergentLengthShort), endpoint=False), linewidth = 1.2, color = '#abd9e9', alpha = 0.7)
+## plot divergent length
+#graph8 = ax.step(DivergentLengthShort, np.linspace(0, 1, len(DivergentLengthShort), endpoint=False), linewidth = 1.2, color = '#2c7bb6', alpha = 0.7)
+
+ColorScheme = ['#66c2a5','#fc8d62','#8da0cb','#e78ac3','#a6d854','#ffd92f','#e5c494','#b3b3b3']
+ColorScheme = ['#a6cee3','#1f78b4','#b2df8a','#33a02c','#fb9a99','#e31a1c','#fdbf6f','#ff7f00']
+colorscheme = ['#d7191c', '#fdae61', '#abd9e9', '#2c7bb6']
+
+
 # plot overlap length
-graph1 = ax.step(NestedLengthLong, np.linspace(0, 1, len(NestedLengthLong), endpoint=False), linewidth = 1.2, color = '#d7191c', alpha = 0.7)
+graph1 = ax.step(NestedLengthLong, PNestedLong, linewidth = 1.2, color = ColorScheme[0], alpha = 0.7)
 # plot pibbyback length
-graph2 = ax.step(PiggybackLengthLong, np.linspace(0, 1, len(PiggybackLengthLong), endpoint=False), linewidth = 1.2, color = '#fdae61', alpha = 0.7)
+graph2 = ax.step(PiggybackLengthLong, PPiggyLong, linewidth = 1.2, color = ColorScheme[1], alpha = 0.7)
 # plot convergent length
-graph3 = ax.step(ConvergentLengthLong, np.linspace(0, 1, len(ConvergentLengthLong), endpoint=False), linewidth = 1.2, color = '#abd9e9', alpha = 0.7)
+graph3 = ax.step(ConvergentLengthLong, PConvergentLong, linewidth = 1.2, color = ColorScheme[2], alpha = 0.7)
 # plot divergent length
-graph4 = ax.step(DivergentLengthLong, np.linspace(0, 1, len(DivergentLengthLong), endpoint=False), linewidth = 1.2, color = '#2c7bb6', alpha = 0.7)
+graph4 = ax.step(DivergentLengthLong, PDivergentLong, linewidth = 1.2, color = ColorScheme[3], alpha = 0.7)
 
-
-graph5 = ax.step(NestedLengthShort, np.linspace(0, 1, len(NestedLengthShort), endpoint=False), linewidth = 1.2, color = '#d7191c', alpha = 0.7)
+graph5 = ax.step(NestedLengthShort, PNestedShort, linewidth = 1.2, color = ColorScheme[4], alpha = 0.7)
 # plot pibbyback length
-graph6 = ax.step(PiggybackLengthShort, np.linspace(0, 1, len(PiggybackLengthShort), endpoint=False), linewidth = 1.2, color = '#fdae61', alpha = 0.7)
+graph6 = ax.step(PiggybackLengthShort, PPiggyShort, linewidth = 1.2, color = ColorScheme[5], alpha = 0.7)
 # plot convergent length
-graph7 = ax.step(ConvergentLengthShort, np.linspace(0, 1, len(ConvergentLengthShort), endpoint=False), linewidth = 1.2, color = '#abd9e9', alpha = 0.7)
+graph7 = ax.step(ConvergentLengthShort, PConvergentShort, linewidth = 1.2, color = ColorScheme[6], alpha = 0.7)
 # plot divergent length
-graph8 = ax.step(DivergentLengthShort, np.linspace(0, 1, len(DivergentLengthShort), endpoint=False), linewidth = 1.2, color = '#2c7bb6', alpha = 0.7)
-
+graph8 = ax.step(DivergentLengthShort, PDivergentShort, linewidth = 1.2, color = ColorScheme[7], alpha = 0.7)
 
 # add label for the Y axis
 ax.set_ylabel('Probability', size = 10, ha = 'center', fontname = 'Arial')
@@ -211,6 +279,6 @@ labs = ['Nested', 'Piggyback', 'Convergent', 'Divergent']
 # plot legend
 ax.legend(lns, labs, loc=3, fontsize = 8, frameon = False)
 
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig('truc1.pdf', bbox_inches = 'tight')
 
 
