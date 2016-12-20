@@ -103,34 +103,64 @@ PiggybackLength = list(map(ToKb, PiggybackLength))
 ConvergentLength = list(map(ToKb, ConvergentLength))
 DivergentLength = list(map(ToKb, DivergentLength))
 
+def CombineHighValues(L, cutoff):
+    '''
+    (list, int) -> list
+    Take a list of overlap length and return a modified list with values higher
+    than cutoff equal to cutoff
+    '''
+    for i in range(len(L)):
+        if L[i] >= cutoff:
+            L[i] = cutoff
+    return L
+
+OverlapLength = CombineHighValues(OverlapLength, 200)
+NestedLength = CombineHighValues(NestedLength, 200)
+PiggybackLength = CombineHighValues(PiggybackLength, 200)
+ConvergentLength = CombineHighValues(ConvergentLength, 200)
+DivergentLength = CombineHighValues(DivergentLength, 200)
+
 # check that lists are different
 assert OverlapLength != NestedLength != PiggybackLength != ConvergentLength != DivergentLength
 
 # sort lists
-OverlapLength.sort()
-NestedLength.sort()
-PiggybackLength.sort()
-ConvergentLength.sort()
-DivergentLength.sort()
+OverlapLength = np.sort(OverlapLength)
+NestedLength = np.sort(NestedLength)
+PiggybackLength = np.sort(PiggybackLength)
+ConvergentLength = np.sort(ConvergentLength)
+DivergentLength = np.sort(DivergentLength)
+
+# compute probabilities
+POverlap = np.array(range(len(OverlapLength))) / len(OverlapLength)
+PNested = np.array(range(len(NestedLength))) / len(NestedLength) 
+PPiggy = np.array(range(len(PiggybackLength))) / len(PiggybackLength)
+PConvergent = np.array(range(len(ConvergentLength))) / len(ConvergentLength)
+PDivergent = np.array(range(len(DivergentLength))) / len(DivergentLength)
 
 # create figure
-fig = plt.figure(1, figsize = (3.5, 2.5))
+fig = plt.figure(1, figsize = (3, 2))
 # add a plot to figure (1 row, 1 column, 1 plot)
 ax = fig.add_subplot(1, 1, 1)  
 
 # plot nested length
-graph1 = ax.step(NestedLength, np.linspace(0, 1, len(NestedLength), endpoint=False), linewidth = 1.2, color = '#d7191c', alpha = 0.7)
+Colors = ['#d7191c', '#fdae61', '#abd9e9', '#2c7bb6']
+
+# plot nested length
+graph1 = ax.step(NestedLength, PNested, linewidth = 1.2, color = '#984ea3', alpha = 0.7)
 # plot pibbyback length
-graph2 = ax.step(PiggybackLength, np.linspace(0, 1, len(PiggybackLength), endpoint=False), linewidth = 1.2, color = '#fdae61', alpha = 0.7)
+graph2 = ax.step(PiggybackLength, PPiggy, linewidth = 1.2, color = '#33a02c', alpha = 0.7)
 # plot convergent length
-graph3 = ax.step(ConvergentLength, np.linspace(0, 1, len(ConvergentLength), endpoint=False), linewidth = 1.2, color = '#abd9e9', alpha = 0.7)
+graph3 = ax.step(ConvergentLength, PConvergent, linewidth = 1.2, color = '#ff7f00', alpha = 0.7)
 # plot divergent length
-graph4 = ax.step(DivergentLength, np.linspace(0, 1, len(DivergentLength), endpoint=False), linewidth = 1.2, color = '#2c7bb6', alpha = 0.7)
+graph4 = ax.step(DivergentLength, PDivergent, linewidth = 1.2, color = '#2c7bb6', alpha = 0.7)
 
 # add label for the Y axis
-ax.set_ylabel('Probability', size = 10, ha = 'center', fontname = 'Arial')
+ax.set_ylabel('Probability', size = 8, ha = 'center', fontname = 'Arial')
 # set x axis label
-ax.set_xlabel('Overlap length (Kb)', size = 10, ha = 'center', fontname = 'Arial')
+ax.set_xlabel('Overlap length (Kb)', size = 8, ha = 'center', fontname = 'Arial')
+# set x axis ticks
+plt.xticks([0, 50, 100, 150, 200], ['0', '50', '100', '150', r'$\geq 200$'])
+
 
 # do not show lines around figure, keep bottow line  
 ax.spines["top"].set_visible(False)    
@@ -158,7 +188,7 @@ lns = graph1+graph2+graph3+graph4
 # get labels
 labs = ['Nested', 'Piggyback', 'Convergent', 'Divergent']
 # plot legend
-ax.legend(lns, labs, loc=3, fontsize = 8, frameon = False)
+ax.legend(lns, labs, loc=4, fontsize = 8, frameon = False)
 
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 
