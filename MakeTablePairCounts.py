@@ -107,15 +107,18 @@ line1 = '\t'.join(['Nested', str(len(NestedPairs)), str(len(Nstgenes)), str(roun
                    str(round((len(Nstgenes) / len(GeneCoord)) * 100, 2))])
 line2 = '\t'.join(['Nested same', str(len(same)), str(len(Samegenes)), str(round((len(same) / len(OverlappingPairs)) * 100, 2)),
                    str(round((len(Samegenes) / len(GeneCoord)) * 100, 2))])
-line3 = '\t'.join(['Piggyback', str(len(PiggybackPairs)), str(len(Piggygenes)), str(round((len(PiggybackPairs) / len(OverlappingPairs)) * 100, 2)),
+
+line3 = '\t'.join(['Nested opposite', str(len(opposite)), str(len(Oppositegenes)), str(round((len(opposite) / len(OverlappingPairs)) * 100, 2)),
+                   str(round((len(Oppositegenes) / len(GeneCoord)) * 100, 2))])
+line4 = '\t'.join(['Piggyback', str(len(PiggybackPairs)), str(len(Piggygenes)), str(round((len(PiggybackPairs) / len(OverlappingPairs)) * 100, 2)),
                    str(round((len(Piggygenes) / len(GeneCoord)) * 100, 2))])
-line4 = '\t'.join(['Convergent', str(len(ConvergentPairs)), str(len(Cnvgenes)), str(round((len(ConvergentPairs) / len(OverlappingPairs)) * 100, 2)),
+line5 = '\t'.join(['Convergent', str(len(ConvergentPairs)), str(len(Cnvgenes)), str(round((len(ConvergentPairs) / len(OverlappingPairs)) * 100, 2)),
                    str(round((len(Cnvgenes) / len(GeneCoord)) * 100, 2))])
-line5 = '\t'.join(['Divergent', str(len(DivergentPairs)), str(len(Divgenes)), str(round((len(DivergentPairs) / len(OverlappingPairs)) * 100, 2)),
+line6 = '\t'.join(['Divergent', str(len(DivergentPairs)), str(len(Divgenes)), str(round((len(DivergentPairs) / len(OverlappingPairs)) * 100, 2)),
                    str(round((len(Divgenes) / len(GeneCoord)) * 100, 2))])
-line6 = '\t'.join(['Overlapping', str(len(OverlappingPairs)), str(len(Ovlgenes)), str(round((len(OverlappingPairs) / len(OverlappingPairs)) * 100, 2)),
+line7 = '\t'.join(['Overlapping', str(len(OverlappingPairs)), str(len(Ovlgenes)), str(round((len(OverlappingPairs) / len(OverlappingPairs)) * 100, 2)),
                    str(round((len(Ovlgenes) / len(GeneCoord)) * 100, 2))])
-line7 = '\t'.join(['Total', '_', str(len(GeneCoord)), '_', str(round((len(GeneCoord) / len(GeneCoord)) * 100, 2))])
+line8 = '\t'.join(['Total', '_', str(len(GeneCoord)), '_', str(round((len(GeneCoord) / len(GeneCoord)) * 100, 2))])
 
 Ndots = max(list(map(lambda x: len(x), [header, line1, line2, line3, line4, line5, line6, line7]))) 
 newfile.write(Ndots * '-' + '\n')
