@@ -93,8 +93,8 @@ Divgenes = MakeFullPartialOverlapGeneSet(Divergent)
 Piggygenes = MakeFullPartialOverlapGeneSet(Piggyback)
 Samegenes = set()
 for pair in same:
-    SameGenes.add(pair[0])
-    SameGenes.add(pair[1])
+    Samegenes.add(pair[0])
+    Samegenes.add(pair[1])
 Oppositegenes = set()
 for pair in opposite:
     Oppositegenes.add(pair[0])
@@ -105,8 +105,8 @@ newfile = open('CountsOverlappingGenePairs.txt', 'w')
 header = '\t'.join(['Type', 'Pairs', 'Genes', '% overlappinga', '% totalb'])
 line1 = '\t'.join(['Nested', str(len(NestedPairs)), str(len(Nstgenes)), str(round((len(NestedPairs) / len(OverlappingPairs)) * 100, 2)),
                    str(round((len(Nstgenes) / len(GeneCoord)) * 100, 2))])
-line2 = '\t'.join(['Nested same', str(len(same)), str(len(SameGenes)), str(round((len(same) / len(OverlappingPairs)) * 100, 2)),
-                   str(round((len(SameGenes) / len(GeneCoord)) * 100, 2))])
+line2 = '\t'.join(['Nested same', str(len(same)), str(len(Samegenes)), str(round((len(same) / len(OverlappingPairs)) * 100, 2)),
+                   str(round((len(Samegenes) / len(GeneCoord)) * 100, 2))])
 line3 = '\t'.join(['Piggyback', str(len(PiggybackPairs)), str(len(Piggygenes)), str(round((len(PiggybackPairs) / len(OverlappingPairs)) * 100, 2)),
                    str(round((len(Piggygenes) / len(GeneCoord)) * 100, 2))])
 line4 = '\t'.join(['Convergent', str(len(ConvergentPairs)), str(len(Cnvgenes)), str(round((len(ConvergentPairs) / len(OverlappingPairs)) * 100, 2)),
@@ -118,12 +118,12 @@ line6 = '\t'.join(['Overlapping', str(len(OverlappingPairs)), str(len(Ovlgenes))
 line7 = '\t'.join(['Total', '_', str(len(GeneCoord)), '_', str(round((len(GeneCoord) / len(GeneCoord)) * 100, 2))])
 
 Ndots = max(list(map(lambda x: len(x), [header, line1, line2, line3, line4, line5, line6, line7]))) 
-newfile.write(str(Ndots) * '-' + '\n')
+newfile.write(Ndots * '-' + '\n')
 newfile.write(header + '\n')
-newfile.write(str(Ndots) * '-' + '\n')
+newfile.write(Ndots * '-' + '\n')
 for i in [line1, line2, line3, line4, line5, line6, line7]:
     newfile.write(i + '\n')
-newfile.write(str(Ndots) * '-' + '\n')
+newfile.write(Ndots * '-' + '\n')
 newfile.close()
       
                   
