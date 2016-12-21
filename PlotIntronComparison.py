@@ -260,14 +260,6 @@ ax1.text(2.1, 21.5, 'C', horizontalalignment='center', verticalalignment='center
 # make sure subplots do not overlap
 plt.tight_layout()
 
-
-         
-         
-         
-
-
-# make sure subplots do not overlap
-#plt.tight_layout()
 # one can control padding between subplots with w_pad and h_pad 
 #plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
 
@@ -275,9 +267,6 @@ plt.tight_layout()
 #gs = gridspec.GridSpec(1, 3) # N rows and columns
 #gs.update(wspace=0.3, hspace=0) # set the spacing between axes. 
 
-
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-fig.savefig('truc.eps', bbox_inches = 'tight')
-
-
+fig.savefig('IntronDifferences.pdf', bbox_inches = 'tight')
+fig.savefig('IntronDifferences.eps', bbox_inches = 'tight')
