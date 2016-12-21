@@ -136,25 +136,17 @@ colorscheme = ['#d7191c', '#fdae61', '#abd9e9', '#2c7bb6']
 
 
 
-data=np.array(np.random.rand(1000))
-y,binEdges=np.histogram(data,bins=100)
-bincenters = 0.5*(binEdges[1:]+binEdges[:-1])
-p.plot(bincenters,y,'-')
-p.show()
-shareimprove this answer
-answered Jan 11 '12 at 16:09
-
-imsc
-3,24411841
-  	 	
-Perfect, exactly what I was looking for! thanks! – CNeo Jan 11 '12 at 16:26
-  	 	
-Any way to get this as bars, not as a line? I'm calculating histograms for different people, then averaging, so I've got average counts and want to construct a histogram-looking bar chart from those. – Amyunimus Sep 19 '12 at 4:35 
-  	 	
-Sure. Use p.bar(bincenters,y,align='center'). Check stackoverflow.com/a/12182440/302369 for details. – imsc Sep 19 '12 at 12:21
-
-to the party - but maybe this will be useful to someone else. I think what you need to do is set the histtype parameter to 'step', i.e.
-ax.hist(data,bins=100,range=(minimum,maximum),facecolor="r", histtype = 'step')
+#data=np.array(np.random.rand(1000))
+#y,binEdges=np.histogram(data,bins=100)
+#bincenters = 0.5*(binEdges[1:]+binEdges[:-1])
+#p.plot(bincenters,y,'-')
+#p.show()
+#
+#p.bar(bincenters,y,align='center')
+#
+#
+#to the party - but maybe this will be useful to someone else. I think what you need to do is set the histtype parameter to 'step', i.e.
+#ax.hist(data,bins=100,range=(minimum,maximum),facecolor="r", histtype = 'step')
 
 
 
@@ -163,7 +155,7 @@ ax.hist(data,bins=100,range=(minimum,maximum),facecolor="r", histtype = 'step')
 
 
 # plot overlap length
-ax.hist(NestedLengthLong, bins = np.arange(min(NestedLengthLong), max(NestedLengthLong) + 10, 10), color = ColorScheme[0], alpha = 0.7)
+ax.hist(NestedLengthLong, bins = np.arange(0, max(NestedLengthLong) + 10, 10), color = ColorScheme[0], alpha = 0.7)
 ax.hist(NestedLengthShort, bins = np.arange(0, max(NestedLengthShort) + 10, 10), color = ColorScheme[1], alpha = 0.7)
 
 
