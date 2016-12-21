@@ -76,7 +76,7 @@ DivergentPairs = GetHostNestedPairs(Divergent)
 
 # create a list of lists of gene pairs
 AllPairs = [OverlappingPairs, NestedPairs, PiggybackPairs, ConvergentPairs, DivergentPairs]
-# create a parallel list of overlap length ratios for short and long genes
+# create a parallel list of overlap length ratios for short and long genes (in %)
 AllLengthShort, AllLengthLong = [], []
 # loop over lists of gene pairs for each overlapping group
 for i in range(len(AllPairs)):
@@ -91,12 +91,12 @@ for i in range(len(AllPairs)):
         # check which gene is short and which gene is longer
         if len(coord1) >= len(coord2):
             # gene1 is longer
-            LengthLong.append(L / len(coord1))
-            LengthShort.append(L / len(coord2))
+            LengthLong.append((L / len(coord1)) * 100)
+            LengthShort.append((L / len(coord2)) * 100)
         elif len(coord1) < len(coord2):
             # gene2 is longer
-            LengthLong.append(L / len(coord2))
-            LengthShort.append(L / len(coord1))
+            LengthLong.append((L / len(coord2)) * 100)
+            LengthShort.append((L / len(coord1)) * 100)
     # store lists of overlap length
     AllLengthLong.append(LengthLong)
     AllLengthShort.append(LengthShort)
@@ -107,35 +107,21 @@ PiggybackLengthLong, ConvergentLengthLong, DivergentLengthLong = AllLengthLong[2
 OverlapLengthShort, NestedLengthShort = AllLengthShort[0], AllLengthShort[1]
 PiggybackLengthShort, ConvergentLengthShort, DivergentLengthShort = AllLengthShort[2], AllLengthShort[3], AllLengthShort[4]
 
-## convert bp to Kbp
-#ToKb = lambda x: x / 1000
-#OverlapLengthLong = list(map(ToKb, OverlapLengthLong))
-#NestedLengthLong = list(map(ToKb, NestedLengthLong))
-#PiggybackLengthLong = list(map(ToKb, PiggybackLengthLong))
-#ConvergentLengthLong = list(map(ToKb, ConvergentLengthLong))
-#DivergentLengthLong = list(map(ToKb, DivergentLengthLong))
-#OverlapLengthShort = list(map(ToKb, OverlapLengthShort))
-#NestedLengthShort = list(map(ToKb, NestedLengthShort))
-#PiggybackLengthShort = list(map(ToKb, PiggybackLengthShort))
-#ConvergentLengthShort = list(map(ToKb, ConvergentLengthShort))
-#DivergentLengthShort = list(map(ToKb, DivergentLengthShort))
 
-#def CombineHighValues(L, cutoff):
-#    '''
-#    (list, int) -> list
-#    Take a list of overlap length and return a modified list with values higher
-#    than cutoff equal to cutoff
-#    '''
-#    for i in range(len(L)):
-#        if L[i] >= cutoff:
-#            L[i] = cutoff + 1
-#    return L
-#
-#OverlapLength = CombineHighValues(OverlapLength, 200)
-#NestedLength = CombineHighValues(NestedLength, 200)
-#PiggybackLength = CombineHighValues(PiggybackLength, 200)
-#ConvergentLength = CombineHighValues(ConvergentLength, 200)
-#DivergentLength = CombineHighValues(DivergentLength, 200)
+for i in range(len(AllLengthShort)):
+    print(i, np.median(AllLengthShort[i]))
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # create figure
@@ -151,20 +137,22 @@ colorscheme = ['#d7191c', '#fdae61', '#abd9e9', '#2c7bb6']
 
 # use list to provide bin boundaries
 # for integer values: 
-# binBoundaries = range(min(data), max(data) + binwidth, binwidth)
+# binBoundaries = range(0, max(data) + binwidth, binwidth)
 # for float values:
-# binBoundaries = np.arange(min(data), max(data) + binwidth, binwidth)
+# binBoundaries = np.arange(0, max(data) + binwidth, binwidth)
 # plt.hist(data, bins = binBoundaries)
 
-
-
-binBoundaries = np.arange(min(NestedLengthLong), max(NestedLengthLong) + 0.1, 0.1)
 # plot overlap length
-ax.hist(NestedLengthLong, bins = binBoundaries, color = ColorScheme[0], alpha = 0.7)
+ax.hist(NestedLengthLong, bins = np.arange(min(NestedLengthLong), max(NestedLengthLong) + 10, 10), color = ColorScheme[0], alpha = 0.7)
+ax.hist(NestedLengthShort, bins = np.arange(0, max(NestedLengthShort) + 10, 10), color = ColorScheme[1], alpha = 0.7)
+
+
+
+
 
 
 print(min(NestedLengthLong), max(NestedLengthLong))
-
+print(min(NestedLengthShort), max(NestedLengthShort))
 
 
 
