@@ -110,28 +110,6 @@ PiggybackLengthShort, ConvergentLengthShort, DivergentLengthShort = AllLengthSho
 # create figure
 fig = plt.figure(1, figsize = (3.5, 3.5))
 
-# use list to provide bin boundaries
-# for integer values: 
-# binBoundaries = range(0, max(data) + binwidth, binwidth)
-# for float values:
-# binBoundaries = np.arange(0, max(data) + binwidth, binwidth)
-# plt.hist(data, bins = binBoundaries)
-
-# create histograms to get the counts in each bin and the bin edges
-#for i in range(1, len(AllLengthShort)):
-#    data, binedges = np.histogram(AllLengthShort[i], bins = np.arange(0, max(AllLengthShort[i]) + 10, 10))
-#    bincenters = 0.5 * (binedges[1:] + binedges[:-1])
-#    proportions = [i / sum(data) for i in data]
-#    ax.plot(bincenters, proportions, color = ColorScheme[i], linewidth = 1.2, linestyle = '-', marker =  Markers[i], markersize = 3.5, markeredgecolor = ColorScheme[i], markerfacecolor = ColorScheme[i], markeredgewidth = 1.2)
-#
-#
-#for i in range(1, len(AllLengthLong)):
-#    data, binedges = np.histogram(AllLengthLong[i], bins = np.arange(0, max(AllLengthLong[i]) + 10, 10))
-#    bincenters = 0.5 * (binedges[1:] + binedges[:-1])
-#    proportions = [i / sum(data) for i in data]
-#    ax.plot(bincenters, proportions, color = ColorScheme[i], linewidth = 1.2, linestyle = '--', marker =  Markers[i], markersize = 3.5, markeredgecolor = ColorScheme[i], markerfacecolor = ColorScheme[i], markeredgewidth = 1.2)
-
-
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Data, Title):
     '''
@@ -156,7 +134,6 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title):
         elif i == 1:
             k = ax.plot(bincenters, proportions, color = 'grey', linewidth = 1, linestyle = '-', marker =  'o', markersize = 3, markeredgecolor = 'grey', markerfacecolor = 'white', markeredgewidth = 1)
             lns += k            
-            
     # add label for the Y axis
     ax.set_ylabel('% of genes', size = 7, ha = 'center', fontname = 'Arial')
     # set x axis label
@@ -170,10 +147,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title):
     ax.spines["bottom"].set_visible(True)    
     ax.spines["right"].set_visible(False)    
     ax.spines["left"].set_visible(True)
-    # add white space above x axis    
-    for spine in ax.spines.values():
-        spine.set_position(('outward', 5))
-
+    
     # add x axis ticks
     plt.xticks([i for i in range(0, 120, 20)], [str(i) for i in range(0, 120, 20)])
     # add y axis ticks
@@ -193,7 +167,6 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title):
     # use arial font    
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')
-
     # add legend
     # get labels
     labs = ['longer', 'shorter']
@@ -202,74 +175,16 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title):
     
     return ax     
 
-
+# plot data for longer and shorter genes
 ax1 = CreateAx(2, 2, 1, fig, [NestedLengthLong, NestedLengthShort], 'Nested')
 ax2 = CreateAx(2, 2, 2, fig, [PiggybackLengthLong, PiggybackLengthShort], 'Piggyback')
 ax3 = CreateAx(2, 2, 3, fig, [ConvergentLengthLong, ConvergentLengthShort], 'Convergent')
 ax4 = CreateAx(2, 2, 4, fig, [DivergentLengthLong, DivergentLengthShort], 'Divergent')
 
-
-
-
-
-
-#for i in range(1, len(AllLengthShort)):
-#    data, binedges = np.histogram(AllLengthShort[i], bins = np.arange(0, max(AllLengthShort[i]) + 10, 10))
-#    bincenters = 0.5 * (binedges[1:] + binedges[:-1])
-#    proportions = [j / sum(data) for j in data]
-#    k = ax.plot(bincenters, proportions, color = ColorScheme[i-1], linewidth = 1.2, linestyle = '-')
-#    if i == 1:
-#        lns = k 
-#    else:
-#        lns += k
-#
-#for i in range(1, len(AllLengthLong)):
-#    data, binedges = np.histogram(AllLengthLong[i], bins = np.arange(0, max(AllLengthLong[i]) + 10, 10))
-#    bincenters = 0.5 * (binedges[1:] + binedges[:-1])
-#    proportions = [j / sum(data) for j in data]
-#    ax.plot(bincenters, proportions, color = ColorScheme[i-1], linewidth = 1.2, linestyle = '--', dash_capstyle = 'round')
-#
-#
-## add label for the Y axis
-#ax.set_ylabel('Number of genes', size = 8, ha = 'center', fontname = 'Arial')
-## set x axis label
-#ax.set_xlabel('Ratio Overlap / Gene length (%)', size = 8, ha = 'center', fontname = 'Arial')
-#
-## do not show lines around figure, keep bottow line  
-#ax.spines["top"].set_visible(False)    
-#ax.spines["bottom"].set_visible(True)    
-#ax.spines["right"].set_visible(False)    
-#ax.spines["left"].set_visible(True)      
-#
-## add x axis ticks
-#plt.xticks([i for i in range(0, 110, 10)], [str(i) for i in range(0, 110, 10)])
-#
-#ax.tick_params(
-#    axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-#    which='both',      # both major and minor ticks are affected
-#    bottom='on',      # ticks along the bottom edge are off
-#    top='off',         # ticks along the top edge are off
-#    right = 'off',
-#    left = 'on',          
-#    labelbottom='on', # labels along the bottom edge are off 
-#    colors = 'black',
-#    labelsize = 8,
-#    direction = 'out') # ticks are outside the frame when bottom = 'on
-#
-#for label in ax.get_yticklabels():
-#    label.set_fontname('Arial')
-#
-#
-## get labels
-#labs = ['Nested', 'Piggyback', 'Convergent', 'Divergent']
-## plot legend
-#ax.legend(lns, labs, loc=1, fontsize = 8, frameon = False)
-
-
 # make sure subplots do not overlap
 plt.tight_layout()
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-
+fig.savefig('OverlapLengthRatio.pdf', bbox_inches = 'tight')
+fig.savefig('OverlapLengthRatio.eps', bbox_inches = 'tight')
 
