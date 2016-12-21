@@ -154,7 +154,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title):
             k = ax.plot(bincenters, proportions, color = 'black', linewidth = 1, linestyle = '-', marker =  'o', markersize = 3, markeredgecolor = 'black', markerfacecolor = 'black', markeredgewidth = 1)
             lns = k        
         elif i == 1:
-            k = ax.plot(bincenters, proportions, color = 'black', linewidth = 1, linestyle = ':', marker =  'o', markersize = 3, markeredgecolor = 'black', markerfacecolor = 'white', markeredgewidth = 1)
+            k = ax.plot(bincenters, proportions, color = 'grey', linewidth = 1, linestyle = '-', marker =  'o', markersize = 3, markeredgecolor = 'grey', markerfacecolor = 'white', markeredgewidth = 1)
             lns += k            
             
     # add label for the Y axis
@@ -169,7 +169,11 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title):
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
     ax.spines["right"].set_visible(False)    
-    ax.spines["left"].set_visible(True)      
+    ax.spines["left"].set_visible(True)
+    # add white space above x axis    
+    for spine in ax.spines.values():
+        spine.set_position(('outward', 2))
+
     # add x axis ticks
     plt.xticks([i for i in range(0, 120, 20)], [str(i) for i in range(0, 120, 20)])
     # add y axis ticks
@@ -194,7 +198,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title):
     # get labels
     labs = ['longer', 'shorter']
     # plot legend
-    ax.legend(lns, labs, loc=1, fontsize = 6, frameon = False)
+    ax.legend(lns, labs, loc=1, fontsize = 6, frameon = False, numpoints = 1)
     
     return ax     
 
