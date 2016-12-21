@@ -5,7 +5,7 @@ Created on Mon Dec 19 11:32:23 2016
 @author: RJovelin
 """
 
-# use this function to plot the CDF of the ratios overlap length over gene length
+# use this function to plot the ratios of overlap length over gene length
 # for the longer and short gene of the overlapping gene pairs 
 
 # usage PlotRatioOverlapLength.py 
