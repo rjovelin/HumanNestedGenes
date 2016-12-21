@@ -172,7 +172,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title):
     ax.spines["left"].set_visible(True)
     # add white space above x axis    
     for spine in ax.spines.values():
-        spine.set_position(('outward', 2))
+        spine.set_position(('outward', 5))
 
     # add x axis ticks
     plt.xticks([i for i in range(0, 120, 20)], [str(i) for i in range(0, 120, 20)])
