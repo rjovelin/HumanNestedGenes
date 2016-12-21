@@ -159,13 +159,6 @@ for i in PValues:
             Significance[i].append('***')
   
 
-# BarPos = [0, 0.2, 0.4] for num and length
-# colorscheme = ['#a6cee3','#1f78b4','#b2df8a'] for num or length
-
-# set colors
-# colorscheme = ['#a6cee3','#1f78b4'] for host introns
-# barpos = [0, 0.2] for host iontrons 
-
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Ticklabel, ColorScheme, YLabel, YMax):
     '''
