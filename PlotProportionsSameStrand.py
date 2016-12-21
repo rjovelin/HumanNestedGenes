@@ -90,7 +90,8 @@ ax.spines["top"].set_visible(False)
 ax.spines["bottom"].set_visible(True)    
 ax.spines["right"].set_visible(False)    
 ax.spines["left"].set_visible(True)  
-  
+ 
+ 
 # do not show ticks
 plt.tick_params(
     axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
