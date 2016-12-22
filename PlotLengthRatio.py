@@ -150,7 +150,7 @@ for i in range(len(Ratios)):
 
 
 # create figure
-fig = plt.figure(1, figsize = (3, 2))
+fig = plt.figure(1, figsize = (8, 2))
 # add a plot to figure (1 row, 1 column, 1 plot)
 ax = fig.add_subplot(1, 1, 1)  
 
@@ -162,13 +162,44 @@ Colors = ['#984ea3', '#33a02c', '#ff7f00', '#2c7bb6', 'black', 'grey']
 
 Colors = ['#756bb1', '#bcbddc', '#33a02c', '#ff7f00', '#2c7bb6', 'black', 'grey']
 
+## plot data
+#for i in range(len(Ratios)):
+#    graph = ax.step(Ratios[i], Proba[i], linewidth = 1.2, color = Colors[i], alpha = 0.7)
+#    if i == 0:
+#        lns = graph
+#    else:
+#        lns += graph
+
+
+#a = []
+#for i in range(len(Ratios)):
+#    b = []
+#    for j in Ratios[i]:
+#        b.append(j / sum(Ratios[i]))
+#    a.append(b)
+
 # plot data
+#ax.hist(Ratios, bins = [i for i in range(0, 110, 10)], histtype = 'bar', color = Colors)
+
+
+proportions = []
 for i in range(len(Ratios)):
-    graph = ax.step(Ratios[i], Proba[i], linewidth = 1.2, color = Colors[i], alpha = 0.7)
-    if i == 0:
-        lns = graph
-    else:
-        lns += graph
+    data, binedges = np.histogram(Ratios[i], bins = [i for i in range(0, 110, 10)])
+    percent = [(j / sum(data)) * 100 for j in data]
+    proportions.append(percent)
+
+
+for i in proportions:
+    print(i)
+
+
+
+
+
+    
+ax.bar([i for i in range(0, 100, 10)], proportions[0], color = Colors[0])
+
+
 
 
 # add label for the Y axis
@@ -200,10 +231,10 @@ ax.tick_params(
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')
 
-# get labels
-labs = ['Nested-same', 'Nested-opposite', 'Piggyback', 'Convergent', 'Divergent', 'Neighbors-same', 'Neighbors-oppsite']
-# plot legend
-ax.legend(lns, labs, loc=4, fontsize = 8, frameon = False)
+## get labels
+#labs = ['Nested-same', 'Nested-opposite', 'Piggyback', 'Convergent', 'Divergent', 'Neighbors-same', 'Neighbors-oppsite']
+## plot legend
+#ax.legend(lns, labs, loc=4, fontsize = 8, frameon = False)
 
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 
