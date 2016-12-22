@@ -72,9 +72,6 @@ OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
 # make a set of non-overlapping genes
 NonOverlapping = MakeNonOverlappingGeneSet(OverlappingGenes, GeneCoord)
 
-# Compute ratios of length of shorter gene over length of longer genes
-NestedSameRatio, NestedOppositeRatio, PiggyRatio, ConvergentRatio, DivergentRatio, NeighborRatio = [], [], [], [], [], []
- 
 # create lists of gene pairs
 OverlappingPairs = GetHostNestedPairs(OverlappingGenes)
 NestedPairs = GetHostNestedPairs(NestedGenes)
@@ -93,98 +90,66 @@ for chromo in OrderedGenes:
         # check that both genes are non-overlapping
         if gene1 in NonOverlapping and gene2 in NonOverlapping:
             # check gene orientation
-        
-            ############## continue here
+            if GeneCoord[gene1][-1] != GeneCoord[gene2][-1]:
+                # genes have different orientation
+                NeighborsOpposite.append([gene1, gene2])
+            elif GeneCoord[gene1][-1] == GeneCoord[gene2][-1]:
+                # genes have same orientation
+                NeighborsSame.append([gene1, gene2])
 
-
-
-
+# create pairs of nested genes with same and opposite orientation
+NestedSame, NestedOpposite = [], []
+# loop over nested pairs
+for pair in NestedPairs:
+    if GeneCoord[pair[0]][-1] != GeneCoord[pair[1]][-1]:
+        # opposite direction
+        NestedOpposite.append(pair)
+    elif GeneCoord[pair[0]][-1] == GeneCoord[pair[1]][-1]:
+        # same direction
+        NestedSame.append(pair)
 
 # create a list of lists of gene pairs
-AllPairs = [NestedPairs, PiggybackPairs, ConvergentPairs, DivergentPairs]
+#AllPairs = [NestedPairs, PiggybackPairs, ConvergentPairs, DivergentPairs]
+
+# create list of gene pairs
+AllPairs = [NestedSame, NestedOpposite, PiggybackPairs, ConvergentPairs, DivergentPairs, NeighborsSame, NeighborsOpposite]
 # create a parallel list of length ratio
-AllLength = []
-# loop over lists of gene pairs for each overlapping group
+Ratios = []
+# Compute ratios of length (in %) of shorter gene over length of longer genes
 for i in range(len(AllPairs)):
     # initialize empty list
     Length = []
     for pair in AllPairs[i]:
         # get the coordinates of the gene pairs
-        L1 = length(set(range(GeneCoord[pair[0]][1], GeneCoord[pair[0]][2])))
-        L2 = length(set(range(GeneCoord[pair[1]][1], GeneCoord[pair[1]][2])))
+        L1 = len(set(range(GeneCoord[pair[0]][1], GeneCoord[pair[0]][2])))
+        L2 = len(set(range(GeneCoord[pair[1]][1], GeneCoord[pair[1]][2])))
         if L1 <= L2:
-            Length.append(L1 / L2)
+            Length.append((L1 / L2) * 100)
         elif L1 > L2:
-            Length.append(L2 / L1)
+            Length.append((L2 / L1) * 100)
     # store lists of length ratio
-    AllLength.append(Length)
+    Ratios.append(Length)
 
-
-
-
-
-
-
-
-
-
-
-# $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-# $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-# $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-# $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
-
-
-
-
-
-
-# get the list of overlap length for each group
-OverlapLength, NestedLength = AllLength[0], AllLength[1]
-PiggybackLength, ConvergentLength, DivergentLength = AllLength[2], AllLength[3], AllLength[4]
-
-# convert bp to Kbp
-ToKb = lambda x: x / 1000
-OverlapLength = list(map(ToKb, OverlapLength))
-NestedLength = list(map(ToKb, NestedLength))
-PiggybackLength = list(map(ToKb, PiggybackLength))
-ConvergentLength = list(map(ToKb, ConvergentLength))
-DivergentLength = list(map(ToKb, DivergentLength))
-
-def CombineHighValues(L, cutoff):
-    '''
-    (list, int) -> list
-    Take a list of overlap length and return a modified list with values higher
-    than cutoff equal to cutoff
-    '''
-    for i in range(len(L)):
-        if L[i] >= cutoff:
-            L[i] = cutoff
-    return L
-
-OverlapLength = CombineHighValues(OverlapLength, 200)
-NestedLength = CombineHighValues(NestedLength, 200)
-PiggybackLength = CombineHighValues(PiggybackLength, 200)
-ConvergentLength = CombineHighValues(ConvergentLength, 200)
-DivergentLength = CombineHighValues(DivergentLength, 200)
-
-# check that lists are different
-assert OverlapLength != NestedLength != PiggybackLength != ConvergentLength != DivergentLength
-
-# sort lists
-OverlapLength = np.sort(OverlapLength)
-NestedLength = np.sort(NestedLength)
-PiggybackLength = np.sort(PiggybackLength)
-ConvergentLength = np.sort(ConvergentLength)
-DivergentLength = np.sort(DivergentLength)
+# sort list of ratios
+for i in range(len(Ratios)):
+    Ratios[i] = np.sort(Ratios[i])
 
 # compute probabilities
-POverlap = np.array(range(len(OverlapLength))) / len(OverlapLength)
-PNested = np.array(range(len(NestedLength))) / len(NestedLength) 
-PPiggy = np.array(range(len(PiggybackLength))) / len(PiggybackLength)
-PConvergent = np.array(range(len(ConvergentLength))) / len(ConvergentLength)
-PDivergent = np.array(range(len(DivergentLength))) / len(DivergentLength)
+Proba = []
+for i in range(len(Ratios)):
+    P = np.array(range(len(Ratios[i]))) / len(Ratios[i])
+    Proba.append(P)
+
+
+
+#NestedSameRatio = np.sort(Ratios[0])
+#NestedOppositeRatio = np.sort(Ratios[1])
+#PiggyRatio = np.sort(Ratios[2])
+#ConvergentRatio = np.sort(Ratios[3])
+#DivergentRatio = np.sort(Ratios[4])
+#NeighborSameRatio = np.sort(Ratios[5])
+#NeighborOppositeRatio = np.sort(Ratios[6])
+
 
 # create figure
 fig = plt.figure(1, figsize = (3, 2))
@@ -192,24 +157,29 @@ fig = plt.figure(1, figsize = (3, 2))
 ax = fig.add_subplot(1, 1, 1)  
 
 # plot nested length
-Colors = ['#d7191c', '#fdae61', '#abd9e9', '#2c7bb6']
+Colors = ['#d7191c', '#fdae61', '#abd9e9', '#2c7bb6', 'black', 'grey']
 
-# plot nested length
-graph1 = ax.step(NestedLength, PNested, linewidth = 1.2, color = '#984ea3', alpha = 0.7)
-# plot pibbyback length
-graph2 = ax.step(PiggybackLength, PPiggy, linewidth = 1.2, color = '#33a02c', alpha = 0.7)
-# plot convergent length
-graph3 = ax.step(ConvergentLength, PConvergent, linewidth = 1.2, color = '#ff7f00', alpha = 0.7)
-# plot divergent length
-graph4 = ax.step(DivergentLength, PDivergent, linewidth = 1.2, color = '#2c7bb6', alpha = 0.7)
+
+Colors = ['#984ea3', '#33a02c', '#ff7f00', '#2c7bb6', 'black', 'grey']
+
+Colors = ['#756bb1', '#bcbddc', '#33a02c', '#ff7f00', '#2c7bb6', 'black', 'grey']
+
+# plot data
+for i in range(len(Ratios)):
+    graph = ax.step(Ratios[i], Proba[i], linewidth = 1.2, color = Colors[i], alpha = 0.7)
+    if i == 0:
+        lns = graph
+    else:
+        lns += graph
+
 
 # add label for the Y axis
 ax.set_ylabel('Probability', size = 8, ha = 'center', fontname = 'Arial')
 # set x axis label
 ax.set_xlabel('Overlap length (Kb)', size = 8, ha = 'center', fontname = 'Arial')
 # set x axis ticks
-plt.xticks([0, 50, 100, 150, 200], ['0', '50', '100', '150', r'$\geq 200$'])
-
+plt.xticks([i for i in range(0, 110, 10)], [str(i) for i in range(0, 110, 10)])
+    
 
 # do not show lines around figure, keep bottow line  
 ax.spines["top"].set_visible(False)    
@@ -232,10 +202,8 @@ ax.tick_params(
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')
 
-# add lines
-lns = graph1+graph2+graph3+graph4
 # get labels
-labs = ['Nested', 'Piggyback', 'Convergent', 'Divergent']
+labs = ['Nested-same', 'Nested-opposite', 'Piggyback', 'Convergent', 'Divergent', 'Neighbors-same', 'Neighbors-oppsite']
 # plot legend
 ax.legend(lns, labs, loc=4, fontsize = 8, frameon = False)
 
