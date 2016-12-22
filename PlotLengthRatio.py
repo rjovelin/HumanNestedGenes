@@ -140,8 +140,6 @@ for i in range(len(Ratios)):
     P = np.array(range(len(Ratios[i]))) / len(Ratios[i])
     Proba.append(P)
 
-
-
 #NestedSameRatio = np.sort(Ratios[0])
 #NestedOppositeRatio = np.sort(Ratios[1])
 #PiggyRatio = np.sort(Ratios[2])
@@ -176,7 +174,7 @@ for i in range(len(Ratios)):
 # add label for the Y axis
 ax.set_ylabel('Probability', size = 8, ha = 'center', fontname = 'Arial')
 # set x axis label
-ax.set_xlabel('Overlap length (Kb)', size = 8, ha = 'center', fontname = 'Arial')
+ax.set_xlabel('Length ratio (%)', size = 8, ha = 'center', fontname = 'Arial')
 # set x axis ticks
 plt.xticks([i for i in range(0, 110, 10)], [str(i) for i in range(0, 110, 10)])
     
