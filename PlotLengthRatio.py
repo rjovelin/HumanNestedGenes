@@ -211,14 +211,14 @@ def CreateAx(Columns, Rows, Position, figure, Data, Proba, LineStyle, Labels, Ti
 # make lists of data and probabilitties for same-strand and opposite strand overlapping genes
 SameStrdData = [Ratios[0], Ratios[2], Ratios[5]]
 SameStrdProba = [Proba[0], Proba[2], Proba[5]]
-OppositeStrData = [Ratios[1], Ratios[3], Ratios[4], Ratios[6]]
-OppositeStrproba = [Proba[1], Proba[3], Proba[4], Proba[6]]
+OppositeStrdData = [Ratios[1], Ratios[3], Ratios[4], Ratios[6]]
+OppositeStrdProba = [Proba[1], Proba[3], Proba[4], Proba[6]]
 
 # create a list of line styles
 LineStyle = ['-', '--', ':', '-.']
 # create subplots    
-ax1 = CreateAx(2, 1, 1, fig, SameStrData, SameStrProba, LineStyle, ['Nested', 'Piggyback', 'Non-overlapping'], 'Same strand')
-ax2 = CreateAx(2, 1, 2, fig, OppositeStrData, OppositeStrproba, LineStyle, ['Nested', 'Convergent', 'Divergent', 'Non-overlapping'], 'Opposite strand')
+ax1 = CreateAx(2, 1, 1, fig, SameStrdData, SameStrdProba, LineStyle, ['Nested', 'Piggyback', 'Non-overlapping'], 'Same strand')
+ax2 = CreateAx(2, 1, 2, fig, OppositeStrdData, OppositeStrdProba, LineStyle, ['Nested', 'Convergent', 'Divergent', 'Non-overlapping'], 'Opposite strand')
 
     
 fig.savefig('truc.pdf', bbox_inches = 'tight')
