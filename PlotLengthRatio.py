@@ -133,102 +133,93 @@ for i in range(len(AllPairs)):
 # sort list of ratios
 for i in range(len(Ratios)):
     Ratios[i] = np.sort(Ratios[i])
-
 # compute probabilities
 Proba = []
 for i in range(len(Ratios)):
     P = np.array(range(len(Ratios[i]))) / len(Ratios[i])
     Proba.append(P)
 
-#NestedSameRatio = np.sort(Ratios[0])
-#NestedOppositeRatio = np.sort(Ratios[1])
-#PiggyRatio = np.sort(Ratios[2])
-#ConvergentRatio = np.sort(Ratios[3])
-#DivergentRatio = np.sort(Ratios[4])
-#NeighborSameRatio = np.sort(Ratios[5])
-#NeighborOppositeRatio = np.sort(Ratios[6])
-
-
 # create figure
-fig = plt.figure(1, figsize = (8, 2))
-# add a plot to figure (1 row, 1 column, 1 plot)
-ax = fig.add_subplot(1, 1, 1)  
+fig = plt.figure(1, figsize = (6, 2))
 
-# plot nested length
-Colors = ['#d7191c', '#fdae61', '#abd9e9', '#2c7bb6', 'black', 'grey']
-
-
-Colors = ['#984ea3', '#33a02c', '#ff7f00', '#2c7bb6', 'black', 'grey']
-
-Colors = ['#756bb1', '#bcbddc', '#33a02c', '#ff7f00', '#2c7bb6', 'black', 'grey']
-
-## plot data
-#for i in range(len(Ratios)):
-#    graph = ax.step(Ratios[i], Proba[i], linewidth = 1.2, color = Colors[i], alpha = 0.7)
-#    if i == 0:
-#        lns = graph
-#    else:
-#        lns += graph
-
-
-#a = []
-#for i in range(len(Ratios)):
-#    b = []
-#    for j in Ratios[i]:
-#        b.append(j / sum(Ratios[i]))
-#    a.append(b)
-
-# plot data
-#ax.hist(Ratios, bins = [i for i in range(0, 110, 10)], histtype = 'bar', color = Colors)
-
-width = 0.5
-
-proportions = []
-for i in range(len(Ratios)):
-    data, binedges = np.histogram(Ratios[i], bins = [k for k in range(0, 110, 10)])
-    percent = [(j / sum(data)) * 100 for j in data]
-    if i == 0:
-        barpos = np.array(range(0, 100, 10))
-    else:
-        barpos = barpos + 0.5
-    ax.bar(barpos, percent, width = 0.5, color = Colors[i])
-
-
-
-
-# add label for the Y axis
-ax.set_ylabel('Probability', size = 8, ha = 'center', fontname = 'Arial')
-# set x axis label
-ax.set_xlabel('Length ratio (%)', size = 8, ha = 'center', fontname = 'Arial')
-# set x axis ticks
-plt.xticks([i for i in range(0, 110, 10)], [str(i) for i in range(0, 110, 10)])
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, figure, Data, Proba, LineStyle, Labels, Title):
+    '''
+    (int, int, int, figure_object, list, list, list, list, list, str, str, int)
+    Take the number of a column, and rows in the figure object and the position of
+    the ax in figure, 2 lists of data, a list of bar positions, the list of tick
+    positions and their labels, a list of colors, a label for the Y axis,
+    a maximum value for the Y axis and return an ax instance in the figure
+    '''    
+    # create subplot in figure
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # plot data
+    for i in range(len(Data)):
+        if i == len(Data) -1:
+            graph = ax.step(Data[i], Proba[i], linewidth = 1.2, linestyle = '-', color = 'grey')
+        else:
+            graph = ax.step(Data[i], Proba[i], linewidth = 1.2, linestyle = LineStyle[i], color = 'black')
+        if i == 0:
+            lns = graph
+        else:
+            lns += graph
     
+    # set title
+    FigFont = {'fontname':'Arial'}   
+    plt.title(Title, size = 8, color = 'black', ha = 'center', **FigFont )     
+    # add label for the Y axis
+    ax.set_ylabel('Probability', size = 8, ha = 'center', **FigFont)
+    # set x axis label
+    ax.set_xlabel('Length ratio (%)', size = 8, ha = 'center', **FigFont)
+    # set x axis ticks
+    plt.xticks([i for i in range(0, 110, 10)], [str(i) for i in range(0, 110, 10)])
+    
+    # do not show lines around figure, keep bottow line  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(True)    
+    ax.spines["right"].set_visible(False)    
+    ax.spines["left"].set_visible(True)      
 
-# do not show lines around figure, keep bottow line  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(True)    
-ax.spines["right"].set_visible(False)    
-ax.spines["left"].set_visible(True)      
+    ax.tick_params(
+        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+        which='both',      # both major and minor ticks are affected
+        bottom='on',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        right = 'off',
+        left = 'on',          
+        labelbottom='on', # labels along the bottom edge are off 
+        colors = 'black',
+        labelsize = 8,
+        direction = 'out') # ticks are outside the frame when bottom = 'on
+    
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')
 
-ax.tick_params(
-    axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-    which='both',      # both major and minor ticks are affected
-    bottom='on',      # ticks along the bottom edge are off
-    top='off',         # ticks along the top edge are off
-    right = 'off',
-    left = 'on',          
-    labelbottom='on', # labels along the bottom edge are off 
-    colors = 'black',
-    labelsize = 8,
-    direction = 'out') # ticks are outside the frame when bottom = 'on
+    # get labels
+    labs = Labels
+    # plot legend
+    ax.legend(lns, labs, loc=4, fontsize = 8, frameon = False)
+    
+#    # add x axis ticks
+#    plt.xticks([i for i in range(0, 120, 20)], [str(i) for i in range(0, 120, 20)])
+#    # add y axis ticks
+#    plt.yticks([i for i in range(0, 120, 20)], [str(i) for i in range(0, 120, 20)])
+ 
+    return ax     
 
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')
+# make lists of data and probabilitties for same-strand and opposite strand overlapping genes
+SameStrdData = [Ratios[0], Ratios[2], Ratios[5]]
+SameStrdProba = [Proba[0], Proba[2], Proba[5]]
+OppositeStrData = [Ratios[1], Ratios[3], Ratios[4], Ratios[6]]
+OppositeStrproba = [Proba[1], Proba[3], Proba[4], Proba[6]]
 
-## get labels
-#labs = ['Nested-same', 'Nested-opposite', 'Piggyback', 'Convergent', 'Divergent', 'Neighbors-same', 'Neighbors-oppsite']
-## plot legend
-#ax.legend(lns, labs, loc=4, fontsize = 8, frameon = False)
+# create a list of line styles
+LineStyle = ['-', '--', ':', '-.']
+# create subplots    
+ax1 = CreateAx(2, 1, 1, fig, SameStrData, SameStrProba, LineStyle, ['Nested', 'Piggyback', 'Non-overlapping'], 'Same strand')
+ax2 = CreateAx(2, 1, 2, fig, OppositeStrData, OppositeStrproba, LineStyle, ['Nested', 'Convergent', 'Divergent', 'Non-overlapping'], 'Opposite strand')
 
+    
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 
