@@ -221,5 +221,5 @@ ax1 = CreateAx(2, 1, 1, fig, SameStrdData, SameStrdProba, LineStyle, ['Nested', 
 ax2 = CreateAx(2, 1, 2, fig, OppositeStrdData, OppositeStrdProba, LineStyle, ['Nested', 'Convergent', 'Divergent', 'Non-overlapping'], 'Opposite strand')
 
     
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-
+fig.savefig('LengthRatioCDF.pdf', bbox_inches = 'tight')
+fig.savefig('LengthRatioCDF.eps', bbox_inches = 'tight')
