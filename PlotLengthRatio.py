@@ -214,6 +214,31 @@ SameStrdProba = [Proba[0], Proba[2], Proba[5]]
 OppositeStrdData = [Ratios[1], Ratios[3], Ratios[4], Ratios[6]]
 OppositeStrdProba = [Proba[1], Proba[3], Proba[4], Proba[6]]
 
+# compare distributions based using Kolmogorov-Smirnov statistic on 2 samples.
+Label1 = ['Nested', 'Piggyback', 'Non-overlapping']
+for i in range(0, len(SameStrdData) -1):
+    val, P =  stats.ks_2samp(SameStrdData[i], SameStrdData[-1])
+    if P >= 0.05:
+        Label1[i] = Label1[i] + 'NS'
+    elif 0.01 <= P < 0.05:
+        Label1[i] = Label1[i] + '*'
+    elif 0.001 <= P < 0.01:
+        Label1[i] = Label1[i] + '**'
+    elif P < 0.001:
+        Label1[i] = Label1[i] + '***'
+
+Label2 = ['Nested', 'Convergent', 'Divergent', 'Non-overlapping']
+for i in range(0, len(OppositeStrdData) -1):
+    val, P =  stats.ks_2samp(OppositeStrdData[i], OppositeStrdData[-1])
+    if P >= 0.05:
+        Label2[i] = Label2[i] + 'NS'
+    elif 0.01 <= P < 0.05:
+        Label2[i] = Label2[i] + '*'
+    elif 0.001 <= P < 0.01:
+        Label2[i] = Label2[i] + '**'
+    elif P < 0.001:
+        Label2[i] = Label2[i] + '***'
+
 # create a list of line styles
 LineStyle = ['-', '--', ':', '-.']
 # create subplots    
