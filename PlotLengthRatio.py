@@ -242,8 +242,8 @@ for i in range(0, len(OppositeStrdData) -1):
 # create a list of line styles
 LineStyle = ['-', '--', ':', '-.']
 # create subplots    
-ax1 = CreateAx(2, 1, 1, fig, SameStrdData, SameStrdProba, LineStyle, ['Nested', 'Piggyback', 'Non-overlapping'], 'Same strand')
-ax2 = CreateAx(2, 1, 2, fig, OppositeStrdData, OppositeStrdProba, LineStyle, ['Nested', 'Convergent', 'Divergent', 'Non-overlapping'], 'Opposite strand')
+ax1 = CreateAx(2, 1, 1, fig, SameStrdData, SameStrdProba, LineStyle, Label1, 'Same strand')
+ax2 = CreateAx(2, 1, 2, fig, OppositeStrdData, OppositeStrdProba, LineStyle, Label2, 'Opposite strand')
 
     
 fig.savefig('LengthRatioCDF.pdf', bbox_inches = 'tight')
