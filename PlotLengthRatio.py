@@ -181,23 +181,17 @@ Colors = ['#756bb1', '#bcbddc', '#33a02c', '#ff7f00', '#2c7bb6', 'black', 'grey'
 # plot data
 #ax.hist(Ratios, bins = [i for i in range(0, 110, 10)], histtype = 'bar', color = Colors)
 
+width = 0.5
 
 proportions = []
 for i in range(len(Ratios)):
-    data, binedges = np.histogram(Ratios[i], bins = [i for i in range(0, 110, 10)])
+    data, binedges = np.histogram(Ratios[i], bins = [k for k in range(0, 110, 10)])
     percent = [(j / sum(data)) * 100 for j in data]
-    proportions.append(percent)
-
-
-for i in proportions:
-    print(i)
-
-
-
-
-
-    
-ax.bar([i for i in range(0, 100, 10)], proportions[0], color = Colors[0])
+    if i == 0:
+        barpos = np.array(range(0, 100, 10))
+    else:
+        barpos = barpos + 0.5
+    ax.bar(barpos, percent, width = 0.5, color = Colors[i])
 
 
 
