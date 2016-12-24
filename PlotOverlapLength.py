@@ -142,17 +142,19 @@ fig = plt.figure(1, figsize = (3, 2))
 # add a plot to figure (1 row, 1 column, 1 plot)
 ax = fig.add_subplot(1, 1, 1)  
 
-# plot nested length
+# make a list of colors
 Colors = ['#d7191c', '#fdae61', '#abd9e9', '#2c7bb6']
+# make a list of line styles
+LineStyle = ['-', '--', ':', '-.']
 
 # plot nested length
-graph1 = ax.step(NestedLength, PNested, linewidth = 1.2, color = '#984ea3', alpha = 0.7)
+graph1 = ax.step(NestedLength, PNested, linewidth = 1.2, linestyle = LineStyle[i], color = 'black')
 # plot pibbyback length
-graph2 = ax.step(PiggybackLength, PPiggy, linewidth = 1.2, color = '#33a02c', alpha = 0.7)
+graph2 = ax.step(PiggybackLength, PPiggy, linewidth = 1.2, linestyle = LineStyle[i], color = 'black')
 # plot convergent length
-graph3 = ax.step(ConvergentLength, PConvergent, linewidth = 1.2, color = '#ff7f00', alpha = 0.7)
+graph3 = ax.step(ConvergentLength, PConvergent, linewidth = 1.2, linestyle = LineStyle[i], color = 'black')
 # plot divergent length
-graph4 = ax.step(DivergentLength, PDivergent, linewidth = 1.2, color = '#2c7bb6', alpha = 0.7)
+graph4 = ax.step(DivergentLength, PDivergent, linewidth = 1.2, linestyle = LineStyle[i], color = 'black')
 
 # add label for the Y axis
 ax.set_ylabel('Probability', size = 8, ha = 'center', fontname = 'Arial')
