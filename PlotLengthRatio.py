@@ -248,7 +248,7 @@ ax2 = CreateAx(2, 1, 2, fig, OppositeStrdData, OppositeStrdProba, LineStyle, Lab
 # add subplot labels
 ax1.text(-10, 1.1, 'A', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
-ax1.text(120, 1.1, 'B', horizontalalignment='center', verticalalignment='center',
+ax1.text(110, 1.1, 'B', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
     
 fig.savefig('LengthRatioCDF.pdf', bbox_inches = 'tight')
