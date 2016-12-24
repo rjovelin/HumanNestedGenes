@@ -148,13 +148,13 @@ Colors = ['#d7191c', '#fdae61', '#abd9e9', '#2c7bb6']
 LineStyle = ['-', '--', ':', '-.']
 
 # plot nested length
-graph1 = ax.step(NestedLength, PNested, linewidth = 1.2, linestyle = LineStyle[i], color = 'black')
+graph1 = ax.step(NestedLength, PNested, linewidth = 1.2, linestyle = LineStyle[0], color = 'black')
 # plot pibbyback length
-graph2 = ax.step(PiggybackLength, PPiggy, linewidth = 1.2, linestyle = LineStyle[i], color = 'black')
+graph2 = ax.step(PiggybackLength, PPiggy, linewidth = 1.2, linestyle = LineStyle[1], color = 'black')
 # plot convergent length
-graph3 = ax.step(ConvergentLength, PConvergent, linewidth = 1.2, linestyle = LineStyle[i], color = 'black')
+graph3 = ax.step(ConvergentLength, PConvergent, linewidth = 1.2, linestyle = LineStyle[2], color = 'black')
 # plot divergent length
-graph4 = ax.step(DivergentLength, PDivergent, linewidth = 1.2, linestyle = LineStyle[i], color = 'black')
+graph4 = ax.step(DivergentLength, PDivergent, linewidth = 1.2, linestyle = LineStyle[3], color = 'black')
 
 # add label for the Y axis
 ax.set_ylabel('Probability', size = 8, ha = 'center', fontname = 'Arial')
