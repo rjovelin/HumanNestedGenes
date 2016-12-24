@@ -231,13 +231,13 @@ Label2 = ['Nested', 'Convergent', 'Divergent', 'Non-overlapping']
 for i in range(0, len(OppositeStrdData) -1):
     val, P =  stats.ks_2samp(OppositeStrdData[i], OppositeStrdData[-1])
     if P >= 0.05:
-        Label2[i] = Label2[i] + 'NS'
+        Label2[i] = Label2[i] + ' NS'
     elif 0.01 <= P < 0.05:
-        Label2[i] = Label2[i] + '*'
+        Label2[i] = Label2[i] + ' *'
     elif 0.001 <= P < 0.01:
-        Label2[i] = Label2[i] + '**'
+        Label2[i] = Label2[i] + ' **'
     elif P < 0.001:
-        Label2[i] = Label2[i] + '***'
+        Label2[i] = Label2[i] + ' ***'
 
 # create a list of line styles
 LineStyle = ['-', '--', ':', '-.']
@@ -245,6 +245,11 @@ LineStyle = ['-', '--', ':', '-.']
 ax1 = CreateAx(2, 1, 1, fig, SameStrdData, SameStrdProba, LineStyle, Label1, 'Same strand')
 ax2 = CreateAx(2, 1, 2, fig, OppositeStrdData, OppositeStrdProba, LineStyle, Label2, 'Opposite strand')
 
+# add subplot labels
+ax1.text(-0.5, 1.1, 'A', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 9)
+ax1.text(1.5, 1.1, 'B', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 9)
     
 fig.savefig('LengthRatioCDF.pdf', bbox_inches = 'tight')
 fig.savefig('LengthRatioCDF.eps', bbox_inches = 'tight')
