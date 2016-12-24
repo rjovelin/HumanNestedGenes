@@ -219,13 +219,13 @@ Label1 = ['Nested', 'Piggyback', 'Non-overlapping']
 for i in range(0, len(SameStrdData) -1):
     val, P =  stats.ks_2samp(SameStrdData[i], SameStrdData[-1])
     if P >= 0.05:
-        Label1[i] = Label1[i] + 'NS'
+        Label1[i] = Label1[i] + ' NS'
     elif 0.01 <= P < 0.05:
-        Label1[i] = Label1[i] + '*'
+        Label1[i] = Label1[i] + ' *'
     elif 0.001 <= P < 0.01:
-        Label1[i] = Label1[i] + '**'
+        Label1[i] = Label1[i] + ' **'
     elif P < 0.001:
-        Label1[i] = Label1[i] + '***'
+        Label1[i] = Label1[i] + ' ***'
 
 Label2 = ['Nested', 'Convergent', 'Divergent', 'Non-overlapping']
 for i in range(0, len(OppositeStrdData) -1):
@@ -246,9 +246,9 @@ ax1 = CreateAx(2, 1, 1, fig, SameStrdData, SameStrdProba, LineStyle, Label1, 'Sa
 ax2 = CreateAx(2, 1, 2, fig, OppositeStrdData, OppositeStrdProba, LineStyle, Label2, 'Opposite strand')
 
 # add subplot labels
-ax1.text(-0.5, 1.1, 'A', horizontalalignment='center', verticalalignment='center',
+ax1.text(-10, 1.1, 'A', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
-ax1.text(1.5, 1.1, 'B', horizontalalignment='center', verticalalignment='center',
+ax1.text(120, 1.1, 'B', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
     
 fig.savefig('LengthRatioCDF.pdf', bbox_inches = 'tight')
