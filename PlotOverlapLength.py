@@ -148,13 +148,13 @@ Colors = ['#d7191c', '#fdae61', '#abd9e9', '#2c7bb6']
 LineStyle = ['-', '--', ':', '-.']
 
 # plot nested length
-graph1 = ax.step(NestedLength, PNested, linewidth = 1.2, linestyle = LineStyle[0], color = 'black')
+graph1 = ax.step(NestedLength, PNested, linewidth = 1.2, linestyle = '-', color = 'black')
 # plot pibbyback length
-graph2 = ax.step(PiggybackLength, PPiggy, linewidth = 1.2, linestyle = LineStyle[1], color = 'black')
+graph2 = ax.step(PiggybackLength, PPiggy, linewidth = 1.2, linestyle = '--', color = 'black')
 # plot convergent length
-graph3 = ax.step(ConvergentLength, PConvergent, linewidth = 1.2, linestyle = LineStyle[2], color = 'black')
+graph3 = ax.step(ConvergentLength, PConvergent, linewidth = 1.2, linestyle = '-', color = 'grey')
 # plot divergent length
-graph4 = ax.step(DivergentLength, PDivergent, linewidth = 1.2, linestyle = LineStyle[3], color = 'black')
+graph4 = ax.step(DivergentLength, PDivergent, linewidth = 1.2, linestyle = '--', color = 'grey')
 
 # add label for the Y axis
 ax.set_ylabel('Probability', size = 8, ha = 'center', fontname = 'Arial')
@@ -192,6 +192,17 @@ labs = ['Nested', 'Piggyback', 'Convergent', 'Divergent']
 # plot legend
 ax.legend(lns, labs, loc=4, fontsize = 8, frameon = False)
 
+
+# compare distributions based using Kolmogorov-Smirnov statistic on 2 samples.
+
+# make a list of overlapping length
+Data = [NestedLength, PiggybackLength, ConvergentLength, DivergentLength]
+
+for i in range(0, len(Data) -1):
+    for j in range(i+1, len(Data)):
+        val, P =  stats.ks_2samp(Data[i], Data[j])
+        print(labs[i], labs[j], val, P)
+        
 fig.savefig('OverlapLengthCDF.pdf', bbox_inches = 'tight')
 fig.savefig('OverlapLengthCDF.eps', bbox_inches = 'tight')
 
