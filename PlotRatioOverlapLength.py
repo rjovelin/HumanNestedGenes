@@ -181,6 +181,16 @@ ax2 = CreateAx(2, 2, 2, fig, [PiggybackLengthLong, PiggybackLengthShort], 'Piggy
 ax3 = CreateAx(2, 2, 3, fig, [ConvergentLengthLong, ConvergentLengthShort], 'Convergent')
 ax4 = CreateAx(2, 2, 4, fig, [DivergentLengthLong, DivergentLengthShort], 'Divergent')
 
+# add subplot labels
+ax1.text(-30, 115, 'A', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 8)
+ax2.text(-30, 115, 'B', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 8)
+ax3.text(-30, 115, 'C', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 8)
+ax4.text(-30, 115, 'D', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 8)
+
 # make sure subplots do not overlap
 plt.tight_layout()
 
