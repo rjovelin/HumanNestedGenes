@@ -105,193 +105,178 @@ for chromo in Genome:
 
 
 
-
-
-
-
-
-
-
-chromoovl = set()
+# make a list of chromosomes with overlapping genes
+Chromosomes = set()
 for pair in OverlappingPairs:
-    chromoovl.add(GeneCoord[pair[0]][0])
-for item in chromoovl:
-    print(item)
+    Chromosomes.add(GeneCoord[pair[0]][0])
+Chromosomes.sort()
+
+# look for clusters o overlapping genes on each chromo
+
+# get the first position overlapping between pairs of genes
+# create a dict {chromo: [positions]}
+OverlapStart = {}
+for pair in OverlappingPairs:
+    chromo = GeneCoord[pair[0]][0]
+    coord1 = set(range(GeneCoord[pair[0]][1], GeneCoord[pair[0]][2]))
+    coord2 = set(range(GeneCoord[pair[1]][1], GeneCoord[pair[1]][2]))
+    common = list(coord1.intersection(coord2))
+    common.sort()
+    start = common[0]
+    if chromo in OverlapStart:
+        OverlapStart[chromo].append(start)
+    else:
+        OverlapStart[chromo] = [start]
+
+# sort positions
+for chromo in OverlapStart:
+    OverlapStart[chromo].sort()
 
 
 
-#
-#
-## look for clusters o overlapping genes on each chromo
-#
-## get the first position overlapping between pairs of genes
-## create a dict {chromo: [positions]}
-#OverlapStart = 
-#
-#
-#
-#
-#
-#
-## get the start positions of chemo genes on high proportion LG
-#chemo_start = {}
-#for gene in Coords:
-#    if gene in GPCRs:
-#        chromo = Coords[gene][0]
-#        if chromo in HighFreq:
-#            # check orientation
-#            if Coords[gene][-1] == '+':
-#                start = Coords[gene][1]
-#            elif Coords[gene][-1] == '-':
-#                start = Coords[gene][2]
-#            if chromo in HighFreq:
-#                if chromo in chemo_start:
-#                    chemo_start[chromo].append(start)
-#                else:
-#                    chemo_start[chromo] = [start]
-#print('got chemo genes start positions')
-#
-## sort positions
-#for chromo in chemo_start:
-#    chemo_start[chromo].sort()
-#print('sorted the chemo start positions')
-#    
-## create a function to count the number of chemo per window interval
-#def CountChemoWindow(chemo_start, genome, chromo, window):
-#    '''
-#    (dict, str, int) -> list
-#    Take the dictionary with chemo gene start positions per chromo, 
-#    the dict with genome sequence, a chromosome and a window interval in bp
-#    and return a list with the number of chemo genes on chromo per window interval'
-#    '''
-#    # create list with count of gene o repeat in 100000 bp windows
-#    range_counts = [0] * (len(genome[chromo]) // window)
-#    for start in chemo_start[chromo]:
-#        which_range = start // window
-#        if which_range == len(range_counts):
-#            which_range -= 1
-#        # count repeats
-#        range_counts[which_range] += 1
-#    return range_counts
-#    
-#    
-## set up interval length in bp
-#Interval = 100000
-#print('Interval window: {0} bp'.format(Interval))    
-#
-## get the count of chemo gene per window
-#WindowCount = {}
-#for chromo in chemo_start:
-#    range_counts = CountChemoWindow(chemo_start, genome, chromo, Interval)     
-#    WindowCount[chromo] = range_counts
-#print('got chemo count per window')    
-#
-## create a list with the position of each window interval
-#Positions = {}
-#for chromo in WindowCount:
-#    pos = [i for i in range(len(WindowCount[chromo]))] 
-#    Positions[chromo] = pos     
-#    print('position', chromo, len(pos))
-#    print('interval length', len(genome[chromo]) // Interval)
-#print('got positions of window intervals')
-#
-#
-## create figure
-#fig = plt.figure(1, figsize = (4, 1))
-## add a plot to figure (1 row, 1 column, 1 plot)
-#ax = fig.add_subplot(1, 1, 1)  
-#
-## find the longtest chromo
-#chromoLength = [[len(genome[chromo]), chromo] for chromo in HighFreq]
-#chromoLength.sort()
-#size = [chromoLength[i][0] for i in range(len(chromoLength))]
-#LG = [chromoLength[i][1] for i in range(len(chromoLength))]
-#longest, maxlength = chromoLength[-1][-1], chromoLength[-1][0] 
-#
-## create a list of colors
-##colorscheme = ['#a6cee3','#1f78b4','#b2df8a','#33a02c']
-#colorscheme = ['#1b9e77','#d95f02','#7570b3']
-#
-#Graph = {}
-## loop over chromo, from chromo with lowest to highest count
-#for i in range(len(LG)):
-#    print(LG[i])
-#    # plot the repeat of gene density per window
-#    graph = ax.plot(Positions[LG[i]], WindowCount[LG[i]], linewidth = 1.2, color = colorscheme[i], alpha = 0.7)
-#    Graph[LG[i]] = graph
-#    
-#ax.set_ylabel('GPCRs /100 Kb', size = 10, ha = 'center', fontname = 'Arial')
-# 
-## set x axis label
-#ax.set_xlabel('Position along linkage group (Mb)', size = 10, ha = 'center', fontname = 'Arial')
-#
-## do not show lines around figure, keep bottow line  
-#ax.spines["top"].set_visible(False)    
-#ax.spines["bottom"].set_visible(True)    
-#ax.spines["right"].set_visible(False)    
-#ax.spines["left"].set_visible(False)      
-## offset the spines
-#for spine in ax.spines.values():
-#  spine.set_position(('outward', 5))
-#  
-## add a light grey horizontal grid to the plot, semi-transparent, 
-#ax.yaxis.grid(True, linestyle='--', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
-## hide these grids behind plot objects
-#ax.set_axisbelow(True)
-#
-## do not show ticks on 1st graph
-#ax.tick_params(
-#    axis='x',       # changes apply to the x-axis and y-axis (other option : x, y)
-#    which='both',      # both major and minor ticks are affected
-#    bottom='on',      # ticks along the bottom edge are off
-#    top='off',         # ticks along the top edge are off
-#    right = 'off',
-#    left = 'off',          
-#    labelbottom='on', # labels along the bottom edge are off 
-#    colors = 'black',
-#    labelsize = 10,
-#    direction = 'out') # ticks are outside the frame when bottom = 'on
-#
-## do not show ticks
-#ax.tick_params(
-#    axis='y',       # changes apply to the x-axis and y-axis (other option : x, y)
-#    which='both',      # both major and minor ticks are affected
-#    bottom='off',      # ticks along the bottom edge are off
-#    top='off',         # ticks along the top edge are off
-#    right = 'off',
-#    left = 'off',          
-#    labelbottom='off', # labels along the bottom edge are off 
-#    colors = 'black',
-#    labelsize = 10,
-#    direction = 'out') # ticks are outside the frame when bottom = 'on
-#
-#print('longest chromo', longest, maxlength)
-#
-## determine tick position on x axis
-#xpos =  [j for j in range(0, len(Positions[longest]), 10)]
-## convert interval windows numbers to genomic positions
-#xtext = list(map(lambda x : (x * Interval) / 1000000, xpos))
-#Xtext = []
-#for i in xtext:
-#    if i % 2 == 0:
-#        Xtext.append(str(int(i)))
-#    else:
-#        Xtext.append('')
-#
-## set up tick positions and labels
-#plt.xticks(xpos, Xtext, rotation = 0, fontsize = 10, fontname = 'Arial')
-#
-## add lines
-#lns = Graph[LG[0]]
-#for chromo in LG[1:]:
-#    lns += Graph[chromo]
-## get labels
-#labs = []
-#for chromo in LG:
-#    assert chromo.count('_') == 2
-#    lg = chromo[chromo.index('_', chromo.index('_')+1, -1)+1:]
-#    labs.append('LG' + lg)
-## plot legend
-#ax.legend(lns, labs, loc=1, fontsize = 8, frameon = False)
-#
-#fig.savefig('truc.pdf', bbox_inches = 'tight')
+
+######## continue here
+
+
+
+
+   
+# create a function to count the number of chemo per window interval
+def CountChemoWindow(chemo_start, genome, chromo, window):
+    '''
+    (dict, str, int) -> list
+    Take the dictionary with chemo gene start positions per chromo, 
+    the dict with genome sequence, a chromosome and a window interval in bp
+    and return a list with the number of chemo genes on chromo per window interval'
+    '''
+    # create list with count of gene o repeat in 100000 bp windows
+    range_counts = [0] * (len(genome[chromo]) // window)
+    for start in chemo_start[chromo]:
+        which_range = start // window
+        if which_range == len(range_counts):
+            which_range -= 1
+        # count repeats
+        range_counts[which_range] += 1
+    return range_counts
+    
+    
+# set up interval length in bp
+Interval = 100000
+print('Interval window: {0} bp'.format(Interval))    
+
+# get the count of chemo gene per window
+WindowCount = {}
+for chromo in chemo_start:
+    range_counts = CountChemoWindow(chemo_start, genome, chromo, Interval)     
+    WindowCount[chromo] = range_counts
+print('got chemo count per window')    
+
+# create a list with the position of each window interval
+Positions = {}
+for chromo in WindowCount:
+    pos = [i for i in range(len(WindowCount[chromo]))] 
+    Positions[chromo] = pos     
+    print('position', chromo, len(pos))
+    print('interval length', len(genome[chromo]) // Interval)
+print('got positions of window intervals')
+
+
+# create figure
+fig = plt.figure(1, figsize = (4, 1))
+# add a plot to figure (1 row, 1 column, 1 plot)
+ax = fig.add_subplot(1, 1, 1)  
+
+# find the longtest chromo
+chromoLength = [[len(genome[chromo]), chromo] for chromo in HighFreq]
+chromoLength.sort()
+size = [chromoLength[i][0] for i in range(len(chromoLength))]
+LG = [chromoLength[i][1] for i in range(len(chromoLength))]
+longest, maxlength = chromoLength[-1][-1], chromoLength[-1][0] 
+
+# create a list of colors
+#colorscheme = ['#a6cee3','#1f78b4','#b2df8a','#33a02c']
+colorscheme = ['#1b9e77','#d95f02','#7570b3']
+
+Graph = {}
+# loop over chromo, from chromo with lowest to highest count
+for i in range(len(LG)):
+    print(LG[i])
+    # plot the repeat of gene density per window
+    graph = ax.plot(Positions[LG[i]], WindowCount[LG[i]], linewidth = 1.2, color = colorscheme[i], alpha = 0.7)
+    Graph[LG[i]] = graph
+    
+ax.set_ylabel('GPCRs /100 Kb', size = 10, ha = 'center', fontname = 'Arial')
+ 
+# set x axis label
+ax.set_xlabel('Position along linkage group (Mb)', size = 10, ha = 'center', fontname = 'Arial')
+
+# do not show lines around figure, keep bottow line  
+ax.spines["top"].set_visible(False)    
+ax.spines["bottom"].set_visible(True)    
+ax.spines["right"].set_visible(False)    
+ax.spines["left"].set_visible(False)      
+# offset the spines
+for spine in ax.spines.values():
+  spine.set_position(('outward', 5))
+  
+# add a light grey horizontal grid to the plot, semi-transparent, 
+ax.yaxis.grid(True, linestyle='--', which='major', color='lightgrey', alpha=0.5, linewidth = 0.5)  
+# hide these grids behind plot objects
+ax.set_axisbelow(True)
+
+# do not show ticks on 1st graph
+ax.tick_params(
+    axis='x',       # changes apply to the x-axis and y-axis (other option : x, y)
+    which='both',      # both major and minor ticks are affected
+    bottom='on',      # ticks along the bottom edge are off
+    top='off',         # ticks along the top edge are off
+    right = 'off',
+    left = 'off',          
+    labelbottom='on', # labels along the bottom edge are off 
+    colors = 'black',
+    labelsize = 10,
+    direction = 'out') # ticks are outside the frame when bottom = 'on
+
+# do not show ticks
+ax.tick_params(
+    axis='y',       # changes apply to the x-axis and y-axis (other option : x, y)
+    which='both',      # both major and minor ticks are affected
+    bottom='off',      # ticks along the bottom edge are off
+    top='off',         # ticks along the top edge are off
+    right = 'off',
+    left = 'off',          
+    labelbottom='off', # labels along the bottom edge are off 
+    colors = 'black',
+    labelsize = 10,
+    direction = 'out') # ticks are outside the frame when bottom = 'on
+
+print('longest chromo', longest, maxlength)
+
+# determine tick position on x axis
+xpos =  [j for j in range(0, len(Positions[longest]), 10)]
+# convert interval windows numbers to genomic positions
+xtext = list(map(lambda x : (x * Interval) / 1000000, xpos))
+Xtext = []
+for i in xtext:
+    if i % 2 == 0:
+        Xtext.append(str(int(i)))
+    else:
+        Xtext.append('')
+
+# set up tick positions and labels
+plt.xticks(xpos, Xtext, rotation = 0, fontsize = 10, fontname = 'Arial')
+
+# add lines
+lns = Graph[LG[0]]
+for chromo in LG[1:]:
+    lns += Graph[chromo]
+# get labels
+labs = []
+for chromo in LG:
+    assert chromo.count('_') == 2
+    lg = chromo[chromo.index('_', chromo.index('_')+1, -1)+1:]
+    labs.append('LG' + lg)
+# plot legend
+ax.legend(lns, labs, loc=1, fontsize = 8, frameon = False)
+
+fig.savefig('truc.pdf', bbox_inches = 'tight')
