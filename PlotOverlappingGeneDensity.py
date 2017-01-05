@@ -35,6 +35,7 @@ from HsaNestedGenes import *
 # ("All": all genes or "NoOverlap": non-overlapping genes)
 BackGround = sys.argv[1]
 
+
 # load dictionary of overlapping gene pairs
 json_data = open('HumanOverlappingGenes.json')
 Overlapping = json.load(json_data)
@@ -203,6 +204,7 @@ for chromo in Chromosomes:
     for i in range(len(NonOverlapWindowCount[chromo][0])):
         NonOverlapWindowCount[chromo][0][i] = NonOverlapWindowCount[chromo][0][i] / NonOverlapCounts[chromo]
 
+
 # get maximum frequency
 Maximum = 0
 for chromo in GeneWindowCount:
@@ -218,22 +220,24 @@ for chromo in GeneWindowCount:
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, GeneWindowCount, OverlapWindowCount, chromo, YMax, YLabel):
+def CreateAx(Columns, Rows, Position, figure, Data, chromo, YMax, YLabel):
     '''
-    (int, int, int, figure_object, dict, dict, str, float, bool)
+    (int, int, int, figure_object, list, str, float, bool)
     Take the number of a column, and rows in the figure object and the position of
-    the ax in figure, the dictionaries with gene densities on each chromosomes
-    for all genes and for overlapping genes only, the chromosome of interest,
+    the ax in figure, a list of dictionaries with gene densities on each chromosomes
+    or the difference between gene frequencies, the chromosome of interest,
     the maximum frequency value, and a boolean indicating whether the Y axis should
     be represented and return a subplot in figure
     '''    
     # create subplot in figure
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
-    # plot gene density per window
-    ax.plot(GeneWindowCount[chromo][1], GeneWindowCount[chromo][0], linewidth = 1, linestyle = '-', color = 'black', alpha = 0.7)
-    ax.plot(OverlapWindowCount[chromo][1], OverlapWindowCount[chromo][0], linewidth = 1, linestyle = '-', color = 'red', alpha = 0.7)
-       
+    
+    # plot all gene or non-overlapping gene density first
+    ax.plot(Data[0][chromo][1], Data[0][chromo][0], linewidth = 1, linestyle = '-', color = 'black', alpha = 0.7)
+    # plot overlapping genes second        
+    ax.plot(Data[1][chromo][1], Data[1][chromo][0], linewidth = 1, linestyle = '-', color = 'red', alpha = 0.7)
+        
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # set axis labels
@@ -304,9 +308,10 @@ for i in range(len(LG)):
     else:
         YLabel = False
     if BackGround == 'All':
-        ax = CreateAx(11, 2, j, fig, GeneWindowCount, OverlapWindowCount, LG[i], Maximum, YLabel)
+        Data = [GeneWindowCount, OverlapWindowCount]
     elif BackGround == 'NoOverlap':
-        ax = CreateAx(11, 2, j, fig, NonOverlapWindowCount, OverlapWindowCount, LG[i], Maximum, YLabel)
+        Data = [NonOverlapWindowCount, OverlapWindowCount]
+    ax = CreateAx(11, 2, j, fig, Data, LG[i], Maximum, YLabel)
     j += 1
     if i == 10:
         # create legend
@@ -322,4 +327,10 @@ for i in range(len(LG)):
 # make sure subplots do not overlap
 plt.tight_layout()
 
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+# save figure
+if Background == 'All':
+    outputfile = 'AllGenesDensity'
+elif Background == 'NoOverlap':
+    outputfile = 'NonOverlapGeneDensity'
+fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
