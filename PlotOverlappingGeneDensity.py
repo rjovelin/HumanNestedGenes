@@ -328,9 +328,9 @@ for i in range(len(LG)):
 plt.tight_layout()
 
 # save figure
-if Background == 'All':
+if BackGround == 'All':
     outputfile = 'AllGenesDensity'
-elif Background == 'NoOverlap':
+elif BackGround == 'NoOverlap':
     outputfile = 'NonOverlapGeneDensity'
 fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
 fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
