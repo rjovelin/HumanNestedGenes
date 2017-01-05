@@ -142,7 +142,7 @@ for chromo in NonOverlapStart:
 
     
 # set up interval length in bp
-Interval = int(10000000 / 2)
+Interval = 1000000
 
 
 # get the count of overlaps per window
