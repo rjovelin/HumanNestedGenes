@@ -274,7 +274,7 @@ for i in range(len(LG)):
     else:
         YLabel = False
     Data = [FreqDiff]
-    ax = CreateAx(11, 2, j, fig, Data, LG[i], Maximum, YLabel, Diff)
+    ax = CreateAx(11, 2, j, fig, Data, LG[i], Maximum, YLabel)
     j += 1
     
 # make sure subplots do not overlap
