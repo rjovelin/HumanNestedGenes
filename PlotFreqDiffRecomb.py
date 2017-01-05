@@ -172,7 +172,10 @@ for chromo in Chromosomes:
 FreqDiff = {}
 for chromo in NonOverlapWindowCount:
     for i in range(len(NonOverlapWindowCount[chromo][0])):
-        j = NonOverlapWindowCount[chromo][0][i] - OverlapWindowCount[chromo][0][i]
+        j =  OverlapWindowCount[chromo][0][i] - NonOverlapWindowCount[chromo][0][i]
+        # only consider values > 0 when overlap excceds non-overlap
+        if j < 0:
+            j = 0
         if chromo in FreqDiff:
             FreqDiff[chromo][0].append(j)
             FreqDiff[chromo][1].append(NonOverlapWindowCount[chromo][1][i])
@@ -212,7 +215,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, chromo, YMax, YLabel):
     ax.set_xlabel(chromo, size = 10, color = 'black', ha = 'center', **FigFont )        
         
     # add a range for the Y axis
-    plt.ylim([-YMax, YMax])
+    plt.ylim([0, YMax])
 
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
