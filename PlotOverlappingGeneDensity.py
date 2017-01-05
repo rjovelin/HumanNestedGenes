@@ -60,6 +60,26 @@ OverlapGenes = MakeFullPartialOverlapGeneSet(Overlapping)
 # create lists of gene pairs
 OverlappingPairs = GetHostNestedPairs(Overlapping)
 
+# make a set of non-overlapping genes
+NonOverlapping = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # get the gene counts on each chromo
 GeneCounts = {}
 for chromo in GeneChromoCoord:
@@ -269,11 +289,11 @@ for i in range(len(LG)):
         YLabel = False
     ax = CreateAx(11, 2, j, fig, GeneWindowCount, OverlapWindowCount, LG[i], Maximum, YLabel)
     j += 1
-    if i == 11:
+    if i == 10:
         # create legend
         black_line = mlines.Line2D([], [], color='black', marker='', linewidth = 1.2, label = 'All')
         grey_line = mlines.Line2D([], [], color='red', marker='', linewidth = 1.2, label = 'Overlapping')
-        plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(-10, 0.8), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
+        plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(-8, 0.8), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
 
 
 # make sure subplots do not overlap
