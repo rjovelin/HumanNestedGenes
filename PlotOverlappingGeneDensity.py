@@ -31,6 +31,10 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
+# get background gene density from command
+# ("All": all genes or "NoOverlap": non-overlapping genes)
+BackGround = sys.argv[1]
+
 # load dictionary of overlapping gene pairs
 json_data = open('HumanOverlappingGenes.json')
 Overlapping = json.load(json_data)
@@ -127,6 +131,22 @@ for gene in OverlapGenes:
 for chromo in OverlapStart:
     OverlapStart[chromo].sort()
 
+# get the start position of each non-overlapping gene on each chromo
+NonOverlapStart = {}
+for gene in NonOverlapGenes:
+    chromo = GeneCoord[gene][0]
+    if GeneCoord[gene][-1] == '+':
+        start = GeneCoord[gene][1]
+    elif GeneCoord[gene][-1] == '-':
+        start = GeneCoord[gene][2] - 1
+    if chromo in NonOverlapStart:
+        NonOverlapStart[chromo].append(start)
+    else:
+        NonOverlapStart[chromo] = [start]
+# sort positions
+for chromo in NonOverlapStart:
+    NonOverlapStart[chromo].sort()
+
 # get the start position of each gene on chromo
 GeneStart = {}
 for gene in GeneCoord:
@@ -162,11 +182,17 @@ OverlapWindowCount = {}
 for chromo in Chromosomes:
     counts, binedges = np.histogram(OverlapStart[chromo], bins = range(0, len(Genome[chromo]), Interval))
     OverlapWindowCount[chromo] = [list(counts), list(binedges)]
+# get the count of non-overlapping genes per window
+NonOverlapWindowCount = {}
+for chromo in Chromosomes:
+    counts, binedges = np.histogram(NonOverlapStart[chromo], bins = range(0, len(Genome[chromo]), Interval))
+    NonOverlapWindowCount[chromo] = [list(counts), list(binedges)]
 
 # add 0 to match dimensions between bin edges and counts
 for chromo in Chromosomes:
     GeneWindowCount[chromo][0].insert(0,0)
     OverlapWindowCount[chromo][0].insert(0,0) 
+    NonOverlapWindowCount[chromo][0].insert(0,0)
 
 # convert counts to frequencies by dividing each count in window by number of genes on chromosome
 for chromo in Chromosomes:
@@ -174,7 +200,8 @@ for chromo in Chromosomes:
         GeneWindowCount[chromo][0][i] = GeneWindowCount[chromo][0][i] / GeneCounts[chromo]
     for i in range(len(OverlapWindowCount[chromo][0])):
         OverlapWindowCount[chromo][0][i] = OverlapWindowCount[chromo][0][i] / OverlapCounts[chromo]
-
+    for i in range(len(NonOverlapWindowCount[chromo][0])):
+        NonOverlapWindowCount[chromo][0][i] = NonOverlapWindowCount[chromo][0][i] / NonOverlapCounts[chromo]
 
 # get maximum frequency
 Maximum = 0
@@ -183,6 +210,9 @@ for chromo in GeneWindowCount:
         if i >= Maximum:
             Maximum = i
     for i in OverlapWindowCount[chromo][0]:
+        if i >= Maximum:
+            Maximum = i
+    for i in NonOverlapWindowCount[chromo][0]:
         if i >= Maximum:
             Maximum = i
 
@@ -273,11 +303,18 @@ for i in range(len(LG)):
         YLabel = True
     else:
         YLabel = False
-    ax = CreateAx(11, 2, j, fig, GeneWindowCount, OverlapWindowCount, LG[i], Maximum, YLabel)
+    if BackGround == 'All':
+        ax = CreateAx(11, 2, j, fig, GeneWindowCount, OverlapWindowCount, LG[i], Maximum, YLabel)
+    elif BackGround == 'NoOverlap':
+        ax = CreateAx(11, 2, j, fig, NonOverlapWindowCount, OverlapWindowCount, LG[i], Maximum, YLabel)
     j += 1
     if i == 10:
         # create legend
-        black_line = mlines.Line2D([], [], color='black', marker='', linewidth = 1.2, label = 'All')
+        if BackGround == 'All':
+            Label1 = 'All'
+        elif BackGround == 'NoOverlap':
+            Label1 = 'Non-overlapping'
+        black_line = mlines.Line2D([], [], color='black', marker='', linewidth = 1.2, label = Label1)
         grey_line = mlines.Line2D([], [], color='red', marker='', linewidth = 1.2, label = 'Overlapping')
         plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(-12, 0.8), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
 
