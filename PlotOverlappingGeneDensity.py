@@ -8,7 +8,12 @@ Created on Tue Dec 27 13:07:16 2016
 
 # use this script to plot the density of overlapping genes on each chromo
 
-# usage PlotOverlappingGeneDensity.py
+# usage PlotOverlappingGeneDensity.py [options]
+
+
+
+
+
 
 # import modules
 # use Agg backend on server without X server
@@ -252,6 +257,10 @@ def CreateAx(Columns, Rows, Position, figure, GeneWindowCount, OverlapWindowCoun
 fig = plt.figure(1, figsize = (10, 5))
 
 j = 1
+pos1 = 0
+pos2 = 1.02
+
+
 LG = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '19', '20', '21', '22', 'X']
 for i in range(len(LG)):
     if i == 0 or i == 11:
@@ -260,28 +269,11 @@ for i in range(len(LG)):
         YLabel = False
     ax = CreateAx(11, 2, j, fig, GeneWindowCount, OverlapWindowCount, LG[i], Maximum, YLabel)
     j += 1
-    if i == 1:
+    if i == 11:
         # create legend
-        black_line = mlines.Line2D([], [], color='black', marker='', label = 'All')
-        grey_line = mlines.Line2D([], [], color='red', marker='', label = 'Overlapping')
-        plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(0., 1.02), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
-
-
-#
-#
-## create legend
-#black_line = mlines.Line2D([], [], color='black', marker='', label = 'All')
-#grey_line = mlines.Line2D([], [], color='red', marker='', label = 'Overlapping')
-#plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(0., 1.02), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
-
-
-
-
-
-
-
-
-
+        black_line = mlines.Line2D([], [], color='black', marker='', linewidth = 1.2, label = 'All')
+        grey_line = mlines.Line2D([], [], color='red', marker='', linewidth = 1.2, label = 'Overlapping')
+        plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(-10, 0.8), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
 
 
 # make sure subplots do not overlap
