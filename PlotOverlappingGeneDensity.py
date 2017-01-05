@@ -57,7 +57,7 @@ OverlapGenes = MakeFullPartialOverlapGeneSet(Overlapping)
 OverlappingPairs = GetHostNestedPairs(Overlapping)
 
 # make a set of non-overlapping genes
-NonOverlapping = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
+NonOverlapGenes = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
 
 
 # get the gene counts on each chromo
@@ -74,6 +74,16 @@ for gene in OverlapGenes:
         OverlapCounts[chromo] += 1
     else:
         OverlapCounts[chromo] = 1
+
+# count the number of non-overlapping genes per chromo
+NonOverlapCounts = {}
+for gene in NonOverlapGenes:
+    # get chromo
+    chromo = GeneCoord[gene][0]
+    if chromo in NonOverlapCounts:
+        NonOverlapCounts[chromo] += 1
+    else:
+        NonOverlapCounts[chromo] = 1
 
 # get frequencies of overlapping genes on each chromosome
 Freq = {}
@@ -257,10 +267,6 @@ def CreateAx(Columns, Rows, Position, figure, GeneWindowCount, OverlapWindowCoun
 fig = plt.figure(1, figsize = (10, 5))
 
 j = 1
-pos1 = 0
-pos2 = 1.02
-
-
 LG = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '19', '20', '21', '22', 'X']
 for i in range(len(LG)):
     if i == 0 or i == 11:
