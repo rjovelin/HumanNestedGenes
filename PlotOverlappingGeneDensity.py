@@ -9,11 +9,7 @@ Created on Tue Dec 27 13:07:16 2016
 # use this script to plot the density of overlapping genes on each chromo
 
 # usage PlotOverlappingGeneDensity.py [options]
-
-
-
-
-
+# -[All/NoOverlap]: plot the frequency of all genes or non-overlapping genes as background
 
 # import modules
 # use Agg backend on server without X server
@@ -62,22 +58,6 @@ OverlappingPairs = GetHostNestedPairs(Overlapping)
 
 # make a set of non-overlapping genes
 NonOverlapping = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # get the gene counts on each chromo
@@ -293,7 +273,7 @@ for i in range(len(LG)):
         # create legend
         black_line = mlines.Line2D([], [], color='black', marker='', linewidth = 1.2, label = 'All')
         grey_line = mlines.Line2D([], [], color='red', marker='', linewidth = 1.2, label = 'Overlapping')
-        plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(-8, 0.8), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
+        plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(-12, 0.8), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
 
 
 # make sure subplots do not overlap
