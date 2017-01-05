@@ -15,6 +15,7 @@ Created on Tue Dec 27 13:07:16 2016
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
 from matplotlib import rc
 rc('mathtext', default='regular')
@@ -185,8 +186,8 @@ def CreateAx(Columns, Rows, Position, figure, GeneWindowCount, OverlapWindowCoun
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
     # plot gene density per window
-    ax.plot(GeneWindowCount[chromo][1], GeneWindowCount[chromo][0], linewidth = 1, linestyle = '-', color = 'black', alpha = 1)
-    ax.plot(OverlapWindowCount[chromo][1], OverlapWindowCount[chromo][0], linewidth = 1, linestyle = '-', color = 'grey', alpha = 1)
+    ax.plot(GeneWindowCount[chromo][1], GeneWindowCount[chromo][0], linewidth = 1, linestyle = '-', color = 'black', alpha = 0.7)
+    ax.plot(OverlapWindowCount[chromo][1], OverlapWindowCount[chromo][0], linewidth = 1, linestyle = '-', color = 'red', alpha = 0.7)
        
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
@@ -237,15 +238,13 @@ def CreateAx(Columns, Rows, Position, figure, GeneWindowCount, OverlapWindowCoun
             direction = 'out') # ticks are outside the frame when bottom = 'on'  
            
     # set x axis ticks
-    # plt.xticks(GeneWindowCount[chromo][1], list(map(lambda x: str(x), GeneWindowCount[chromo][1])), rotation = 0, fontsize = 8, fontname = 'Arial')
     plt.xticks([], [])
     
     if YLabel == True:
         # Set the tick labels font name
         for label in ax.get_yticklabels():
             label.set_fontname('Arial')   
-    # create a margin around the x axis
-    #plt.margins(0.1)
+    
     return ax      
 
 
@@ -261,6 +260,29 @@ for i in range(len(LG)):
         YLabel = False
     ax = CreateAx(11, 2, j, fig, GeneWindowCount, OverlapWindowCount, LG[i], Maximum, YLabel)
     j += 1
+    if i == 1:
+        # create legend
+        black_line = mlines.Line2D([], [], color='black', marker='', label = 'All')
+        grey_line = mlines.Line2D([], [], color='red', marker='', label = 'Overlapping')
+        plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(0., 1.02), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
+
+
+#
+#
+## create legend
+#black_line = mlines.Line2D([], [], color='black', marker='', label = 'All')
+#grey_line = mlines.Line2D([], [], color='red', marker='', label = 'Overlapping')
+#plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(0., 1.02), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
+
+
+
+
+
+
+
+
+
+
 
 # make sure subplots do not overlap
 plt.tight_layout()
