@@ -182,7 +182,7 @@ for chromo in NonOverlapWindowCount:
 # get maximum frequency
 Maximum = 0
 for chromo in FreqDiff:
-    for i in FreqDiff[chromo]:
+    for i in FreqDiff[chromo][0]:
         if abs(i) >= Maximum:
             Maximum = abs(i)
 
