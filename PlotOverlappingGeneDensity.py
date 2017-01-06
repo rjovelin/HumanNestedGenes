@@ -9,7 +9,8 @@ Created on Tue Dec 27 13:07:16 2016
 # use this script to plot the density of overlapping genes on each chromo
 
 # usage PlotOverlappingGeneDensity.py [options]
-# -[All/NoOverlap]: plot the frequency of all genes or non-overlapping genes as background
+# -[All/NoOverlap]: consider all genes or non-overlapping genes as background
+# -[Freq/Numbs]: plot frequencies or counts
 
 # import modules
 # use Agg backend on server without X server
@@ -34,7 +35,8 @@ from HsaNestedGenes import *
 # get background gene density from command
 # ("All": all genes or "NoOverlap": non-overlapping genes)
 BackGround = sys.argv[1]
-
+# get type of values to consider (frequencies or counts)
+Vals = sys.argv[2]
 
 # load dictionary of overlapping gene pairs
 json_data = open('HumanOverlappingGenes.json')
@@ -169,7 +171,7 @@ for chromo in GeneStart:
 
     
 # set up interval length in bp
-Interval = int(10000000 / 2)
+Interval = 1000000 
 
 
    
@@ -195,14 +197,16 @@ for chromo in Chromosomes:
     OverlapWindowCount[chromo][0].insert(0,0) 
     NonOverlapWindowCount[chromo][0].insert(0,0)
 
-# convert counts to frequencies by dividing each count in window by number of genes on chromosome
-for chromo in Chromosomes:
-    for i in range(len(GeneWindowCount[chromo][0])):
-        GeneWindowCount[chromo][0][i] = GeneWindowCount[chromo][0][i] / GeneCounts[chromo]
-    for i in range(len(OverlapWindowCount[chromo][0])):
-        OverlapWindowCount[chromo][0][i] = OverlapWindowCount[chromo][0][i] / OverlapCounts[chromo]
-    for i in range(len(NonOverlapWindowCount[chromo][0])):
-        NonOverlapWindowCount[chromo][0][i] = NonOverlapWindowCount[chromo][0][i] / NonOverlapCounts[chromo]
+
+if Vals == 'Freq':
+    # convert counts to frequencies by dividing each count in window by number of genes on chromosome
+    for chromo in Chromosomes:
+        for i in range(len(GeneWindowCount[chromo][0])):
+            GeneWindowCount[chromo][0][i] = GeneWindowCount[chromo][0][i] / GeneCounts[chromo]
+        for i in range(len(OverlapWindowCount[chromo][0])):
+            OverlapWindowCount[chromo][0][i] = OverlapWindowCount[chromo][0][i] / OverlapCounts[chromo]
+        for i in range(len(NonOverlapWindowCount[chromo][0])):
+            NonOverlapWindowCount[chromo][0][i] = NonOverlapWindowCount[chromo][0][i] / NonOverlapCounts[chromo]
 
 
 # get maximum frequency
@@ -328,9 +332,14 @@ for i in range(len(LG)):
 plt.tight_layout()
 
 # save figure
-if BackGround == 'All':
-    outputfile = 'AllGenesDensity'
-elif BackGround == 'NoOverlap':
-    outputfile = 'NonOverlapGeneDensity'
+if BackGround == 'All' and Vals == 'Freq':
+    outputfile = 'AllGenesDensityFreq'
+elif BackGround == 'NoOverlap' and Vals == 'Freq':
+    outputfile = 'NonOverlapGeneDensityFreq'
+elif BackGround == 'All' and Vals == 'Numbs':
+    outputfile = 'AllGenesDensityCounts'
+elif BackGround == 'NoOverlap' and Vals == 'Numbs':
+    outputfile = 'NonOverlapGeneDensityCounts'
+     
 fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
 fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
