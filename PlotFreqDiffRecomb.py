@@ -110,16 +110,30 @@ Chromosomes.sort()
 # look for clusters of overlapping genes on each chromo
 # create a dict {chromo: [positions]}
 OverlapStart = {}
+#for gene in OverlapGenes:
+#    chromo = GeneCoord[gene][0]
+#    if GeneCoord[gene][-1] == '+':
+#        start = GeneCoord[gene][1]
+#    elif GeneCoord[gene][-1] == '-':
+#        start = GeneCoord[gene][2] - 1
+#    if chromo in OverlapStart:
+#        OverlapStart[chromo].append(start)
+#    else:
+#        OverlapStart[chromo] = [start]
+
+
 for gene in OverlapGenes:
     chromo = GeneCoord[gene][0]
-    if GeneCoord[gene][-1] == '+':
-        start = GeneCoord[gene][1]
-    elif GeneCoord[gene][-1] == '-':
-        start = GeneCoord[gene][2] - 1
+    start = GeneCoord[gene][1]
     if chromo in OverlapStart:
         OverlapStart[chromo].append(start)
     else:
         OverlapStart[chromo] = [start]
+
+
+
+
+
 # sort positions
 for chromo in OverlapStart:
     OverlapStart[chromo].sort()
