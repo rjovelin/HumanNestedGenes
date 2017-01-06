@@ -174,4 +174,5 @@ for i in range(len(Significance)):
             color = 'grey', fontname = 'Arial', size = 6)
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig('ProteinLengthDiff.pdf', bbox_inches = 'tight')
+fig.savefig('ProteinLengthDiff.eps', bbox_inches = 'tight')
