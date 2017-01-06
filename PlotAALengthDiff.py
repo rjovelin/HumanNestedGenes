@@ -30,12 +30,12 @@ from HsaNestedGenes import *
 
 # load dictionary of overlapping gene pairs
 json_data = open('HumanOverlappingGenes.json')
-OverlappingGenes = json.load(json_data)
+Overlapping = json.load(json_data)
 json_data.close()
 
 # load dictionary of nested gene pairs
 json_data = open('HumanNestedGenes.json')
-NestedGenes = json.load(json_data)
+Nested = json.load(json_data)
 json_data.close()
 
 # load dictionary of pibbyback gene pairs
@@ -78,41 +78,13 @@ for gene in Longest:
         ProtSeq[gene] = TranslateCDS(Longest[gene])
         
         
-
-
-
-
-
-
-
-# create lists of gene pairs
-OverlappingPairs = GetHostNestedPairs(OverlappingGenes)
-NestedPairs = GetHostNestedPairs(NestedGenes)
-PiggybackPairs = GetHostNestedPairs(Piggyback)
-ConvergentPairs = GetHostNestedPairs(Convergent)
-DivergentPairs = GetHostNestedPairs(Divergent)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
-
-
-
-
-
-
+# make sets of genes
+OverlapGenes = MakeFullPartialOverlapGeneSet(Overlapping)
+NestedGenes = MakeFullPartialOverlapGeneSet(Nested)
+PiggybackGenes = MakeFullPartialOverlapGeneSet(Piggyback)
+ConvergentGenes = MakeFullPartialOverlapGeneSet(Convergent)
+DivergentGenes = MakeFullPartialOverlapGeneSet(Divergent)
+NonOverlapGenes = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
 
 
 
@@ -174,17 +146,6 @@ NestedLength = list(map(ToKb, NestedLength))
 PiggybackLength = list(map(ToKb, PiggybackLength))
 ConvergentLength = list(map(ToKb, ConvergentLength))
 DivergentLength = list(map(ToKb, DivergentLength))
-
-def CombineHighValues(L, cutoff):
-    '''
-    (list, int) -> list
-    Take a list of overlap length and return a modified list with values higher
-    than cutoff equal to cutoff
-    '''
-    for i in range(len(L)):
-        if L[i] >= cutoff:
-            L[i] = cutoff
-    return L
 
 OverlapLength = CombineHighValues(OverlapLength, 200)
 NestedLength = CombineHighValues(NestedLength, 200)
