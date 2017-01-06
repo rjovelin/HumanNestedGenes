@@ -75,8 +75,7 @@ CDS = ConvertCDSToFasta('Homo_sapiens.GRCh38.cds.all.fa')
 ProtSeq = {}
 for gene in Longest:
     if Longest[gene] in CDS:
-        ProtSeq[gene] = TranslateCDS(Longest[gene])
-        
+        ProtSeq[gene] = TranslateCDS(CDS[Longest[gene]])
         
 # make sets of genes
 OverlapGenes = MakeFullPartialOverlapGeneSet(Overlapping)
@@ -86,143 +85,93 @@ ConvergentGenes = MakeFullPartialOverlapGeneSet(Convergent)
 DivergentGenes = MakeFullPartialOverlapGeneSet(Divergent)
 NonOverlapGenes = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# create a list of lists of gene pairs
-AllPairs = [OverlappingPairs, NestedPairs, PiggybackPairs, ConvergentPairs, DivergentPairs]
-# create a parallel list of overlap length
+# create a list of gene sets
+AllGenes = [NonOverlapGenes, NestedGenes, PiggybackGenes, ConvergentGenes, DivergentGenes]
+# create a parallel list of protein length length
 AllLength = []
-# loop over lists of gene pairs for each overlapping group
-for i in range(len(AllPairs)):
-    # initialize empty list
-    Length = []
-    for pair in AllPairs[i]:
-        assert GeneCoord[pair[0]][0] == GeneCoord[pair[1]][0]
-        # get the coordinates of the gene pairs
-        coord1 = set(range(GeneCoord[pair[0]][1], GeneCoord[pair[0]][2]))
-        coord2 = set(range(GeneCoord[pair[1]][1], GeneCoord[pair[1]][2]))
-        L = len(coord1.intersection(coord2))
-        Length.append(L)
-    # store lists of overlap length
+# loop over lists of genes for each overlapping group
+for i in range(len(AllGenes)):
+    Length = [len(ProtSeq[gene]) for gene in AllGenes[i]]
     AllLength.append(Length)
-# get the list of overlap length for each group
-OverlapLength, NestedLength = AllLength[0], AllLength[1]
-PiggybackLength, ConvergentLength, DivergentLength = AllLength[2], AllLength[3], AllLength[4]
 
-# convert bp to Kbp
-ToKb = lambda x: x / 1000
-OverlapLength = list(map(ToKb, OverlapLength))
-NestedLength = list(map(ToKb, NestedLength))
-PiggybackLength = list(map(ToKb, PiggybackLength))
-ConvergentLength = list(map(ToKb, ConvergentLength))
-DivergentLength = list(map(ToKb, DivergentLength))
+# create a function to get the mean and SEM of items in a list
+def GetMeanSEM(L):
+    '''
+    (list) -> (list, list)
+    Take a list of inner lists of numbers and return a list with mean values
+    and a parallel list with SEM values for each item of the outter list
+    '''
+    # create lists of mean and SEM
+    MeanVal, SEMVal = [], []
+    # loop over the outter ist
+    for i in range(len(L)):
+        MeanVal.append(np.mean(L[i]))
+        SEMVal.append(np.std(L[i]) / math.sqrt(len(L[i])))
+    return MeanVal, SEMVal
 
-OverlapLength = CombineHighValues(OverlapLength, 200)
-NestedLength = CombineHighValues(NestedLength, 200)
-PiggybackLength = CombineHighValues(PiggybackLength, 200)
-ConvergentLength = CombineHighValues(ConvergentLength, 200)
-DivergentLength = CombineHighValues(DivergentLength, 200)
+# create lists with means and with SEM
+LengthMeans, LengthSEM = GetMeanSEM(AllLength)
 
-# check that lists are different
-assert OverlapLength != NestedLength != PiggybackLength != ConvergentLength != DivergentLength
-
-# sort lists
-OverlapLength = np.sort(OverlapLength)
-NestedLength = np.sort(NestedLength)
-PiggybackLength = np.sort(PiggybackLength)
-ConvergentLength = np.sort(ConvergentLength)
-DivergentLength = np.sort(DivergentLength)
-
-# compute probabilities
-POverlap = np.array(range(len(OverlapLength))) / len(OverlapLength)
-PNested = np.array(range(len(NestedLength))) / len(NestedLength) 
-PPiggy = np.array(range(len(PiggybackLength))) / len(PiggybackLength)
-PConvergent = np.array(range(len(ConvergentLength))) / len(ConvergentLength)
-PDivergent = np.array(range(len(DivergentLength))) / len(DivergentLength)
-
+# perform statistical tests between non-overlapping genes and each overlapping category
+# create list to store the P values
+PValues = []
+for i in range(1, len(AllLength)):
+    P = stats.ranksums(AllLength[0], AllLength[i])[1]
+    PValues.append(P)
+    
+# create a list with significance level as stars
+Significance = []
+for i in PValues:
+    if i >= 0.05:
+        Significance.append('')
+    elif i < 0.05 and i >= 0.01:
+        Significance.append('*')
+    elif i < 0.01 and i >= 0.001:
+        Significance.append('**')
+    elif i < 0.001:
+        Significance.append('***')
+  
 # create figure
 fig = plt.figure(1, figsize = (3, 2))
-# add a plot to figure (1 row, 1 column, 1 plot)
-ax = fig.add_subplot(1, 1, 1)  
+# create subplot in figure (N row, N column, plot N)
+ax = fig.add_subplot(1, 1, 1)
 
-# plot nested length
-Colors = ['#d7191c', '#fdae61', '#abd9e9', '#2c7bb6']
+# plot variable 
+BarPos = [0, 0.15, 0.3, 0.45, 0.6]
+Colors = ['black','lightgrey','lightgrey', 'lightgrey', 'lightgrey']
+ax.bar(BarPos, LengthMeans, 0.1, yerr = LengthSEM, color = Colors, edgecolor = 'black', linewidth = 1,
+       error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
 
-# plot nested length
-graph1 = ax.step(NestedLength, PNested, linewidth = 1.2, color = '#984ea3', alpha = 0.7)
-# plot pibbyback length
-graph2 = ax.step(PiggybackLength, PPiggy, linewidth = 1.2, color = '#33a02c', alpha = 0.7)
-# plot convergent length
-graph3 = ax.step(ConvergentLength, PConvergent, linewidth = 1.2, color = '#ff7f00', alpha = 0.7)
-# plot divergent length
-graph4 = ax.step(DivergentLength, PDivergent, linewidth = 1.2, color = '#2c7bb6', alpha = 0.7)
-
-# add label for the Y axis
-ax.set_ylabel('Probability', size = 8, ha = 'center', fontname = 'Arial')
-# set x axis label
-ax.set_xlabel('Overlap length (Kb)', size = 8, ha = 'center', fontname = 'Arial')
-# set x axis ticks
-plt.xticks([0, 50, 100, 150, 200], ['0', '50', '100', '150', r'$\geq 200$'])
-
-
-# do not show lines around figure, keep bottow line  
+# set font for all text in figure
+FigFont = {'fontname':'Arial'}   
+# write label for y
+ax.set_ylabel('Protein length', color = 'black',  size = 8, ha = 'center', **FigFont)
+# add a range for the Y axis
+plt.ylim([0, 700])
+# do not show lines around figure  
 ax.spines["top"].set_visible(False)    
 ax.spines["bottom"].set_visible(True)    
 ax.spines["right"].set_visible(False)    
-ax.spines["left"].set_visible(True)      
+ax.spines["left"].set_visible(True)  
+# edit tick paramters
+plt.tick_params(axis='both', which='both', bottom='on', top='off', right='off',
+                left='on', labelbottom='on', colors='black', labelsize=8, direction='out')  
 
-ax.tick_params(
-    axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-    which='both',      # both major and minor ticks are affected
-    bottom='on',      # ticks along the bottom edge are off
-    top='off',         # ticks along the top edge are off
-    right = 'off',
-    left = 'on',          
-    labelbottom='on', # labels along the bottom edge are off 
-    colors = 'black',
-    labelsize = 8,
-    direction = 'out') # ticks are outside the frame when bottom = 'on
-
+# add ticks on the x axis
+TickPos = [0.05, 0.2, 0.35, 0.5, 0.65]
+Labels = ['NonOvl', 'Nst', 'Pbk', 'Conv', 'Div']
+plt.xticks(TickPos, Labels)
+    
+# Set the tick labels font name
 for label in ax.get_yticklabels():
-    label.set_fontname('Arial')
+    label.set_fontname('Arial')   
 
-# add lines
-lns = graph1+graph2+graph3+graph4
-# get labels
-labs = ['Nested', 'Piggyback', 'Convergent', 'Divergent']
-# plot legend
-ax.legend(lns, labs, loc=4, fontsize = 8, frameon = False)
+StarPos = [0.2, 0.35, 0.5, 0.65]
+YPos = [450, 550, 600, 550]
+for i in range(len(Significance)):
+    # add stars for significance
+    ax.text(StarPos[i], YPos[i], Significance[i], horizontalalignment='center', verticalalignment='center',
+            color = 'grey', fontname = 'Arial', size = 6)
 
-fig.savefig('OverlapLengthCDF.pdf', bbox_inches = 'tight')
-fig.savefig('OverlapLengthCDF.eps', bbox_inches = 'tight')
-
+# save figure
+fig.savefig('truc.pdf', bbox_inches = 'tight')
