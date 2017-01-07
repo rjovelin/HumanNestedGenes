@@ -93,7 +93,7 @@ GeneLength = []
 # loop over lists of genes for each overlapping group
 for i in range(len(AllGenes)):
     aaLength = [len(ProtSeq[gene]) for gene in AllGenes[i]]
-    AllLength.append(aaLength)
+    ProtLength.append(aaLength)
     dnaLength = []
     for gene in AllGenes[i]:
         dnaLength.append(GeneCoord[gene][2] - GeneCoord[gene][1])
@@ -130,6 +130,11 @@ DnaPValues = []
 for i in range(1, len(GeneLength)):
     P = stats.ranksums(GeneLength[0], GeneLength[i])[1]    
     DnaPValues.append(P)
+
+
+
+
+
     
 # create a list with significance level as stars
 ProtSignif = []
