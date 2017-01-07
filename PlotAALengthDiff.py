@@ -187,7 +187,7 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, YLabel, YMax):
                     left='on', labelbottom='on', colors='black', labelsize=8, direction='out')  
     # add ticks on the x axis
     TickPos = [0.05, 0.2, 0.35, 0.5, 0.65]
-    Labels = ['NonOvl', 'Nst', 'Pbk', 'Conv', 'Div']
+    Labels = ['NoOvl', 'Nst', 'Pbk', 'Conv', 'Div']
     plt.xticks(TickPos, Labels)
     # Set the tick labels font name
     for label in ax.get_yticklabels():
@@ -201,12 +201,12 @@ fig = plt.figure(1, figsize = (4, 2))
 
 # plot protein and dna length    
 ax1 = CreateAx(2, 1, 1, fig, ProtMeans, ProtSEM, 'Protein length', 700)
-ax2 = CreateAx(2, 1, 2, fig, DnaMeans, DnaSEM, 'Gene length (Kb)', 1000)
+ax2 = CreateAx(2, 1, 2, fig, DnaMeans, DnaSEM, 'Gene length (Kb)', 120)
 
 
 StarPos = [0.2, 0.35, 0.5, 0.65]
 ProtYPos = [450, 550, 600, 550]
-DnaYPos = [1000, 1000, 1000, 1000]
+DnaYPos = [105, 105, 70, 105]
 
 # add stars for significance
 for i in range(len(ProtSignif)):
