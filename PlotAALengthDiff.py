@@ -5,7 +5,7 @@ Created on Thu Dec 22 16:36:26 2016
 @author: RJovelin
 """
 
-# use this script to compare amino acid length between overlapping and non-overlapping genes
+# use this script to compare amino acid and gene length between overlapping and non-overlapping genes
 
 # usage python3 CompareAAlength.py
 
@@ -88,12 +88,19 @@ NonOverlapGenes = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
 # create a list of gene sets
 AllGenes = [NonOverlapGenes, NestedGenes, PiggybackGenes, ConvergentGenes, DivergentGenes]
 # create a parallel list of protein length length
-AllLength = []
+ProtLength = []
+GeneLength = []
 # loop over lists of genes for each overlapping group
 for i in range(len(AllGenes)):
-    Length = [len(ProtSeq[gene]) for gene in AllGenes[i]]
-    AllLength.append(Length)
-
+    aaLength = [len(ProtSeq[gene]) for gene in AllGenes[i]]
+    AllLength.append(aaLength)
+    dnaLength = []
+    for gene in AllGenes[i]:
+        dnaLength.append(GeneCoord[gene][2] - GeneCoord[gene][1])
+    GeneLength.append(dnaLength)
+    
+    
+    
 # create a function to get the mean and SEM of items in a list
 def GetMeanSEM(L):
     '''
@@ -110,69 +117,110 @@ def GetMeanSEM(L):
     return MeanVal, SEMVal
 
 # create lists with means and with SEM
-LengthMeans, LengthSEM = GetMeanSEM(AllLength)
+ProtMeans, ProtSEM = GetMeanSEM(ProtLength)
+DnaMeans, DnaSEM = GetMeanSEM(GeneLength)
 
 # perform statistical tests between non-overlapping genes and each overlapping category
 # create list to store the P values
-PValues = []
-for i in range(1, len(AllLength)):
-    P = stats.ranksums(AllLength[0], AllLength[i])[1]
-    PValues.append(P)
+ProtPValues = []
+for i in range(1, len(ProtLength)):
+    P = stats.ranksums(ProtLength[0], ProtLength[i])[1]
+    ProtPValues.append(P)
+DnaPValues = []
+for i in range(1, len(GeneLength)):
+    P = stats.ranksums(GeneLength[0], GeneLength[i])[1]    
+    DnaPValues.append(P)
     
 # create a list with significance level as stars
-Significance = []
-for i in PValues:
+ProtSignif = []
+for i in ProtPValues:
     if i >= 0.05:
-        Significance.append('')
+        ProtSignif.append('')
     elif i < 0.05 and i >= 0.01:
-        Significance.append('*')
+        ProtSignif.append('*')
     elif i < 0.01 and i >= 0.001:
-        Significance.append('**')
+        ProtSignif.append('**')
     elif i < 0.001:
-        Significance.append('***')
-  
+        ProtSignif.append('***')
+DnaSignif = []
+for i in DnaPValues:
+    if i >= 0.05:
+        DnaSignif.append('')
+    elif i < 0.05 and i >= 0.01:
+        DnaSignif.append('*')
+    elif i < 0.01 and i >= 0.001:
+        DnaSignif.append('**')
+    elif i < 0.001:
+        DnaSignif.append('***')
+
+
+ 
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, figure, Means, SEM, YLabel, YMax):
+    '''
+    (int, int, int, figure_object, list, list, int)
+    Take the number of column, and rows of the figure and the ax position, 
+    2 lists of data, a maximum value for the Y axis and return an ax instance in the figure
+    '''    
+        
+    # create subplot in figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # plot variable 
+    BarPos = [0, 0.15, 0.3, 0.45, 0.6]
+    Colors = ['black','lightgrey','lightgrey', 'lightgrey', 'lightgrey']
+    ax.bar(BarPos, Means, 0.1, yerr = SEM, color = Colors, edgecolor = 'black', linewidth = 1,
+           error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    # write label for y
+    ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
+    # add a range for the Y axis
+    plt.ylim([0, YMax])
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(True)    
+    ax.spines["right"].set_visible(False)    
+    ax.spines["left"].set_visible(True)  
+    # edit tick paramters
+    plt.tick_params(axis='both', which='both', bottom='on', top='off', right='off',
+                    left='on', labelbottom='on', colors='black', labelsize=8, direction='out')  
+    # add ticks on the x axis
+    TickPos = [0.05, 0.2, 0.35, 0.5, 0.65]
+    Labels = ['NonOvl', 'Nst', 'Pbk', 'Conv', 'Div']
+    plt.xticks(TickPos, Labels)
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')   
+    
+    return ax      
+
+
 # create figure
 fig = plt.figure(1, figsize = (3, 2))
-# create subplot in figure (N row, N column, plot N)
-ax = fig.add_subplot(1, 1, 1)
 
-# plot variable 
-BarPos = [0, 0.15, 0.3, 0.45, 0.6]
-Colors = ['black','lightgrey','lightgrey', 'lightgrey', 'lightgrey']
-ax.bar(BarPos, LengthMeans, 0.1, yerr = LengthSEM, color = Colors, edgecolor = 'black', linewidth = 1,
-       error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
+# plot protein and dna length    
+ax1 = CreateAx(2, 1, 1, fig, ProtMeans, ProtSEM, 'Protein length', 700)
+ax2 = CreateAx(2, 1, 2, fig, DnaMeansM, DnaSEM, 'Gene length', 10000)
 
-# set font for all text in figure
-FigFont = {'fontname':'Arial'}   
-# write label for y
-ax.set_ylabel('Protein length', color = 'black',  size = 8, ha = 'center', **FigFont)
-# add a range for the Y axis
-plt.ylim([0, 700])
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(True)    
-ax.spines["right"].set_visible(False)    
-ax.spines["left"].set_visible(True)  
-# edit tick paramters
-plt.tick_params(axis='both', which='both', bottom='on', top='off', right='off',
-                left='on', labelbottom='on', colors='black', labelsize=8, direction='out')  
-
-# add ticks on the x axis
-TickPos = [0.05, 0.2, 0.35, 0.5, 0.65]
-Labels = ['NonOvl', 'Nst', 'Pbk', 'Conv', 'Div']
-plt.xticks(TickPos, Labels)
-    
 # Set the tick labels font name
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
 
 StarPos = [0.2, 0.35, 0.5, 0.65]
-YPos = [450, 550, 600, 550]
-for i in range(len(Significance)):
-    # add stars for significance
-    ax.text(StarPos[i], YPos[i], Significance[i], horizontalalignment='center', verticalalignment='center',
+ProtYPos = [450, 550, 600, 550]
+DnaYPos = [5000, 5000, 5000, 5000]
+
+# add stars for significance
+for i in range(len(ProtSignif)):
+    ax1.text(StarPos[i], ProtYPos[i], ProtSignif[i], horizontalalignment='center', verticalalignment='center',
+            color = 'grey', fontname = 'Arial', size = 6)
+for i in range(len(DnaSignif)):
+    ax2.text(StarPos[i], DnaYPos[i], DnaSignif[i], horizontalalignment='center', verticalalignment='center',
             color = 'grey', fontname = 'Arial', size = 6)
 
+# make sure subplots do not overlap
+plt.tight_layout()
+
 # save figure
-fig.savefig('ProteinLengthDiff.pdf', bbox_inches = 'tight')
-fig.savefig('ProteinLengthDiff.eps', bbox_inches = 'tight')
+fig.savefig('LengthDifferences.pdf', bbox_inches = 'tight')
+fig.savefig('LengthDifferences.eps', bbox_inches = 'tight')
