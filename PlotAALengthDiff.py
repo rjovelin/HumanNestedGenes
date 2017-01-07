@@ -99,8 +99,10 @@ for i in range(len(AllGenes)):
         dnaLength.append(GeneCoord[gene][2] - GeneCoord[gene][1])
     GeneLength.append(dnaLength)
     
-    
-    
+# convert bp to Kbp
+for i in range(len(GeneLength)):
+    GeneLength[i] = list(map(lambda x: x/1000, GeneLength[i]))
+
 # create a function to get the mean and SEM of items in a list
 def GetMeanSEM(L):
     '''
@@ -195,7 +197,7 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, YLabel, YMax):
 
 
 # create figure
-fig = plt.figure(1, figsize = (3, 2))
+fig = plt.figure(1, figsize = (4, 2))
 
 # plot protein and dna length    
 ax1 = CreateAx(2, 1, 1, fig, ProtMeans, ProtSEM, 'Protein length', 700)
