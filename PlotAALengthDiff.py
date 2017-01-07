@@ -201,12 +201,12 @@ fig = plt.figure(1, figsize = (4, 2))
 
 # plot protein and dna length    
 ax1 = CreateAx(2, 1, 1, fig, ProtMeans, ProtSEM, 'Protein length', 700)
-ax2 = CreateAx(2, 1, 2, fig, DnaMeans, DnaSEM, 'Gene length', 10000)
+ax2 = CreateAx(2, 1, 2, fig, DnaMeans, DnaSEM, 'Gene length (Kb)', 1000)
 
 
 StarPos = [0.2, 0.35, 0.5, 0.65]
 ProtYPos = [450, 550, 600, 550]
-DnaYPos = [5000, 5000, 5000, 5000]
+DnaYPos = [1000, 1000, 1000, 1000]
 
 # add stars for significance
 for i in range(len(ProtSignif)):
