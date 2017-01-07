@@ -150,7 +150,8 @@ def PValToStar(L):
         elif i < 0.001:
             Signif.append('***')
     return Signif
-    
+
+
 # create a list with significance level as stars
 ProtSignif = PValToStar(ProtPValues)
 DnaSignif = PValToStar(DnaPValues)
@@ -187,7 +188,7 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, YLabel, YMax):
                     left='on', labelbottom='on', colors='black', labelsize=8, direction='out')  
     # add ticks on the x axis
     TickPos = [0.05, 0.2, 0.35, 0.5, 0.65]
-    Labels = ['NoOvl', 'Nst', 'Pbk', 'Conv', 'Div']
+    Labels = ['NoOv', 'Nst', 'Pbk', 'Conv', 'Div']
     plt.xticks(TickPos, Labels)
     # Set the tick labels font name
     for label in ax.get_yticklabels():
@@ -215,6 +216,12 @@ for i in range(len(ProtSignif)):
 for i in range(len(DnaSignif)):
     ax2.text(StarPos[i], DnaYPos[i], DnaSignif[i], horizontalalignment='center', verticalalignment='center',
             color = 'grey', fontname = 'Arial', size = 6)
+
+# add subplot labels
+ax1.text(-0.25, 705, 'A', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 9)
+ax1.text(0.8, 705, 'B', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 9)
 
 # make sure subplots do not overlap
 plt.tight_layout()
