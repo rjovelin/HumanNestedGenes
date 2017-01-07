@@ -131,33 +131,27 @@ for i in range(1, len(GeneLength)):
     P = stats.ranksums(GeneLength[0], GeneLength[i])[1]    
     DnaPValues.append(P)
 
-
-
-
-
+# use this function to convert p-values to star significance level
+def PValToStar(L):
+    '''
+    (list) -> list
+    Take a list of p-values and return a list of sgnificance level as stars
+    '''
+    Signif = []
+    for i in L:
+        if i >= 0.05:
+            Signif.append('')
+        elif i < 0.05 and i >= 0.01:
+            Signif.append('*')
+        elif i < 0.01 and i >= 0.001:
+            Signif.append('**')
+        elif i < 0.001:
+            Signif.append('***')
+    return Signif
     
 # create a list with significance level as stars
-ProtSignif = []
-for i in ProtPValues:
-    if i >= 0.05:
-        ProtSignif.append('')
-    elif i < 0.05 and i >= 0.01:
-        ProtSignif.append('*')
-    elif i < 0.01 and i >= 0.001:
-        ProtSignif.append('**')
-    elif i < 0.001:
-        ProtSignif.append('***')
-DnaSignif = []
-for i in DnaPValues:
-    if i >= 0.05:
-        DnaSignif.append('')
-    elif i < 0.05 and i >= 0.01:
-        DnaSignif.append('*')
-    elif i < 0.01 and i >= 0.001:
-        DnaSignif.append('**')
-    elif i < 0.001:
-        DnaSignif.append('***')
-
+ProtSignif = PValToStar(ProtPValues)
+DnaSignif = PValToStar(DnaPValues)
 
  
 # create a function to format the subplots
@@ -196,7 +190,7 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, YLabel, YMax):
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')   
-    
+
     return ax      
 
 
@@ -205,11 +199,8 @@ fig = plt.figure(1, figsize = (3, 2))
 
 # plot protein and dna length    
 ax1 = CreateAx(2, 1, 1, fig, ProtMeans, ProtSEM, 'Protein length', 700)
-ax2 = CreateAx(2, 1, 2, fig, DnaMeansM, DnaSEM, 'Gene length', 10000)
+ax2 = CreateAx(2, 1, 2, fig, DnaMeans, DnaSEM, 'Gene length', 10000)
 
-# Set the tick labels font name
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')   
 
 StarPos = [0.2, 0.35, 0.5, 0.65]
 ProtYPos = [450, 550, 600, 550]
