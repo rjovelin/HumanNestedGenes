@@ -119,7 +119,7 @@ AllGeneSets = [InternalSameGenes, InternalOppositeGenes, ExternalSameGenes,
 GeneBreadth = []
 for i in range(len(AllGeneSets)):
     # loop over the gene in the given gene set and record its expression breadth
-    expbreadth = [Breadth[gene] for gene in AllGeneSets[i]]
+    expbreadth = [Breadth[gene] for gene in AllGeneSets[i] if gene in Breadth]
     GeneBreadth.append(expbreadth)
                
                
