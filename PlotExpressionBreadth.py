@@ -29,30 +29,57 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
-# load dictionaries of host and nested genes 
-# gene names have wormbase ID for cel and cbr, but transcript names for cr
-with open('HumanHostNestedGenes.json') as human_json_data:
-    HumanHostGenes = json.load(human_json_data)
-with open('ChimpHostNestedGenes.json') as chimp_json_data:
-    ChimpHostGenes = json.load(chimp_json_data)
-with open('GorillaHostNestedGenes.json') as gorilla_json_data:
-    GorillaHostGenes = json.load(gorilla_json_data)
-with open('OrangOutanHostNestedGenes.json') as orangoutan_json_data:
-    OrangOutanHostGenes = json.load(orangoutan_json_data)
-with open('MacaqueHostNestedGenes.json') as macaque_json_data:
-    MacaqueHostGenes = json.load(macaque_json_data)
+
+# load dictionary of overlapping gene pairs
+json_data = open('HumanOverlappingGenes.json')
+Overlapping = json.load(json_data)
+json_data.close()
+# load dictionary of nested gene pairs
+json_data = open('HumanNestedGenes.json')
+Nested = json.load(json_data)
+json_data.close()
+# load dictionary of pibbyback gene pairs
+json_data = open('HumanPiggyBackGenes.json')
+Piggyback = json.load(json_data)
+json_data.close()
+# load dictionary of convergent gene pairs
+json_data = open('HumanConvergentGenes.json')
+Convergent = json.load(json_data)
+json_data.close()
+# load dictionary of divergent gene pairs
+json_data = open('HumanDivergentGenes.json')
+Divergent = json.load(json_data)
+json_data.close()
 
 # get GFF file
-HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
-PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
-GgoGFF = 'Gorilla_gorilla.gorGor3.1.86.gff3'
-PabGFF = 'Pongo_abelii.PPYG2.86.gff3'
-MmlGFF = 'Macaca_mulatta.Mmul_8.0.1.86.gff3' 
+GFF = 'Homo_sapiens.GRCh38.86.gff3'
+# get the coordinates of genes on each chromo
+# {chromo: {gene:[chromosome, start, end, sense]}}
+GeneChromoCoord = ChromoGenesCoord(GFF)
+# map each gene to its mRNA transcripts
+MapGeneTranscript = GeneToTranscripts(GFF)
+# remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
+GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
+# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
+# Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
+OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
 
-# make a list of primate GFF files
-GFFs = [HsaGFF, PtrGFF, GgoGFF, PabGFF, MmlGFF]
-# make a list of species names
-SpeciesNames = ['human', 'chimp', 'gorilla', 'orangoutan', 'macaque']
+# make a set of non-overlapping genes
+NonOverlapping = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
+
+# create lists of gene pairs
+OverlappingPairs = GetHostNestedPairs(Overlapping)
+NestedPairs = GetHostNestedPairs(Nested)
+PiggybackPairs = GetHostNestedPairs(Piggyback)
+ConvergentPairs = GetHostNestedPairs(Convergent)
+DivergentPairs = GetHostNestedPairs(Divergent)
+
+
+
+
+
+
 # make a list of host:nested genes dictionaries
 HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes, OrangOutanHostGenes, MacaqueHostGenes]
 
