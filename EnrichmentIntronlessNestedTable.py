@@ -32,6 +32,9 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
+# open file for writing results
+newfile = open('ContingencyTableIntronlessGenes.txt', 'w')
+
 # load dictionaries of host and nested genes 
 # gene names have wormbase ID for cel and cbr, but transcript names for cr
 with open('HumanNestedGenes.json') as human_json_data:
@@ -71,6 +74,12 @@ Matches = MatchHostTranscriptWithNestedTranscript(Nested, MapGeneTranscript, Gen
 # list all host, nested transcript pairs [[host, nested]]
 HostNestedPairs = GetHostNestedPairs(Matches)
 
+# make a set of internal genes already counted
+# note that some genes may be internal to multiple hosts
+# do not count the same internal gene multiple times
+AlreadyRecorded = set()
+
+
 # loop over host-nested transcript pairs
 for i in range(len(HostNestedPairs)):
     # check that both transcripts have coordinates and have corresponding gene names    
@@ -78,39 +87,37 @@ for i in range(len(HostNestedPairs)):
     assert HostNestedPairs[i][0] in TranscriptCoordinates    
     assert HostNestedPairs[i][1] in MapTranscriptGene
     assert HostNestedPairs[i][1] in TranscriptCoordinates    
-    # get the orientation of each transcript [+,+]
-    OrientationPair = GenePairOrientation(HostNestedPairs[i], TranscriptCoordinates)
-    # determine if the nested transcript has introns
-    if HostNestedPairs[i][1] in IntronCoord:
-        IntronLess = False
-    else:
-        IntronLess = True
-    # check presence of intron and orientation of host and nested transcripts
-    if IntronLess == True and len(set(OrientationPair)) == 1:
-        # intronless, same orientation
-        NoIntronSame += 1
-        assert set(OrientationPair) == {'-', '-'} or set(OrientationPair) == {'+', '+'}
-    elif IntronLess == True and len(set(OrientationPair)) == 2:
-        # intronless, differente orientation
-        NoIntronOpposite += 1
-        assert set(OrientationPair) == {'-', '+'} 
-    elif IntronLess == False and len(set(OrientationPair)) == 1:
-        # with introns and same orientation
-        WithIntronSame += 1
-        assert set(OrientationPair) == {'-', '-'} or set(OrientationPair) == {'+', '+'}
-    elif IntronLess == False and len(set(OrientationPair)) == 2:
-        # with introns and opposite orientation
-        WithIntronOpposite += 1
-        assert set(OrientationPair) == {'-', '+'}
-
+    # do not count the same internal gene multiple times
+    if HostNestedPairs[i][1] not in AlreadyRecorded:
+        # get the orientation of each transcript [+,+]
+        OrientationPair = GenePairOrientation(HostNestedPairs[i], TranscriptCoordinates)
+        # determine if the nested transcript has introns
+        if HostNestedPairs[i][1] in IntronCoord:
+            IntronLess = False
+        else:
+            IntronLess = True
+        # check presence of intron and orientation of host and nested transcripts
+        if IntronLess == True and len(set(OrientationPair)) == 1:
+            # intronless, same orientation
+            NoIntronSame += 1
+            assert set(OrientationPair) == {'-', '-'} or set(OrientationPair) == {'+', '+'}
+        elif IntronLess == True and len(set(OrientationPair)) == 2:
+            # intronless, differente orientation
+            NoIntronOpposite += 1
+            assert set(OrientationPair) == {'-', '+'} 
+        elif IntronLess == False and len(set(OrientationPair)) == 1:
+            # with introns and same orientation
+            WithIntronSame += 1
+            assert set(OrientationPair) == {'-', '-'} or set(OrientationPair) == {'+', '+'}
+        elif IntronLess == False and len(set(OrientationPair)) == 2:
+            # with introns and opposite orientation
+            WithIntronOpposite += 1
+            assert set(OrientationPair) == {'-', '+'}
+        # record internal gene
+        AlreadyRecorded.add(HostNestedPairs[i][1])
 
 # test that the proportions of intron-less and with-intron genes are the same on both strands
 P = stats.fisher_exact([[NoIntronSame, NoIntronOpposite], [WithIntronSame, WithIntronOpposite]])[1]
-
-# open file for writing results
-newfile = open('ContingencyTableIntronlessGenes.txt', 'w')
-
-
 
 # create contingency table table
 newfile.write('Table 1. Number of internal (nested genes) with and without introns and their orientation\n')
@@ -119,11 +126,16 @@ newfile.write('\t'.join(['Same', str(NoIntronSame), str(WithIntronSame), str(rou
 newfile.write('\t'.join(['Opposite', str(NoIntronOpposite), str(WithIntronOpposite), str(round(NoIntronOpposite / (NoIntronOpposite + WithIntronOpposite), 4)), str(P)]) + '\n')
 
 
+
+
+
+
+
 newfile.close()
 
 
-## make a set of un-nested genes
-#UnNestedGenes = MakeNonOverlappingGeneSet(HostGenes, GeneCoord)
+
+
 
 
 
