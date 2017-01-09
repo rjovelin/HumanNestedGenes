@@ -10,7 +10,7 @@ Created on Tue Nov 22 11:57:29 2016
 # generate a contagency table with number of nested intronless-same sense, intronless opposite sense,
 # with introns same sense, and with introns opposite sense
 
-# usage python3 MakeTableEnrichmentIntronlessNested.py
+# usage python3 EnrichmentIntronlessNestedTable.py
 
 
 # import modules
