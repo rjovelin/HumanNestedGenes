@@ -34,32 +34,12 @@ from HsaNestedGenes import *
 
 # load dictionaries of host and nested genes 
 # gene names have wormbase ID for cel and cbr, but transcript names for cr
-with open('HumanHostNestedGenes.json') as human_json_data:
-    HumanHostGenes = json.load(human_json_data)
-with open('ChimpHostNestedGenes.json') as chimp_json_data:
-    ChimpHostGenes = json.load(chimp_json_data)
-with open('GorillaHostNestedGenes.json') as gorilla_json_data:
-    GorillaHostGenes = json.load(gorilla_json_data)
-with open('OrangOutanHostNestedGenes.json') as orangoutan_json_data:
-    OrangOutanHostGenes = json.load(orangoutan_json_data)
-with open('MacaqueHostNestedGenes.json') as macaque_json_data:
-    MacaqueHostGenes = json.load(macaque_json_data)
+with open('HumanNestedGenes.json') as human_json_data:
+    Nested = json.load(human_json_data)
 
 # get GFF file
-HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
-PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
-GgoGFF = 'Gorilla_gorilla.gorGor3.1.86.gff3'
-PabGFF = 'Pongo_abelii.PPYG2.86.gff3'
-MmlGFF = 'Macaca_mulatta.Mmul_8.0.1.86.gff3' 
-
-
-# make a list of primate GFF files
-GFFs = [HsaGFF, PtrGFF, GgoGFF, PabGFF, MmlGFF]
-# make a list of species names
-SpeciesNames = ['human', 'chimp', 'gorilla', 'orangoutan', 'macaque']
-# make a list of host:nested genes dictionaries
-HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes, OrangOutanHostGenes, MacaqueHostGenes]
-
+GFF = 'Homo_sapiens.GRCh38.86.gff3'
+ 
 
 # create lists to store the number of intronless nested genes and nested genes
 # with introns that are on the same strand and opposite strand with their hosts
