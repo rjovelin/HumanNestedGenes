@@ -127,15 +127,41 @@ newfile.write('\t'.join(['Opposite', str(NoIntronOpposite), str(WithIntronOpposi
 
 
 
+# perform a test that the proportion of host:nested pairs with opposite orientation
+# is greater than expected by chance alone
 
+# 1) perform a fisher exact test with random, equal proportions of same and opposite sens pairs
+# count the number of nested pairs with same and different orientations
+same, opposite = 0, 0
+# loop over host-nested transcript pairs
+for i in range(len(HostNestedPairs)):
+    # get the orientation of each transcript [+,+]
+    OrientationPair = GenePairOrientation(HostNestedPairs[i], TranscriptCoordinates)
+    if len(set(OrientationPair)) == 1:
+        # same orientation
+        same += 1
+    elif len(set(OrientationPair)) == 2:
+        # differente orientation
+        opposite += 1
+# computed expected numbers of same and oppsote pairs under the assumption of random (equal proportions)
+expsame = (same + opposite) * (50/100)        
+expopp = expsame        
+P = stats.fisher_exact([[same, opposite], [expsame, expopp]])[1]
 
+newfile.write('\n\n')
+newfile.write('Table 2. Number of host-nested gene pairs with same and opposite orientation\n')
+newfile.write('\t'.join(['', 'Same', 'Opposite', 'Ratio Intronless/Total', 'P']) + '\n')
+newfile.write('\t'.join(['Nested', str(same), str(opposite), str(round(opposite / (same + opposite), 4)), str(P)]) + '\n')
+newfile.write('\t'.join(['Expected', str(expsame), str(expopp), str(round(expopp / (expsame + expopp), 4)), str(P)]) + '\n')
 
+# 2) perform a binomial test that the proportion of host-nested pairs on opposite strands
+# is greater than 0.5
+assert same + opposite == len(HostNestedPairs)
+P = stats.binom_test(opposite, (same + opposite), 0.5)
 
+newfile.write('\n\n')
+newfile.write('The proportion of gene pairs with opposite orientation ({0})\n'.format(round((opposite / (same+opposite)) * 100, 2)))
+newfile.write('is greater than expected by chance (P = {0}, binomial test with p = 0.5'.format(P))
+
+# close file after writing
 newfile.close()
-
-
-
-
-
-
-
