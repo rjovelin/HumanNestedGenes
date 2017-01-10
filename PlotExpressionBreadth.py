@@ -161,7 +161,7 @@ for pvalue in PVal:
   
 
 # create figure
-fig = plt.figure(1, figsize = (2, 1.5))
+fig = plt.figure(1, figsize = (2.5, 1.5))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 
@@ -187,7 +187,7 @@ plt.tick_params(axis='both', which='both', bottom='on', top='off', right='off',
 # add ticks on the x axis
 TickPos = [0.05, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10]
 Labels = ['NoOv', 'CisInt', 'TransInt', 'CisExt', 'TransExt', 'Pbk', 'Conv', 'Div']
-plt.xticks(TickPos, Labels)
+plt.xticks(TickPos, Labels, rotation = 30, ha = 'right')
 # Set the tick labels font name
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
