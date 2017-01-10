@@ -5,7 +5,7 @@ Created on Wed Nov 23 15:14:49 2016
 @author: RJovelin
 """
 
-# use this script to plot the proportion of host, nested and control genes with
+# use this script to plot the proportion of overlapping and non-overlapping genes
 # with highest expression in each tissue
 
 # usage python3 PlotHighestExpression.py 
@@ -28,6 +28,103 @@ import math
 import numpy as np
 from scipy import stats
 from HsaNestedGenes import *
+
+
+# load dictionary of overlapping gene pairs
+json_data = open('HumanOverlappingGenes.json')
+Overlapping = json.load(json_data)
+json_data.close()
+# load dictionary of nested gene pairs
+json_data = open('HumanNestedGenes.json')
+Nested = json.load(json_data)
+json_data.close()
+# load dictionary of pibbyback gene pairs
+json_data = open('HumanPiggyBackGenes.json')
+Piggyback = json.load(json_data)
+json_data.close()
+# load dictionary of convergent gene pairs
+json_data = open('HumanConvergentGenes.json')
+Convergent = json.load(json_data)
+json_data.close()
+# load dictionary of divergent gene pairs
+json_data = open('HumanDivergentGenes.json')
+Divergent = json.load(json_data)
+json_data.close()
+
+# get GFF file
+GFF = 'Homo_sapiens.GRCh38.86.gff3'
+# get the coordinates of genes on each chromo
+# {chromo: {gene:[chromosome, start, end, sense]}}
+GeneChromoCoord = ChromoGenesCoord(GFF)
+# map each gene to its mRNA transcripts
+MapGeneTranscript = GeneToTranscripts(GFF)
+# remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
+GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
+# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
+
+
+# create lists of gene pairs
+OverlappingPairs = GetHostNestedPairs(Overlapping)
+NestedPairs = GetHostNestedPairs(Nested)
+PiggybackPairs = GetHostNestedPairs(Piggyback)
+ConvergentPairs = GetHostNestedPairs(Convergent)
+DivergentPairs = GetHostNestedPairs(Divergent)
+
+# generate gene sets
+NestedGenes  = MakeFullPartialOverlapGeneSet(Nested)
+OverlappingGenes = MakeFullPartialOverlapGeneSet(Overlapping)
+ConvergentGenes = MakeFullPartialOverlapGeneSet(Convergent)
+DivergentGenes = MakeFullPartialOverlapGeneSet(Divergent)
+PiggyBackGenes = MakeFullPartialOverlapGeneSet(Piggyback)
+
+# make a set of non-overlapping genes
+NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
+
+# create lists of nested gene pairs with same and opposite directions
+same, opposite = [], []
+for pair in NestedPairs:
+    orientation = GenePairOrientation(pair, GeneCoord)
+    if len(set(orientation)) == 2:
+        opposite.append(pair)
+    elif len(set(orientation)) == 1:
+        same.append(pair)
+# create sets of internal and external nested genes depending on orientation 
+InternalSameGenes, InternalOppositeGenes, ExternalSameGenes, ExternalOppositeGenes = set(), set(), set(), set()
+for pair in same:
+    ExternalSameGenes.add(pair[0])
+    InternalSameGenes.add(pair[1])
+for pair in opposite:
+    ExternalOppositeGenes.add(pair[0])
+    InternalOppositeGenes.add(pair[1])
+
+
+# parse the GTEX expression summary file to obtain the expression profile of each gene
+ExpressionProfile = ParseGTEXExpression('GTEX_Median_Normalized_FPKM.txt')
+# remove genes without any expression
+ExpressionProfile = RemoveGenesLackingExpression(ExpressionProfile)
+# transform absulte expression in relative expression
+ExpressionProfile = TransformRelativeExpression(ExpressionProfile)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # load dictionaries of host and nested genes 
