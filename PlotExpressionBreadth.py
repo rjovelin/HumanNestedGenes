@@ -192,31 +192,15 @@ plt.xticks(TickPos, Labels)
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
 
-
-
-StarPos = [0.2, 0.35, 0.5, 0.65]
-ProtYPos = [450, 550, 600, 550]
-DnaYPos = [105, 105, 70, 105]
+StarPos = [0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10]
+YPos = [35] * 7
 
 # add stars for significance
-for i in range(len(ProtSignif)):
-    ax1.text(StarPos[i], ProtYPos[i], ProtSignif[i], horizontalalignment='center', verticalalignment='center',
+for i in range(len(Significance)):
+    ax1.text(StarPos[i], YPos[i], Significance[i], horizontalalignment='center', verticalalignment='center',
             color = 'grey', fontname = 'Arial', size = 6)
-for i in range(len(DnaSignif)):
-    ax2.text(StarPos[i], DnaYPos[i], DnaSignif[i], horizontalalignment='center', verticalalignment='center',
-            color = 'grey', fontname = 'Arial', size = 6)
-
-# add subplot labels
-ax1.text(-0.25, 705, 'A', horizontalalignment='center', verticalalignment='center',
-         color = 'black', fontname = 'Arial', size = 9)
-ax1.text(0.8, 705, 'B', horizontalalignment='center', verticalalignment='center',
-         color = 'black', fontname = 'Arial', size = 9)
-
-
-
 
 
 outputfile = ''
 fig.savefig('truc.pdf', bbox_inches = 'tight')
-
 
