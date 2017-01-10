@@ -200,7 +200,6 @@ for i in range(len(Significance)):
     ax.text(StarPos[i], YPos[i], Significance[i], horizontalalignment='center', verticalalignment='center',
             color = 'grey', fontname = 'Arial', size = 6)
 
-
-outputfile = ''
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-
+outputfile = 'ExpressionBreadth'
+fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
