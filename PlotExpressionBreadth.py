@@ -122,7 +122,7 @@ for i in range(len(AllGeneSets)):
     expbreadth = [Breadth[gene] for gene in AllGeneSets[i] if gene in Breadth]
     GeneBreadth.append(expbreadth)
                
-               
+
 # create a function to get the mean and SEM of items in a list
 def GetMeanSEM(L):
     '''
@@ -146,149 +146,77 @@ PVal = []
 # loop over gene breadth for overlapping genes only
 for i in range(1, len(GeneBreadth)):
     P = stats.ranksums(GeneBreadth[i], GeneBreadth[0])[1]
-    Pval.append(P)
+    PVal.append(P)
 # convert p-values to star significance level
 Significance = []
-for pval in PVal:
-    if pval >= 0.05:
+for pvalue in PVal:
+    if pvalue >= 0.05:
         Significance.append('')
-    elif pval < 0.05 and pval >= 0.01:
+    elif pvalue < 0.05 and pvalue >= 0.01:
         Significance.append('*')
-    elif pval < 0.01 and pval >= 0.001:
+    elif pvalue < 0.01 and pvalue >= 0.001:
         Significance.append('**')
-    elif pval < 0.001:
+    elif pvalue < 0.001:
         Significance.append('***')
   
 
 # create figure
 fig = plt.figure(1, figsize = (5, 2.5))
-
-
-
-#### continue here
-
-
-
-
-
-# create subplot in figure
 # add a plot to figure (N row, N column, plot N)
-ax = figure.add_subplot(1, 1, 1)
-# set colors
-colorscheme = ['#a6cee3','#1f78b4','#b2df8a']
-# plot nucleotide divergence
-ax.bar([0, 0.2, 0.4], Means, 0.2, yerr = SEM, color = colorscheme,
-       edgecolor = 'black', linewidth = 1,
+ax = fig.add_subplot(1, 1, 1)
+
+# plot variable 
+BarPos = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05]
+Colors = ['black','lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+ax.bar(BarPos, MeanBreadth, 0.1, yerr = SEMBreadth, color = Colors, edgecolor = 'black', linewidth = 1,
        error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
-# write label for y and x axis
-if YAxis == True:
-    ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-ax.set_xlabel(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
- 
+# write label for y
+ax.set_ylabel('Expression breadth', color = 'black',  size = 8, ha = 'center', **FigFont)
 # add a range for the Y axis
-plt.ylim([0, YMax])
-    
+#plt.ylim([0, YMax])
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
 ax.spines["bottom"].set_visible(True)    
 ax.spines["right"].set_visible(False)    
-if YAxis == True:
-    ax.spines["left"].set_visible(True)  
-elif YAxis == False:
-    ax.spines["left"].set_visible(False)
-   
-if YAxis == True:
-    # do not show ticks
-    plt.tick_params(
-        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-        which='both',      # both major and minor ticks are affected
-        bottom='off',      # ticks along the bottom edge are off
-        top='off',         # ticks along the top edge are off
-        right = 'off',
-        left = 'on',          
-        labelbottom='off', # labels along the bottom edge are on
-        colors = 'black',
-        labelsize = 8,
-        direction = 'out') # ticks are outside the frame when bottom = 'on'  
-elif YAxis == False:
-    # do not show ticks
-    plt.tick_params(
-        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-        which='both',      # both major and minor ticks are affected
-        bottom='off',      # ticks along the bottom edge are off
-        top='off',         # ticks along the top edge are off
-        right = 'off',
-        left = 'off',          
-        labelbottom='off', # labels along the bottom edge are on
-        colors = 'black',
-        labelsize = 8,
-        labelleft = 'off',
-        direction = 'out') # ticks are outside the frame when bottom = 'on'      
-     
-if YAxis == True:
-    # Set the tick labels font name
-    for label in ax.get_yticklabels():
-        label.set_fontname('Arial')   
-     
-# create a margin around the x axis
-plt.margins(0.1)
-
-
-# use this function to annotate the graph with significance levels
-def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
-    '''
-    (ax, str, num, num, num, num, num) -> ax
-    Take a matplotlib ax object, the significance level (as stars), the positions
-    of the bracket and star and return the ax with annotated significance level
-    '''
-    ax.annotate("", xy=(XLine1, YLine), xycoords='data', xytext=(XLine2, YLine), textcoords='data',
-                 arrowprops=dict(arrowstyle="-", ec='#aaaaaa', connectionstyle="bar,fraction=0.2", linewidth = 1))
-    # add stars for significance
-    ax.text(XText, YText, SignificanceLevel, horizontalalignment='center', verticalalignment='center',
-            color = 'grey', fontname = 'Arial', size = 6)
-    return ax
+ax.spines["left"].set_visible(True)  
+# edit tick paramters
+plt.tick_params(axis='both', which='both', bottom='on', top='off', right='off',
+                left='on', labelbottom='on', colors='black', labelsize=8, direction='out')  
+# add ticks on the x axis
+TickPos = [0.05, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10]
+Labels = ['NoOv', 'CisInt', 'TransInt', 'CisExt', 'TransExt', 'Pbk', 'Conv', 'Div']
+plt.xticks(TickPos, Labels)
+# Set the tick labels font name
+for label in ax.get_yticklabels():
+    label.set_fontname('Arial')   
 
 
 
-# plot data
-ax1 = CreateAx(5, 1, 1, fig, HumanMeans, HumanSEM, 'Human', 'Expression specificity', 1, True)
-ax2 = CreateAx(5, 1, 2, fig, ChimpMeans, ChimpSEM, 'Chimp', 'Expression specificity', 1, False)
-ax3 = CreateAx(5, 1, 3, fig, GorillaMeans, GorillaSEM, 'Gorilla', 'Expression specificity', 1, False)
-ax4 = CreateAx(5, 1, 4, fig, OrangutanMeans, OrangutanSEM, 'Orangutan', 'Expression specificity', 1, False)
-ax5 = CreateAx(5, 1, 5, fig, MacaqueMeans, MacaqueSEM, 'Macaque', 'Expression specificity', 1, False)
+#StarPos = [0.2, 0.35, 0.5, 0.65]
+#ProtYPos = [450, 550, 600, 550]
+#DnaYPos = [105, 105, 70, 105]
+#
+## add stars for significance
+#for i in range(len(ProtSignif)):
+#    ax1.text(StarPos[i], ProtYPos[i], ProtSignif[i], horizontalalignment='center', verticalalignment='center',
+#            color = 'grey', fontname = 'Arial', size = 6)
+#for i in range(len(DnaSignif)):
+#    ax2.text(StarPos[i], DnaYPos[i], DnaSignif[i], horizontalalignment='center', verticalalignment='center',
+#            color = 'grey', fontname = 'Arial', size = 6)
+#
+## add subplot labels
+#ax1.text(-0.25, 705, 'A', horizontalalignment='center', verticalalignment='center',
+#         color = 'black', fontname = 'Arial', size = 9)
+#ax1.text(0.8, 705, 'B', horizontalalignment='center', verticalalignment='center',
+#         color = 'black', fontname = 'Arial', size = 9)
 
-# make lists with bracket and star positions
-XPos = [[0.1, 0.28, 0.8, 0.2, 0.85], [0.1, 0.5, 0.9, 0.3, 0.95], [0.32, 0.5, 0.8, 0.4, 0.85]]
 
-# annotate figure to add significance
-for i in range(len(Significance['human'])):
-    if Significance['human'][i] != '':
-        ax1 = AddSignificance(ax1, Significance['human'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
-for i in range(len(Significance['chimp'])):
-    if Significance['chimp'][i]  != '':
-        ax2 = AddSignificance(ax2, Significance['chimp'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
-for i in range(len(Significance['gorilla'])):
-    if Significance['gorilla'][i] != '':
-        ax3 = AddSignificance(ax3, Significance['gorilla'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
-for i in range(len(Significance['orangoutan'])):
-    if Significance['orangoutan'][i] != '':
-        ax4 = AddSignificance(ax4, Significance['orangoutan'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
-for i in range(len(Significance['macaque'])):
-    if Significance['macaque'][i] != '':
-        ax5 = AddSignificance(ax5, Significance['macaque'][i], XPos[i][0], XPos[i][1], XPos[i][2], XPos[i][3], XPos[i][4])
- 
 
-# add legend relative to ax1 using ax1 coordinates
-H = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'Hosts')
-N = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Nested')
-U = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'Control')
-ax1.legend(handles = [H, N, U], loc = (0.5, 1), fontsize = 8, frameon = False, ncol = 3)
 
-# make sure subplots do not overlap
-plt.tight_layout()
 
 outputfile = ''
 fig.savefig('truc.pdf', bbox_inches = 'tight')
+
 
