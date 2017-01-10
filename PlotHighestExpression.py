@@ -198,7 +198,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YMax, YLabel):
 # create figure
 fig = plt.figure(1, figsize = (5, 3))
 
-
+# plot data
 j = 1
 for i in range(len(Tissues)):
     tissue = Tissues[i]
@@ -209,27 +209,20 @@ for i in range(len(Tissues)):
     ax = CreateAx(10, 3, j, fig, Proportions[tissue], tissue.lower().replace('_', '\n'), 0.31, YLabel)
     j += 1
 
-
+    # create legend
+    if j == 10:
+        No = mpatches.Patch(facecolor = '#fb9a99', edgecolor = 'black', linewidth = 0.5, label= 'Non-overlapping')
+        Ns = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 0.5, label= 'Nested')
+        Pk = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 0.5, label= 'Piggyback')
+        Co = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 0.5, label= 'Convergent')
+        Dv = mpatches.Patch(facecolor = '#33a02c', edgecolor = 'black', linewidth = 0.5, label= 'Divergent')
+        ax.legend(handles = [No, Ns, Pk, Co, Dv], bbox_to_anchor=(-12, 0.8), loc = 3, fontsize = 7, frameon = False, ncol = 5)
+        
+        
 # adjust padding between subplots
 # pad controls the padding around the figure border
 # hpad and wpad control the padding between subplots
-plt.tight_layout(pad=0.3, w_pad=0.2, h_pad=0.5)
-
-
-
-
-
-#black_line = mlines.Line2D([], [], color='black', marker='', linewidth = 1.2, label = Label1)
-#grey_line = mlines.Line2D([], [], color='red', marker='', linewidth = 1.2, label = 'Overlapping')
-#plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(-12, 0.8), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
-#
-#
-## add legend relative to ax1 using ax1 coordinates
-#H = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'Hosts')
-#N = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Nested')
-#U = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'Control')
-#ax1.legend(handles = [H, N, U], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
-
+plt.tight_layout(pad=0.2, w_pad=0, h_pad=0.5)
 
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 #fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
