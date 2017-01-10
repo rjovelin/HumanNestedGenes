@@ -193,7 +193,7 @@ for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
 
 StarPos = [0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10]
-YPos = [30] * 7
+YPos = [32] * 7
 
 # add stars for significance
 for i in range(len(Significance)):
