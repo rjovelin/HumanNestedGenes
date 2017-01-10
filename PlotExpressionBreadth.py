@@ -173,7 +173,7 @@ ax.bar(BarPos, MeanBreadth, 0.1, yerr = SEMBreadth, color = Colors, edgecolor = 
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
 # write label for y
-ax.set_ylabel('Expression breadth', color = 'black',  size = 8, ha = 'center', **FigFont)
+ax.set_ylabel('Expression breadth', color = 'black',  size = 7, ha = 'center', **FigFont)
 # add a range for the Y axis
 plt.ylim([0, 35])
 # do not show lines around figure  
@@ -183,7 +183,7 @@ ax.spines["right"].set_visible(False)
 ax.spines["left"].set_visible(True)  
 # edit tick paramters
 plt.tick_params(axis='both', which='both', bottom='on', top='off', right='off',
-                left='on', labelbottom='on', colors='black', labelsize=8, direction='out')  
+                left='on', labelbottom='on', colors='black', labelsize=7, direction='out')  
 # add ticks on the x axis
 TickPos = [0.05, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10]
 Labels = ['NoOv', 'CisInt', 'TransInt', 'CisExt', 'TransExt', 'Pbk', 'Conv', 'Div']
@@ -193,7 +193,7 @@ for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
 
 StarPos = [0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10]
-YPos = [35] * 7
+YPos = [30] * 7
 
 # add stars for significance
 for i in range(len(Significance)):
