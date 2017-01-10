@@ -165,7 +165,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YMax, YLabel):
     FigFont = {'fontname':'Arial'}   
     # write y axis label
     if YLabel == True:
-        ax.set_ylabel('Proportions', color = 'black',  size = 7, ha = 'center', **FigFont)
+        ax.set_ylabel('Proportion', color = 'black',  size = 7, ha = 'center', **FigFont)
     ax.set_xlabel(XLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
     
     # add a range for the Y axis
