@@ -175,7 +175,7 @@ FigFont = {'fontname':'Arial'}
 # write label for y
 ax.set_ylabel('Expression breadth', color = 'black',  size = 8, ha = 'center', **FigFont)
 # add a range for the Y axis
-#plt.ylim([0, YMax])
+plt.ylim([0, 35])
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
 ax.spines["bottom"].set_visible(True)    
@@ -194,23 +194,23 @@ for label in ax.get_yticklabels():
 
 
 
-#StarPos = [0.2, 0.35, 0.5, 0.65]
-#ProtYPos = [450, 550, 600, 550]
-#DnaYPos = [105, 105, 70, 105]
-#
-## add stars for significance
-#for i in range(len(ProtSignif)):
-#    ax1.text(StarPos[i], ProtYPos[i], ProtSignif[i], horizontalalignment='center', verticalalignment='center',
-#            color = 'grey', fontname = 'Arial', size = 6)
-#for i in range(len(DnaSignif)):
-#    ax2.text(StarPos[i], DnaYPos[i], DnaSignif[i], horizontalalignment='center', verticalalignment='center',
-#            color = 'grey', fontname = 'Arial', size = 6)
-#
-## add subplot labels
-#ax1.text(-0.25, 705, 'A', horizontalalignment='center', verticalalignment='center',
-#         color = 'black', fontname = 'Arial', size = 9)
-#ax1.text(0.8, 705, 'B', horizontalalignment='center', verticalalignment='center',
-#         color = 'black', fontname = 'Arial', size = 9)
+StarPos = [0.2, 0.35, 0.5, 0.65]
+ProtYPos = [450, 550, 600, 550]
+DnaYPos = [105, 105, 70, 105]
+
+# add stars for significance
+for i in range(len(ProtSignif)):
+    ax1.text(StarPos[i], ProtYPos[i], ProtSignif[i], horizontalalignment='center', verticalalignment='center',
+            color = 'grey', fontname = 'Arial', size = 6)
+for i in range(len(DnaSignif)):
+    ax2.text(StarPos[i], DnaYPos[i], DnaSignif[i], horizontalalignment='center', verticalalignment='center',
+            color = 'grey', fontname = 'Arial', size = 6)
+
+# add subplot labels
+ax1.text(-0.25, 705, 'A', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 9)
+ax1.text(0.8, 705, 'B', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 9)
 
 
 
