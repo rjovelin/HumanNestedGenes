@@ -107,6 +107,36 @@ ExpressionProfile = RemoveGenesLackingExpression(ExpressionProfile)
 ExpressionProfile = TransformRelativeExpression(ExpressionProfile)
 
 
+# make a list of all gene sets
+AllGeneSets = [NonOverlappingGenes, InternalSameGenes, InternalOppositeGenes, ExternalSameGenes,
+               ExternalOppositeGenes, PiggyBackGenes, ConvergentGenes, DivergentGenes]
+
+# make a list of tissues
+infile = open('GTEX_Median_Normalized_FPKM.txt')
+header = infile.readline().rstrip().split('\t')
+Tissues = header[1:]
+# replace spaces in tissue names
+for i in range(len(Tissues)):
+    if ' ' in Tissues[i]:
+        Tissues[i] = Tissues[i].replace(' ', '_')
+
+
+# make a list of genes with expression
+Expressed = list(ExpressionProfile.keys())
+# check that all genes have the same number of tissues
+for gene in Expressed:
+    assert len(ExpressionProfile[gene]) == len(Tissues)
+
+
+# make a list of gene category names parallel to the list of gene sets
+GeneCats = ['NoOv', 'CisInt', 'TransInt', 'CisExt', 'TransExt', 'Pbk', 'Conv', 'Div']
+
+
+# create a dict to count the number of genes in each category with highest expression in each tissue
+HighestExpression = {}
+# inititialize dict with list of 0s
+for i in GeneCats:
+    HighestExpression[i] = [0] * len(Tissues)
 
 
 
@@ -117,84 +147,45 @@ ExpressionProfile = TransformRelativeExpression(ExpressionProfile)
 
 
 
+######
+
+#0       Gene    ENSG00000139133
+#1       Adipose Tissue  3490.06030824
+#2       Adrenal Gland   4311.17097459
+#3       Bladder 3067.69288609
+#4       Blood   1240.69549277
+#5       Blood Vessel    2331.66199801
+#6       Brain   1122.53401727
+#7       Breast  3635.65341453
+#8       Cervix Uteri    2848.49316676
+#9       Colon   2148.5069133
+#10      Esophagus       2407.01134852
+#11      Fallopian Tube  2721.57143351
+#12      Heart   1680.920066
+#13      Kidney  2205.3354964
+#14      Liver   1522.58459886
+#15      Lung    3151.35898168
+#16      Muscle  1422.70689811
+#17      Nerve   3465.28093996
+#18      Ovary   4142.44386425
+#19      Pancreas        2988.7953959
+#20      Pituitary       2642.30711158
+#21      Prostate        2307.78470022
+#22      Salivary Gland  4183.08771799
+#23      Skin    3336.5844231
+#24      Small Intestine 3058.60868661
+#25      Spleen  3017.8843581
+#26      Stomach 2306.89539816
+#27      Testis  6008.86105018
+#28      Thyroid 3603.82870762
+#29      Uterus  3827.06925676
+#30      Vagina  2828.22684982
+
+
+######
 
 
 
-
-
-
-
-
-
-
-# load dictionaries of host and nested genes 
-# gene names have wormbase ID for cel and cbr, but transcript names for cr
-with open('HumanHostNestedGenes.json') as human_json_data:
-    HumanHostGenes = json.load(human_json_data)
-with open('ChimpHostNestedGenes.json') as chimp_json_data:
-    ChimpHostGenes = json.load(chimp_json_data)
-with open('GorillaHostNestedGenes.json') as gorilla_json_data:
-    GorillaHostGenes = json.load(gorilla_json_data)
-with open('OrangOutanHostNestedGenes.json') as orangoutan_json_data:
-    OrangOutanHostGenes = json.load(orangoutan_json_data)
-with open('MacaqueHostNestedGenes.json') as macaque_json_data:
-    MacaqueHostGenes = json.load(macaque_json_data)
-
-# get GFF file
-HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
-PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
-GgoGFF = 'Gorilla_gorilla.gorGor3.1.86.gff3'
-PabGFF = 'Pongo_abelii.PPYG2.86.gff3'
-MmlGFF = 'Macaca_mulatta.Mmul_8.0.1.86.gff3' 
-
-# make a list of primate GFF files
-GFFs = [HsaGFF, PtrGFF, GgoGFF, PabGFF, MmlGFF]
-# make a list of species names
-SpeciesNames = ['human', 'chimp', 'gorilla', 'orangoutan', 'macaque']
-# make a list of host:nested genes dictionaries
-HostGenes = [HumanHostGenes, ChimpHostGenes, GorillaHostGenes, OrangOutanHostGenes, MacaqueHostGenes]
-
-# make parallel lists to store gene proportions for each species and gene type [[human], [chimp], [gorilla], [orangutan], [macaque]]
-HostHighest, NestedHighest, ControlHighest = [], [], []
-
-
-# loop over GFF files, find nested and intronic=nested genes in each species 
-for i in range(len(GFFs)):
-    print(GFFs[i][:GFFs[i].index('.')], SpeciesNames[i])
-    # get the coordinates of genes on each chromo
-    # {chromo: {gene:[chromosome, start, end, sense]}}
-    SpGeneChromoCoord = ChromoGenesCoord(GFFs[i])
-    # map each gene to its mRNA transcripts
-    SpMapGeneTranscript = GeneToTranscripts(GFFs[i])
-    # remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
-    SpGeneChromoCoord = FilterOutGenesWithoutValidTranscript(SpGeneChromoCoord, SpMapGeneTranscript)
-    # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
-    SpGeneCoord = FromChromoCoordToGeneCoord(SpGeneChromoCoord)
-    # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
-    SpOrderedGenes = OrderGenesAlongChromo(SpGeneChromoCoord)
-    # get expression profile of the species genes
-    SpExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', SpeciesNames[i])
-    # remove genes wuthout expression
-    SpExpression = RemoveGenesLackingExpression(SpExpression)
-    # make a set of host and nested genes (include all host and nested even if not expressed)    
-    SpNestedConformation = MakeHostNestedGeneSet(HostGenes[i])    
-    # generate a dict of expressed genes on each chromo to randomly draw from
-    SpGenesToDrawFrom = GenerateAllUnNestedGenes(SpNestedConformation, SpOrderedGenes, SpExpression)
-    # make a list of host-nested gene pairs
-    SpHostNestedPairs = GetHostNestedPairs(HostGenes[i])
-    # remove gene pairs with genes lacking expression
-    SpHostNestedPairs = FilterGenePairsWithoutExpression(SpHostNestedPairs, SpExpression)
-    # create a list of control genes matching chromosomes of the host and nested pairs
-    SpControl = []
-    # loop over pairs of host and nested genes
-    for pair in SpHostNestedPairs:
-        # get the chromosome of the host and nested genes
-        chromo = SpGeneCoord[pair[0]][0]
-        assert chromo == SpGeneCoord[pair[1]][0], 'chromosome of host and nested genes do not match'        
-        # draw 2 genes at random on chromo to match tthe host and nested genes
-        for j in range(2):
-            k = random.randint(0, len(SpGenesToDrawFrom[chromo]) -1)
-            SpControl.append(SpGenesToDrawFrom[chromo][k])
     # create lists to count the number of genes with highest expression in each tissues
     # [brain, cerebellum, heart, kidney, liver, testis]   
     hosthigh, nestedhigh, controlhigh = [0]*6, [0]*6, [0]*6
