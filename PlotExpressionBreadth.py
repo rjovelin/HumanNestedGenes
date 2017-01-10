@@ -7,8 +7,8 @@ Created on Mon Jan  9 16:40:24 2017
 
 # use this script to plot expression breadth for overlapping and non-overlapping genes
 
-# usage python3 PlotExpressionBreadth.py 
-
+# usage python3 PlotExpressionBreadth.py [options]
+# -[breadth/specificity]: compare the number of tissues (breadth) or tissue specificity (specificity)
 
 # import modules
 # use Agg backend on server without X server
@@ -29,6 +29,9 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
+# get the type of variable to plot
+ExpBreadth = sys.argv[1]
+assert ExpBreadth in ['specificity', 'breadth']
 
 # load dictionary of overlapping gene pairs
 json_data = open('HumanOverlappingGenes.json')
@@ -64,7 +67,6 @@ GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneT
 GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
 # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
 OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
-
 
 # create lists of gene pairs
 OverlappingPairs = GetHostNestedPairs(Overlapping)
@@ -107,8 +109,13 @@ ExpressionProfile = ParseGTEXExpression('GTEX_Median_Normalized_FPKM.txt')
 ExpressionProfile = RemoveGenesLackingExpression(ExpressionProfile)
 # transform absulte expression in relative expression
 ExpressionProfile = TransformRelativeExpression(ExpressionProfile)
-# compute the expression breadth (number of tissues in which a gene is expressed
-Breadth = ExpressionBreadth(ExpressionProfile)
+
+# check if expression breadth is measured by the number of tissues or tissue specificity
+if ExpBreadth == 'breadth':
+    # compute the expression breadth (number of tissues in which a gene is expressed)
+    Breadth = ExpressionBreadth(ExpressionProfile)
+elif ExpBreadth == 'specificity':
+    Breadth = ExpressionSpecificity(ExpressionProfile)    
 
 
 # make a list of all gene sets
@@ -173,9 +180,18 @@ ax.bar(BarPos, MeanBreadth, 0.1, yerr = SEMBreadth, color = Colors, edgecolor = 
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
 # write label for y
-ax.set_ylabel('Expression breadth', color = 'black',  size = 7, ha = 'center', **FigFont)
+if ExpBreadth == 'breadth':
+    ax.set_ylabel('Expression breadth', color = 'black',  size = 7, ha = 'center', **FigFont)
+elif ExpBreadth == 'specificity':
+    ax.set_ylabel('Expression specificity', color = 'black',  size = 7, ha = 'center', **FigFont)
+
+
 # add a range for the Y axis
-plt.ylim([0, 35])
+if ExpBreadth == 'breadth':
+    plt.ylim([0, 35])
+elif ExpBreadth == 'specificity':
+    plt.ylim([0, 1])
+
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
 ax.spines["bottom"].set_visible(True)    
@@ -193,7 +209,10 @@ for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
 
 StarPos = [0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10]
-YPos = [32] * 7
+if ExpBreadth == 'breadth':
+    YPos = [32] * 7
+elif ExpBreadth == 'specificity':
+    YPos = [1] * 7
 
 # add stars for significance
 for i in range(len(Significance)):
