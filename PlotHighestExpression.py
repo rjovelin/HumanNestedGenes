@@ -169,104 +169,96 @@ for i in range(len(Tissues)):
         Proportions[Tissues[i]].append(HighestExpression[GeneCats[j]][i])
 
 
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, figure, Proportions, Title, YMax, YLabel):
+    '''
+    (int, int, int, list, figure_object, str, int, list, list)
+    Take the number of a column, and rows in the figure object and the position of
+    the ax in figure, a list of data, a title, a maximum value for the Y axis,
+    a list with species names and list of X axis tick positions and return an
+    ax instance in the figure
+    '''    
+    
+    # create subplot in figure
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # set colors
+    colorscheme = ['lightgrey'] * 8
+    # plot nucleotide divergence
+    ax.bar([0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7], Proportions, 0.1, color = colorscheme,
+           edgecolor = 'black', linewidth = 1,
+           error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## create a function to format the subplots
-#def CreateAx(Columns, Rows, Position, figure, Expression, XLabel, YLabel, YMax):
-#    '''
-#    (int, int, int, list, figure_object, str, int, list, list)
-#    Take the number of a column, and rows in the figure object and the position of
-#    the ax in figure, a list of data, a title, a maximum value for the Y axis,
-#    a list with species names and list of X axis tick positions and return an
-#    ax instance in the figure
-#    '''    
-#    
-#    # create subplot in figure
-#    # add a plot to figure (N row, N column, plot N)
-#    ax = figure.add_subplot(Rows, Columns, Position)
-#    # set colors
-#    colorscheme = ['#a6cee3','#1f78b4','#b2df8a']
-#    # plot nucleotide divergence
-#    ax.bar([0, 0.2, 0.4,
-#            0.7, 0.9, 1.1,
-#            1.4, 1.6, 1.8,
-#            2.1, 2.3, 2.5,
-#            2.8, 3, 3.2,
-#            3.5, 3.7, 3.9], Expression, 0.2, color = colorscheme,
-#           edgecolor = 'black', linewidth = 1,
-#           error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
-#
-#    # set font for all text in figure
-#    FigFont = {'fontname':'Arial'}   
-#    # write y axis label
-#    ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-#    ax.set_xlabel(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-#    
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    # write y axis label
+    if YLabel == True:
+        ax.set_ylabel('Proportions', color = 'black',  size = 7, ha = 'center', **FigFont)
+    
+    #ax.set_xlabel(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
+        
+    plt.title(Title, size = 7, color = 'black', ha = 'center', **FigFont )     
+    
+    
 #    # write x ticks
-#    plt.xticks([0.3, 1, 1.7, 2.4, 3.1, 3.8], ['br', 'cb', 'ht', 'kd', 'lv', 'ts'], ha = 'center', fontsize = 8, **FigFont)
-#    
-#    # add a range for the Y axis
-#    plt.ylim([0, YMax])
-#       
-#    # do not show lines around figure  
-#    ax.spines["top"].set_visible(False)    
-#    ax.spines["bottom"].set_visible(True)    
-#    ax.spines["right"].set_visible(False)    
-#    ax.spines["left"].set_visible(True)  
-#        
-#    # do not show ticks
-#    plt.tick_params(
-#        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-#        which='both',      # both major and minor ticks are affected
-#        bottom='on',      # ticks along the bottom edge are off
-#        top='off',         # ticks along the top edge are off
-#        right = 'off',
-#        left = 'on',          
-#        labelbottom='on', # labels along the bottom edge are on
-#        colors = 'black',
-#        labelsize = 8,
-#        direction = 'out') # ticks are outside the frame when bottom = 'on'  
-#         
-#    # Set the tick labels font name
-#    for label in ax.get_yticklabels():
-#        label.set_fontname('Arial')   
-#     
-#    # create a margin around the x axis
-#    #plt.margins(0.1)
-#    return ax      
+#    plt.xticks([0.05, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45], ['br', 'cb', 'ht', 'kd', 'lv', 'ts'], ha = 'center', fontsize = 8, **FigFont)
+    
+    # add a range for the Y axis
+    plt.ylim([0, YMax])
+       
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(False)    
+    ax.spines["right"].set_visible(False)    
+    ax.spines["left"].set_visible(True)  
+        
+    # do not show ticks
+    plt.tick_params(
+        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
+        which='both',      # both major and minor ticks are affected
+        bottom='on',      # ticks along the bottom edge are off
+        top='off',         # ticks along the top edge are off
+        right = 'off',
+        left = 'on',          
+        labelbottom='on', # labels along the bottom edge are on
+        colors = 'black',
+        labelsize = 7,
+        direction = 'out') # ticks are outside the frame when bottom = 'on'  
+         
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')   
+     
+    return ax      
+
+
+# create figure
+fig = plt.figure(1, figsize = (8, 5))
+
+
+j = 1
+for i in range(len(Tissues)):
+    if i == 0 or i == 16:
+        YLabel = True
+    else:
+        YLabel = False
+    ax = CreateAx(15, 2, j, fig, Proportions[Tissues[i]], Tissues[i].lower().replace('_', ' '), 0.3, YLabel)
+    j += 1
+
+
+#black_line = mlines.Line2D([], [], color='black', marker='', linewidth = 1.2, label = Label1)
+#grey_line = mlines.Line2D([], [], color='red', marker='', linewidth = 1.2, label = 'Overlapping')
+#plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(-12, 0.8), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
 #
-#
-## create figure
-#fig = plt.figure(1, figsize = (3.5, 7.5))
-#
-## plot data
-#ax1 = CreateAx(1, 5, 1, fig, HumanExp, 'Human', 'Proportion of genes', 0.41)
-#ax2 = CreateAx(1, 5, 2, fig, ChimpExp, 'Chimp', 'Proportion of genes', 0.41)
-#ax3 = CreateAx(1, 5, 3, fig, GorillaExp, 'Gorilla', 'Proportion of genes', 0.41)
-#ax4 = CreateAx(1, 5, 4, fig, OrangutanExp, 'Orangutan', 'Proportion of genes', 0.41)
-#ax5 = CreateAx(1, 5, 5, fig, MacaqueExp, 'Macaque', 'Proportion of genes', 0.41)
 #
 ## add legend relative to ax1 using ax1 coordinates
 #H = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 1, label= 'Hosts')
 #N = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Nested')
 #U = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 1, label= 'Control')
 #ax1.legend(handles = [H, N, U], loc = (0, 1), fontsize = 8, frameon = False, ncol = 3)
-#
-## make sure subplots do not overlap
-#plt.tight_layout()
-#
-#fig.savefig('truc.pdf', bbox_inches = 'tight')
-##fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+
+# make sure subplots do not overlap
+plt.tight_layout()
+
+fig.savefig('truc.pdf', bbox_inches = 'tight')
+#fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
