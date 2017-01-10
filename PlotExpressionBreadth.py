@@ -197,7 +197,7 @@ YPos = [35] * 7
 
 # add stars for significance
 for i in range(len(Significance)):
-    ax1.text(StarPos[i], YPos[i], Significance[i], horizontalalignment='center', verticalalignment='center',
+    ax.text(StarPos[i], YPos[i], Significance[i], horizontalalignment='center', verticalalignment='center',
             color = 'grey', fontname = 'Arial', size = 6)
 
 
