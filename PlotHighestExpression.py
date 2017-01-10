@@ -211,12 +211,12 @@ for i in range(len(Tissues)):
 
     # create legend
     if j == 10:
-        No = mpatches.Patch(facecolor = '#fb9a99', edgecolor = 'black', linewidth = 0.5, label= 'Non-overlapping')
-        Ns = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 0.5, label= 'Nested')
-        Pk = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 0.5, label= 'Piggyback')
-        Co = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 0.5, label= 'Convergent')
-        Dv = mpatches.Patch(facecolor = '#33a02c', edgecolor = 'black', linewidth = 0.5, label= 'Divergent')
-        ax.legend(handles = [No, Ns, Pk, Co, Dv], bbox_to_anchor=(-12, 0.8), loc = 3, fontsize = 7, frameon = False, ncol = 5)
+        No = mpatches.Patch(facecolor = '#fb9a99', edgecolor = 'black', linewidth = 0.5, label= 'NoOv')
+        Ns = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 0.5, label= 'Nst')
+        Pk = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 0.5, label= 'Pbk')
+        Co = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 0.5, label= 'Conv')
+        Dv = mpatches.Patch(facecolor = '#33a02c', edgecolor = 'black', linewidth = 0.5, label= 'Div')
+        ax.legend(handles = [No, Ns, Pk, Co, Dv], bbox_to_anchor=(-10, 0.6), loc = 3, fontsize = 6, frameon = False, ncol = 5)
         
         
 # adjust padding between subplots
