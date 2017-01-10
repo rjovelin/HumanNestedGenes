@@ -219,6 +219,10 @@ for i in range(len(Significance)):
     ax.text(StarPos[i], YPos[i], Significance[i], horizontalalignment='center', verticalalignment='center',
             color = 'grey', fontname = 'Arial', size = 6)
 
-outputfile = 'ExpressionBreadth'
+# check if specificity or breadth is computed
+if ExpBreadth == 'breadth':
+    outputfile = 'ExpressionBreadth'
+elif ExpBreadth == 'specificity':
+    outputfile = 'ExpressionSpecificity'
 fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
 fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
