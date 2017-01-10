@@ -151,11 +151,22 @@ for i in range(len(AllGeneSets)):
             # update counter at pos index
             HighestExpression[GeneCats[i]][pos] += 1
 
+# divide by the total number of genes in each category to get proportions
+for i in range(len(GeneCats)):
+    for j in range(len(HighestExpression[GeneCats[i]])):
+        HighestExpression[GeneCats[i]][j] = round(HighestExpression[GeneCats[i]][j] / len(AllGeneSets[i]), 4)
 
 
 
 for i in range(len(Tissues)):
-    print(Tissues[i], HighestExpression['CisInt'][i], HighestExpression['TransInt'][i])
+    print(Tissues[i], HighestExpression['NoOv'][i], HighestExpression['CisInt'][i], HighestExpression['TransInt'][i], HighestExpression['CisExt'][i], HighestExpression['TransExt'][i], HighestExpression['Pbk'][i], HighestExpression['Conv'][i], HighestExpression['Div'][i], sep = '\t')
+
+# create a dictionary with tissue as key and a list of gene proportions for each gene category as value
+Proportions = {}
+for i in range(len(Tissues)):
+    Proportions[Tissues[i]] = []
+    for j in range(len(GeneCats)):
+        Proportions[Tissues[i]].append(HighestExpression[GeneCats[j]][i])
 
 
 
@@ -164,46 +175,15 @@ for i in range(len(Tissues)):
 
 
 
-#    # divide counts by total of genes in each category to get the proportions
-#    for m in range(len(hosthigh)):
-#        hosthigh[m] = hosthigh[m] / len(SpHostNestedPairs)
-#    for m in range(len(nestedhigh)):
-#        nestedhigh[m] = nestedhigh[m] / len(SpHostNestedPairs)
-#    for m in range(len(controlhigh)):
-#        controlhigh[m] = controlhigh[m] / len(SpControl)
-#    # populate lists
-#    HostHighest.append(hosthigh)
-#    NestedHighest.append(nestedhigh)    
-#    ControlHighest.append(controlhigh)
-#    
-## make lists with the proportions of host, nested and control; genes in each tissues
-## [brain, cerebellum, heart, kidney, liver, testis]   
-#HumanExp = []
-#for i in range(len(HostHighest[0])):
-#    HumanExp.append(HostHighest[0][i])
-#    HumanExp.append(NestedHighest[0][i])
-#    HumanExp.append(ControlHighest[0][i])
-#ChimpExp = []
-#for i in range(len(HostHighest[1])):
-#    ChimpExp.append(HostHighest[1][i])
-#    ChimpExp.append(NestedHighest[1][i])
-#    ChimpExp.append(ControlHighest[1][i])
-#GorillaExp = []
-#for i in range(len(HostHighest[2])):
-#    GorillaExp.append(HostHighest[2][i])
-#    GorillaExp.append(NestedHighest[2][i])
-#    GorillaExp.append(ControlHighest[2][i])
-#OrangutanExp = []
-#for i in range(len(HostHighest[3])):
-#    OrangutanExp.append(HostHighest[3][i])
-#    OrangutanExp.append(NestedHighest[3][i])
-#    OrangutanExp.append(ControlHighest[3][i])
-#MacaqueExp = []
-#for i in range(len(HostHighest[4])):
-#    MacaqueExp.append(HostHighest[4][i])
-#    MacaqueExp.append(NestedHighest[4][i])
-#    MacaqueExp.append(ControlHighest[4][i])
-#
+
+
+
+
+
+
+
+
+
 ## create a function to format the subplots
 #def CreateAx(Columns, Rows, Position, figure, Expression, XLabel, YLabel, YMax):
 #    '''
