@@ -227,5 +227,6 @@ for i in range(len(Tissues)):
 # hpad and wpad control the padding between subplots
 plt.tight_layout(pad=0.2, w_pad=0, h_pad=0.5)
 
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig('HighestExpressionNested.pdf', bbox_inches = 'tight')
+fig.savefig('HighestExpressionNested.eps', bbox_inches = 'tight')
 
