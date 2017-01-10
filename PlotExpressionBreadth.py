@@ -161,7 +161,7 @@ for pvalue in PVal:
   
 
 # create figure
-fig = plt.figure(1, figsize = (5, 2.5))
+fig = plt.figure(1, figsize = (2, 1.5))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 
