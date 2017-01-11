@@ -185,7 +185,7 @@ colorscheme = ['grey', 'grey','grey','grey','grey', 'lightgrey', 'lightgrey', 'l
 # plot nucleotide divergence
 ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.1, 2.4], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
        edgecolor = 'black', linewidth = 0.5,
-       error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 1))
+       error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
 
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
@@ -196,8 +196,11 @@ ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center'
 plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9, 2.2, 2.5], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
 
 
-# add a range for the Y axis
-#plt.ylim([0, YMax])
+# add a range for the Y and X axes
+plt.ylim([0, 0.6])
+plt.xlim([0, 2.7])
+
+
   
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
