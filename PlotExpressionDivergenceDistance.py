@@ -127,10 +127,10 @@ FigFont = {'fontname':'Arial'}
 # write y axis label
 ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
 # add ticks and lebels
-plt.xticks([0.15, 0.45, 0.75, 15, 1.35, 1.65, 1.95, 2.25], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
+plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
 # add a range for the Y and X axes
 plt.ylim([0, 0.6])
-plt.xlim([0, 2.5])
+plt.xlim([0, 2.45])
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
 ax.spines["bottom"].set_visible(True)    
@@ -145,25 +145,17 @@ for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
       
 
-##################
-
-
-## perform statistical tests between gene categories in all species
-## create dict to store results {species: [P_host-nested, P_host-unnested, P_nested-unnested]}
-#AllData = [HumanExpDiv, ChimpExpDiv, GorillaExpDiv, OrangOutanExpDiv, MacaqueExpDiv]
-#PValues = {}
-## loop over inner lists in data list
-#for i in range(len(AllData)):
-#    # initialize dict with empty list
-#    PValues[species[i]] = []
-#    # loop over inner list, compare gene categories
-#    for j in range(0, len(AllData[i]) -1):
-#        for k in range(j+1, len(AllData[i])):
-#            P = stats.ranksums(AllData[i][j], AllData[i][k])[1]
-#            PValues[species[i]].append(P)
-## print p values
-#for sp in PValues:
-#    print(sp, PValues[sp])
+# perform statistical tests between gene categories
+# create list to store the p-values
+PValues = []
+# loop over inner list, compare gene categories
+for i in range(0, len(Divergence) -1):
+    for j in range(i+1, len(Divergence)):
+        P = stats.ranksums(Divergence[i], Divergence[j])[1]
+        PValues.append(P)
+# print p values
+for p in PValues:
+    print(p)
 
 
 
