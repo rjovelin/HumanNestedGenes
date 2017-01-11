@@ -129,7 +129,7 @@ ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center'
 # add ticks and lebels
 plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
 # add a range for the Y and X axes
-plt.ylim([0, 0.6])
+plt.ylim([0, 0.61])
 plt.xlim([0, 2.45])
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
