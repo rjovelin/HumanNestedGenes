@@ -175,7 +175,8 @@ for pvalue in PValues:
 Diff = ['A', 'B', 'C', 'B', 'D', 'E', 'F', 'G']
 ypos = [0.55] * 8
 xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25]
-ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+for i in range(len(Diff)):
+    ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
     
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
