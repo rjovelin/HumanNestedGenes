@@ -185,7 +185,7 @@ colorscheme = ['grey', 'grey','grey','grey','grey', 'lightgrey', 'lightgrey', 'l
 # plot nucleotide divergence
 ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.1, 2.4], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
        edgecolor = 'black', linewidth = 0.5,
-       error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
+       error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 1))
 
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
