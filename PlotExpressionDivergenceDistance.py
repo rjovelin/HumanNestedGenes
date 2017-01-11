@@ -157,7 +157,17 @@ for i in range(0, len(Divergence) -1):
 for p in PValues:
     print(p)
 
-
+# convert p-values to star significance level
+Significance = []
+for pvalue in PValues:
+    if pvalue >= 0.05:
+        Significance.append('')
+    elif pvalue < 0.05 and pvalue >= 0.01:
+        Significance.append('*')
+    elif pvalue < 0.01 and pvalue >= 0.001:
+        Significance.append('**')
+    elif pvalue < 0.001:
+        Significance.append('***')
 
 
 
