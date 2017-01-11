@@ -170,41 +170,13 @@ for pvalue in PValues:
         Significance.append('***')
 
 
-
-
-
-#
-## annotate figure to add significance
-## significant comparisons were already determined, just need to add letters to show significance
-## get the x and y coordinates
-#HumanDiff = ['A', 'B', 'C', 'AD', 'AE']
-#ChimpDiff = ['A', 'B', 'AD', 'AE', 'C']
-#GorillaDiff = ['A', 'B', 'C', 'A', 'D']
-#OrangutanDiff = ['A', 'B', 'C', 'AD', 'AE']
-#MacaqueDiff = ['A', 'B', 'AD', 'AE', 'C']
-#ypos = [0.62] * 5
-#xpos =  [0.15, 0.55, 0.95, 1.35, 1.75]
-#for i in range(len(HumanDiff)):
-#    ax1.text(xpos[i], ypos[i], HumanDiff[i], horizontalalignment='center',
-#             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
-#    ax2.text(xpos[i], ypos[i], ChimpDiff[i], horizontalalignment='center',
-#             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
-#    ax3.text(xpos[i], ypos[i], GorillaDiff[i], horizontalalignment='center',
-#             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
-#    ax4.text(xpos[i], ypos[i], OrangutanDiff[i], horizontalalignment='center',
-#             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
-#    ax5.text(xpos[i], ypos[i], MacaqueDiff[i], horizontalalignment='center',
-#             verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
-#
-## add legend relative to ax1 using ax1 coordinates
-#N = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 1, label= 'Nested')
-#P = mpatches.Patch(facecolor = '#edf8fb', edgecolor = 'black', linewidth = 1, label= 'Proximal')
-#M = mpatches.Patch(facecolor = '#b2e2e2', edgecolor = 'black', linewidth = 1, label= 'Moderate')
-#I = mpatches.Patch(facecolor = '#66c2a4', edgecolor = 'black', linewidth = 1, label= 'Intermediate')
-#D = mpatches.Patch(facecolor = '#238b45', edgecolor = 'black', linewidth = 1, label= 'Distant')
-#ax1.legend(handles = [N, P, M, I, D], loc = (0.5, 1), fontsize = 8, frameon = False, ncol = 5)
-
-
+# annotate figure to add significance
+# significant comparisons were already determined, add letters to show significance
+Diff = ['A', 'B', 'C', 'B', 'D', 'E', 'F', 'G']
+ypos = [0.55] * 8
+xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25]
+ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+    
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 
