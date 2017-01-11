@@ -85,7 +85,7 @@ ExpressionProfile = TransformRelativeExpression(ExpressionProfile)
 Proximal, Moderate, Intermediate, Distant = GenerateSetsGenePairsDistance(GeneCoord, OrderedGenes, ExpressionProfile)
 
 # filter gene pairs lacking expression
-AllPairs = [OverlappingPairs, NestedPairs, PiggybackPairs, ConvergentPairs, DivergentPairs]
+AllPairs = [NestedPairs, PiggybackPairs, ConvergentPairs, DivergentPairs]
 for i in range(len(AllPairs)):
     AllPairs[i] = FilterGenePairsWithoutExpression(AllPairs[i], ExpressionProfile)
 
@@ -95,74 +95,21 @@ AllPairs.append(Moderate)
 AllPairs.append(Intermediate)
 AllPairs.append(Distant)
 
-
 # compute expression divergence between pairs of genes
 Divergence = []
 for i in range(len(AllPairs)):
     Div = ComputeExpressionDivergenceGenePairs(AllPairs[i], ExpressionProfile)
     Divergence.append(Div)
 
-#
-## compute expression divergence between pairs of genes
-#OverlapDiv = ComputeExpressionDivergenceGenePairs(AllPairs[0], ExpressionProfile)
-#NestedDiv = ComputeExpressionDivergenceGenePairs(AllPairs[1], ExpressionProfile)
-#PiggybackDiv = ComputeExpressionDivergenceGenePairs(AllPairs[2], ExpressionProfile)
-#ConvergentDiv = ComputeExpressionDivergenceGenePairs(AllPairs[3], ExpressionProfile)
-#DivergentDiv = ComputeExpressionDivergenceGenePairs(AllPairs[4], ExpressionProfile)
-#ProximalDiv = ComputeExpressionDivergenceGenePairs(Proximal, ExpressionProfile)
-#ModerateDiv = ComputeExpressionDivergenceGenePairs(Moderate, ExpressionProfile)
-#IntermediateDiv = ComputeExpressionDivergenceGenePairs(Intermediate, ExpressionProfile)
-#DistantDiv = ComputeExpressionDivergenceGenePairs(Distant, ExpressionProfile)
-
-
 # make a list of gene category names parallel to the list of gene pairs
-GeneCats = ['NoOv', 'Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
-
-
-for i in range(len(Divergence)):
-    print(GeneCats[i], len(Divergence[i]), np.median(Divergence[i]), np.mean(Divergence[i]))
-
-
-
-#print('overlapping', len(OverlapDiv), np.median(OverlapDiv), np.mean(OverlapDiv))
-#print('nested', len(NestedDiv), np.median(NestedDiv), np.mean(NestedDiv))
-#print('piggyback', len(PiggybackDiv), np.median(PiggybackDiv), np.mean(PiggybackDiv))
-#print('convergent', len(ConvergentDiv), np.median(ConvergentDiv), np.mean(ConvergentDiv))
-#print('divergent', len(DivergentDiv), np.median(DivergentDiv), np.mean(DivergentDiv))
-#print('proximal', len(ProximalDiv), np.median(ProximalDiv), np.mean(ProximalDiv))
-#print('moderate', len(ModerateDiv), np.median(ModerateDiv), np.mean(ModerateDiv))
-#print('intermediate', len(IntermediateDiv), np.median(IntermediateDiv), np.mean(IntermediateDiv))
-#print('distant', len(DistantDiv), np.median(DistantDiv), np.mean(DistantDiv))
-
-
-
-## store lists with divergence values in a single list
-#Divergence = [OverlapDiv, NestedDiv, PiggybackDiv, ConvergentDiv, DivergentDiv,
-#              ProximalDiv, ModerateDiv, IntermediateDiv, DistantDiv]
-
-# create a function to get the mean and SEM of items in a list
-def GetMeanSEM(L):
-    '''
-    (list) -> (list, list)
-    Take a list of inner lists of numbers and return a list with mean values
-    and a parallel list with SEM values for each item of the outter list
-    '''
-    # create lists of mean and SEM
-    MeanVal, SEMVal = [], []
-    # loop over the outter ist
-    for i in range(len(L)):
-        MeanVal.append(np.mean(L[i]))
-        SEMVal.append(np.std(L[i]) / math.sqrt(len(L[i])))
-    return MeanVal, SEMVal
+GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
 
 # create lists with means and SEM for each gene category
-MeanExpDiv, SEMExpDiv = GetMeanSEM(Divergence)
-
-
-
-
-
-
+MeanExpDiv, SEMExpDiv = [], []
+# loop over lists in Divergence list
+for i in range(len(Divergence)):
+    MeanExpDiv.append(np.mean(Divergence[i]))
+    SEMExpDiv.append(np.std(Divergence[i]) / math.sqrt(len(Divergence[i])))
 
 # create figure
 fig = plt.figure(1, figsize = (3, 2))
@@ -171,7 +118,7 @@ fig = plt.figure(1, figsize = (3, 2))
 ax = fig.add_subplot(1, 1, 1)
 # set colors
 #colorscheme = ['#fb9a99', '#a6cee3','#1f78b4','#b2df8a','#33a02c', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
-colorscheme = ['grey', 'grey','grey','grey','grey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+colorscheme = ['grey','grey','grey','grey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
 
 
 #No = mpatches.Patch(facecolor = '#fb9a99', edgecolor = 'black', linewidth = 0.5, label= 'NoOv')
@@ -183,7 +130,7 @@ colorscheme = ['grey', 'grey','grey','grey','grey', 'lightgrey', 'lightgrey', 'l
 
 
 # plot nucleotide divergence
-ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.1, 2.4], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
+ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.1], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
        edgecolor = 'black', linewidth = 0.5,
        error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
 
@@ -193,22 +140,18 @@ FigFont = {'fontname':'Arial'}
 ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
 
 # add ticks and lebels
-plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9, 2.2, 2.5], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
-
+plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9, 2.2], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
 
 # add a range for the Y and X axes
 plt.ylim([0, 0.6])
-plt.xlim([0, 2.7])
+plt.xlim([0, 2.5])
 
-
-  
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
 ax.spines["bottom"].set_visible(True)    
 ax.spines["right"].set_visible(False)
 ax.spines["left"].set_visible(True)  
 
-   
 # edit tick parameters    
 plt.tick_params(axis='both', which='both', bottom='on', top='off',
                 right = 'off', left = 'on', labelbottom='on',
@@ -218,11 +161,6 @@ plt.tick_params(axis='both', which='both', bottom='on', top='off',
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
       
-
-
-
-
-
 
 ##################
 
