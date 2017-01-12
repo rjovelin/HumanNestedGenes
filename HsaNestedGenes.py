@@ -673,6 +673,41 @@ def GetSameOppositeStrandProportions(GenePairs, GeneCoord):
     return (same / (same + opposite), opposite / (same + opposite))
   
   
+  
+# use this function to match human genes with orrthologs in a single other species
+def MatchOrthologPairs(OrthoFile):
+    '''
+    (file) -> dict
+    Take a file with orthology assignment between 2 species and return a dictionary
+    of 1:1 orthologs between the 2 species. 
+    '''
+    # the file colums foloww the format:
+    # Sp1GeneID Sp1TranscriptID Sp2GeneID Sp2GeneName HomologyType OrthologyC
+    
+    # create a dict of orthologs
+    Orthos = {}
+    infile = open(OrthoFile)
+    infile.readline()
+    for line in infile:
+        # consider only 1:1 orthologs
+        if 'ortholog_one2one' in line:
+            line = line.rstrip().split('\t')
+            # get gene IDs of the 2 species
+            gene1, gene2 = line[0], line[2]
+            # check that genes are ensembl gene IDs
+            for i in [gene1, gene2]:
+                assert 'ENS' in i, 'gene id is not valid'
+                assert 'ortholog' in line[4], 'ortholog should be in homology type'
+            assert gene1 not in Orthos, 'gene is already matched to a 1:1 ortholog'
+            Orthos[gene1] = gene2
+    infile.close()                      
+    # check that all orthologs are 1;1 orthologs
+    values = list(Orthos.values())
+    for i in values:
+        assert values.count(i) == 1
+    return Orthos
+    
+  
 # Map humangenes to their orthologs in 2 other species  
 def ParseOrthologFile(OrthoFile):
     '''
