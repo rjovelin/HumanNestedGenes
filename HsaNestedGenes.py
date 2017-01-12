@@ -698,7 +698,9 @@ def MatchOrthologPairs(OrthoFile):
             for i in [gene1, gene2]:
                 assert 'ENS' in i, 'gene id is not valid'
                 assert 'ortholog' in line[4], 'ortholog should be in homology type'
-            assert gene1 not in Orthos, 'gene is already matched to a 1:1 ortholog'
+            # orthologous gene names appear multiple times in file because of multiple transcripts
+            if gene1 in Orthos:
+                assert gene2 != Orthos[gene1], 'gene is already matched to a 1:1 ortholog'
             Orthos[gene1] = gene2
     infile.close()                      
     # check that all orthologs are 1;1 orthologs
