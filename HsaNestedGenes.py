@@ -700,7 +700,7 @@ def MatchOrthologPairs(OrthoFile):
                 assert 'ortholog' in line[4], 'ortholog should be in homology type'
             # orthologous gene names appear multiple times in file because of multiple transcripts
             if gene1 in Orthos:
-                assert gene2 != Orthos[gene1], 'gene is already matched to a 1:1 ortholog'
+                assert gene2 == Orthos[gene1], 'gene is already matched to a 1:1 ortholog'
             Orthos[gene1] = gene2
     infile.close()                      
     # check that all orthologs are 1;1 orthologs
