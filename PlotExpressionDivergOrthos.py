@@ -165,8 +165,8 @@ for i in range(len(ExpressionDivergence)):
     print(b[i], len(a[i]), np.mean(ExpressionDivergence[i]))    
 
 
-for i in range(len(a)-1):
-    P = stats.ranksums(a[i], a[-1])[1]
+for i in range(0, len(ExpressionDivergence)-1):
+    P = stats.ranksums(ExpressionDivergence[i], ExpressionDivergence[-1])[1]
     print(b[i], b[-1], P)
 
 
