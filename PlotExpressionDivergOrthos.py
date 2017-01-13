@@ -123,7 +123,7 @@ ExtOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, External
 NoOvlOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, NonOverlappingGenes, Orthos) 
  
 AllPairs = [NoOvlOrthos, NstOrthos, IntOrthos, ExtOrthos, PbkOrthos, ConOrthos, DivOrthos]
-GeneCats = ['NoOvl', 'Nst', 'Internal', 'External', 'PbkOrthos', 'Conv', 'DivOrthos']
+GeneCats = ['NoOvl', 'Nst', 'Int', 'Ext', 'Pbk', 'Conv', 'Div']
 
 
 # compute expression divergence between orthologs for each gene category
