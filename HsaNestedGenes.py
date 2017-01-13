@@ -1613,4 +1613,30 @@ def RemoveTerminalStop(CodingSeq):
     return CodingSeq
                    
 
-
+# use this function to perform a permutation test
+def PermutationResampling(Sample1, Sample2, Iteration, statistic = np.mean):
+    '''
+    (list, list, int, function) -> float    
+    Take lists of values from 2 samples, the number of resampling iteration,
+    and the statistic to compare (by default the mean of the 2 samples) and
+    returns the p-value that statistic for sample1 is different from statistc
+    for sample2
+    '''
+    # compute the mean difference between the 2 samples
+    observed_diff = abs(statistic(Sample1) - statistic(Sample2))
+    # get the sample size of sample 1 
+    Nsample1 = len(Sample1)
+    # combined the values from the 2 samples into a single array
+    combined = np.concatenate([Sample1, Sample2])
+    # create a list to store the mean differences from each iteration    
+    diffs = []
+    # compute the mean difference Iteration times
+    for i in range(Iteration):
+        # shuffle the values from the 2 samples
+        xs = np.random.permutation(combined)
+        # compute the mean difference between 2 samples of same size as samples 1 and 2
+        diff = np.mean(xs[:Nsample1]) - np.mean(xs[Nsample1:])
+        diffs.append(diff)
+    # compute the 2 tails p-value 
+    pval = (np.sum(diffs > observed_diff) + np.sum(diffs < -observed_diff)) / Nsample1
+    return pval
