@@ -1638,5 +1638,5 @@ def PermutationResampling(Sample1, Sample2, Iteration, statistic = np.mean):
         diff = np.mean(xs[:Nsample1]) - np.mean(xs[Nsample1:])
         diffs.append(diff)
     # compute the 2 tails p-value 
-    pval = (np.sum(diffs > observed_diff) + np.sum(diffs < -observed_diff)) / Nsample1
+    pval = (np.sum(diffs > observed_diff) + np.sum(diffs < -observed_diff)) / Iteration
     return pval
