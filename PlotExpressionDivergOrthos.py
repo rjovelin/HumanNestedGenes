@@ -123,7 +123,7 @@ ExtOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, External
 NoOvlOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, NonOverlappingGenes, Orthos) 
  
 AllPairs = [NoOvlOrthos, NstOrthos, IntOrthos, ExtOrthos, PbkOrthos, ConOrthos, DivOrthos]
-GeneCats = ['NoOvl', 'Nst', 'Int', 'Ext', 'Pbk', 'Conv', 'Div']
+GeneCats = ['NoOv', 'Nst', 'Int', 'Ext', 'Pbk', 'Conv', 'Div']
 
 
 # compute expression divergence between orthologs for each gene category
@@ -141,14 +141,14 @@ for i in range(len(ExpressionDivergence)):
 
     
 # create figure
-fig = plt.figure(1, figsize = (3, 2))
+fig = plt.figure(1, figsize = (2.1, 2))
 
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 # set colors
 colorscheme = ['black','lightgrey','lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
 # plot nucleotide divergence
-ax.bar([0.00, 0.30, 0.60, 0.90, 1.20, 1.50, 1.80], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
+ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
        edgecolor = 'black', linewidth = 0.5,
        error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
 # set font for all text in figure
@@ -156,10 +156,10 @@ FigFont = {'fontname':'Arial'}
 # write y axis label
 ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
 # add ticks and lebels
-plt.xticks([0.10, 0.40, 0.70, 1.00, 1.30, 1.60, 1.90], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
+plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
 # add a range for the Y and X axes
-plt.ylim([0, 0.31])
-plt.xlim([0, 2.45])
+plt.ylim([0, 0.305])
+plt.xlim([0, 2.10])
 
 # add margins
 plt.margins(0.1)
@@ -198,23 +198,13 @@ for pvalue in PValues:
     elif pvalue < 0.001:
         Significance.append('***')
 
-for i in range(len(PValues)):
-    print(GeneCats[0], GeneCats[i+1], PValues[i], Significance[i], sep = '\t')
-    
+# annotate figure to add significance
+# significant comparisons were already determined, add letters to show significance
+ypos = [0.28] * 4 + [0.22] * 2
+xpos = [0.45, 0.75, 1.05, 1.35, 1.65, 1.95]
+for i in range(len(Significance)):
+    ax.text(xpos[i], ypos[i], Significance[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
-for i in range(len(PValues)):
-    print(i, PValues[i], Significance[i], sep = '\t')
-    
-
-## annotate figure to add significance
-## significant comparisons were already determined, add letters to show significance
-#Diff = ['A', 'B', 'C', 'B', 'D', 'E', 'F', 'G']
-#ypos = [0.55] * 8
-#xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25]
-#for i in range(len(Diff)):
-#    ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-
-
-    
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig('ExpressionDivergOrthos.pdf', bbox_inches = 'tight')
+fig.savefig('ExpressionDivergOrthos.eps', bbox_inches = 'tight')
