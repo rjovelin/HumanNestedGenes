@@ -122,17 +122,6 @@ def GetMeanSEM(L):
 ProtMeans, ProtSEM = GetMeanSEM(ProtLength)
 DnaMeans, DnaSEM = GetMeanSEM(GeneLength)
 
-## perform statistical tests between non-overlapping genes and each overlapping category
-## create list to store the P values
-#ProtPValues = []
-#for i in range(1, len(ProtLength)):
-#    P = stats.ranksums(ProtLength[0], ProtLength[i])[1]
-#    ProtPValues.append(P)
-#DnaPValues = []
-#for i in range(1, len(GeneLength)):
-#    P = stats.ranksums(GeneLength[0], GeneLength[i])[1]    
-#    DnaPValues.append(P)
-
 
 # perform statistical tests between non-overlapping genes and each overlapping category
 #using Kolmogorov-Smirnof test
@@ -236,14 +225,10 @@ for i in range(len(DnaSignif)):
             color = 'grey', fontname = 'Arial', size = 6)
 
 # add subplot labels
-ax1.text(-0.25, 705, 'A', horizontalalignment='center', verticalalignment='center',
+ax1.text(-0.30, 705, 'A', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
-ax1.text(0.8, 705, 'B', horizontalalignment='center', verticalalignment='center',
+ax1.text(0.85, 705, 'B', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
-
-
-
-
 
 # make sure subplots do not overlap
 plt.tight_layout()
