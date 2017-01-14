@@ -86,12 +86,8 @@ ChimpCodingSeq = FilerOutCDSSequences(ChimpCodingSeq)
 ChimpCodingSeq = RemoveTerminalStop(ChimpCodingSeq)
  
 
-# get the 1:1 orthologs between human-chimp-gorilla
-HsaPtrGgoOrthos = ParseOrthologFile('HumanChimpGorillaOrthologs.txt')
-# create a dict with human-chimp orthologs
-HumanChimpOrthos = {}
-for gene in HsaPtrGgoOrthos:
-    HumanChimpOrthos[gene] = HsaPtrGgoOrthos[gene][0]
+# get the 1:1 orthologs between human-chimp
+HumanChimpOrthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
 
 
 # create a directory named pairs
