@@ -194,6 +194,9 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, YLabel, YMax):
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')   
 
+    # add margins
+    plt.margins(0.05)
+
     return ax      
 
 
@@ -222,6 +225,10 @@ ax1.text(-0.25, 705, 'A', horizontalalignment='center', verticalalignment='cente
          color = 'black', fontname = 'Arial', size = 9)
 ax1.text(0.8, 705, 'B', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
+
+
+
+
 
 # make sure subplots do not overlap
 plt.tight_layout()
