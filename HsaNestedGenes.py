@@ -1640,3 +1640,44 @@ def PermutationResampling(Sample1, Sample2, Iteration, statistic = np.mean):
     # compute the 2 tails p-value 
     pval = (np.sum(diffs > observed_diff) + np.sum(diffs < -observed_diff)) / Iteration
     return pval
+    
+    
+    
+# use this function to compute the p-distance between 2 aligned sequences
+def ProteinDistance(seq1, seq2):
+    '''
+    (str, str) -> float
+    Return the p-distance between protein sequences seq1 and seq2: the fraction
+    of mismatched amino acids between seq1 and seq2.
+    Precondition: seq1 and seq2 must be aligned and have the same length
+    '''
+
+    # test prerequisite of equal length
+    assert len(seq1) == len(seq2), 'sequences have different lengths'
+    # accept - or ~ as gaps and make sure the sequences have same case
+    SEQ1 = seq1.replace('~', '-').upper()
+    SEQ2 = seq2.replace('~', '-').upper()
+    # set up counters. count mismatches and count positions with gaps or non-valid AAs 
+    D = 0
+    undefined = 0
+    # make a set of valid AAs
+    valid_AA = {'A', 'R', 'N', 'D', 'C', 'E', 'Q', 'G', 'H', 'I', 'L', 'K',
+                'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V'}    
+    
+    # count differences between seq1 and seq2
+    # gapped positions are excluded, undefined positions are excluded
+    for i in range(len(SEQ1)):
+        # count non-valid positions
+        if SEQ1[i] not in valid_AA or SEQ2[i] not in valid_AA:
+            undefined += 1
+        # count mismatches
+        elif SEQ1[i] in valid_AA and SEQ2[i] in valid_AA:
+            if SEQ1[i] != SEQ2[i]:
+                D += 1
+    # distance = N differences / length of sequence (without undefined sites)    
+    L = len(SEQ1) - undefined
+    if L != 0:
+        p = D/ L
+        return round(p, 6)
+    else:
+        return 'NA'
