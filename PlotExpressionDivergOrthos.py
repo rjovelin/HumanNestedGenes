@@ -150,7 +150,7 @@ colorscheme = ['black','lightgrey','lightgrey','lightgrey', 'lightgrey', 'lightg
 # plot nucleotide divergence
 ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
        edgecolor = 'black', linewidth = 0.7,
-       error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.7))
+       error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
 # write y axis label

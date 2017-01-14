@@ -170,8 +170,8 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, YLabel, YMax):
     # plot variable 
     BarPos = [0, 0.15, 0.3, 0.45, 0.6]
     Colors = ['black','lightgrey','lightgrey', 'lightgrey', 'lightgrey']
-    ax.bar(BarPos, Means, 0.1, yerr = SEM, color = Colors, edgecolor = 'black', linewidth = 1,
-           error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
+    ax.bar(BarPos, Means, 0.1, yerr = SEM, color = Colors, edgecolor = 'black', linewidth = 0.7,
+           error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for y
