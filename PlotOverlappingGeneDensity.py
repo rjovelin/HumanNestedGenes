@@ -37,6 +37,9 @@ from HsaNestedGenes import *
 BackGround = sys.argv[1]
 # get type of values to consider (frequencies or counts)
 Vals = sys.argv[2]
+# check that options have approporiate values
+assert BackGround in ['All', 'NoOverlap']
+assert Vals in ['Freq', 'Numbs']
 
 # load dictionary of overlapping gene pairs
 json_data = open('HumanOverlappingGenes.json')
