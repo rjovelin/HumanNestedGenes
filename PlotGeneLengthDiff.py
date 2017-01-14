@@ -225,7 +225,7 @@ ax2 = CreateAx(2, 1, 2, fig, DnaMeans, DnaSEM, 'Gene length (Kb)', 120)
 
 StarPos = [0.2, 0.35, 0.5, 0.65]
 ProtYPos = [450, 550, 600, 550]
-DnaYPos = [105, 105, 70, 105]
+DnaYPos = [105, 70, 70, 70]
 
 # add stars for significance
 for i in range(len(ProtSignif)):
