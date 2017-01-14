@@ -119,7 +119,7 @@ elif ExpBreadth == 'specificity':
 
 
 # make a list of all gene sets
-AllGeneSets = [NonOverlappingGenes, InternalSameGenes, InternalOppositeGenes, ExternalSameGenes,
+AllGeneSets = [NonOverlappingGenes, NestedGenes, InternalSameGenes, InternalOppositeGenes, ExternalSameGenes,
                ExternalOppositeGenes, PiggyBackGenes, ConvergentGenes,
                DivergentGenes]
 # make a parallel list of lists of gene breadth
@@ -175,8 +175,8 @@ fig = plt.figure(1, figsize = (2.5, 1.5))
 ax = fig.add_subplot(1, 1, 1)
 
 # plot variable 
-BarPos = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05]
-Colors = ['black','lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+BarPos = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.20]
+Colors = ['black','lightgrey', 'lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
 ax.bar(BarPos, MeanBreadth, 0.1, yerr = SEMBreadth, color = Colors, edgecolor = 'black', linewidth = 0.7,
        error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 0.7))
 # set font for all text in figure
@@ -203,18 +203,18 @@ ax.spines["left"].set_visible(True)
 plt.tick_params(axis='both', which='both', bottom='on', top='off', right='off',
                 left='on', labelbottom='on', colors='black', labelsize=7, direction='out')  
 # add ticks on the x axis
-TickPos = [0.05, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10]
-Labels = ['NoOv', 'CisInt', 'TransInt', 'CisExt', 'TransExt', 'Pbk', 'Conv', 'Div']
+TickPos = [0.05, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10, 1.25]
+Labels = ['NoOv', 'Nst', 'CisInt', 'TransInt', 'CisExt', 'TransExt', 'Pbk', 'Conv', 'Div']
 plt.xticks(TickPos, Labels, rotation = 30, ha = 'right')
 # Set the tick labels font name
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
 
-StarPos = [0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10]
+StarPos = [0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10, 1.25]
 if ExpBreadth == 'breadth':
-    YPos = [32] * 7
+    YPos = [32] * 8
 elif ExpBreadth == 'specificity':
-    YPos = [1] * 7
+    YPos = [1] * 8
 
 # add stars for significance
 for i in range(len(Significance)):
