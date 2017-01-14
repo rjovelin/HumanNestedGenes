@@ -95,7 +95,7 @@ ax = fig.add_subplot(1, 1, 1)
 ## Create a horizontal bar plot for proportions of opposite strand pairs
 ax.bar([0, 0.6, 1.2], Opposite, width = 0.5, label = 'opposite strand', color= 'black', linewidth = 0.7)
 # Create a horizontal bar plot for proportions of same strand pairs
-ax.bar([0, 0.6, 1.2], Same, width = 0.5, bottom = Opposite, label = 'same strand', color= 'lightgrey', linewidth = 7)
+ax.bar([0, 0.6, 1.2], Same, width = 0.5, bottom = Opposite, label = 'same strand', color= 'lightgrey', linewidth = 0.7)
 
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
@@ -134,7 +134,8 @@ plt.margins(0.1)
 # add legend
 S = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 1, label= 'same')
 O = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 1, label= 'opposite')
-ax.legend(handles = [S, O], loc = (-0.3, 1.05), fontsize = 8, linewidth= 0.7, frameon = False, ncol = 2)
+ax.legend(handles = [S, O], loc = (-0.3, 1.05), fontsize = 8, frameon = False, ncol = 2)
+
 
 # make sure subplots do not overlap
 plt.tight_layout()
