@@ -148,26 +148,13 @@ def GetMeanSEM(L):
 # make a list of means and SEM for each gene category
 MeanBreadth, SEMBreadth = GetMeanSEM(GeneBreadth)
 
-## compare each overlapping gene category to the non-overlapping genes
-#PVal = []
-## loop over gene breadth for overlapping genes only
-#for i in range(1, len(GeneBreadth)):
-#    P = stats.ranksums(GeneBreadth[i], GeneBreadth[0])[1]
-#    PVal.append(P)
-
-# perform statistical tests between gene categories using Kolmogorov-Smirnof test
+# compare each overlapping gene category to the non-overlapping genes using Kolmogorov-Smirnof test
 # create list to store the p-values
 PVal = []
 for i in range(1, len(GeneBreadth)):
     # compare each gene category to non-overlapping genes
     val, P = stats.ks_2samp(GeneBreadth[0], GeneBreadth[i])
     PVal.append(P)
-
-
-
-
-
-
 
 # convert p-values to star significance level
 Significance = []
@@ -233,6 +220,9 @@ elif ExpBreadth == 'specificity':
 for i in range(len(Significance)):
     ax.text(StarPos[i], YPos[i], Significance[i], horizontalalignment='center', verticalalignment='center',
             color = 'grey', fontname = 'Arial', size = 6)
+
+# add some space around x axis
+plt.margins(0.05)
 
 # check if specificity or breadth is computed
 if ExpBreadth == 'breadth':
