@@ -175,8 +175,8 @@ ax = fig.add_subplot(1, 1, 1)
 # plot variable 
 BarPos = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05]
 Colors = ['black','lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
-ax.bar(BarPos, MeanBreadth, 0.1, yerr = SEMBreadth, color = Colors, edgecolor = 'black', linewidth = 1,
-       error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
+ax.bar(BarPos, MeanBreadth, 0.1, yerr = SEMBreadth, color = Colors, edgecolor = 'black', linewidth = 0.7,
+       error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 0.7))
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
 # write label for y
