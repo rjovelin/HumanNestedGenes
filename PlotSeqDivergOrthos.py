@@ -103,8 +103,8 @@ for i in range(len(AllGenes)):
     # loop over genes in given gene set
     for gene in AllGenes[i]:
         # check that gene has ortholog
-        if gene in Orthologs:
-            orthologs.append([gene, Orthologs[gene]])
+        if gene in Orthos:
+            orthologs.append([gene, Orthos[gene]])
     AllPairs.append(orthologs)
 
     
