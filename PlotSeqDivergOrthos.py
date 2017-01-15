@@ -183,8 +183,8 @@ for i in range(len(AllPairs)):
 # create lists with means and SEM for each gene category
 MeanAADiff, SEMAADiff = [], []
 for i in range(len(AADiffs)):
-    MeanExpDiv.append(np.mean(AADiffs[i]))
-    SEMExpDiv.append(np.std(AADiffs[i]) / math.sqrt(len(AADiffs[i])))
+    MeanAADiff.append(np.mean(AADiffs[i]))
+    SEMAADiff.append(np.std(AADiffs[i]) / math.sqrt(len(AADiffs[i])))
 
  # create lists with means and SEM for dN for each gene category
 MeandN, SEMdN = [], []
@@ -193,8 +193,14 @@ for i in range(len(dN)):
     SEMdN.append(np.std(dN[i]) / math.sqrt(len(dN[i])))
   
 MeandS, SEMdS = [], []
+for i in range(len(dS)):
+    MeandS.append(np.mean(dS[i]))
+    SEMdS.append(np.std(dS[i]) / math.sqrt(len(dS[i])))
 
-
+MeanOmega, SEMOmega = [], []
+for i in range(len(Omega)):
+    MeanOmega.append(np.mean(Omega[i]))
+    SEMOmega.append(np.std(Omega[i]) / math.sqrt(len(Omega[i])))
 
 
 
@@ -209,7 +215,7 @@ MeandS, SEMdS = [], []
 
   
 for i in range(len(GeneCats)):
-    print(i, Genecats[i], MeanAADiff[i], MeandN[i], sep = '\t')
+    print(i, GeneCats[i], MeanAADiff[i], MeandN[i], MeandS[i], MeanOmega[i], sep = '\t')
 
 
 
