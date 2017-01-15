@@ -111,7 +111,7 @@ for i in range(len(AllGenes)):
 # compute AA differences between orthologs
 Proteins = {}
 # make a list of codon based alignment files
-files = [i for i in os.list('HumanChimpCodeml/') if '.txt' in i and 'ENSG' in i and 'ENSPTR' in i and 'codeml' not in i and '.out' not in i]
+files = [i for i in os.listdir('HumanChimpCodeml/') if '.txt' in i and 'ENSG' in i and 'ENSPTR' in i and 'codeml' not in i and '.out' not in i]
 # loop over files, get the aligned coding sequences
 for filename in files:
     infile = open('HumanChimpCodeml/' + filename)
@@ -144,7 +144,7 @@ for i in range(len(AllPairs)):
     # loop of pairs in given list
     for pair in AllPairs[i]:
         if pair[0] in Proteins:
-            D = ProteinDistance(Proteins(pair[0]), Proteins(pair[1]))
+            D = ProteinDistance(Proteins[pair[0]], Proteins[pair[1]])
             if D != 'NA':
                 protdiff.append(D)
             else:
@@ -187,11 +187,27 @@ for i in range(len(AADiffs)):
     SEMExpDiv.append(np.std(AADiffs[i]) / math.sqrt(len(AADiffs[i])))
 
  # create lists with means and SEM for dN for each gene category
-MeandN, SEMdN
+MeandN, SEMdN = [], []
 for i in range(len(dN)):
     MeandN.append(np.mean(dN[i]))
     SEMdN.append(np.std(dN[i]) / math.sqrt(len(dN[i])))
-    
+  
+MeandS, SEMdS = [], []
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
 for i in range(len(GeneCats)):
     print(i, Genecats[i], MeanAADiff[i], MeandN[i], sep = '\t')
 
