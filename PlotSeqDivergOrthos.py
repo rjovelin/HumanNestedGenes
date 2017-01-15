@@ -97,44 +97,44 @@ for i in range(len(AllGenes)):
     AllPairs.append(orthologs)
 
     
-# compute AA differences between orthologs
-Proteins = {}
-# make a list of codon based alignment files
-files = [i for i in os.listdir('HumanChimpCodeml/') if '.txt' in i and 'ENSG' in i and 'ENSPTR' in i and 'codeml' not in i and '.out' not in i]
-# loop over files, get the aligned coding sequences
-for filename in files:
-    infile = open('HumanChimpCodeml/' + filename)
-    # skip the first line
-    infile.readline()
-    content = infile.read().rstrip()
-    infile.close()
-    content = content.split('>')
-    content.remove('')
-    for i in range(len(content)):
-        content[i] = content[i].split('\n')
-    hsagene, hsaseq = content[0][0], content[0][1]
-    ptrgene, ptrseq = content[1][0], content[1][1]
-    assert 'ENSG' in hsagene and 'ENSPTR' in ptrgene
-    assert hsagene not in Proteins and ptrgene not in Proteins
-    Proteins[hsagene] = hsaseq
-    Proteins[ptrgene] = ptrseq
-# translate sequences
-for gene in Proteins:
-    Proteins[gene] = TranslateCDS(Proteins[gene])
+## compute AA differences between orthologs
+#Proteins = {}
+## make a list of codon based alignment files
+#files = [i for i in os.listdir('HumanChimpCodeml/') if '.txt' in i and 'ENSG' in i and 'ENSPTR' in i and 'codeml' not in i and '.out' not in i]
+## loop over files, get the aligned coding sequences
+#for filename in files:
+#    infile = open('HumanChimpCodeml/' + filename)
+#    # skip the first line
+#    infile.readline()
+#    content = infile.read().rstrip()
+#    infile.close()
+#    content = content.split('>')
+#    content.remove('')
+#    for i in range(len(content)):
+#        content[i] = content[i].split('\n')
+#    hsagene, hsaseq = content[0][0], content[0][1]
+#    ptrgene, ptrseq = content[1][0], content[1][1]
+#    assert 'ENSG' in hsagene and 'ENSPTR' in ptrgene
+#    assert hsagene not in Proteins and ptrgene not in Proteins
+#    Proteins[hsagene] = hsaseq
+#    Proteins[ptrgene] = ptrseq
+## translate sequences
+#for gene in Proteins:
+#    Proteins[gene] = TranslateCDS(Proteins[gene])
 
    
-# loop over ortholog pairs for each gene category and compute the protein distance
-AADiffs = []
-for i in range(len(AllPairs)):
-    protdiff = []
-    # loop of pairs in given list
-    for pair in AllPairs[i]:
-        if pair[0] in Proteins:
-            D = ProteinDistance(Proteins[pair[0]], Proteins[pair[1]])
-            if D != 'NA':
-                protdiff.append(D)
-    AADiffs.append(protdiff)
-   
+## loop over ortholog pairs for each gene category and compute the protein distance
+#AADiffs = []
+#for i in range(len(AllPairs)):
+#    protdiff = []
+#    # loop of pairs in given list
+#    for pair in AllPairs[i]:
+#        if pair[0] in Proteins:
+#            D = ProteinDistance(Proteins[pair[0]], Proteins[pair[1]])
+#            if D != 'NA':
+#                protdiff.append(D)
+#    AADiffs.append(protdiff)
+#   
     
 # create a dict with divergence values
 SeqDiv = {}
@@ -164,11 +164,11 @@ for i in range(len(AllPairs)):
     dS.append(syn)
     Omega.append(ratio)
     
-# create lists with means and SEM for each gene category
-MeanAADiff, SEMAADiff = [], []
-for i in range(len(AADiffs)):
-    MeanAADiff.append(np.mean(AADiffs[i]))
-    SEMAADiff.append(np.std(AADiffs[i]) / math.sqrt(len(AADiffs[i])))
+## create lists with means and SEM for each gene category
+#MeanAADiff, SEMAADiff = [], []
+#for i in range(len(AADiffs)):
+#    MeanAADiff.append(np.mean(AADiffs[i]))
+#    SEMAADiff.append(np.std(AADiffs[i]) / math.sqrt(len(AADiffs[i])))
 
  # create lists with means and SEM for dN for each gene category
 MeandN, SEMdN = [], []
@@ -188,7 +188,10 @@ for i in range(len(Omega)):
 
 
 
-
+for i in range(len(GeneCats)):
+    print(i, GeneCats[i], len(dN[i]), len(dS[i]), len(Omega[i]), sep ='\t')
+    print(i, GeneCats[i], min(dN[i]), min(dS[i]), min(Omega[i]), sep ='\t')
+    print(i, GeneCats[i], max(dN[i]), max(dS[i]), max(Omega[i]), sep ='\t')
 
 
 
@@ -199,7 +202,7 @@ for i in range(len(Omega)):
 
   
 for i in range(len(GeneCats)):
-    print(i, GeneCats[i], MeanAADiff[i], MeandN[i], MeandS[i], MeanOmega[i], sep = '\t')
+    print(i, GeneCats[i], MeandN[i], MeandS[i], MeanOmega[i], sep = '\t')
 
 
 
