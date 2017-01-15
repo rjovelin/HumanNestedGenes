@@ -38,11 +38,11 @@ for filename in outfiles:
         omega = 'NA'
     # filter out genes with dN or dS or omega values > 10
     if omega == 'NA':
-        if dN <= 10 and dS <= 10:
+        if dN <= 2 and dS <= 2:
             # write results to file    
             newfile.write('\t'.join([HumanGene, ChimpGene, str(dN), str(dS), str(omega)]) + '\n')
     else:
-        if dN <= 10 and dS <= 10 and omega <= 10:
+        if dN <= 2 and dS <= 2 and omega <= 2:
             newfile.write('\t'.join([HumanGene, ChimpGene, str(dN), str(dS), str(omega)]) + '\n')
     # close outputfile
     infile.close()
