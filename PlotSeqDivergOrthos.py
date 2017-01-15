@@ -85,7 +85,7 @@ Orthos = {}
 files = [i for i in os.listdir('HumanChimpCodeml/') if '.txt' in i and 'ENSG' in i and 'ENSPTR' in i and 'codeml' not in i and '.out' not in i]
 # loop over files, get the aligned coding sequences
 for filename in files:
-    genes = filename[:'.txt']
+    genes = filename[:genes.index('.txt')]
     genes = genes.split('_')
     Orthos[genes[0]] = genes[1]
 
