@@ -77,19 +77,8 @@ for pair in NestedPairs:
     ExternalGenes.add(pair[0])
     InternalGenes.add(pair[1])
     
-## get 1:1 orthologs between human and chimp
-#Orthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
-
-
-Orthos = {}
-files = [i for i in os.listdir('HumanChimpCodeml/') if '.txt' in i and 'ENSG' in i and 'ENSPTR' in i and 'codeml' not in i and '.out' not in i]
-# loop over files, get the aligned coding sequences
-for filename in files:
-    genes = filename[:filename.index('.txt')]
-    genes = genes.split('_')
-    Orthos[genes[0]] = genes[1]
-
-
+# get 1:1 orthologs between human and chimp
+Orthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
 
 # create lists of orthologous pairs for each gene category 
 GeneCats = ['NoOv', 'Nst', 'Int', 'Ext', 'Pbk', 'Conv', 'Div']
@@ -133,10 +122,7 @@ for filename in files:
 for gene in Proteins:
     Proteins[gene] = TranslateCDS(Proteins[gene])
 
-
-
-weird = 0
-    
+   
 # loop over ortholog pairs for each gene category and compute the protein distance
 AADiffs = []
 for i in range(len(AllPairs)):
@@ -147,10 +133,8 @@ for i in range(len(AllPairs)):
             D = ProteinDistance(Proteins[pair[0]], Proteins[pair[1]])
             if D != 'NA':
                 protdiff.append(D)
-            else:
-                weird += 1
     AADiffs.append(protdiff)
-print('undefined prot', weird)    
+   
     
 # create a dict with divergence values
 SeqDiv = {}
