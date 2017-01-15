@@ -1642,7 +1642,6 @@ def PermutationResampling(Sample1, Sample2, Iteration, statistic = np.mean):
     return pval
     
     
-    
 # use this function to compute the p-distance between 2 aligned sequences
 def ProteinDistance(seq1, seq2):
     '''
@@ -1681,3 +1680,7 @@ def ProteinDistance(seq1, seq2):
         return round(p, 6)
     else:
         return 'NA'
+        
+        
+        
+    
