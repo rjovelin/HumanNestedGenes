@@ -169,13 +169,13 @@ infile.close()
 # make lists of dN, dS and omega values for each gene category
 dN, dS, Omega = [], [], []
 for i in range(len(AllPairs)):
-    if pair[0] in SeqDiv:
-        nonsyn, syn, ratio = [], [], []
-        for pair in AllPairs[i]:
-             nonsyn.append(SeqDiv[pair[0]][0])
-             syn.append(SeqDiv[pair[0]][1])
-             if SeqDiv[pair[0]][-1] != 'NA':
-                 ratio.append(SeqDiv[pair[0]][-1])
+    nonsyn, syn, ratio = [], [], []
+    for pair in AllPairs[i]:
+        if pair[0] in SeqDiv:
+            nonsyn.append(SeqDiv[pair[0]][0])
+            syn.append(SeqDiv[pair[0]][1])
+            if SeqDiv[pair[0]][-1] != 'NA':
+                ratio.append(SeqDiv[pair[0]][-1])
     dN.append(nonsyn)
     dS.append(syn)
     Omega.append(ratio)
