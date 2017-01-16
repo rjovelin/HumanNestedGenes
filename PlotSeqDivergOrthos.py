@@ -294,13 +294,13 @@ ax2 = CreateAx(2, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', '
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
-ypos = [0.47, 0.50, 0.48, 0.48, 0.45, 0.45]
+ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
 xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
 for i in range(len(PValOmega)):
-    ax1.text(xpos[i], ypos[i], PValOmega[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+    ax1.text(xpos[i], ypos[i], PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 
 for i in range(len(PProp)):
-    ax2.text(xpos[i], 1.02, PValOmega[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+    ax2.text(xpos[i], 1.02, PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 
 # add legend
 NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
@@ -310,7 +310,6 @@ ax2.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, 
 
 # make sure subplots do not overlap
 plt.tight_layout()
-
 
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
