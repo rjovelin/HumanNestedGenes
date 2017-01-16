@@ -301,36 +301,12 @@ ax2 = CreateAx(2, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', '
 
 
 
-
-
-#
-#
-## perform statistical tests between gene categories using Kolmogorov-Smirnof test
-## create list to store the p-values
-#PValues = []
-#for i in range(1, len(ExpressionDivergence)):
-#    # compare each gene category to non-overlapping genes
-#    val, P = stats.ks_2samp(ExpressionDivergence[0], ExpressionDivergence[i])
-#    PValues.append(P)
-#
-## convert p-values to star significance level
-#Significance = []
-#for pvalue in PValues:
-#    if pvalue >= 0.05:
-#        Significance.append('')
-#    elif pvalue < 0.05 and pvalue >= 0.01:
-#        Significance.append('*')
-#    elif pvalue < 0.01 and pvalue >= 0.001:
-#        Significance.append('**')
-#    elif pvalue < 0.001:
-#        Significance.append('***')
-#
-## annotate figure to add significance
-## significant comparisons were already determined, add letters to show significance
-#ypos = [0.28] * 4 + [0.22] * 2
-#xpos = [0.45, 0.75, 1.05, 1.35, 1.65, 1.95]
-#for i in range(len(Significance)):
-#    ax.text(xpos[i], ypos[i], Significance[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+# annotate figure to add significance
+# significant comparisons were already determined, add letters to show significance
+ypos = [0.28] * 4 + [0.22] * 2
+xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
+for i in range(len(Significance)):
+    ax.text(xpos[i], ypos[i], Significance[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
 
 # make sure subplots do not overlap
@@ -342,7 +318,7 @@ plt.tight_layout()
 # add legend
 NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
 WiH = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
-ax2.legend(handles = [WiH, NoH], loc = (-0.3, 1.05), fontsize = 7, frameon = False, ncol = 2)
+ax2.legend(handles = [WiH, NoH], loc = (0, 1.05), fontsize = 6, frameon = False, ncol = 2)
 
 
 ## make sure subplots do not overlap
