@@ -236,19 +236,10 @@ for i in range(len(GeneCounts)):
     assert sum(GeneCounts[i]) == len(AllGenes[i])
 
 
-  
-# create figure
-fig = plt.figure(1, figsize = (4.5, 2))
-
-
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YMax):
     '''
-    (int, int, int, figure_object, list, list, list, list, list, str, str, int)
-    Take the number of a column, and rows in the figure object and the position of
-    the ax in figure, 2 lists of data, a list of bar positions, the list of tick
-    positions and their labels, a list of colors, a label for the Y axis,
-    a maximum value for the Y axis and return an ax instance in the figure
+    Returns a ax instance in figure
     '''    
 
     # add a plot to figure (N row, N column, plot N)
@@ -266,7 +257,6 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
         # Create a horizontal bar plot for proportions of same strand pairs
         ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'no homolog', color= 'lightgrey', linewidth = 0.7)
 
-           
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write y axis label
@@ -294,41 +284,32 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
     
     return ax
 
+
+# create figure
+fig = plt.figure(1, figsize = (4.5, 2))
 # plot data
 ax1 = CreateAx(2, 1, 1, fig, [MeanOmega, SEMOmega], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', 0.50)
 ax2 = CreateAx(2, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', 'proportion', 1)
 
 
-
-
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
-ypos = [0.28] * 4 + [0.22] * 2
+ypos = [0.47, 0.50, 0.48, 0.48, 0.45, 0.45]
 xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
-for i in range(len(Significance)):
-    ax.text(xpos[i], ypos[i], Significance[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+for i in range(len(PValOmega)):
+    ax1.text(xpos[i], ypos[i], PValOmega[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
-
-# make sure subplots do not overlap
-plt.tight_layout()
-
-
-
+for i in range(len(PProp)):
+    ax2.text(xpos[i], 1.02, PValOmega[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
 # add legend
 NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
 WiH = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
-ax2.legend(handles = [WiH, NoH], loc = (0, 1.05), fontsize = 6, frameon = False, ncol = 2)
+ax2.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
 
 
-## make sure subplots do not overlap
-#plt.tight_layout()
-
-
-
-
-
-
+# make sure subplots do not overlap
+plt.tight_layout()
 
 
 # save figure
