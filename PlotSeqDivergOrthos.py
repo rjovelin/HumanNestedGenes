@@ -221,11 +221,11 @@ plot2 = CreateAx(2, 1, 2, figure, [MeandS, SEMdS], GeneCats, 'Nucleotide diverge
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
-ypos = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
+ypos = [0.022, 0.02, 0.027, 0.02, 0.02, 0.02]
 xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
 for i in range(len(PValdN)):
     plot1.text(xpos[i], ypos[i], PValdN[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-ypos = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+ypos = [0.045, 0.045, 0.05, 0.045, 0.04, 0.04]
 for i in range(len(PValdS)):
     plot2.text(xpos[i], ypos[i], PValdS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 
@@ -233,5 +233,6 @@ for i in range(len(PValdS)):
 plt.tight_layout()
 
 # save figure
-figure.savefig('truc.pdf', bbox_inches = 'tight')
+figure.savefig('NucleotideDivergenceOrthos.pdf', bbox_inches = 'tight')
+figure.savefig('NucleotideDivergenceOrthos.eps', bbox_inches = 'tight')
 
