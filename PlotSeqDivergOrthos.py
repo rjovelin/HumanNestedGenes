@@ -341,5 +341,5 @@ for i in range(len(PValdS)):
 plt.tight_layout()
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+figure2.savefig('truc.pdf', bbox_inches = 'tight')
 
