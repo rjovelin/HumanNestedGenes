@@ -5,9 +5,7 @@ Created on Sat Jan 14 11:58:03 2017
 @author: Richard
 """
 
-# use this script to plot sequence divergence between orthologs 
-# make a figure with dN/dS and proportion of genes with homologs
-# make a second figure with dN and with dS
+# use this script to plot dN/dS and between orthologs and proportion of genes with homologs
 
 
 # import modules
@@ -107,36 +105,20 @@ infile.readline()
 for line in infile:
     if line.startswith('ENSG'):
         line = line.rstrip().split('\t')
-        SeqDiv[line[0]] = [float(line[2]), float(line[3])]
         if line[-1] != 'NA':
-            SeqDiv[line[0]].append(float(line[-1]))
-        else:
-            SeqDiv[line[0]].append(line[-1])
+            SeqDiv[line[0]] = float(line[-1])
 infile.close()            
     
-# make lists of dN, dS and omega values for each gene category
-dN, dS, Omega = [], [], []
+# make list of dN/dS for each gene category
+Omega = []
 for i in range(len(AllPairs)):
-    nonsyn, syn, ratio = [], [], []
+    ratio = [] 
     for pair in AllPairs[i]:
         if pair[0] in SeqDiv:
-            nonsyn.append(SeqDiv[pair[0]][0])
-            syn.append(SeqDiv[pair[0]][1])
-            if SeqDiv[pair[0]][-1] != 'NA':
-                ratio.append(SeqDiv[pair[0]][-1])
-    dN.append(nonsyn)
-    dS.append(syn)
+            ratio.append(SeqDiv[pair[0]])
     Omega.append(ratio)
     
- # create lists with means and SEM for dN for each gene category
-MeandN, SEMdN = [], []
-for i in range(len(dN)):
-    MeandN.append(np.mean(dN[i]))
-    SEMdN.append(np.std(dN[i]) / math.sqrt(len(dN[i])))
-MeandS, SEMdS = [], []
-for i in range(len(dS)):
-    MeandS.append(np.mean(dS[i]))
-    SEMdS.append(np.std(dS[i]) / math.sqrt(len(dS[i])))
+ # create lists with means and SEM for dN/dS for each gene category
 MeanOmega, SEMOmega = [], []
 for i in range(len(Omega)):
     MeanOmega.append(np.mean(Omega[i]))
@@ -144,39 +126,12 @@ for i in range(len(Omega)):
 
 # perform statistical tests between gene categories using Kolmogorov-Smirnof test
 # create list to store the p-values
-PValdN, PValdS, PValOmega = [], [], []
-for i in range(1, len(dN)):
-    # compare each gene category to non-overlapping genes
-    val, P = stats.ks_2samp(dN[0], dN[i])
-    PValdN.append(P)
-for i in range(1, len(dS)):
-    # compare each gene category to non-overlapping genes
-    val, P = stats.ks_2samp(dS[0], dS[i])
-    PValdS.append(P)
+PValOmega = []
 for i in range(1, len(Omega)):
     # compare each gene category to non-overlapping genes
     val, P = stats.ks_2samp(Omega[0], Omega[i])
     PValOmega.append(P)
-
 # replace P values with significance
-for i in range(len(PValdN)):
-    if PValdN[i] >= 0.05:
-        PValdN[i] = ''
-    elif PValdN[i] < 0.05 and PValdN[i] >= 0.01:
-        PValdN[i] = '*'
-    elif PValdN[i] < 0.01 and PValdN[i] >= 0.001:
-        PValdN[i] = '**'
-    elif PValdN[i] < 0.001:
-        PValdN[i] = '***'
-for i in range(len(PValdS)):
-    if PValdS[i] >= 0.05:
-        PValdS[i] = ''
-    elif PValdS[i] < 0.05 and PValdS[i] >= 0.01:
-        PValdS[i] = '*'
-    elif PValdS[i] < 0.01 and PValdS[i] >= 0.001:
-        PValdS[i] = '**'
-    elif PValdS[i] < 0.001:
-        PValdS[i] = '***'
 for i in range(len(PValOmega)):
     if PValOmega[i] >= 0.05:
         PValOmega[i] = ''
@@ -246,7 +201,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
     '''    
 
     # add a plot to figure (N row, N column, plot N)
-    ax = fig.add_subplot(Rows, Columns, Position)
+    ax = figure.add_subplot(Rows, Columns, Position)
     # check type of graphic    
     if DataType == 'divergence':
         # set colors
@@ -317,29 +272,3 @@ plt.tight_layout()
 # save figure
 fig.savefig('SelectiveConstraints.pdf', bbox_inches = 'tight')
 fig.savefig('SelectiveConstraints.eps', bbox_inches = 'tight')
-
-
-# make a figure with mean dN and dS 
-
-# create figure
-figure2 = plt.figure(1, figsize = (4.5, 2))
-# plot data
-ax1 = CreateAx(2, 1, 1, figure2, [MeandN, SEMdN], GeneCats, 'Nucleotide divergence (dN)', 'divergence', 0.025)
-ax2 = CreateAx(2, 1, 2, figure2, [MeandS, SEMdS], GeneCats, 'Nucleotide divergence (dS)', 'divergence', 0.05)
-
-# annotate figure to add significance
-# significant comparisons were already determined, add letters to show significance
-ypos = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
-xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
-for i in range(len(PValdN)):
-    ax1.text(xpos[i], ypos[i], PValdN[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-ypos = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
-for i in range(len(PValdS)):
-    ax2.text(xpos[i], 1.02, PValdS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-
-# make sure subplots do not overlap
-plt.tight_layout()
-
-# save figure
-figure2.savefig('truc.pdf', bbox_inches = 'tight')
-
