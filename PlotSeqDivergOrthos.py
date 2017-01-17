@@ -6,6 +6,9 @@ Created on Sat Jan 14 11:58:03 2017
 """
 
 # use this script to plot sequence divergence between orthologs 
+# make a figure with dN/dS and proportion of genes with homologs
+# make a second figure with dN and with dS
+
 
 # import modules
 # use Agg backend on server without X server
@@ -285,12 +288,14 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
     return ax
 
 
+
+# make a figure with mean dN/dS and with proportion of gene with homologs
+
 # create figure
 fig = plt.figure(1, figsize = (4.5, 2))
 # plot data
 ax1 = CreateAx(2, 1, 1, fig, [MeanOmega, SEMOmega], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', 0.50)
 ax2 = CreateAx(2, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', 'proportion', 1)
-
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
@@ -298,7 +303,6 @@ ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
 xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
 for i in range(len(PValOmega)):
     ax1.text(xpos[i], ypos[i], PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-
 for i in range(len(PProp)):
     ax2.text(xpos[i], 1.02, PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 
@@ -307,27 +311,35 @@ NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 
 WiH = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
 ax2.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
 
+# make sure subplots do not overlap
+plt.tight_layout()
+
+# save figure
+fig.savefig('SelectiveConstraints.pdf', bbox_inches = 'tight')
+fig.savefig('SelectiveConstraints.eps', bbox_inches = 'tight')
+
+
+# make a figure with mean dN and dS 
+
+# create figure
+figure2 = plt.figure(1, figsize = (4.5, 2))
+# plot data
+ax1 = CreateAx(2, 1, 1, figure2, [MeandN, SEMdN], GeneCats, 'Nucleotide divergence (dN)', 'divergence', 0.025)
+ax2 = CreateAx(2, 1, 2, figure2, [MeandS, SEMdS], GeneCats, 'Nucleotide divergence (dS)', 'divergence', 0.05)
+
+# annotate figure to add significance
+# significant comparisons were already determined, add letters to show significance
+ypos = [0.03, 0.03, 0.03, 0.03, 0.03, 0.03]
+xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
+for i in range(len(PValdN)):
+    ax1.text(xpos[i], ypos[i], PValdN[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+ypos = [0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+for i in range(len(PValdS)):
+    ax2.text(xpos[i], 1.02, PValdS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 
 # make sure subplots do not overlap
 plt.tight_layout()
 
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
-#ax1 = CreateAx(3, 1, 1, fig, [MeandN, SEMdN], GeneCats, 'Nucleotide divergence (dN)', 'divergence', 0.025)
-#ax2 = CreateAx(3, 1, 2, fig, [MeandS, SEMdS], GeneCats, 'Nucleotide divergence (dS)', 'divergence', 0.05)
-#
 
