@@ -182,11 +182,31 @@ AllGenes = [NonOverlappingGenes, NestedGenes, InternalGenes, ExternalGenes,
             PiggyBackGenes, ConvergentGenes, DivergentGenes] 
 
 print('GAD genes')
-for item in AllGenes:
-    print(len(item.intersection(GADID)), len(item) - len(item.intersection(GADID)))
+for i in range(1, len(AllGenes)):
+    # compute the number of disease and non-disease genes
+    DiseaseNonOv = len(AllGenes[0].intersection(GADID))
+    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in GADID])
+    disease = len([j for j in AllGenes[i] if j in GADID])
+    nondisease = len([j for j in AllGenes[i] if j not in GADID])
+    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
+    print(i, round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4))
+     
+
 
 print('GWAS genes')
 for item in AllGenes:
-    print(len(item.intersection(GWASID)), len(item) - len(item.intersection(GWASID)))
+    # compute the number of disease and non-disease genes
+    DiseaseNonOv = len(AllGenes[0].intersection(GWASID))
+    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in GWASID])
+    disease = len([j for j in AllGenes[i] if j in GWASID])
+    nondisease = len([j for j in AllGenes[i] if j not in GWASID])
+    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
+    print(i, round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4))
+
+
+
+
+
+
 
     
