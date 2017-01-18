@@ -76,6 +76,22 @@ for pair in NestedPairs:
     ExternalGenes.add(pair[0])
     InternalGenes.add(pair[1])
 
+# create lists of nested gene pairs with same and opposite directions
+same, opposite = [], []
+for pair in NestedPairs:
+    orientation = GenePairOrientation(pair, GeneCoord)
+    if len(set(orientation)) == 2:
+        opposite.append(pair)
+    elif len(set(orientation)) == 1:
+        same.append(pair)
+# create sets of internal and external nested genes depending on orientation 
+InternalSameGenes, InternalOppositeGenes, ExternalSameGenes, ExternalOppositeGenes = set(), set(), set(), set()
+for pair in same:
+    ExternalSameGenes.add(pair[0])
+    InternalSameGenes.add(pair[1])
+for pair in opposite:
+    ExternalOppositeGenes.add(pair[0])
+    InternalOppositeGenes.add(pair[1])
 
 # map ensembl gene IDs to gene names
 GeneNames = {}
@@ -175,38 +191,83 @@ for name in GWAS:
 print('GWAS', len(GWASID))
 
 
-
+# make a set of cancer driver genes
+Drivers = set()
+infile = open('driver_genes_per_tumor_syn7314119.csv')
+infile.readline()
+for line in infile:
+    if line.rstrip() != '':
+        line = line.rstrip().split('\t')
+        Drivers.add(line[2][:line[2].index('.')])
+infile.close()
 
 
 AllGenes = [NonOverlappingGenes, NestedGenes, InternalGenes, ExternalGenes,
             PiggyBackGenes, ConvergentGenes, DivergentGenes] 
 
+GeneCats = ['NoOvl', 'Nst', 'Int', 'Ext', 'Pgk', 'Con', 'Div'] 
+
+
+
 print('GAD genes')
 for i in range(1, len(AllGenes)):
     # compute the number of disease and non-disease genes
-    DiseaseNonOv = len(AllGenes[0].intersection(GADID))
+    DiseaseNonOv = len([j for j in AllGenes[0] if j in GADID])
     NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in GADID])
     disease = len([j for j in AllGenes[i] if j in GADID])
     nondisease = len([j for j in AllGenes[i] if j not in GADID])
     p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-    print(i, round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
+    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
+          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
+          disease, nondisease, round(disease / (disease + nondisease), 4), p)
      
-
-
 print('GWAS genes')
 for i in range(1, len(AllGenes)):
     # compute the number of disease and non-disease genes
-    DiseaseNonOv = len(AllGenes[0].intersection(GWASID))
+    DiseaseNonOv = len([j for j in AllGenes[0] if j in GWASID])
     NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in GWASID])
     disease = len([j for j in AllGenes[i] if j in GWASID])
     nondisease = len([j for j in AllGenes[i] if j not in GWASID])
     p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-    print(i, round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
+    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
+    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
+          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
+          disease, nondisease, round(disease / (disease + nondisease), 4), p)
 
 
+print('driver genes')
+for i in range(1, len(AllGenes)):
+    # compute the number of disease and non-disease genes
+    DiseaseNonOv = len([j for j in AllGenes[0] if j in Drivers])
+    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in Drivers])
+    disease = len([j for j in AllGenes[i] if j in Drivers])
+    nondisease = len([j for j in AllGenes[i] if j not in Drivers])
+    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
+    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
+    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
+          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
+          disease, nondisease, round(disease / (disease + nondisease), 4), p)
 
 
+# create a set with all disease genes
+DiseaseGenes = set()
+for i in Drivers:
+    DiseaseGenes.add(i)
+for i in GWASID:
+    DiseaseGenes.add(i)
+for i in GADID:
+    DiseaseGenes.add(i)
 
-
-
+print('all genes')
+for i in range(1, len(AllGenes)):
+    # compute the number of disease and non-disease genes
+    DiseaseNonOv = len([j for j in AllGenes[0] if j in DiseaseGenes])
+    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in DiseaseGenes])
+    disease = len([j for j in AllGenes[i] if j in DiseaseGenes])
+    nondisease = len([j for j in AllGenes[i] if j not in DiseaseGenes])
+    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
+    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
+    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
+          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
+          disease, nondisease, round(disease / (disease + nondisease), 4), p)
     
