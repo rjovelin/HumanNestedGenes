@@ -189,7 +189,7 @@ for i in range(1, len(AllGenes)):
     disease = len([j for j in AllGenes[i] if j in GADID])
     nondisease = len([j for j in AllGenes[i] if j not in GADID])
     p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-    print(i, round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4))
+    print(i, round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), P)
      
 
 
@@ -201,7 +201,7 @@ for i in range(1, len(AllGenes)):
     disease = len([j for j in AllGenes[i] if j in GWASID])
     nondisease = len([j for j in AllGenes[i] if j not in GWASID])
     p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-    print(i, round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4))
+    print(i, round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), P)
 
 
 
