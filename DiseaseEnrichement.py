@@ -194,7 +194,7 @@ for i in range(1, len(AllGenes)):
 
 
 print('GWAS genes')
-for item in AllGenes:
+for i in range(1, len(AllGenes)):
     # compute the number of disease and non-disease genes
     DiseaseNonOv = len(AllGenes[0].intersection(GWASID))
     NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in GWASID])
