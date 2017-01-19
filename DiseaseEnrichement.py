@@ -408,7 +408,7 @@ PValAll = TestDiseaseEnrichement(AllCounts)
 
 j = 1
 for i in range(len(GADCounts)):
-    print('GAD', GeneCats[0], Genecats[i], GADCounts[0][0]/sum(GADCounts[0]), GADCounts[i][0] / sum(GADCounts[i]), PValGAD[j-1])
+    print('GAD', GeneCats[0], GeneCats[i], GADCounts[0][0]/sum(GADCounts[0]), GADCounts[i][0] / sum(GADCounts[i]), PValGAD[j-1])
 
 
     j += 1
