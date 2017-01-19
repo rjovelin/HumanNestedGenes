@@ -202,6 +202,44 @@ for line in infile:
 infile.close()
 
 
+# make a set of mendelian disease genes
+OMIM = set()
+discat = set()
+# get the mim IDs corresponding to associations between phenotypes and genes
+mimIDs = set()
+infile = open('mimTitles.txt')
+for line in infile:
+    if (not line.startswith('#')) and line.rstrip() != '':
+        line = line.rstrip().split('\t')
+        if line[0] == 'Number Sign' or line[0] == 'Percent' or line[0] == 'Plus':
+            mimIDs.add(line[1])
+            
+infile.close()
+
+print(len(mimIDs))
+
+truc = set()
+
+# get the set of phenotype associated genes
+infile = open('morbidmap.txt')
+for line in infile:
+    if (not line.startswith('#')) and line.rstrip() != '':
+        line = line.rstrip().split('\t')
+        pheno = line[0].replace(' ', '')
+        pheno = pheno.split(',')
+        pheno = pheno[-1]
+        pheno = pheno[:pheno.index('(')]
+        if pheno in mimIDs:
+            for item in line[1:-2]:
+                if item in GeneNames:
+                    OMIM.add(GeneNames[item])
+                    truc.add(item)
+infile.close()
+
+print('omim', len(OMIM), len(truc))          
+print(truc)
+
+
 AllGenes = [NonOverlappingGenes, NestedGenes, InternalGenes, ExternalGenes,
             PiggyBackGenes, ConvergentGenes, DivergentGenes] 
 
@@ -249,6 +287,12 @@ for i in range(1, len(AllGenes)):
           disease, nondisease, round(disease / (disease + nondisease), 4), p)
 
 
+
+
+
+
+
+
 # create a set with all disease genes
 DiseaseGenes = set()
 for i in Drivers:
@@ -257,6 +301,10 @@ for i in GWASID:
     DiseaseGenes.add(i)
 for i in GADID:
     DiseaseGenes.add(i)
+for i in OMIM:
+    DiseaseGenes.add(i)
+
+
 
 print('all genes')
 for i in range(1, len(AllGenes)):
