@@ -6,7 +6,7 @@ Created on Tue Jan 17 14:54:24 2017
 """
 
 # use this script to test for enrichement of overlapping genes among disease genes
-
+# save data as table and figure
 
 # import modules
 # use Agg backend on server without X server
@@ -111,7 +111,6 @@ for line in infile:
                 assert name not in GeneNames.values()
                 GeneNames[name] = gene
 infile.close()
-
 print(len(GeneNames))
 
 
@@ -140,26 +139,23 @@ for line in infile:
             assert ';' not in gene and ',' not in gene
             gene = gene.split(':')
         if type(gene) == str:
-            GAD.add(gene)
+            if gene in GeneNames:
+                GAD.add(GeneNames[gene])
         elif type(gene) == list:
             for item in gene:
-                GAD.add(item)
-#        # get alternative gene names
-#        alternative = line[1].split('|')
-#        while '"' in alternative:
-#            alternative.remove('"')
-#        while '' in alternative:
-#            alternative.remove('')
-#        for name in alternative:
-#            GAD.add(name)
+                if item in GeneNames:
+                    GAD.add(item)
+        # get alternative gene names
+        alternative = line[1].split('|')
+        while '"' in alternative:
+            alternative.remove('"')
+        while '' in alternative:
+            alternative.remove('')
+        for name in alternative:
+            if name in GeneNames:
+                GAD.add(GeneNames[name])
 infile.close()
 print(len(GAD))
-
-GADID = set()
-for name in GAD:
-    if name in GeneNames:
-        GADID.add(GeneNames[name])
-print('GAD', len(GADID))
 
 
 # make a set of GWAS disease genes
@@ -174,21 +170,25 @@ for line in infile:
 infile.close()
 # open GWAS catalog
 infile = open('gwas_catalog_v1.0-associations_e87_r2017-01-09.tsv', encoding='utf8')
+infile.readline()
 for line in infile:
     if line.rstrip() != '':
         line = line.rstrip().split('\t')
         # check that trait is disease only        
         if line[7] not in ExcludeTraits:
-            GWAS.add(line[13])
+            genes = line[13].replace(' ', '')
+            # check if multiple genes are listed
+            if ', ' in genes:
+                genes = genes.split(',')
+            if type(genes) == str:
+                if genes in GeneNames:
+                    GWAS.add(GeneNames[genes])
+            elif type(genes) == list:
+                for item in genes:
+                    if item in GeneNames:
+                        GWAS.add(GeneNames[item])       
 infile.close()
 print(len(GWAS))
-
-
-GWASID = set()
-for name in GWAS:
-    if name in GeneNames:
-        GWASID.add(GeneNames[name])
-print('GWAS', len(GWASID))
 
 
 # make a set of cancer driver genes
@@ -216,9 +216,7 @@ for line in infile:
             
 infile.close()
 
-print(len(mimIDs))
 
-truc = set()
 
 # get the set of phenotype associated genes
 infile = open('morbidmap.txt')
@@ -230,14 +228,21 @@ for line in infile:
         pheno = pheno[-1]
         pheno = pheno[:pheno.index('(')]
         if pheno in mimIDs:
-            for item in line[1:-2]:
-                if item in GeneNames:
-                    OMIM.add(GeneNames[item])
-                    truc.add(item)
+            # extract the genes
+            genes = line[-3].replace(' ', '')
+            # check if multiple genes are listed
+            if ',' in genes:
+                genes = genes.split(',')
+            if type(genes) == str:
+                if genes in GeneNames:
+                    OMIM.add(GeneNames[genes])
+            elif type(genes) == list:
+                for item in genes:
+                    if item in GeneNames:
+                        OMIM.add(GeneNames[item])
 infile.close()
 
-print('omim', len(OMIM), len(truc))          
-print(truc)
+   
 
 
 AllGenes = [NonOverlappingGenes, NestedGenes, InternalGenes, ExternalGenes,
@@ -247,75 +252,308 @@ GeneCats = ['NoOvl', 'Nst', 'Int', 'Ext', 'Pgk', 'Con', 'Div']
 
 
 
-print('GAD genes')
-for i in range(1, len(AllGenes)):
-    # compute the number of disease and non-disease genes
-    DiseaseNonOv = len([j for j in AllGenes[0] if j in GADID])
-    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in GADID])
-    disease = len([j for j in AllGenes[i] if j in GADID])
-    nondisease = len([j for j in AllGenes[i] if j not in GADID])
-    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
-          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
-          disease, nondisease, round(disease / (disease + nondisease), 4), p)
-     
-print('GWAS genes')
-for i in range(1, len(AllGenes)):
-    # compute the number of disease and non-disease genes
-    DiseaseNonOv = len([j for j in AllGenes[0] if j in GWASID])
-    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in GWASID])
-    disease = len([j for j in AllGenes[i] if j in GWASID])
-    nondisease = len([j for j in AllGenes[i] if j not in GWASID])
-    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
-    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
-          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
-          disease, nondisease, round(disease / (disease + nondisease), 4), p)
-
-
-print('driver genes')
-for i in range(1, len(AllGenes)):
-    # compute the number of disease and non-disease genes
-    DiseaseNonOv = len([j for j in AllGenes[0] if j in Drivers])
-    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in Drivers])
-    disease = len([j for j in AllGenes[i] if j in Drivers])
-    nondisease = len([j for j in AllGenes[i] if j not in Drivers])
-    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
-    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
-          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
-          disease, nondisease, round(disease / (disease + nondisease), 4), p)
 
 
 
 
+#print('GAD genes')
+#for i in range(1, len(AllGenes)):
+#    # compute the number of disease and non-disease genes
+#    DiseaseNonOv = len([j for j in AllGenes[0] if j in GADID])
+#    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in GADID])
+#    disease = len([j for j in AllGenes[i] if j in GADID])
+#    nondisease = len([j for j in AllGenes[i] if j not in GADID])
+#    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
+#    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
+#          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
+#          disease, nondisease, round(disease / (disease + nondisease), 4), p)
+#     
+#print('GWAS genes')
+#for i in range(1, len(AllGenes)):
+#    # compute the number of disease and non-disease genes
+#    DiseaseNonOv = len([j for j in AllGenes[0] if j in GWASID])
+#    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in GWASID])
+#    disease = len([j for j in AllGenes[i] if j in GWASID])
+#    nondisease = len([j for j in AllGenes[i] if j not in GWASID])
+#    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
+#    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
+#    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
+#          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
+#          disease, nondisease, round(disease / (disease + nondisease), 4), p)
+#
+#
+#print('driver genes')
+#for i in range(1, len(AllGenes)):
+#    # compute the number of disease and non-disease genes
+#    DiseaseNonOv = len([j for j in AllGenes[0] if j in Drivers])
+#    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in Drivers])
+#    disease = len([j for j in AllGenes[i] if j in Drivers])
+#    nondisease = len([j for j in AllGenes[i] if j not in Drivers])
+#    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
+#    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
+#    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
+#          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
+#          disease, nondisease, round(disease / (disease + nondisease), 4), p)
+#
+#
+#print('OMIM genes')
+#for i in range(1, len(AllGenes)):
+#    # compute the number of disease and non-disease genes
+#    DiseaseNonOv = len([j for j in AllGenes[0] if j in OMIM])
+#    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in OMIM])
+#    disease = len([j for j in AllGenes[i] if j in OMIM])
+#    nondisease = len([j for j in AllGenes[i] if j not in OMIM])
+#    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
+#    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
+#    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
+#          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
+#          disease, nondisease, round(disease / (disease + nondisease), 4), p)
+#
+## create a set with all disease genes
+#DiseaseGenes = set()
+#for i in Drivers:
+#    DiseaseGenes.add(i)
+#for i in GWASID:
+#    DiseaseGenes.add(i)
+#for i in GADID:
+#    DiseaseGenes.add(i)
+#for i in OMIM:
+#    DiseaseGenes.add(i)
+#
+#
+#
+#print('all genes')
+#for i in range(1, len(AllGenes)):
+#    # compute the number of disease and non-disease genes
+#    DiseaseNonOv = len([j for j in AllGenes[0] if j in DiseaseGenes])
+#    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in DiseaseGenes])
+#    disease = len([j for j in AllGenes[i] if j in DiseaseGenes])
+#    nondisease = len([j for j in AllGenes[i] if j not in DiseaseGenes])
+#    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
+#    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
+#    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
+#          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
+#          disease, nondisease, round(disease / (disease + nondisease), 4), p)
 
 
+# make a list of counts for each 
 
+
+# use this function to count disease and non-disease genes for each gene class
+def CountDiseaseGenes(L, DiseaseGenes):
+    '''
+    (list, set) -> list
+    Take a list of gene sets and a set of disease genes and return a parallel
+    list with lists of counts of diease and non disease genes for each gene set
+    '''
+    Counts = []
+    for i in range(len(L)):
+        disease = len([j for j in L[i] if j in DiseaseGenes])
+        nondisease = len([j for j in L[i] if j not in DiseaseGenes])
+        Counts.append([disease, nondisease])
+    return Counts
+
+# use this function to test for enrichement of disease genes among gene groups
+def TestDiseaseEnrichement(Counts):
+    '''
+    (list) -> list
+    Take the list of disease and non-disease gene counts for each gene group and 
+    returns a list of p-values from FET comparing each overlapping gene group to 
+    non-overlapping genes
+    Precondition: the non-overlapping gene counts are first in the list    
+    '''
+    PVals = []    
+    for i in range(1, len(Counts)):
+        p = stats.fisher_exact([Counts[0], Counts[i]])[1]
+        PVals.append(p)
+    return PVals
+    
+# count disease and non-disease genes    
+GADCounts = CountDiseaseGenes(AllGenes, GAD)    
+GWASCounts = CountDiseaseGenes(AllGenes, GWAS)
+DriversCounts = CountDiseaseGenes(AllGenes, Drivers)
+OMIMCounts = CountDiseaseGenes(AllGenes, OMIM)
 
 # create a set with all disease genes
 DiseaseGenes = set()
 for i in Drivers:
     DiseaseGenes.add(i)
-for i in GWASID:
+for i in GWAS:
     DiseaseGenes.add(i)
-for i in GADID:
+for i in GAD:
     DiseaseGenes.add(i)
 for i in OMIM:
     DiseaseGenes.add(i)
 
+AllCounts = CountDiseaseGenes(AllGenes, DiseaseGenes)
 
 
-print('all genes')
-for i in range(1, len(AllGenes)):
-    # compute the number of disease and non-disease genes
-    DiseaseNonOv = len([j for j in AllGenes[0] if j in DiseaseGenes])
-    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in DiseaseGenes])
-    disease = len([j for j in AllGenes[i] if j in DiseaseGenes])
-    nondisease = len([j for j in AllGenes[i] if j not in DiseaseGenes])
-    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
-    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
-          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
-          disease, nondisease, round(disease / (disease + nondisease), 4), p)
-    
+# test for enrichement of disease genes between non-overlapping genes and overlapping genes
+PValGAD = TestDiseaseEnrichement(GADCounts)
+PValGWAS = TestDiseaseEnrichement(GWASCounts)
+PValDrivers = TestDiseaseEnrichement(DriversCounts)
+PvalOMIM = TestDiseaseEnrichement(OMIMCounts)
+PValAll = TestDiseaseEnrichement(AllCounts)
+
+
+
+
+
+# test for enrichement of disease genes between non-overlapping genes and overlapping genes
+PValGAD = TestDiseaseEnrichement(GADCounts)
+PValGWAS = TestDiseaseEnrichement(GWASCounts)
+PValDrivers = TestDiseaseEnrichement(DriversCounts)
+PValOMIM = TestDiseaseEnrichement(OMIMCounts)
+PValAll = TestDiseaseEnrichement(AllCounts)
+
+j = 1
+for i in range(len(GADCounts)):
+    print('GAD', GeneCats[0], Genecats[i], GADCounts[0][0]/sum(GADCounts[0]), GADCounts[i][0] / sum(GADCounts[i]), PValGAD[j-1])
+
+
+    j += 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+#print('GWAS', GWASCounts[0][0] / sum(GWASCounts[0]), GWASCounts[1][0] / sum(GWASCounts[1]), PValGWAS)
+#print('divers', DriversCounts[0][0] / sum(DriversCounts[0]), DriversCounts[1][0] / sum(DriversCounts[1]), PValDrivers)
+#print('OMIM', OMIMCounts[0][0] / sum(OMIMCounts[0]), OMIMCounts[1][0] / sum(OMIMCounts[1]), PValOMIM)
+#print('all', AllCounts[0][0] / sum(AllCounts[0]), AllCounts[1][0] / sum(AllCounts[1]), PValAll)
+
+
+
+
+
+
+
+
+#########################
+
+            
+
+## count genes with and without homologs
+#GeneCounts = []
+## loop over gene sets
+#for i in range(len(AllGenes)):
+#    # initialize counters
+#    homo, nohomo = 0, 0
+#    # loop over genes in given set
+#    for gene in AllGenes[i]:
+#        if gene in Homologs:
+#            homo += 1
+#        else:
+#            nohomo += 1
+#    GeneCounts.append([homo, nohomo])    
+#
+## compare the proportions of gene with and without homologs
+## create a list to store the P-values
+#PProp = []
+#for i in range(1, len(GeneCounts)):
+#    p = stats.fisher_exact([GeneCounts[0], GeneCounts[i]])[1]
+#    PProp.append(p)
+## replace P values by significance
+#for i in range(len(PProp)):
+#    if PProp[i] >= 0.05:
+#        PProp[i] = ''
+#    elif PProp[i] < 0.05 and PProp[i] >= 0.01:
+#        PProp[i] = '*'
+#    elif PProp[i] < 0.01 and PProp[i] >= 0.001:
+#        PProp[i] = '**'
+#    elif PProp[i] < 0.001:
+#        PProp[i] = '***'
+#
+## get the proportions of genes with and without homologs
+#WithHomolog, NoHomolog = [], []
+#for i in range(len(GeneCounts)):
+#    WithHomolog.append(GeneCounts[i][0] / sum(GeneCounts[i]))
+#    NoHomolog.append(GeneCounts[i][1] / sum(GeneCounts[i]))
+#    assert sum(GeneCounts[i]) == len(AllGenes[i])
+#
+#
+## create a function to format the subplots
+#def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YMax):
+#    '''
+#    Returns a ax instance in figure
+#    '''    
+#
+#    # add a plot to figure (N row, N column, plot N)
+#    ax = figure.add_subplot(Rows, Columns, Position)
+#    # check type of graphic    
+#    if DataType == 'divergence':
+#        # set colors
+#        colorscheme = ['black','lightgrey','lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+#        # plot nucleotide divergence
+#        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], 0.2, yerr = Data[1], color = colorscheme,
+#               edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
+#    elif DataType == 'proportion':
+#        ## Create a horizontal bar plot for proportions of genes with homologs
+#        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'homolog', color= 'black', linewidth = 0.7)
+#        # Create a horizontal bar plot for proportions of same strand pairs
+#        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'no homolog', color= 'lightgrey', linewidth = 0.7)
+#
+#    # set font for all text in figure
+#    FigFont = {'fontname':'Arial'}   
+#    # write y axis label
+#    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+#    # add ticks and lebels
+#    plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], XLabel, rotation = 30, size = 7, color = 'black', ha = 'right', **FigFont)
+#    # add a range for the Y and X axes
+#    plt.ylim([0, YMax])    
+#    
+#    # do not show lines around figure  
+#    ax.spines["top"].set_visible(False)    
+#    ax.spines["bottom"].set_visible(True)    
+#    ax.spines["right"].set_visible(False)
+#    ax.spines["left"].set_visible(True)  
+#    # edit tick parameters    
+#    plt.tick_params(axis='both', which='both', bottom='on', top='off',
+#                    right = 'off', left = 'on', labelbottom='on',
+#                    colors = 'black', labelsize = 7, direction = 'out')  
+#    # Set the tick labels font name
+#    for label in ax.get_yticklabels():
+#        label.set_fontname('Arial')   
+#      
+#    # add margins
+#    plt.margins(0.1)
+#    
+#    return ax
+#
+#
+#
+## make a figure with mean dN/dS and with proportion of gene with homologs
+#
+## create figure
+#fig = plt.figure(1, figsize = (4.5, 2))
+## plot data
+#ax1 = CreateAx(2, 1, 1, fig, [MeanOmega, SEMOmega], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', 0.50)
+#ax2 = CreateAx(2, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', 'proportion', 1)
+#
+## annotate figure to add significance
+## significant comparisons were already determined, add letters to show significance
+#ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
+#xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
+#for i in range(len(PValOmega)):
+#    ax1.text(xpos[i], ypos[i], PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+#for i in range(len(PProp)):
+#    ax2.text(xpos[i], 1.02, PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+#
+## add legend
+#NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
+#WiH = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
+#ax2.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
+#
+## make sure subplots do not overlap
+#plt.tight_layout()
+#
+#
+#
