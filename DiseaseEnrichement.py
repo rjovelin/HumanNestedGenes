@@ -406,32 +406,13 @@ PValDrivers = TestDiseaseEnrichement(DriversCounts)
 PValOMIM = TestDiseaseEnrichement(OMIMCounts)
 PValAll = TestDiseaseEnrichement(AllCounts)
 
-j = 1
-for i in range(len(GADCounts)):
-    print('GAD', GeneCats[0], GeneCats[i], GADCounts[0][0]/sum(GADCounts[0]), GADCounts[i][0] / sum(GADCounts[i]), PValGAD[j-1])
 
-
-    j += 1
-
-
-
-
-
-
-
-
-
-
-
-
-
-#print('GWAS', GWASCounts[0][0] / sum(GWASCounts[0]), GWASCounts[1][0] / sum(GWASCounts[1]), PValGWAS)
-#print('divers', DriversCounts[0][0] / sum(DriversCounts[0]), DriversCounts[1][0] / sum(DriversCounts[1]), PValDrivers)
-#print('OMIM', OMIMCounts[0][0] / sum(OMIMCounts[0]), OMIMCounts[1][0] / sum(OMIMCounts[1]), PValOMIM)
-#print('all', AllCounts[0][0] / sum(AllCounts[0]), AllCounts[1][0] / sum(AllCounts[1]), PValAll)
-
-
-
+for i in range(1, len(GADCounts)):
+    print('GAD', GeneCats[0], GeneCats[i], GADCounts[0][0]/sum(GADCounts[0]), GADCounts[i][0] / sum(GADCounts[i]), PValGAD[i-1])
+    print('GWAS', GeneCats[0], GeneCats[i], GWASCounts[0][0] / sum(GWASCounts[0]), GWASCounts[i][0] / sum(GWASCounts[i]), PValGWAS[i-1])
+    print('divers', GeneCats[0], GeneCats[i], DriversCounts[0][0] / sum(DriversCounts[0]), DriversCounts[i][0] / sum(DriversCounts[i]), PValDrivers[i-1])
+    print('OMIM', GeneCats[0], GeneCats[i], OMIMCounts[0][0] / sum(OMIMCounts[0]), OMIMCounts[i][0] / sum(OMIMCounts[i]), PValOMIM[i-1])
+    print('all', GeneCats[0], GeneCats[i], AllCounts[0][0] / sum(AllCounts[0]), AllCounts[i][0] / sum(AllCounts[i]), PValAll[i-1])
 
 
 
