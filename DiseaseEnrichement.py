@@ -344,11 +344,6 @@ PValOMIM = TestDiseaseEnrichement(OMIMCounts)
 PValAll = TestDiseaseEnrichement(AllCounts)
 
 
-
-print(PValDrivers)
-print(PValOMIM)
-
-
 PValGAD = AssignSignificance(PValGAD)
 PValGWAS = AssignSignificance(PValGWAS)
 PValDrivers = AssignSignificance(PValDrivers)
@@ -356,17 +351,12 @@ PValOMIM = AssignSignificance(PValOMIM)
 PValAll = AssignSignificance(PValAll)
 
 
-for i in range(1, len(GADCounts)):
-    print('GAD', GeneCats[0], GeneCats[i], GADCounts[0][0]/sum(GADCounts[0]), GADCounts[i][0] / sum(GADCounts[i]), PValGAD[i-1])
-    print('GWAS', GeneCats[0], GeneCats[i], GWASCounts[0][0] / sum(GWASCounts[0]), GWASCounts[i][0] / sum(GWASCounts[i]), PValGWAS[i-1])
-    print('divers', GeneCats[0], GeneCats[i], DriversCounts[0][0] / sum(DriversCounts[0]), DriversCounts[i][0] / sum(DriversCounts[i]), PValDrivers[i-1])
-    print('OMIM', GeneCats[0], GeneCats[i], OMIMCounts[0][0] / sum(OMIMCounts[0]), OMIMCounts[i][0] / sum(OMIMCounts[i]), PValOMIM[i-1])
-    print('all', GeneCats[0], GeneCats[i], AllCounts[0][0] / sum(AllCounts[0]), AllCounts[i][0] / sum(AllCounts[i]), PValAll[i-1])
-
-
-print(PValDrivers)
-print(PValOMIM)
-
+#for i in range(1, len(GADCounts)):
+#    print('GAD', GeneCats[0], GeneCats[i], GADCounts[0][0]/sum(GADCounts[0]), GADCounts[i][0] / sum(GADCounts[i]), PValGAD[i-1])
+#    print('GWAS', GeneCats[0], GeneCats[i], GWASCounts[0][0] / sum(GWASCounts[0]), GWASCounts[i][0] / sum(GWASCounts[i]), PValGWAS[i-1])
+#    print('divers', GeneCats[0], GeneCats[i], DriversCounts[0][0] / sum(DriversCounts[0]), DriversCounts[i][0] / sum(DriversCounts[i]), PValDrivers[i-1])
+#    print('OMIM', GeneCats[0], GeneCats[i], OMIMCounts[0][0] / sum(OMIMCounts[0]), OMIMCounts[i][0] / sum(OMIMCounts[i]), PValOMIM[i-1])
+#    print('all', GeneCats[0], GeneCats[i], AllCounts[0][0] / sum(AllCounts[0]), AllCounts[i][0] / sum(AllCounts[i]), PValAll[i-1])
 
 
 # get proportions
@@ -379,7 +369,7 @@ AllDis, AllNonDis = GetProportions(AllCounts)
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, Title, Proportions, YMax, XLabel):
+def CreateAx(Columns, Rows, Position, figure, Data, Title, Proportions, YRange, YMax, XLabel):
     '''
     Returns a ax instance in figure
     '''    
@@ -418,6 +408,9 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title, Proportions, YMax, XL
     elif XLabel == False:
         plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], [''] * 7, size = 7, color = 'black', ha = 'right', **FigFont)
     
+    # edit y axis ticks
+    plt.yticks(YRange)    
+        
     # add title
     plt.title(Title, color = 'black',  size = 7, ha = 'center', **FigFont)
     # add a range for the Y axis
@@ -449,11 +442,11 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title, Proportions, YMax, XL
 # create figure
 fig = plt.figure(1, figsize = (2.5, 6))
 # plot data
-ax1 = CreateAx(1, 5, 1, fig, [GADDis, GADNonDis], 'complex diseases', 'disease', 0.71, False)
-ax2 = CreateAx(1, 5, 2, fig, [GWASDis, GWASNonDis], 'GWAS', 'disease', 0.2, False)
-ax3 = CreateAx(1, 5, 3, fig, [DriversDis, DriversNonDis], 'tumor drivers', 'disease', 0.04,  False)
-ax4 = CreateAx(1, 5, 4, fig, [OMIMDis, OMIMNonDis], 'medelian diseases', 'disease', 0.25, False)
-ax5 = CreateAx(1, 5, 5, fig, [AllDis, AllNonDis], 'all diseases', 'disease', 0.71, True)
+ax1 = CreateAx(1, 5, 1, fig, [GADDis, GADNonDis], 'complex diseases', 'disease', np.arange(0, 0.71, 0.1), 0.71, False)
+ax2 = CreateAx(1, 5, 2, fig, [GWASDis, GWASNonDis], 'GWAS', 'disease', np.arange(0, 0.21, 0.05), 0.2, False)
+ax3 = CreateAx(1, 5, 3, fig, [DriversDis, DriversNonDis], 'tumor drivers', 'disease', np.arange(0, 0.041, 0.010), 0.04,  False)
+ax4 = CreateAx(1, 5, 4, fig, [OMIMDis, OMIMNonDis], 'medelian diseases', 'disease', np.arange(0, 0.26, 0.05), 0.25, False)
+ax5 = CreateAx(1, 5, 5, fig, [AllDis, AllNonDis], 'all diseases', 'disease', np.arange(0, 0.71, 0.1), 0.71, True)
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
