@@ -367,7 +367,27 @@ def TestDiseaseEnrichement(Counts):
         p = stats.fisher_exact([Counts[0], Counts[i]])[1]
         PVals.append(p)
     return PVals
+
+# use this function to assign significance level
+def AssignSignificance(L):
+    '''
+    (list) -> list
+    Take a list of p-values and return a modfied list with significance levels
+    represented by stars
+    '''
+    # replace P values by significance
+    for i in range(len(L)):
+        if L[i] >= 0.05:
+            L[i] = ''
+        elif L[i] < 0.05 and L[i] >= 0.01:
+            L[i] = '*'
+        elif L[i] < 0.01 and L[i] >= 0.001:
+            L[i] = '**'
+        elif L[i] < 0.001:
+            L[i] = '***'
+    return L
     
+  
 # count disease and non-disease genes    
 GADCounts = CountDiseaseGenes(AllGenes, GAD)    
 GWASCounts = CountDiseaseGenes(AllGenes, GWAS)
@@ -395,18 +415,6 @@ PValDrivers = TestDiseaseEnrichement(DriversCounts)
 PvalOMIM = TestDiseaseEnrichement(OMIMCounts)
 PValAll = TestDiseaseEnrichement(AllCounts)
 
-
-
-
-
-# test for enrichement of disease genes between non-overlapping genes and overlapping genes
-PValGAD = TestDiseaseEnrichement(GADCounts)
-PValGWAS = TestDiseaseEnrichement(GWASCounts)
-PValDrivers = TestDiseaseEnrichement(DriversCounts)
-PValOMIM = TestDiseaseEnrichement(OMIMCounts)
-PValAll = TestDiseaseEnrichement(AllCounts)
-
-
 for i in range(1, len(GADCounts)):
     print('GAD', GeneCats[0], GeneCats[i], GADCounts[0][0]/sum(GADCounts[0]), GADCounts[i][0] / sum(GADCounts[i]), PValGAD[i-1])
     print('GWAS', GeneCats[0], GeneCats[i], GWASCounts[0][0] / sum(GWASCounts[0]), GWASCounts[i][0] / sum(GWASCounts[i]), PValGWAS[i-1])
@@ -416,125 +424,104 @@ for i in range(1, len(GADCounts)):
 
 
 
+# create a list to store the P-values
+PProp = []
+for i in range(1, len(GeneCounts)):
+    p = stats.fisher_exact([GeneCounts[0], GeneCounts[i]])[1]
+    PProp.append(p)
+# replace P values by significance
+for i in range(len(PProp)):
+    if PProp[i] >= 0.05:
+        PProp[i] = ''
+    elif PProp[i] < 0.05 and PProp[i] >= 0.01:
+        PProp[i] = '*'
+    elif PProp[i] < 0.01 and PProp[i] >= 0.001:
+        PProp[i] = '**'
+    elif PProp[i] < 0.001:
+        PProp[i] = '***'
+
+# get the proportions of genes with and without homologs
+WithHomolog, NoHomolog = [], []
+for i in range(len(GeneCounts)):
+    WithHomolog.append(GeneCounts[i][0] / sum(GeneCounts[i]))
+    NoHomolog.append(GeneCounts[i][1] / sum(GeneCounts[i]))
+    assert sum(GeneCounts[i]) == len(AllGenes[i])
 
 
-#########################
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YMax):
+    '''
+    Returns a ax instance in figure
+    '''    
 
-            
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # check type of graphic    
+    if DataType == 'divergence':
+        # set colors
+        colorscheme = ['black','lightgrey','lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+        # plot nucleotide divergence
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], 0.2, yerr = Data[1], color = colorscheme,
+               edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
+    elif DataType == 'proportion':
+        ## Create a horizontal bar plot for proportions of genes with homologs
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'homolog', color= 'black', linewidth = 0.7)
+        # Create a horizontal bar plot for proportions of same strand pairs
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'no homolog', color= 'lightgrey', linewidth = 0.7)
 
-## count genes with and without homologs
-#GeneCounts = []
-## loop over gene sets
-#for i in range(len(AllGenes)):
-#    # initialize counters
-#    homo, nohomo = 0, 0
-#    # loop over genes in given set
-#    for gene in AllGenes[i]:
-#        if gene in Homologs:
-#            homo += 1
-#        else:
-#            nohomo += 1
-#    GeneCounts.append([homo, nohomo])    
-#
-## compare the proportions of gene with and without homologs
-## create a list to store the P-values
-#PProp = []
-#for i in range(1, len(GeneCounts)):
-#    p = stats.fisher_exact([GeneCounts[0], GeneCounts[i]])[1]
-#    PProp.append(p)
-## replace P values by significance
-#for i in range(len(PProp)):
-#    if PProp[i] >= 0.05:
-#        PProp[i] = ''
-#    elif PProp[i] < 0.05 and PProp[i] >= 0.01:
-#        PProp[i] = '*'
-#    elif PProp[i] < 0.01 and PProp[i] >= 0.001:
-#        PProp[i] = '**'
-#    elif PProp[i] < 0.001:
-#        PProp[i] = '***'
-#
-## get the proportions of genes with and without homologs
-#WithHomolog, NoHomolog = [], []
-#for i in range(len(GeneCounts)):
-#    WithHomolog.append(GeneCounts[i][0] / sum(GeneCounts[i]))
-#    NoHomolog.append(GeneCounts[i][1] / sum(GeneCounts[i]))
-#    assert sum(GeneCounts[i]) == len(AllGenes[i])
-#
-#
-## create a function to format the subplots
-#def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YMax):
-#    '''
-#    Returns a ax instance in figure
-#    '''    
-#
-#    # add a plot to figure (N row, N column, plot N)
-#    ax = figure.add_subplot(Rows, Columns, Position)
-#    # check type of graphic    
-#    if DataType == 'divergence':
-#        # set colors
-#        colorscheme = ['black','lightgrey','lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
-#        # plot nucleotide divergence
-#        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], 0.2, yerr = Data[1], color = colorscheme,
-#               edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
-#    elif DataType == 'proportion':
-#        ## Create a horizontal bar plot for proportions of genes with homologs
-#        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'homolog', color= 'black', linewidth = 0.7)
-#        # Create a horizontal bar plot for proportions of same strand pairs
-#        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'no homolog', color= 'lightgrey', linewidth = 0.7)
-#
-#    # set font for all text in figure
-#    FigFont = {'fontname':'Arial'}   
-#    # write y axis label
-#    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
-#    # add ticks and lebels
-#    plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], XLabel, rotation = 30, size = 7, color = 'black', ha = 'right', **FigFont)
-#    # add a range for the Y and X axes
-#    plt.ylim([0, YMax])    
-#    
-#    # do not show lines around figure  
-#    ax.spines["top"].set_visible(False)    
-#    ax.spines["bottom"].set_visible(True)    
-#    ax.spines["right"].set_visible(False)
-#    ax.spines["left"].set_visible(True)  
-#    # edit tick parameters    
-#    plt.tick_params(axis='both', which='both', bottom='on', top='off',
-#                    right = 'off', left = 'on', labelbottom='on',
-#                    colors = 'black', labelsize = 7, direction = 'out')  
-#    # Set the tick labels font name
-#    for label in ax.get_yticklabels():
-#        label.set_fontname('Arial')   
-#      
-#    # add margins
-#    plt.margins(0.1)
-#    
-#    return ax
-#
-#
-#
-## make a figure with mean dN/dS and with proportion of gene with homologs
-#
-## create figure
-#fig = plt.figure(1, figsize = (4.5, 2))
-## plot data
-#ax1 = CreateAx(2, 1, 1, fig, [MeanOmega, SEMOmega], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', 0.50)
-#ax2 = CreateAx(2, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', 'proportion', 1)
-#
-## annotate figure to add significance
-## significant comparisons were already determined, add letters to show significance
-#ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
-#xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
-#for i in range(len(PValOmega)):
-#    ax1.text(xpos[i], ypos[i], PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#for i in range(len(PProp)):
-#    ax2.text(xpos[i], 1.02, PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#
-## add legend
-#NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
-#WiH = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
-#ax2.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
-#
-## make sure subplots do not overlap
-#plt.tight_layout()
-#
-#
-#
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    # write y axis label
+    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+    # add ticks and lebels
+    plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], XLabel, rotation = 30, size = 7, color = 'black', ha = 'right', **FigFont)
+    # add a range for the Y and X axes
+    plt.ylim([0, YMax])    
+    
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(True)    
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(True)  
+    # edit tick parameters    
+    plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                    right = 'off', left = 'on', labelbottom='on',
+                    colors = 'black', labelsize = 7, direction = 'out')  
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')   
+      
+    # add margins
+    plt.margins(0.1)
+    
+    return ax
+
+
+
+# make a figure with mean dN/dS and with proportion of gene with homologs
+
+# create figure
+fig = plt.figure(1, figsize = (4.5, 2))
+# plot data
+ax1 = CreateAx(2, 1, 1, fig, [MeanOmega, SEMOmega], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', 0.50)
+ax2 = CreateAx(2, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', 'proportion', 1)
+
+# annotate figure to add significance
+# significant comparisons were already determined, add letters to show significance
+ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
+xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
+for i in range(len(PValOmega)):
+    ax1.text(xpos[i], ypos[i], PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+for i in range(len(PProp)):
+    ax2.text(xpos[i], 1.02, PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+
+# add legend
+NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
+WiH = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
+ax2.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
+
+# make sure subplots do not overlap
+plt.tight_layout()
+
+
+
