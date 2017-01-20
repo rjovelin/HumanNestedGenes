@@ -344,6 +344,11 @@ PValOMIM = TestDiseaseEnrichement(OMIMCounts)
 PValAll = TestDiseaseEnrichement(AllCounts)
 
 
+
+print(PValDrivers)
+print(PValOMIM)
+
+
 PValGAD = AssignSignificance(PValGAD)
 PValGWAS = AssignSignificance(PValGWAS)
 PValDrivers = AssignSignificance(PValDrivers)
@@ -357,6 +362,11 @@ for i in range(1, len(GADCounts)):
     print('divers', GeneCats[0], GeneCats[i], DriversCounts[0][0] / sum(DriversCounts[0]), DriversCounts[i][0] / sum(DriversCounts[i]), PValDrivers[i-1])
     print('OMIM', GeneCats[0], GeneCats[i], OMIMCounts[0][0] / sum(OMIMCounts[0]), OMIMCounts[i][0] / sum(OMIMCounts[i]), PValOMIM[i-1])
     print('all', GeneCats[0], GeneCats[i], AllCounts[0][0] / sum(AllCounts[0]), AllCounts[i][0] / sum(AllCounts[i]), PValAll[i-1])
+
+
+print(PValDrivers)
+print(PValOMIM)
+
 
 
 # get proportions
@@ -385,7 +395,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title, Proportions, YMax, XL
     elif Proportions == 'disease':
         # plot proportions of disease genes only
         # Create a horizontal bar plot for proportions of disease genes
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'disease', color= 'black', linewidth = 0.7)
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'disease', color= ['black'] + ['lightgrey'] * 6, linewidth = 0.7)
     elif Proportions == 'non-disease':
         # plot proportions of non-disease genes only
         # Create a horizontal bar plot for proportions of non-disease genes
@@ -405,6 +415,9 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title, Proportions, YMax, XL
     # add ticks and lebels
     if XLabel == True:
         plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], ['NoOvl', 'Nst', 'Int', 'Ext', 'Pgk', 'Con', 'Div'], rotation = 30, size = 7, color = 'black', ha = 'right', **FigFont)
+    elif XLabel == False:
+        plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], [''] * 7, size = 7, color = 'black', ha = 'right', **FigFont)
+    
     # add title
     plt.title(Title, color = 'black',  size = 7, ha = 'center', **FigFont)
     # add a range for the Y axis
@@ -454,13 +467,13 @@ for i in range(len(PValGWAS)):
     ax2.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 ypos = [0.027, 0.017, 0.040, 0.015, 0.037, 0.030]
 for i in range(len(PValDrivers)):
-    ax3.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+    ax3.text(xpos[i], ypos[i], PValDrivers[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 ypos = [0.17, 0.12, 0.25, 0.17, 0.22, 0.22]
 for i in range(len(PValOMIM)):
-    ax4.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+    ax4.text(xpos[i], ypos[i], PValOMIM[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 ypos = [0.55, 0.45, 0.7, 0.55, 0.65, 0.65]
 for i in range(len(PValAll)):
-    ax5.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+    ax5.text(xpos[i], ypos[i], PValAll[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 
 Proportions = 'disease'
 if Proportions == 'both':
