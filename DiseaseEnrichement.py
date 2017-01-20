@@ -111,7 +111,6 @@ for line in infile:
                 assert name not in GeneNames.values()
                 GeneNames[name] = gene
 infile.close()
-print(len(GeneNames))
 
 
 # make a set of complex disease genes
@@ -155,7 +154,6 @@ for line in infile:
             if name in GeneNames:
                 GAD.add(GeneNames[name])
 infile.close()
-print(len(GAD))
 
 
 # make a set of GWAS disease genes
@@ -188,7 +186,6 @@ for line in infile:
                     if item in GeneNames:
                         GWAS.add(GeneNames[item])       
 infile.close()
-print(len(GWAS))
 
 
 # make a set of cancer driver genes
@@ -252,88 +249,6 @@ GeneCats = ['NoOvl', 'Nst', 'Int', 'Ext', 'Pgk', 'Con', 'Div']
 
 
 
-
-
-
-
-#print('GAD genes')
-#for i in range(1, len(AllGenes)):
-#    # compute the number of disease and non-disease genes
-#    DiseaseNonOv = len([j for j in AllGenes[0] if j in GADID])
-#    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in GADID])
-#    disease = len([j for j in AllGenes[i] if j in GADID])
-#    nondisease = len([j for j in AllGenes[i] if j not in GADID])
-#    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-#    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
-#          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
-#          disease, nondisease, round(disease / (disease + nondisease), 4), p)
-#     
-#print('GWAS genes')
-#for i in range(1, len(AllGenes)):
-#    # compute the number of disease and non-disease genes
-#    DiseaseNonOv = len([j for j in AllGenes[0] if j in GWASID])
-#    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in GWASID])
-#    disease = len([j for j in AllGenes[i] if j in GWASID])
-#    nondisease = len([j for j in AllGenes[i] if j not in GWASID])
-#    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-#    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
-#    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
-#          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
-#          disease, nondisease, round(disease / (disease + nondisease), 4), p)
-#
-#
-#print('driver genes')
-#for i in range(1, len(AllGenes)):
-#    # compute the number of disease and non-disease genes
-#    DiseaseNonOv = len([j for j in AllGenes[0] if j in Drivers])
-#    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in Drivers])
-#    disease = len([j for j in AllGenes[i] if j in Drivers])
-#    nondisease = len([j for j in AllGenes[i] if j not in Drivers])
-#    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-#    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
-#    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
-#          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
-#          disease, nondisease, round(disease / (disease + nondisease), 4), p)
-#
-#
-#print('OMIM genes')
-#for i in range(1, len(AllGenes)):
-#    # compute the number of disease and non-disease genes
-#    DiseaseNonOv = len([j for j in AllGenes[0] if j in OMIM])
-#    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in OMIM])
-#    disease = len([j for j in AllGenes[i] if j in OMIM])
-#    nondisease = len([j for j in AllGenes[i] if j not in OMIM])
-#    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-#    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
-#    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
-#          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
-#          disease, nondisease, round(disease / (disease + nondisease), 4), p)
-#
-## create a set with all disease genes
-#DiseaseGenes = set()
-#for i in Drivers:
-#    DiseaseGenes.add(i)
-#for i in GWASID:
-#    DiseaseGenes.add(i)
-#for i in GADID:
-#    DiseaseGenes.add(i)
-#for i in OMIM:
-#    DiseaseGenes.add(i)
-#
-#
-#
-#print('all genes')
-#for i in range(1, len(AllGenes)):
-#    # compute the number of disease and non-disease genes
-#    DiseaseNonOv = len([j for j in AllGenes[0] if j in DiseaseGenes])
-#    NonDiseaseNonOV = len([j for j in AllGenes[0] if j not in DiseaseGenes])
-#    disease = len([j for j in AllGenes[i] if j in DiseaseGenes])
-#    nondisease = len([j for j in AllGenes[i] if j not in DiseaseGenes])
-#    p = stats.fisher_exact([[NonDiseaseNonOV, DiseaseNonOv], [nondisease, disease]])[1]
-#    #print(i, GeneCats[i], round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3), round(disease / (disease + nondisease), 4), p)
-#    print(i, GeneCats[i], DiseaseNonOv, NonDiseaseNonOV, 
-#          round(DiseaseNonOv / (DiseaseNonOv + NonDiseaseNonOV), 3),
-#          disease, nondisease, round(disease / (disease + nondisease), 4), p)
 
 
 # make a list of counts for each 
@@ -436,12 +351,12 @@ PValOMIM = AssignSignificance(PValOMIM)
 PValAll = AssignSignificance(PValAll)
 
 
-#for i in range(1, len(GADCounts)):
-#    print('GAD', GeneCats[0], GeneCats[i], GADCounts[0][0]/sum(GADCounts[0]), GADCounts[i][0] / sum(GADCounts[i]), PValGAD[i-1])
-#    print('GWAS', GeneCats[0], GeneCats[i], GWASCounts[0][0] / sum(GWASCounts[0]), GWASCounts[i][0] / sum(GWASCounts[i]), PValGWAS[i-1])
-#    print('divers', GeneCats[0], GeneCats[i], DriversCounts[0][0] / sum(DriversCounts[0]), DriversCounts[i][0] / sum(DriversCounts[i]), PValDrivers[i-1])
-#    print('OMIM', GeneCats[0], GeneCats[i], OMIMCounts[0][0] / sum(OMIMCounts[0]), OMIMCounts[i][0] / sum(OMIMCounts[i]), PValOMIM[i-1])
-#    print('all', GeneCats[0], GeneCats[i], AllCounts[0][0] / sum(AllCounts[0]), AllCounts[i][0] / sum(AllCounts[i]), PValAll[i-1])
+for i in range(1, len(GADCounts)):
+    print('GAD', GeneCats[0], GeneCats[i], GADCounts[0][0]/sum(GADCounts[0]), GADCounts[i][0] / sum(GADCounts[i]), PValGAD[i-1])
+    print('GWAS', GeneCats[0], GeneCats[i], GWASCounts[0][0] / sum(GWASCounts[0]), GWASCounts[i][0] / sum(GWASCounts[i]), PValGWAS[i-1])
+    print('divers', GeneCats[0], GeneCats[i], DriversCounts[0][0] / sum(DriversCounts[0]), DriversCounts[i][0] / sum(DriversCounts[i]), PValDrivers[i-1])
+    print('OMIM', GeneCats[0], GeneCats[i], OMIMCounts[0][0] / sum(OMIMCounts[0]), OMIMCounts[i][0] / sum(OMIMCounts[i]), PValOMIM[i-1])
+    print('all', GeneCats[0], GeneCats[i], AllCounts[0][0] / sum(AllCounts[0]), AllCounts[i][0] / sum(AllCounts[i]), PValAll[i-1])
 
 
 # get proportions
@@ -454,29 +369,46 @@ AllDis, AllNonDis = GetProportions(AllCounts)
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, Title, XLabel):
+def CreateAx(Columns, Rows, Position, figure, Data, Title, Proportions, YMax, XLabel):
     '''
     Returns a ax instance in figure
     '''    
-
+    
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
-    ## Create a horizontal bar plot for proportions of genes with homologs
-    ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'disease', color= 'black', linewidth = 0.7)
-    # Create a horizontal bar plot for proportions of same strand pairs
-    ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'non-disease', color= 'lightgrey', linewidth = 0.7)
+    # check if plot only disease genes or proportions of disease and non-disease genes
+    if Proportions == 'both':
+        # Create a horizontal bar plot for proportions of disease genes
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'disease', color= 'black', linewidth = 0.7)
+        # Create a horizontal bar plot for proportions of non-disease genes
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'non-disease', color= 'lightgrey', linewidth = 0.7)
+    elif Proportions == 'disease':
+        # plot proportions of disease genes only
+        # Create a horizontal bar plot for proportions of disease genes
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'disease', color= 'black', linewidth = 0.7)
+    elif Proportions == 'non-disease':
+        # plot proportions of non-disease genes only
+        # Create a horizontal bar plot for proportions of non-disease genes
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, label = 'disease', color= 'lightgrey', linewidth = 0.7)
 
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write y axis label
-    ax.set_ylabel('Proportion', color = 'black',  size = 7, ha = 'center', **FigFont)
+    if Proportions == 'both':
+        YLabel = 'Proportion'
+    elif Proportions == 'disease':
+        YLabel = 'Proportion of\ndisease genes'
+    elif Proportions == 'non-disease':    
+        YLabel = 'Proportion of\nnon-disease genes'   
+    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+        
     # add ticks and lebels
     if XLabel == True:
         plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], ['NoOvl', 'Nst', 'Int', 'Ext', 'Pgk', 'Con', 'Div'], rotation = 30, size = 7, color = 'black', ha = 'right', **FigFont)
     # add title
     plt.title(Title, color = 'black',  size = 7, ha = 'center', **FigFont)
-    # add a range for the Y and X axes
-    plt.ylim([0, 1])    
+    # add a range for the Y axis
+    plt.ylim([0, YMax])    
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
@@ -488,8 +420,8 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title, XLabel):
                         right = 'off', left = 'on', labelbottom='on',
                         colors = 'black', labelsize = 7, direction = 'out')  
     else:
-        plt.tick_params(axis='both', which='both', bottom='off', top='off',
-                        right = 'off', left = 'on', labelbottom='on',
+        plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                        right = 'off', left = 'on', labelbottom='off',
                         colors = 'black', labelsize = 7, direction = 'out')  
     # Set the tick labels font name
     for label in ax.get_yticklabels():
@@ -504,25 +436,38 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title, XLabel):
 # create figure
 fig = plt.figure(1, figsize = (2.5, 6))
 # plot data
-ax1 = CreateAx(1, 5, 1, fig, [GADDis, GADNonDis], 'complex diseases', False)
-ax2 = CreateAx(1, 5, 2, fig, [GWASDis, GWASNonDis], 'GWAS', False)
-ax3 = CreateAx(1, 5, 3, fig, [DriversDis, DriversNonDis], 'tumor drivers', False)
-ax4 = CreateAx(1, 5, 4, fig, [OMIMDis, OMIMNonDis], 'medelian diseases', False)
-ax5 = CreateAx(1, 5, 5, fig, [AllDis, AllNonDis], 'all diseases', True)
+ax1 = CreateAx(1, 5, 1, fig, [GADDis, GADNonDis], 'complex diseases', 'disease', 0.71, False)
+ax2 = CreateAx(1, 5, 2, fig, [GWASDis, GWASNonDis], 'GWAS', 'disease', 0.2, False)
+ax3 = CreateAx(1, 5, 3, fig, [DriversDis, DriversNonDis], 'tumor drivers', 'disease', 0.04,  False)
+ax4 = CreateAx(1, 5, 4, fig, [OMIMDis, OMIMNonDis], 'medelian diseases', 'disease', 0.25, False)
+ax5 = CreateAx(1, 5, 5, fig, [AllDis, AllNonDis], 'all diseases', 'disease', 0.71, True)
 
-## annotate figure to add significance
-## significant comparisons were already determined, add letters to show significance
-#ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
-#xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
-#for i in range(len(PValOmega)):
-#    ax1.text(xpos[i], ypos[i], PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#for i in range(len(PProp)):
-#    ax2.text(xpos[i], 1.02, PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+# annotate figure to add significance
+# significant comparisons were already determined, add letters to show significance
+xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
 
-# add legend
-N = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'non-disease')
-D = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'disease')
-ax1.legend(handles = [D, N], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
+ypos = [0.55, 0.50, 0.65, 0.55, 0.6, 0.6]
+for i in range(len(PValGAD)):
+    ax1.text(xpos[i], ypos[i], PValGAD[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+ypos = [0.12, 0.05, 0.16, 0.09, 0.10, 0.10]
+for i in range(len(PValGWAS)):
+    ax2.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+ypos = [0.027, 0.017, 0.040, 0.015, 0.037, 0.030]
+for i in range(len(PValDrivers)):
+    ax3.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+ypos = [0.17, 0.12, 0.25, 0.17, 0.22, 0.22]
+for i in range(len(PValOMIM)):
+    ax4.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+ypos = [0.55, 0.45, 0.7, 0.55, 0.65, 0.65]
+for i in range(len(PValAll)):
+    ax5.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+
+Proportions = 'disease'
+if Proportions == 'both':
+    # add legend
+    N = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'non-disease')
+    D = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'disease')
+    ax1.legend(handles = [D, N], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
 plt.tight_layout()
