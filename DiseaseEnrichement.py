@@ -479,4 +479,5 @@ if Proportions == 'both':
 plt.tight_layout()
 
 # save figure to file
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig('ProportionDiseaseGenes.pdf', bbox_inches = 'tight')
+fig.savefig('ProportionDiseaseGenes.eps', bbox_inches = 'tight')
