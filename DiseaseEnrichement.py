@@ -351,14 +351,6 @@ PValOMIM = AssignSignificance(PValOMIM)
 PValAll = AssignSignificance(PValAll)
 
 
-#for i in range(1, len(GADCounts)):
-#    print('GAD', GeneCats[0], GeneCats[i], GADCounts[0][0]/sum(GADCounts[0]), GADCounts[i][0] / sum(GADCounts[i]), PValGAD[i-1])
-#    print('GWAS', GeneCats[0], GeneCats[i], GWASCounts[0][0] / sum(GWASCounts[0]), GWASCounts[i][0] / sum(GWASCounts[i]), PValGWAS[i-1])
-#    print('divers', GeneCats[0], GeneCats[i], DriversCounts[0][0] / sum(DriversCounts[0]), DriversCounts[i][0] / sum(DriversCounts[i]), PValDrivers[i-1])
-#    print('OMIM', GeneCats[0], GeneCats[i], OMIMCounts[0][0] / sum(OMIMCounts[0]), OMIMCounts[i][0] / sum(OMIMCounts[i]), PValOMIM[i-1])
-#    print('all', GeneCats[0], GeneCats[i], AllCounts[0][0] / sum(AllCounts[0]), AllCounts[i][0] / sum(AllCounts[i]), PValAll[i-1])
-
-
 # get proportions
 GADDis, GADNonDis = GetProportions(GADCounts)    
 GWASDis, GWASNonDis = GetProportions(GWASCounts)
@@ -481,3 +473,25 @@ plt.tight_layout()
 # save figure to file
 fig.savefig('ProportionDiseaseGenes.pdf', bbox_inches = 'tight')
 fig.savefig('ProportionDiseaseGenes.eps', bbox_inches = 'tight')
+
+
+# make a table with counts of disease and non-disease genes
+
+
+GeneCounts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
+Origins = ['GAD', 'GWAS', 'Drivers', 'OMIM', 'All']
+GeneCats = ['Non-overlapping', 'Nested', 'Internal', 'External', 'Piggyback', 'Convergent', 'Divergent'] 
+
+newfile = open('DiseaseEnrichementTable.txt', 'w')
+header = ['Disease genes', 'Gene category', 'N disease genes', 'N non-disease genes', 'Proportion disease genes', 'P']
+newfile.write('\t'.join(header) + '\n')
+for i in range(len(GeneCounts)):
+    # get the list of P values
+    Pvals = TestDiseaseEnrichement(GeneCounts[i])
+    # add empty  string for the non-overlapping genes
+    Pvals.insert(0, '')
+    for j in range(len(GeneCounts[i])):
+        line = [Origins[i], GeneCats[j], str(GeneCounts[i][j][0]), str(GeneCounts[i][j][1]), str(round(GeneCounts[i][j][0] / sum(GeneCounts[i][j]), 4) * 100), str(Pvals[j])]
+        newfile.write('\t'.join(line) + '\n')
+newfile.close()        
+
