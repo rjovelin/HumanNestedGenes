@@ -5,6 +5,26 @@ Created on Fri Jan 20 22:27:34 2017
 @author: Richard
 """
 
+# import modules
+# use Agg backend on server without X server
+import matplotlib as mpl
+mpl.use('Agg')
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+from matplotlib import rc
+import matplotlib.gridspec as gridspec
+rc('mathtext', default='regular')
+import json
+import random
+import copy
+import sys
+import os
+import math
+import numpy as np
+from scipy import stats
+from HsaNestedGenes import *
+
+
 
 # use this scipt to test for enrichement of disease genes among external genes sorted by their orientation
 
@@ -45,18 +65,13 @@ Matches = MatchHostTranscriptWithNestedTranscript(Nested, MapGeneTranscript, Gen
 HostNestedPairs = GetHostNestedPairs(Matches)
 
 
-# make sets of external genes with internal genes with and without introns
-
-
-
-# make sets of external genes with same and opposite orientation as their internal genes
-Same, Opposite = set(), set()
-
-
-
-
+# make sets of external genes with intronless and intron-containing internal genes
 WithIntrons, NoIntrons = set(), set()
 
+
+Same, Opposite = set(), set()
+# make sets of external genes with same and opposite direction as their internal genes that be intronless or not
+WithIntronsSame, NoIntronsSame, WithIntronsOpposite, NoIntronsOpposite = set(), set(), set(), set()
 
 
 
@@ -68,192 +83,57 @@ for i in range(len(HostNestedPairs)):
     assert HostNestedPairs[i][0] in TranscriptCoordinates    
     assert HostNestedPairs[i][1] in MapTranscriptGene
     assert HostNestedPairs[i][1] in TranscriptCoordinates    
+    if HostNestedPairs[i][1] in IntronCoord:
+            WithIntrons.add(MapTranscriptGene[HostNestedPairs[i][0]])
+    else:
+        NoIntrons.add(MapTranscriptGene[HostNestedPairs[i][0]])
     
     
     
     
-    
-    
-        # get the orientation of each transcript [+,+]
-        OrientationPair = GenePairOrientation(HostNestedPairs[i], TranscriptCoordinates)
-        # determine if the nested transcript has introns
-        if HostNestedPairs[i][1] in IntronCoord:
-            IntronLess = False
-        else:
-            IntronLess = True
-        # check presence of intron and orientation of host and nested transcripts
-        if IntronLess == True and len(set(OrientationPair)) == 1:
-            # intronless, same orientation
-            NoIntronSame += 1
-            assert set(OrientationPair) == {'-', '-'} or set(OrientationPair) == {'+', '+'}
-        elif IntronLess == True and len(set(OrientationPair)) == 2:
-            # intronless, differente orientation
-            NoIntronOpposite += 1
-            assert set(OrientationPair) == {'-', '+'} 
-        elif IntronLess == False and len(set(OrientationPair)) == 1:
-            # with introns and same orientation
-            WithIntronSame += 1
-            assert set(OrientationPair) == {'-', '-'} or set(OrientationPair) == {'+', '+'}
-        elif IntronLess == False and len(set(OrientationPair)) == 2:
-            # with introns and opposite orientation
-            WithIntronOpposite += 1
-            assert set(OrientationPair) == {'-', '+'}
-        # record internal gene
-        AlreadyRecorded.add(HostNestedPairs[i][1])
-
-# test that the proportions of intron-less and with-intron genes are the same on both strands
-P = stats.fisher_exact([[NoIntronSame, NoIntronOpposite], [WithIntronSame, WithIntronOpposite]])[1]
-
-# create contingency table table
-newfile.write('Table 1. Number of internal (nested genes) with and without introns and their orientation\n')
-newfile.write('\t'.join(['', 'Intronless', 'WithIntron', 'Ratio Intronless/Total', 'P']) + '\n')
-newfile.write('\t'.join(['Same', str(NoIntronSame), str(WithIntronSame), str(round(NoIntronSame / (NoIntronSame + WithIntronSame), 4)), str(P)]) + '\n')
-newfile.write('\t'.join(['Opposite', str(NoIntronOpposite), str(WithIntronOpposite), str(round(NoIntronOpposite / (NoIntronOpposite + WithIntronOpposite), 4)), str(P)]) + '\n')
-
-
-
-# perform a test that the proportion of host:nested pairs with opposite orientation
-# is greater than expected by chance alone
-
-# 1) perform a fisher exact test with random, equal proportions of same and opposite sens pairs
-# count the number of nested pairs with same and different orientations
-same, opposite = 0, 0
-# loop over host-nested transcript pairs
-for i in range(len(HostNestedPairs)):
     # get the orientation of each transcript [+,+]
     OrientationPair = GenePairOrientation(HostNestedPairs[i], TranscriptCoordinates)
+    # populate sets with external genes
     if len(set(OrientationPair)) == 1:
-        # same orientation
-        same += 1
+        assert set(OrientationPair) == {'-'} or set(OrientationPair) == {'+'}
+        Same.add(MapTranscriptGene[HostNestedPairs[i][0]])
+        # check if the internal gene has introns
+        if HostNestedPairs[i][1] in IntronCoord:
+            WithIntronsSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
+        else:
+            NoIntronsSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
     elif len(set(OrientationPair)) == 2:
-        # differente orientation
-        opposite += 1
-# computed expected numbers of same and oppsote pairs under the assumption of random (equal proportions)
-expsame = (same + opposite) * (50/100)        
-expopp = expsame        
-P = stats.fisher_exact([[same, opposite], [expsame, expopp]])[1]
-
-newfile.write('\n\n')
-newfile.write('Table 2. Number of host-nested gene pairs with same and opposite orientation\n')
-newfile.write('\t'.join(['', 'Same', 'Opposite', 'Ratio Intronless/Total', 'P']) + '\n')
-newfile.write('\t'.join(['Nested', str(same), str(opposite), str(round(opposite / (same + opposite), 4)), str(P)]) + '\n')
-newfile.write('\t'.join(['Expected', str(expsame), str(expopp), str(round(expopp / (expsame + expopp), 4)), str(P)]) + '\n')
-
-# 2) perform a binomial test that the proportion of host-nested pairs on opposite strands
-# is greater than 0.5
-assert same + opposite == len(HostNestedPairs)
-P = stats.binom_test(opposite, (same + opposite), 0.5)
-
-newfile.write('\n\n')
-newfile.write('The proportion of gene pairs with opposite orientation ({0})\n'.format(round((opposite / (same+opposite)) * 100, 2)))
-newfile.write('is greater than expected by chance (P = {0}, binomial test with p = 0.5'.format(P))
-
-# close file after writing
-newfile.close()
-
-
-
-
-###############################################
+        assert set(OrientationPair) == {'-', '+'}
+        Opposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
+        # check if the internal gene has introns
+        if HostNestedPairs[i][1] in IntronCoord:
+            WithIntronsOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
+        else:
+            NoIntronsOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
+       
 
 
 
 
 
-# -*- coding: utf-8 -*-
-"""
-Created on Tue Jan 17 14:54:24 2017
-
-@author: RJovelin
-"""
-
-# use this script to test for enrichement of overlapping genes among disease genes
-# save data as table and figure
-
-# import modules
-# use Agg backend on server without X server
-import matplotlib as mpl
-mpl.use('Agg')
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from matplotlib import rc
-import matplotlib.gridspec as gridspec
-rc('mathtext', default='regular')
-import json
-import random
-import copy
-import sys
-import os
-import math
-import numpy as np
-from scipy import stats
-from HsaNestedGenes import *
 
 
+
+
+
+
+
+
+
+       
 # load dictionary of overlapping gene pairs
 json_data = open('HumanOverlappingGenes.json')
 Overlapping = json.load(json_data)
 json_data.close()
-# load dictionary of nested gene pairs
-json_data = open('HumanNestedGenes.json')
-Nested = json.load(json_data)
-json_data.close()
-# load dictionary of pibbyback gene pairs
-json_data = open('HumanPiggyBackGenes.json')
-Piggyback = json.load(json_data)
-json_data.close()
-# load dictionary of convergent gene pairs
-json_data = open('HumanConvergentGenes.json')
-Convergent = json.load(json_data)
-json_data.close()
-# load dictionary of divergent gene pairs
-json_data = open('HumanDivergentGenes.json')
-Divergent = json.load(json_data)
-json_data.close()
-
-# get GFF file
-GFF = 'Homo_sapiens.GRCh38.86.gff3'
-# get the coordinates of genes on each chromo
-# {chromo: {gene:[chromosome, start, end, sense]}}
-GeneChromoCoord = ChromoGenesCoord(GFF)
-# map each gene to its mRNA transcripts
-MapGeneTranscript = GeneToTranscripts(GFF)
-# remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
-GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
-# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
-GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
-
-# generate gene sets
-NestedGenes  = MakeFullPartialOverlapGeneSet(Nested)
-OverlappingGenes = MakeFullPartialOverlapGeneSet(Overlapping)
-ConvergentGenes = MakeFullPartialOverlapGeneSet(Convergent)
-DivergentGenes = MakeFullPartialOverlapGeneSet(Divergent)
-PiggyBackGenes = MakeFullPartialOverlapGeneSet(Piggyback)
 # make a set of non-overlapping genes
+OverlappingGenes = MakeFullPartialOverlapGeneSet(Overlapping)
 NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
-# create sets of internal and external nested gene pairs
-NestedPairs = GetHostNestedPairs(Nested)
-InternalGenes, ExternalGenes = set(), set()
-for pair in NestedPairs:
-    ExternalGenes.add(pair[0])
-    InternalGenes.add(pair[1])
 
-# create lists of nested gene pairs with same and opposite directions
-same, opposite = [], []
-for pair in NestedPairs:
-    orientation = GenePairOrientation(pair, GeneCoord)
-    if len(set(orientation)) == 2:
-        opposite.append(pair)
-    elif len(set(orientation)) == 1:
-        same.append(pair)
-# create sets of internal and external nested genes depending on orientation 
-InternalSameGenes, InternalOppositeGenes, ExternalSameGenes, ExternalOppositeGenes = set(), set(), set(), set()
-for pair in same:
-    ExternalSameGenes.add(pair[0])
-    InternalSameGenes.add(pair[1])
-for pair in opposite:
-    ExternalOppositeGenes.add(pair[0])
-    InternalOppositeGenes.add(pair[1])
 
 # map ensembl gene IDs to gene names
 GeneNames = {}
@@ -372,9 +252,7 @@ for line in infile:
         line = line.rstrip().split('\t')
         if line[0] == 'Number Sign' or line[0] == 'Percent' or line[0] == 'Plus':
             mimIDs.add(line[1])
-            
 infile.close()
-
 
 
 # get the set of phenotype associated genes
@@ -402,12 +280,13 @@ for line in infile:
 infile.close()
 
    
+#AllGenes = [NonOverlappingGenes, Same, Opposite, WithIntronsSame, WithIntronsOpposite,
+#            NoIntronsSame, NoIntronsOpposite]  
+#GeneCats = ['NoOvl', 'Same', 'Opposite', 'IntronCis', 'IntronTrans', 'NoIntronCis', 'NoIntronTrans'] 
 
 
-AllGenes = [NonOverlappingGenes, NestedGenes, InternalGenes, ExternalGenes,
-            PiggyBackGenes, ConvergentGenes, DivergentGenes] 
-
-GeneCats = ['NoOvl', 'Nst', 'Int', 'Ext', 'Pgk', 'Con', 'Div'] 
+AllGenes = [NonOverlappingGenes, WithIntrons, NoIntrons]  
+GeneCats = ['NoOvl', 'With', 'Without'] 
 
 
 
@@ -498,12 +377,45 @@ for i in OMIM:
 AllCounts = CountDiseaseGenes(AllGenes, DiseaseGenes)
 
 
+############
+a = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
+for i in range(0, len(a)):
+    for j in range(1, len(a[i])-1):
+        p = stats.fisher_exact([a[i][j], a[i][j+1]])[1]
+        print(i, j, GeneCats[j], GeneCats[j+1], a[i][j][0]/sum(a[i][j]), a[i][j+1][0] / sum(a[i][j+1]), p)
+    
+
+
+
+
+
+
+#########
+
+
+
+
+
 # test for enrichement of disease genes between non-overlapping genes and overlapping genes
 PValGAD = TestDiseaseEnrichement(GADCounts)
 PValGWAS = TestDiseaseEnrichement(GWASCounts)
 PValDrivers = TestDiseaseEnrichement(DriversCounts)
 PValOMIM = TestDiseaseEnrichement(OMIMCounts)
 PValAll = TestDiseaseEnrichement(AllCounts)
+
+
+for i in a:
+    print(i)
+
+
+
+print(PValGAD)
+print(PValGWAS)
+print(PValDrivers)
+print(PValOMIM)
+print(PValAll)
+
+
 
 
 PValGAD = AssignSignificance(PValGAD)
@@ -591,69 +503,68 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title, Proportions, YRange, 
     return ax
 
 
-# make a figure with proportion of disease and non-disease genes
-
-# create figure
-fig = plt.figure(1, figsize = (2.5, 6))
-# plot data
-ax1 = CreateAx(1, 5, 1, fig, [GADDis, GADNonDis], 'complex diseases', 'disease', np.arange(0, 0.71, 0.1), 0.71, False)
-ax2 = CreateAx(1, 5, 2, fig, [GWASDis, GWASNonDis], 'GWAS', 'disease', np.arange(0, 0.21, 0.05), 0.2, False)
-ax3 = CreateAx(1, 5, 3, fig, [DriversDis, DriversNonDis], 'tumor drivers', 'disease', np.arange(0, 0.041, 0.010), 0.04,  False)
-ax4 = CreateAx(1, 5, 4, fig, [OMIMDis, OMIMNonDis], 'medelian diseases', 'disease', np.arange(0, 0.26, 0.05), 0.25, False)
-ax5 = CreateAx(1, 5, 5, fig, [AllDis, AllNonDis], 'all diseases', 'disease', np.arange(0, 0.71, 0.1), 0.71, True)
-
-# annotate figure to add significance
-# significant comparisons were already determined, add letters to show significance
-xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
-
-ypos = [0.55, 0.50, 0.65, 0.55, 0.6, 0.6]
-for i in range(len(PValGAD)):
-    ax1.text(xpos[i], ypos[i], PValGAD[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-ypos = [0.12, 0.05, 0.16, 0.09, 0.10, 0.10]
-for i in range(len(PValGWAS)):
-    ax2.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-ypos = [0.027, 0.017, 0.040, 0.015, 0.037, 0.030]
-for i in range(len(PValDrivers)):
-    ax3.text(xpos[i], ypos[i], PValDrivers[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-ypos = [0.17, 0.12, 0.25, 0.17, 0.22, 0.22]
-for i in range(len(PValOMIM)):
-    ax4.text(xpos[i], ypos[i], PValOMIM[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-ypos = [0.55, 0.45, 0.7, 0.55, 0.65, 0.65]
-for i in range(len(PValAll)):
-    ax5.text(xpos[i], ypos[i], PValAll[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-
-Proportions = 'disease'
-if Proportions == 'both':
-    # add legend
-    N = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'non-disease')
-    D = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'disease')
-    ax1.legend(handles = [D, N], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
-
-# make sure subplots do not overlap
-plt.tight_layout()
-
-# save figure to file
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-fig.savefig('ProportionDiseaseGenes.eps', bbox_inches = 'tight')
+## make a figure with proportion of disease and non-disease genes
+#
+## create figure
+#fig = plt.figure(1, figsize = (2.5, 6))
+## plot data
+#ax1 = CreateAx(1, 5, 1, fig, [GADDis, GADNonDis], 'complex diseases', 'disease', np.arange(0, 0.71, 0.1), 0.71, False)
+#ax2 = CreateAx(1, 5, 2, fig, [GWASDis, GWASNonDis], 'GWAS', 'disease', np.arange(0, 0.21, 0.05), 0.2, False)
+#ax3 = CreateAx(1, 5, 3, fig, [DriversDis, DriversNonDis], 'tumor drivers', 'disease', np.arange(0, 0.041, 0.010), 0.04,  False)
+#ax4 = CreateAx(1, 5, 4, fig, [OMIMDis, OMIMNonDis], 'medelian diseases', 'disease', np.arange(0, 0.26, 0.05), 0.25, False)
+#ax5 = CreateAx(1, 5, 5, fig, [AllDis, AllNonDis], 'all diseases', 'disease', np.arange(0, 0.71, 0.1), 0.71, True)
+#
+## annotate figure to add significance
+## significant comparisons were already determined, add letters to show significance
+#xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
+#
+#ypos = [0.55, 0.50, 0.65, 0.55, 0.6, 0.6]
+#for i in range(len(PValGAD)):
+#    ax1.text(xpos[i], ypos[i], PValGAD[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+#ypos = [0.12, 0.05, 0.16, 0.09, 0.10, 0.10]
+#for i in range(len(PValGWAS)):
+#    ax2.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+#ypos = [0.027, 0.017, 0.040, 0.015, 0.037, 0.030]
+#for i in range(len(PValDrivers)):
+#    ax3.text(xpos[i], ypos[i], PValDrivers[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+#ypos = [0.17, 0.12, 0.25, 0.17, 0.22, 0.22]
+#for i in range(len(PValOMIM)):
+#    ax4.text(xpos[i], ypos[i], PValOMIM[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+#ypos = [0.55, 0.45, 0.7, 0.55, 0.65, 0.65]
+#for i in range(len(PValAll)):
+#    ax5.text(xpos[i], ypos[i], PValAll[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+#
+#Proportions = 'disease'
+#if Proportions == 'both':
+#    # add legend
+#    N = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'non-disease')
+#    D = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'disease')
+#    ax1.legend(handles = [D, N], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
+#
+## make sure subplots do not overlap
+#plt.tight_layout()
+#
+## save figure to file
+#fig.savefig('truc.pdf', bbox_inches = 'tight')
 
 
 # make a table with counts of disease and non-disease genes
 
 
-GeneCounts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
-Origins = ['GAD', 'GWAS', 'Drivers', 'OMIM', 'All']
-GeneCats = ['Non-overlapping', 'Nested', 'Internal', 'External', 'Piggyback', 'Convergent', 'Divergent'] 
-
-newfile = open('truc.txt', 'w')
-header = ['Disease genes', 'Gene category', 'N disease genes', 'N non-disease genes', 'Proportion disease genes', 'P']
-newfile.write('\t'.join(header) + '\n')
-for i in range(len(GeneCounts)):
-    # get the list of P values
-    Pvals = TestDiseaseEnrichement(GeneCounts[i])
-    # add empty  string for the non-overlapping genes
-    Pvals.insert(0, '')
-    for j in range(len(GeneCounts[i])):
-        line = [Origins[i], GeneCats[j], str(GeneCounts[i][j][0]), str(GeneCounts[i][j][1]), str(round(GeneCounts[i][j][0] / sum(GeneCounts[i][j]), 4) * 100), str(Pvals[j])]
-        newfile.write('\t'.join(line) + '\n')
-newfile.close()        
+#GeneCounts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
+#Origins = ['GAD', 'GWAS', 'Drivers', 'OMIM', 'All']
+#GeneCats = ['Non-overlapping', 'Nested', 'Internal', 'External', 'Piggyback', 'Convergent', 'Divergent'] 
+#
+#newfile = open('truc.txt', 'w')
+#header = ['Disease genes', 'Gene category', 'N disease genes', 'N non-disease genes', 'Proportion disease genes', 'P']
+#newfile.write('\t'.join(header) + '\n')
+#for i in range(len(GeneCounts)):
+#    # get the list of P values
+#    Pvals = TestDiseaseEnrichement(GeneCounts[i])
+#    # add empty  string for the non-overlapping genes
+#    Pvals.insert(0, '')
+#    for j in range(len(GeneCounts[i])):
+#        line = [Origins[i], GeneCats[j], str(GeneCounts[i][j][0]), str(GeneCounts[i][j][1]), str(round(GeneCounts[i][j][0] / sum(GeneCounts[i][j]), 4) * 100), str(Pvals[j])]
+#        newfile.write('\t'.join(line) + '\n')
+#newfile.close()        
 
