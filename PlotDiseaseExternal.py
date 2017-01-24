@@ -379,11 +379,11 @@ ax5 = AddSignificance(ax5, PVals[4], 0.1, 0.4, 0.75, 0.25, 0.79)
 
 
 # add subplot labels
-ax1.text(-0.45, 0.9, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax1.text(0.8, 0.9, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax1.text(2.2, 0.9, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax1.text(3.6, 0.9, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax1.text(5, 0.9, 'E', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(-0.45, 0.85, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(0.8, 0.85, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(2.2, 0.85, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(3.6, 0.85, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(5, 0.85, 'E', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
 
 # add legend
