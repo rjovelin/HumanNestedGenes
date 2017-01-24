@@ -320,7 +320,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YRange, YMax):
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write axis labels    
-    YLabel = 'Proportion of\ndisease genes'
+    YLabel = 'Proportion of disease genes'
     ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
     ax.set_xlabel(XLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
     # edit y axis ticks
@@ -346,19 +346,14 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YRange, YMax):
 
 # make a figure with proportion of disease and non-disease genes
 
-
-
-
-
-
 # create figure
-fig = plt.figure(1, figsize = (6, 2.5))
+fig = plt.figure(1, figsize = (6, 2))
 # plot data
-ax1 = CreateAx(5, 1, 1, fig, DisProp[0], 'complex diseases', np.arange(0, 1, 0.1), 1)
-ax2 = CreateAx(5, 1, 2, fig, DisProp[1], 'GWAS', np.arange(0, 1, 0.1), 1)
-ax3 = CreateAx(5, 1, 3, fig, DisProp[2], 'tumor drivers', np.arange(0, 1, 0.1), 1)
-ax4 = CreateAx(5, 1, 4, fig, DisProp[3], 'medelian diseases', np.arange(0, 1, 0.1), 1)
-ax5 = CreateAx(5, 1, 5, fig, DisProp[4], 'all diseases', np.arange(0, 1, 0.1), 1)
+ax1 = CreateAx(5, 1, 1, fig, DisProp[0], 'complex diseases', np.arange(0, 0.75, 0.1), 0.75)
+ax2 = CreateAx(5, 1, 2, fig, DisProp[1], 'GWAS', np.arange(0, 0.25, 0.05), 0.25)
+ax3 = CreateAx(5, 1, 3, fig, DisProp[2], 'tumor drivers', np.arange(0, 0.1, 0.02), 0.1)
+ax4 = CreateAx(5, 1, 4, fig, DisProp[3], 'medelian diseases', np.arange(0, 0.35, 0.05), 0.35)
+ax5 = CreateAx(5, 1, 5, fig, DisProp[4], 'all diseases', np.arange(0, 0.8, 0.1), 0.8)
 
 ## annotate figure to add significance
 ## significant comparisons were already determined, add letters to show significance
