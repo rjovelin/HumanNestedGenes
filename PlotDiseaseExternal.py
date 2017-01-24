@@ -389,7 +389,7 @@ ax1.text(5, 0.85, 'E', ha='center', va='center', color = 'black', fontname = 'Ar
 # add legend
 N = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'intronless internal genes')
 D = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'internal genes with introns')
-ax1.legend(handles = [D, N], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
+ax1.legend(handles = [D, N], loc = (1, 1.3), fontsize = 6, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
 plt.tight_layout()
