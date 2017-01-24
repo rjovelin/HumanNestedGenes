@@ -226,11 +226,8 @@ for i in range(len(HostNestedPairs)):
         # internal gene is intronless, populate set with external gene name
         NoIntrons.add(MapTranscriptGene[HostNestedPairs[i][0]])
     
-    
-
+# make a list of external genes
 ExtGenes = [WithIntrons, NoIntrons]  
-GeneCats = ['With', 'Without'] 
-
 
 
 # use this function to count disease and non-disease genes for each gene class
@@ -246,7 +243,6 @@ def CountDiseaseGenes(L, DiseaseGenes):
         nondisease = len([j for j in L[i] if j not in DiseaseGenes])
         Counts.append([disease, nondisease])
     return Counts
-
 
 # use this function to assign significance level
 def AssignSignificance(L):
@@ -394,400 +390,93 @@ ax1.legend(handles = [D, N], loc = (1, 1.3), fontsize = 6, frameon = False, ncol
 # make sure subplots do not overlap
 plt.tight_layout()
 
+outputfile = 'ProportionDiseaseExternal'
 # save figure to file
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
 
 
-## make a table with counts of disease and non-disease genes
-#GeneCounts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
-#Origins = ['GAD', 'GWAS', 'Drivers', 'OMIM', 'All']
-#GeneCats = ['Non-overlapping', 'Nested', 'Internal', 'External', 'Piggyback', 'Convergent', 'Divergent'] 
-#
-#newfile = open('truc.txt', 'w')
-#header = ['Disease genes', 'Gene category', 'N disease genes', 'N non-disease genes', 'Proportion disease genes', 'P']
-#newfile.write('\t'.join(header) + '\n')
-#for i in range(len(GeneCounts)):
-#    # get the list of P values
-#    Pvals = TestDiseaseEnrichement(GeneCounts[i])
-#    # add empty  string for the non-overlapping genes
-#    Pvals.insert(0, '')
-#    for j in range(len(GeneCounts[i])):
-#        line = [Origins[i], GeneCats[j], str(GeneCounts[i][j][0]), str(GeneCounts[i][j][1]), str(round(GeneCounts[i][j][0] / sum(GeneCounts[i][j]), 4) * 100), str(Pvals[j])]
-#        newfile.write('\t'.join(line) + '\n')
-#newfile.close()        
+# compare proportion of disease genes among external genes with different orientation with their internal genes
+
+AllSame, AllOpposite = set(), set()
+IntronlessSame, IntronlessOpposite = set(), set()
+IntronSame, IntronOpposite =set(), set()
+
+# loop over host-nested transcript pairs
+for i in range(len(HostNestedPairs)):
+    # check that both transcripts have coordinates and have corresponding gene names    
+    assert HostNestedPairs[i][0] in MapTranscriptGene and HostNestedPairs[i][0] in TranscriptCoordinates    
+    assert HostNestedPairs[i][1] in MapTranscriptGene and HostNestedPairs[i][1] in TranscriptCoordinates    
+    # get the orientation of the external and internal transcripts
+    OrientationPair = GenePairOrientation(HostNestedPairs[i], TranscriptCoordinates)
+    # populate sets with external genes
+    if len(set(OrientationPair)) == 1:
+        assert set(OrientationPair) == {'-'} or set(OrientationPair) == {'+'}
+        AllSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
+        # check if the internal gene has introns
+        if HostNestedPairs[i][1] in IntronCoord:
+            IntronSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
+        else:
+            IntronlessSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
+    elif len(set(OrientationPair)) == 2:
+        assert set(OrientationPair) == {'-', '+'}
+        AllOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
+        # check if the internal gene has introns
+        if HostNestedPairs[i][1] in IntronCoord:
+            IntronOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
+        else:
+            IntronlessOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
+       
+# make a list of external genes
+ExternalGenes = [AllSame, AllOpposite, IntronSame, IntronOpposite, IntronlessSame, IntronlessOpposite]  
+
+# count disease and non-disease genes    
+GADCounts = CountDiseaseGenes(ExternalGenes, GAD)    
+GWASCounts = CountDiseaseGenes(ExternalGenes, GWAS)
+DriversCounts = CountDiseaseGenes(ExternalGenes, Drivers)
+OMIMCounts = CountDiseaseGenes(ExternalGenes, OMIM)
+AllCounts = CountDiseaseGenes(ExternalGenes, DiseaseGenes)
+
+# compare the proportion of disease genes for each set of disease gene
+PVals = []
+counts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
+for i in range(len(counts)):
+    pvalues = []
+    for j in range(0, len(counts[i]), 2):
+        p = stats.fisher_exact([counts[i][j], counts[i][j+1]])[1]
+        pvalues.append(p)
+    PVals.append(pvalues)    
+
+# create lists of proportions for disease and non-disease genes
+DisProp, NonDisProp = [], []
+for i in range(len(counts)):
+    disease, nondisease = GetProportions(counts[i])
+    DisProp.append(disease)
+    NonDisProp.append(nondisease)
+
+Origins = ['GAD', 'GWAS', 'Drivers', 'OMIM', 'All']
+GeneCats = ['External_Same', 'External_opposite', 'WithIntronSame', 'WithIntronOpposite', 'IntronlessSame', 'IntronlessOpposite']
 
 
+newfile = open('DiseaseEnrichExternal.txt', 'w')
+newfile.write('Proportion of disease genes among external genes depending on their orientation\n')
+newfile.write('with their intronless or intron-containing internal genes\n\n')
+header = ['Disease genes', 'Gene category', 'N disease genes', 'N non-disease genes', 'Proportion disease genes', 'P']
+newfile.write('\t'.join(header) + '\n')
 
 
-
-Same, Opposite = set(), set()
-# make sets of external genes with same and opposite direction as their internal genes that be intronless or not
-WithIntronsSame, NoIntronsSame, WithIntronsOpposite, NoIntronsOpposite = set(), set(), set(), set()
-
-
-
-
-############################## edit below
-
-
-
-
-## loop over host-nested transcript pairs
-#for i in range(len(HostNestedPairs)):
-#    # check that both transcripts have coordinates and have corresponding gene names    
-#    assert HostNestedPairs[i][0] in MapTranscriptGene
-#    assert HostNestedPairs[i][0] in TranscriptCoordinates    
-#    assert HostNestedPairs[i][1] in MapTranscriptGene
-#    assert HostNestedPairs[i][1] in TranscriptCoordinates    
-#    if HostNestedPairs[i][1] in IntronCoord:
-#            WithIntrons.add(MapTranscriptGene[HostNestedPairs[i][0]])
-#    else:
-#        NoIntrons.add(MapTranscriptGene[HostNestedPairs[i][0]])
-#    
-#    
-#    
-#    
-#    # get the orientation of each transcript [+,+]
-#    OrientationPair = GenePairOrientation(HostNestedPairs[i], TranscriptCoordinates)
-#    # populate sets with external genes
-#    if len(set(OrientationPair)) == 1:
-#        assert set(OrientationPair) == {'-'} or set(OrientationPair) == {'+'}
-#        Same.add(MapTranscriptGene[HostNestedPairs[i][0]])
-#        # check if the internal gene has introns
-#        if HostNestedPairs[i][1] in IntronCoord:
-#            WithIntronsSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
-#        else:
-#            NoIntronsSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
-#    elif len(set(OrientationPair)) == 2:
-#        assert set(OrientationPair) == {'-', '+'}
-#        Opposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
-#        # check if the internal gene has introns
-#        if HostNestedPairs[i][1] in IntronCoord:
-#            WithIntronsOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
-#        else:
-#            NoIntronsOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
-#       
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#       
-## load dictionary of overlapping gene pairs
-#json_data = open('HumanOverlappingGenes.json')
-#Overlapping = json.load(json_data)
-#json_data.close()
-## make a set of non-overlapping genes
-#OverlappingGenes = MakeFullPartialOverlapGeneSet(Overlapping)
-#NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
-#
-#
-#
-#
-#
-#
-#   
-##AllGenes = [NonOverlappingGenes, Same, Opposite, WithIntronsSame, WithIntronsOpposite,
-##            NoIntronsSame, NoIntronsOpposite]  
-##GeneCats = ['NoOvl', 'Same', 'Opposite', 'IntronCis', 'IntronTrans', 'NoIntronCis', 'NoIntronTrans'] 
-#
-#
-#AllGenes = [NonOverlappingGenes, WithIntrons, NoIntrons]  
-#GeneCats = ['NoOvl', 'With', 'Without'] 
-#
-#
-#
-#
-#
-## make a list of counts for each 
-#
-#
-## use this function to count disease and non-disease genes for each gene class
-#def CountDiseaseGenes(L, DiseaseGenes):
-#    '''
-#    (list, set) -> list
-#    Take a list of gene sets and a set of disease genes and return a parallel
-#    list with lists of counts of diease and non disease genes for each gene set
-#    '''
-#    Counts = []
-#    for i in range(len(L)):
-#        disease = len([j for j in L[i] if j in DiseaseGenes])
-#        nondisease = len([j for j in L[i] if j not in DiseaseGenes])
-#        Counts.append([disease, nondisease])
-#    return Counts
-#
-## use this function to test for enrichement of disease genes among gene groups
-#def TestDiseaseEnrichement(Counts):
-#    '''
-#    (list) -> list
-#    Take the list of disease and non-disease gene counts for each gene group and 
-#    returns a list of p-values from FET comparing each overlapping gene group to 
-#    non-overlapping genes
-#    Precondition: the non-overlapping gene counts are first in the list    
-#    '''
-#    PVals = []    
-#    for i in range(1, len(Counts)):
-#        p = stats.fisher_exact([Counts[0], Counts[i]])[1]
-#        PVals.append(p)
-#    return PVals
-#
-## use this function to assign significance level
-#def AssignSignificance(L):
-#    '''
-#    (list) -> list
-#    Take a list of p-values and return a modfied list with significance levels
-#    represented by stars
-#    '''
-#    # replace P values by significance
-#    for i in range(len(L)):
-#        if L[i] >= 0.05:
-#            L[i] = ''
-#        elif L[i] < 0.05 and L[i] >= 0.01:
-#            L[i] = '*'
-#        elif L[i] < 0.01 and L[i] >= 0.001:
-#            L[i] = '**'
-#        elif L[i] < 0.001:
-#            L[i] = '***'
-#    return L
-#    
-# 
-## use this function to get gene proportions
-#def GetProportions(Counts):
-#    '''
-#    (list) -> list, list
-#    Take the list of inner lists with counts of disease and non-disease
-#    and return 2 lists with proportions of disease and non-disease genes respectively
-#    '''
-#    disease, nondisease = [], []
-#    for i in range(len(Counts)):
-#        disease.append(Counts[i][0] / sum(Counts[i]))
-#        nondisease.append(Counts[i][1] / sum(Counts[i]))
-#    return disease, nondisease
-#    
-## count disease and non-disease genes    
-#GADCounts = CountDiseaseGenes(AllGenes, GAD)    
-#GWASCounts = CountDiseaseGenes(AllGenes, GWAS)
-#DriversCounts = CountDiseaseGenes(AllGenes, Drivers)
-#OMIMCounts = CountDiseaseGenes(AllGenes, OMIM)
-#
-## create a set with all disease genes
-#DiseaseGenes = set()
-#for i in Drivers:
-#    DiseaseGenes.add(i)
-#for i in GWAS:
-#    DiseaseGenes.add(i)
-#for i in GAD:
-#    DiseaseGenes.add(i)
-#for i in OMIM:
-#    DiseaseGenes.add(i)
-#
-#AllCounts = CountDiseaseGenes(AllGenes, DiseaseGenes)
-#
-#
-#############
-#a = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
-#for i in range(0, len(a)):
-#    for j in range(1, len(a[i])-1):
-#        p = stats.fisher_exact([a[i][j], a[i][j+1]])[1]
-#        print(i, j, GeneCats[j], GeneCats[j+1], a[i][j][0]/sum(a[i][j]), a[i][j+1][0] / sum(a[i][j+1]), p)
-#    
-#
-#
-#
-#
-#
-#
-##########
-#
-#
-#
-#
-#
-## test for enrichement of disease genes between non-overlapping genes and overlapping genes
-#PValGAD = TestDiseaseEnrichement(GADCounts)
-#PValGWAS = TestDiseaseEnrichement(GWASCounts)
-#PValDrivers = TestDiseaseEnrichement(DriversCounts)
-#PValOMIM = TestDiseaseEnrichement(OMIMCounts)
-#PValAll = TestDiseaseEnrichement(AllCounts)
-#
-#
-#for i in a:
-#    print(i)
-#
-#
-#
-#print(PValGAD)
-#print(PValGWAS)
-#print(PValDrivers)
-#print(PValOMIM)
-#print(PValAll)
-#
-#
-#
-#
-#PValGAD = AssignSignificance(PValGAD)
-#PValGWAS = AssignSignificance(PValGWAS)
-#PValDrivers = AssignSignificance(PValDrivers)
-#PValOMIM = AssignSignificance(PValOMIM)
-#PValAll = AssignSignificance(PValAll)
-#
-#
-## get proportions
-#GADDis, GADNonDis = GetProportions(GADCounts)    
-#GWASDis, GWASNonDis = GetProportions(GWASCounts)
-#DriversDis, DriversNonDis = GetProportions(DriversCounts)
-#OMIMDis, OMIMNonDis = GetProportions(OMIMCounts)
-#AllDis, AllNonDis = GetProportions(AllCounts)
-#
-#
-#
-## create a function to format the subplots
-#def CreateAx(Columns, Rows, Position, figure, Data, Title, Proportions, YRange, YMax, XLabel):
-#    '''
-#    Returns a ax instance in figure
-#    '''    
-#    
-#    # add a plot to figure (N row, N column, plot N)
-#    ax = figure.add_subplot(Rows, Columns, Position)
-#    # check if plot only disease genes or proportions of disease and non-disease genes
-#    if Proportions == 'both':
-#        # Create a horizontal bar plot for proportions of disease genes
-#        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'disease', color= 'black', linewidth = 0.7)
-#        # Create a horizontal bar plot for proportions of non-disease genes
-#        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'non-disease', color= 'lightgrey', linewidth = 0.7)
-#    elif Proportions == 'disease':
-#        # plot proportions of disease genes only
-#        # Create a horizontal bar plot for proportions of disease genes
-#        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'disease', color= ['black'] + ['lightgrey'] * 6, linewidth = 0.7)
-#    elif Proportions == 'non-disease':
-#        # plot proportions of non-disease genes only
-#        # Create a horizontal bar plot for proportions of non-disease genes
-#        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, label = 'disease', color= 'lightgrey', linewidth = 0.7)
-#
-#    # set font for all text in figure
-#    FigFont = {'fontname':'Arial'}   
-#    # write y axis label
-#    if Proportions == 'both':
-#        YLabel = 'Proportion'
-#    elif Proportions == 'disease':
-#        YLabel = 'Proportion of\ndisease genes'
-#    elif Proportions == 'non-disease':    
-#        YLabel = 'Proportion of\nnon-disease genes'   
-#    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
-#        
-#    # add ticks and lebels
-#    if XLabel == True:
-#        plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], ['NoOvl', 'Nst', 'Int', 'Ext', 'Pgk', 'Con', 'Div'], rotation = 30, size = 7, color = 'black', ha = 'right', **FigFont)
-#    elif XLabel == False:
-#        plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], [''] * 7, size = 7, color = 'black', ha = 'right', **FigFont)
-#    
-#    # edit y axis ticks
-#    plt.yticks(YRange)    
-#        
-#    # add title
-#    plt.title(Title, color = 'black',  size = 7, ha = 'center', **FigFont)
-#    # add a range for the Y axis
-#    plt.ylim([0, YMax])    
-#    # do not show lines around figure  
-#    ax.spines["top"].set_visible(False)    
-#    ax.spines["bottom"].set_visible(True)    
-#    ax.spines["right"].set_visible(False)
-#    ax.spines["left"].set_visible(True)  
-#    # edit tick parameters    
-#    if XLabel == True:
-#        plt.tick_params(axis='both', which='both', bottom='on', top='off',
-#                        right = 'off', left = 'on', labelbottom='on',
-#                        colors = 'black', labelsize = 7, direction = 'out')  
-#    else:
-#        plt.tick_params(axis='both', which='both', bottom='on', top='off',
-#                        right = 'off', left = 'on', labelbottom='off',
-#                        colors = 'black', labelsize = 7, direction = 'out')  
-#    # Set the tick labels font name
-#    for label in ax.get_yticklabels():
-#        label.set_fontname('Arial')   
-#    # add margins
-#    plt.margins(0.1)
-#    return ax
-#
-#
-### make a figure with proportion of disease and non-disease genes
-##
-### create figure
-##fig = plt.figure(1, figsize = (2.5, 6))
-### plot data
-##ax1 = CreateAx(1, 5, 1, fig, [GADDis, GADNonDis], 'complex diseases', 'disease', np.arange(0, 0.71, 0.1), 0.71, False)
-##ax2 = CreateAx(1, 5, 2, fig, [GWASDis, GWASNonDis], 'GWAS', 'disease', np.arange(0, 0.21, 0.05), 0.2, False)
-##ax3 = CreateAx(1, 5, 3, fig, [DriversDis, DriversNonDis], 'tumor drivers', 'disease', np.arange(0, 0.041, 0.010), 0.04,  False)
-##ax4 = CreateAx(1, 5, 4, fig, [OMIMDis, OMIMNonDis], 'medelian diseases', 'disease', np.arange(0, 0.26, 0.05), 0.25, False)
-##ax5 = CreateAx(1, 5, 5, fig, [AllDis, AllNonDis], 'all diseases', 'disease', np.arange(0, 0.71, 0.1), 0.71, True)
-##
-### annotate figure to add significance
-### significant comparisons were already determined, add letters to show significance
-##xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
-##
-##ypos = [0.55, 0.50, 0.65, 0.55, 0.6, 0.6]
-##for i in range(len(PValGAD)):
-##    ax1.text(xpos[i], ypos[i], PValGAD[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-##ypos = [0.12, 0.05, 0.16, 0.09, 0.10, 0.10]
-##for i in range(len(PValGWAS)):
-##    ax2.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-##ypos = [0.027, 0.017, 0.040, 0.015, 0.037, 0.030]
-##for i in range(len(PValDrivers)):
-##    ax3.text(xpos[i], ypos[i], PValDrivers[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-##ypos = [0.17, 0.12, 0.25, 0.17, 0.22, 0.22]
-##for i in range(len(PValOMIM)):
-##    ax4.text(xpos[i], ypos[i], PValOMIM[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-##ypos = [0.55, 0.45, 0.7, 0.55, 0.65, 0.65]
-##for i in range(len(PValAll)):
-##    ax5.text(xpos[i], ypos[i], PValAll[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-##
-##Proportions = 'disease'
-##if Proportions == 'both':
-##    # add legend
-##    N = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'non-disease')
-##    D = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'disease')
-##    ax1.legend(handles = [D, N], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
-##
-### make sure subplots do not overlap
-##plt.tight_layout()
-##
-### save figure to file
-##fig.savefig('truc.pdf', bbox_inches = 'tight')
-#
-#
-## make a table with counts of disease and non-disease genes
-#
-#
-##GeneCounts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
-##Origins = ['GAD', 'GWAS', 'Drivers', 'OMIM', 'All']
-##GeneCats = ['Non-overlapping', 'Nested', 'Internal', 'External', 'Piggyback', 'Convergent', 'Divergent'] 
-##
-##newfile = open('truc.txt', 'w')
-##header = ['Disease genes', 'Gene category', 'N disease genes', 'N non-disease genes', 'Proportion disease genes', 'P']
-##newfile.write('\t'.join(header) + '\n')
-##for i in range(len(GeneCounts)):
-##    # get the list of P values
-##    Pvals = TestDiseaseEnrichement(GeneCounts[i])
-##    # add empty  string for the non-overlapping genes
-##    Pvals.insert(0, '')
-##    for j in range(len(GeneCounts[i])):
-##        line = [Origins[i], GeneCats[j], str(GeneCounts[i][j][0]), str(GeneCounts[i][j][1]), str(round(GeneCounts[i][j][0] / sum(GeneCounts[i][j]), 4) * 100), str(Pvals[j])]
-##        newfile.write('\t'.join(line) + '\n')
-##newfile.close()        
-#
-#
-#
-#
-#
-#Same, Opposite = set(), set()
-## make sets of external genes with same and opposite direction as their internal genes that be intronless or not
-#WithIntronsSame, NoIntronsSame, WithIntronsOpposite, NoIntronsOpposite = set(), set(), set(), set()
+# loop over the gene counts for each disease origin
+for i in range(len(counts)):
+    # set up variable to get the index of the pvalue list (the list doesn't have same length)
+    m = 0
+    for j in range(len(counts[i])):
+        line = [Origins[i], GeneCats[j], str(counts[i][j][0]), str(counts[i][j][1]), str(round(DisProp[i][j] * 100, 2))]
+        # add p value on the line of the opposite orientation
+        if j % 2 != 0:
+            # update variable m
+            m += 1
+            # get index of the p value in list
+            k = j -m
+            line.append(str(PVals[i][k]))
+        newfile.write('\t'.join(line) + '\n')
+newfile.close()        
