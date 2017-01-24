@@ -352,7 +352,7 @@ fig = plt.figure(1, figsize = (6, 2))
 ax1 = CreateAx(5, 1, 1, fig, DisProp[0], 'complex diseases', np.arange(0, 1, 0.1), 0.8)
 ax2 = CreateAx(5, 1, 2, fig, DisProp[1], 'GWAS', np.arange(0, 0.30, 0.05), 0.25)
 ax3 = CreateAx(5, 1, 3, fig, DisProp[2], 'tumor drivers', np.arange(0, 0.1, 0.02), 0.08)
-ax4 = CreateAx(5, 1, 4, fig, DisProp[3], 'medelian diseases', np.arange(0, 0.40, 0.05), 0.35)
+ax4 = CreateAx(5, 1, 4, fig, DisProp[3], 'medelian diseases', np.arange(0, 0.40, 0.05), 0.351)
 ax5 = CreateAx(5, 1, 5, fig, DisProp[4], 'all diseases', np.arange(0, 1, 0.1), 0.8)
 
 # use this function to annotate the graph with significance levels
@@ -371,34 +371,25 @@ def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
 
 
 # annotate figure to add significance
-ax1 = AddSignificance(ax1, PVals[0], 0.1, 0.4, 0.75, 0.25, 0.8)
+ax1 = AddSignificance(ax1, PVals[0], 0.1, 0.4, 0.73, 0.25, 0.78)
 ax2 = AddSignificance(ax2, PVals[1], 0.1, 0.4, 0.22, 0.25, 0.24)
 ax3 = AddSignificance(ax3, PVals[2], 0.1, 0.4, 0.07, 0.25, 0.075)
-ax4 = AddSignificance(ax4, PVals[3], 0.1, 0.4, 0.32, 0.25, 0.35)
-ax5 = AddSignificance(ax5, PVals[4], 0.1, 0.4, 0.77, 0.25, 0.8)
+ax4 = AddSignificance(ax4, PVals[3], 0.1, 0.4, 0.32, 0.25, 0.34)
+ax5 = AddSignificance(ax5, PVals[4], 0.1, 0.4, 0.75, 0.25, 0.79)
 
 
-
-## add subplot labels
-#ax1.text(-0.35, 21.5, 'A', horizontalalignment='center', verticalalignment='center',
-#         color = 'black', fontname = 'Arial', size = 9)
-#ax1.text(0.8, 21.5, 'B', horizontalalignment='center', verticalalignment='center',
-#         color = 'black', fontname = 'Arial', size = 9)
-#ax1.text(2.1, 21.5, 'C', horizontalalignment='center', verticalalignment='center',
-#         color = 'black', fontname = 'Arial', size = 9)
+# add subplot labels
+ax1.text(-0.35, 0.9, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(0.8, 0.9, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(1, 0.9, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(1.5, 0.9, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(2, 0.9, 'E', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
 
-
-
-
-
-
-#Proportions = 'disease'
-#if Proportions == 'both':
-#    # add legend
-#    N = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'non-disease')
-#    D = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'disease')
-#    ax1.legend(handles = [D, N], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
+# add legend
+N = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'intronless internal genes')
+D = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'internal genes with introns')
+ax1.legend(handles = [D, N], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
 plt.tight_layout()
