@@ -349,32 +349,50 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YRange, YMax):
 # create figure
 fig = plt.figure(1, figsize = (6, 2))
 # plot data
-ax1 = CreateAx(5, 1, 1, fig, DisProp[0], 'complex diseases', np.arange(0, 0.75, 0.1), 0.75)
-ax2 = CreateAx(5, 1, 2, fig, DisProp[1], 'GWAS', np.arange(0, 0.25, 0.05), 0.25)
-ax3 = CreateAx(5, 1, 3, fig, DisProp[2], 'tumor drivers', np.arange(0, 0.1, 0.02), 0.1)
-ax4 = CreateAx(5, 1, 4, fig, DisProp[3], 'medelian diseases', np.arange(0, 0.35, 0.05), 0.35)
-ax5 = CreateAx(5, 1, 5, fig, DisProp[4], 'all diseases', np.arange(0, 0.8, 0.1), 0.8)
+ax1 = CreateAx(5, 1, 1, fig, DisProp[0], 'complex diseases', np.arange(0, 1, 0.1), 0.8)
+ax2 = CreateAx(5, 1, 2, fig, DisProp[1], 'GWAS', np.arange(0, 0.30, 0.05), 0.25)
+ax3 = CreateAx(5, 1, 3, fig, DisProp[2], 'tumor drivers', np.arange(0, 0.1, 0.02), 0.08)
+ax4 = CreateAx(5, 1, 4, fig, DisProp[3], 'medelian diseases', np.arange(0, 0.40, 0.05), 0.35)
+ax5 = CreateAx(5, 1, 5, fig, DisProp[4], 'all diseases', np.arange(0, 1, 0.1), 0.8)
 
-## annotate figure to add significance
-## significant comparisons were already determined, add letters to show significance
-#xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
-#
-#ypos = [0.55, 0.50, 0.65, 0.55, 0.6, 0.6]
-#for i in range(len(PValGAD)):
-#    ax1.text(xpos[i], ypos[i], PValGAD[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#ypos = [0.12, 0.05, 0.16, 0.09, 0.10, 0.10]
-#for i in range(len(PValGWAS)):
-#    ax2.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#ypos = [0.027, 0.017, 0.040, 0.015, 0.037, 0.030]
-#for i in range(len(PValDrivers)):
-#    ax3.text(xpos[i], ypos[i], PValDrivers[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#ypos = [0.17, 0.12, 0.25, 0.17, 0.22, 0.22]
-#for i in range(len(PValOMIM)):
-#    ax4.text(xpos[i], ypos[i], PValOMIM[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#ypos = [0.55, 0.45, 0.7, 0.55, 0.65, 0.65]
-#for i in range(len(PValAll)):
-#    ax5.text(xpos[i], ypos[i], PValAll[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#
+# use this function to annotate the graph with significance levels
+def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
+    '''
+    (ax, str, num, num, num, num, num) -> ax
+    Take a matplotlib ax object, the significance level (as stars), the positions
+    of the bracket and star and return the ax with annotated significance level
+    '''
+    ax.annotate("", xy=(XLine1, YLine), xycoords='data', xytext=(XLine2, YLine), textcoords='data',
+                 arrowprops=dict(arrowstyle="-", ec='#aaaaaa', connectionstyle="bar,fraction=0.2", linewidth = 0.7))
+    # add stars for significance
+    ax.text(XText, YText, SignificanceLevel, horizontalalignment='center', verticalalignment='center',
+            color = 'grey', fontname = 'Arial', size = 7)
+    return ax
+
+
+# annotate figure to add significance
+ax1 = AddSignificance(ax1, PVals[0], 0.1, 0.4, 0.75, 0.25, 0.8)
+ax2 = AddSignificance(ax2, PVals[1], 0.1, 0.4, 0.22, 0.25, 0.24)
+ax3 = AddSignificance(ax3, PVals[2], 0.1, 0.4, 0.07, 0.25, 0.075)
+ax4 = AddSignificance(ax4, PVals[3], 0.1, 0.4, 0.32, 0.25, 0.35)
+ax5 = AddSignificance(ax5, PVals[4], 0.1, 0.4, 0.77, 0.25, 0.8)
+
+
+
+## add subplot labels
+#ax1.text(-0.35, 21.5, 'A', horizontalalignment='center', verticalalignment='center',
+#         color = 'black', fontname = 'Arial', size = 9)
+#ax1.text(0.8, 21.5, 'B', horizontalalignment='center', verticalalignment='center',
+#         color = 'black', fontname = 'Arial', size = 9)
+#ax1.text(2.1, 21.5, 'C', horizontalalignment='center', verticalalignment='center',
+#         color = 'black', fontname = 'Arial', size = 9)
+
+
+
+
+
+
+
 #Proportions = 'disease'
 #if Proportions == 'both':
 #    # add legend
