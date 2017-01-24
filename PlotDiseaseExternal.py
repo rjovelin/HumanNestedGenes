@@ -290,7 +290,6 @@ counts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
 for i in range(len(counts)):
     p = stats.fisher_exact([counts[i][0], counts[i][1]])[1]
     PVals.append(p)    
-    print(i, counts[i][0][0]/sum(counts[i][0]), counts[i][1][0] / sum(counts[i][1]), p)
     
 # transform p values in stars
 PVals = AssignSignificance(PVals)    
@@ -385,7 +384,7 @@ ax1.text(5, 0.85, 'E', ha='center', va='center', color = 'black', fontname = 'Ar
 # add legend
 N = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'intronless internal genes')
 D = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'internal genes with introns')
-ax1.legend(handles = [D, N], loc = (1, 1.2), fontsize = 6, frameon = False, ncol = 2)
+ax1.legend(handles = [D, N], loc = (1, 1.15), fontsize = 6, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
 plt.tight_layout()
