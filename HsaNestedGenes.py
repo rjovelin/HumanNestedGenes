@@ -982,6 +982,26 @@ def ComputeExpressionDivergenceOrthologs(L, ExpressionProfileSp1, ExpressionProf
     return Divergence
 
 
+# use this function to create lists of orthologs with both genes expressed
+def ExpressedOrthologousPairs(Sp1Expression, Sp2Expression, Genes, Orthologs):
+    '''
+    (dict, dict, set, dict) -> list
+    Take the dictionaries of expression profiles for species 1 and 2, the set
+    of genes of interest in species 1, and the dictionary of orthologs and return
+    a list of expressed orthologous pairs
+    '''
+    # create a list of gene pairs
+    ExpressedOrthos = []
+    # loop over gene set of interest
+    for gene in Genes:
+        # check that gene has ortholog
+        if gene in Orthologs:
+            # check that gene and its orthologs are expressed
+            if gene in Sp1Expression and Orthologs[gene] in Sp2Expression:
+                ExpressedOrthos.append([gene, Orthologs[gene]])
+    return ExpressedOrthos
+
+
 # use this function to generate sets of gene pairs separated by a given distance
 def GenerateSetsGenePairsDistance(GeneCoord, OrderedGenes, ExpressionProfile):
     '''
