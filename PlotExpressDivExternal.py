@@ -114,7 +114,7 @@ for i in range(len(ExpressDivergence)):
 print(MeanExpDiv)
 
 # perform statistical tests between gene categories
-PExpressDiv= PermutationResampling(Divergence[0], Divergence[1], 10000, np.mean)
+PExpressDiv= PermutationResampling(ExpressDivergence[0], ExpressDivergence[1], 10000, np.mean)
 print(PExpressDiv)
 
 
