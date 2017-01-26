@@ -111,13 +111,17 @@ for i in range(len(ExpressDivergence)):
     MeanExpDiv.append(np.mean(ExpressDivergence[i]))
     SEMExpDiv.append(np.std(ExpressDivergence[i]) / math.sqrt(len(ExpressDivergence[i])))
 
-print(MeanExpDiv)
-
 # perform statistical tests between gene categories
 PExpressDiv= PermutationResampling(ExpressDivergence[0], ExpressDivergence[1], 10000, np.mean)
-print(PExpressDiv)
-
-
+# convert p-values to star significance level
+if PExpressDiv >= 0.05:
+    PExpressDiv = ''
+elif PExpressDiv < 0.05 and PExpressDiv >= 0.01:
+    PExpressDiv = '*'
+elif PExpressDiv < 0.01 and PExpressDiv >= 0.001:
+    PExpressDiv = '**'
+elif PExpressDiv < 0.001:
+    PExpressDiv = '***'
 
 
 # 2) compare sequence divergence between internal genes with and witout introns
@@ -179,25 +183,28 @@ for i in range(len(Orthologs)):
             ratio.append(SeqDiv[pair[0]])
     Omega.append(ratio)
     
- # create lists with means and SEM for dN/dS for each gene category
+# create lists with means and SEM for dN/dS for each gene category
 MeanOmega, SEMOmega = [], []
 for i in range(len(Omega)):
     MeanOmega.append(np.mean(Omega[i]))
     SEMOmega.append(np.std(Omega[i]) / math.sqrt(len(Omega[i])))
-
-print(GeneCats)
-print(MeanOmega)
 
 # test differences between external genes and between internal genes
 POmega = []
 for i in range(0, len(Omega), 2):
     P = PermutationResampling(Omega[i], Omega[i+1], 10000, np.mean)
     POmega.append(P)
-for i in POmega:
-    print(i)
+# convert p-values to star significance level
+for i in range(len(POmega)):
+    if POmega[i] >= 0.05:
+        POmega[i] = ''
+    elif POmega[i] < 0.05 and POmega[i] >= 0.01:
+        POmega[i] = '*'
+    elif POmega[i] < 0.01 and POmega[i] >= 0.001:
+        POmega[i] = '**'
+    elif POmega[i] < 0.001:
+        POmega[i] = '***'
 
-
-###############################
 
 # 3) Compare expression divergence between orthologs for internal genes
 # and for external genes 
@@ -249,64 +256,39 @@ POrthosExprx = []
 for i in range(0, len(OrthoExprxDiverg), 2):
     P = PermutationResampling(OrthoExprxDiverg[i], OrthoExprxDiverg[i+1], 10000, np.mean)
     POrthosExprx.append(P)
+# convert p-values to star significance level
+for i in range(len(POrthosExprx)):
+    if POrthosExprx[i] >= 0.05:
+        POrthosExprx[i] = ''
+    elif POrthosExprx[i] < 0.05 and POrthosExprx[i] >= 0.01:
+        POrthosExprx[i] = '*'
+    elif POrthosExprx[i] < 0.01 and POrthosExprx[i] >= 0.001:
+        POrthosExprx[i] = '**'
+    elif pvalue < 0.001:
+        POrthosExprx[i] = '***'
 
 
-print(MeanOrthoExpDiv)
-print(POrthosExprx)
-
-    
-  
-
-
-
-
-
-## convert p-values to star significance level
-#Significance = []
-#for pvalue in PValues:
-#    if pvalue >= 0.05:
-#        Significance.append('')
-#    elif pvalue < 0.05 and pvalue >= 0.01:
-#        Significance.append('*')
-#    elif pvalue < 0.01 and pvalue >= 0.001:
-#        Significance.append('**')
-#    elif pvalue < 0.001:
-#        Significance.append('***')
-
-
-
-###############################
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YMax):
+def CreateAx(Columns, Rows, Position, figure, Data, XticksLabel, XticksPos, BarPos, YLabel, YRange, YMax, Colors):
     '''
     Returns a ax instance in figure
     '''    
-
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
-    # check type of graphic    
-    if DataType == 'divergence':
-        # set colors
-        colorscheme = ['black','lightgrey','lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
-        # plot nucleotide divergence
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], 0.2, yerr = Data[1], color = colorscheme,
-               edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
-    elif DataType == 'proportion':
-        ## Create a horizontal bar plot for proportions of genes with homologs
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'homolog', color= 'black', linewidth = 0.7)
-        # Create a horizontal bar plot for proportions of same strand pairs
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'no homolog', color= 'lightgrey', linewidth = 0.7)
-
+    # plot data
+    ax.bar(BarPos, Data[0], 0.2, yerr = Data[1], color = Colors,
+           edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write y axis label
     ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
     # add ticks and lebels
-    plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], XLabel, rotation = 30, size = 7, color = 'black', ha = 'right', **FigFont)
+    plt.xticks(XticksPos, XticksLabel, rotation = 0, size = 7, color = 'black', ha = 'right', **FigFont)
+    # edit y axis ticks
+    plt.yticks(YRange)   
     # add a range for the Y and X axes
     plt.ylim([0, YMax])    
-    
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
@@ -319,22 +301,54 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')   
-      
     # add margins
     plt.margins(0.1)
-    
     return ax
 
 
 
-## make a figure with mean dN/dS and with proportion of gene with homologs
-#
-## create figure
-#fig = plt.figure(1, figsize = (4.5, 2))
-## plot data
-#ax1 = CreateAx(2, 1, 1, fig, [MeanOmega, SEMOmega], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', 0.50)
-#ax2 = CreateAx(2, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', 'proportion', 1)
-#
+# use this function to annotate the graph with significance levels
+def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
+    '''
+    (ax, str, num, num, num, num, num) -> ax
+    Take a matplotlib ax object, the significance level (as stars), the positions
+    of the bracket and star and return the ax with annotated significance level
+    '''
+    ax.annotate("", xy=(XLine1, YLine), xycoords='data', xytext=(XLine2, YLine), textcoords='data',
+                 arrowprops=dict(arrowstyle="-", ec='#aaaaaa', connectionstyle="bar,fraction=0.2", linewidth = 0.7))
+    # add stars for significance
+    ax.text(XText, YText, SignificanceLevel, horizontalalignment='center', verticalalignment='center',
+            color = 'grey', fontname = 'Arial', size = 7)
+    return ax
+
+
+# make a figure with expression and sequence divergence
+
+# create figure
+fig = plt.figure(1, figsize = (4.5, 2))
+# plot data
+ax1 = CreateAx(3, 1, 1, fig, [MeanExpDiv, SEMExpDiv], ['a', 'b'], [0.1, 0.4], [0, 0.3], 'Expression divergence', np.arange(0, 0.9, 0.1), 0.8, ['black', 'lightgrey'])
+ax2 = CreateAx(3, 1, 2, fig, [MeanOmega, SEMOmega], ['a', 'b', 'c', 'd'], [0.1, 0.4, 0.8, 1.1], [0, 0.3, 0.7, 1], r'Nucleotide divergence $dN/dS$', np.arange(0, 1.2, 0.2), 1, ['grey', 'grey', 'lightgrey', 'lightgrey'])
+ax3 = CreateAx(3, 1, 3, fig, [MeanOrthoExpDiv, SEMOrthoExpDiv], ['a', 'b', 'c', 'd'], [0.1, 0.4, 0.8, 1.1], [0, 0.3, 0.7, 1], 'Expression divergence', np.arange(0, 0.50, 0.1), 0.4, ['grey', 'grey', 'lightgrey', 'lightgrey'])
+
+# annotate graphs with significance level
+if PExpressDiv != '':
+    ax1 = AddSignificance(ax1, PExpressDiv, 0.1, 0.4, 0.61, 0.25, 0.7)
+if POmega[0] != '':
+    ax2 = AddSignificance(ax2, POmega[0], 0.1, 0.4, 0.5, 0.25, 0.55)
+if POmega[1] != '':
+    ax2 = AddSignificance(ax2, POmega[1], 0.8, 1.1, 0.9, 0.95, 0.95)
+if POrthosExprx[0] != '':
+    ax3 = AddSignificance(ax3, POrthosExprx[0], 0.1, 0.4, 0.23, 0.25, 0.25)
+if POrthosExprx[1] != '':
+    ax3 = AddSignificance(ax3, POrthosExprx[1], 0.8, 1.1, 3.1, 0.95, 3.4)
+
+
+
+
+
+
+
 ## annotate figure to add significance
 ## significant comparisons were already determined, add letters to show significance
 #ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
@@ -348,10 +362,13 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
 #NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
 #WiH = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
 #ax2.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
-#
-## make sure subplots do not overlap
-#plt.tight_layout()
-#
+
+# make sure subplots do not overlap
+plt.tight_layout()
+
+
+# save figure to file
+fig.savefig('truc.pdf', bbox_inches = 'tight')
 
 
 
