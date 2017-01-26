@@ -344,33 +344,14 @@ if POrthosExprx[1] != '':
     ax3 = AddSignificance(ax3, POrthosExprx[1], 0.8, 1.1, 3.1, 0.95, 3.4)
 
 
-
-
-
-
-
-## annotate figure to add significance
-## significant comparisons were already determined, add letters to show significance
-#ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
-#xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
-#for i in range(len(PValOmega)):
-#    ax1.text(xpos[i], ypos[i], PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#for i in range(len(PProp)):
-#    ax2.text(xpos[i], 1.02, PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#
-## add legend
-#NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
-#WiH = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
-#ax2.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
+# add legend
+NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'Intronless internal genes')
+WiH = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'Intron-containing internal genes')
+ax1.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 7, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
 plt.tight_layout()
 
-
 # save figure to file
 fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
-
-
 
