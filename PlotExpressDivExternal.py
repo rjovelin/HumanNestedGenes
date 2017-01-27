@@ -353,5 +353,5 @@ ax1.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 7, frameon = False, 
 plt.tight_layout()
 
 # save figure to file
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-
+fig.savefig('ExpSeqDivergenceExternal.pdf', bbox_inches = 'tight')
+fig.savefig('ExpSeqDivergenceExternal.eps', bbox_inches = 'tight')
