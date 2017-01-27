@@ -328,8 +328,8 @@ def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
 fig = plt.figure(1, figsize = (4.5, 2))
 # plot data
 ax1 = CreateAx(3, 1, 1, fig, [MeanExpDiv, SEMExpDiv], ['external'], [0.25], [0, 0.3], 'Expression divergence', np.arange(0, 0.9, 0.1), 0.8, ['black', 'lightgrey'])
-ax2 = CreateAx(3, 1, 2, fig, [MeanOmega, SEMOmega], ['external', 'internal'], [0.25, 0.95], [0, 0.3, 0.7, 1], 'Nucleotide divergence $\it{dN/dS}$', np.arange(0, 1.2, 0.2), 1, ['black', 'lightgrey', 'black', 'lightgrey'])
-ax3 = CreateAx(3, 1, 3, fig, [MeanOrthoExpDiv, SEMOrthoExpDiv], ['external', 'internal'], [0.25, 0.95], [0, 0.3, 0.7, 1], 'Expression divergence', np.arange(0, 0.50, 0.1), 0.4, ['black', 'lightgrey', 'black', 'lightgrey'])
+ax2 = CreateAx(3, 1, 2, fig, [MeanOmega, SEMOmega], ['external', 'internal'], [0.23, 0.97], [0, 0.3, 0.7, 1], 'Nucleotide divergence $\it{dN/dS}$', np.arange(0, 1.2, 0.2), 1, ['black', 'lightgrey', 'black', 'lightgrey'])
+ax3 = CreateAx(3, 1, 3, fig, [MeanOrthoExpDiv, SEMOrthoExpDiv], ['external', 'internal'], [0.23, 0.97], [0, 0.3, 0.7, 1], 'Expression divergence', np.arange(0, 0.50, 0.1), 0.4, ['black', 'lightgrey', 'black', 'lightgrey'])
 
 # annotate graphs with significance level
 if PExpressDiv != '':
