@@ -169,8 +169,8 @@ for i in WithIntronPos:
         avecintron[i] = 1
         
         
-a = [[val, key] in avecintron.items()]
-b = [[val, key] in sansintron.items()]        
+a = [[val, key] for key, val in avecintron.items()]
+b = [[val, key] for key, val in sansintron.items()]        
 
 a.sort()
 b.sort()
