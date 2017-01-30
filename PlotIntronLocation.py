@@ -256,7 +256,7 @@ PNonePos = np.array(range(len(IntronlessPos))) / len(IntronlessPos)
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, DataType, YLabel, Colors, YMax):
+def CreateAx(Columns, Rows, Position, figure, Data, YLabel, Colors, YMax):
     '''
     (int, int, int, figure_object, list, list, list, list, list, str, str, int)
     Take the number of a column, and rows in the figure object and the position of
@@ -268,18 +268,11 @@ def CreateAx(Columns, Rows, Position, figure, Data, DataType, YLabel, Colors, YM
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
     # plot data    
-    if DataType == 'histo':
+    if type(Data[0]) == list:
+        ax.hist(Data, bins = np.arange(0, max([max(Data[0]), max(Data[1])]) + 1, 1), linewidth = 0.7, histtype='bar', stacked=True)
+    else:
         ax.hist(Data, bins = np.arange(0, max(Data) + 1, 1), facecolor= Colors, linewidth = 0.7)
     
-#    elif DataType == 'cdf':
-#        ax.hist(Data, bins = np.arange(0, max(Data[0]) + 1, 1), facecolor= Colors, linewidth = 0.7, histtype='bar', stacked=True)
-    
-    
-    elif DataType == 'cdf':
-        ax.hist(Data, bins = np.arange(0, max([max(Data[0]), max(Data[1])]) + 1, 1), linewidth = 0.7, histtype='bar', stacked=True)
-    
-#    elif DataType == 'cdf':
-#        ax.step(Data[0], Data[1], linewidth = 1.2, linestyle = '-', color = Colors)
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for y
@@ -364,11 +357,8 @@ def CreateAx(Columns, Rows, Position, figure, Data, DataType, YLabel, Colors, YM
 fig = plt.figure(1, figsize = (3.5, 4))
 
 
-ax1 = CreateAx(1, 2, 1, fig, TotalCount, 'histo', 'Number of introns per gene', 'lightgrey', 100)
-#ax2 = CreateAx(1, 2, 2, fig, [WithIntronPos, PWithPos] , 'cdf', 'Probability', 'black', 1)
-#ax2 = CreateAx(1, 2, 2, fig, [IntronlessPos, PNonePos] , 'cdf', 'Probability', 'lightgrey', 1)
-
-ax2 = CreateAx(1, 2, 2, fig, [WithIntronPos, IntronlessPos] , 'cdf', 'Probability', ['black', 'lightgrey'], 300)
+ax1 = CreateAx(1, 2, 1, fig, TotalCount, 'Number of introns per gene', 'lightgrey', max(TotalCount))
+ax2 = CreateAx(1, 2, 2, fig, [WithIntronPos, IntronlessPos] , 'Position of gene-containing introns', ['black', 'lightgrey'], max([max(WithIntronPos), max(IntronlessPos)]))
 
 
 
