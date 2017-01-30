@@ -300,59 +300,6 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel, Colors, YMax):
 
 
 
-## create figure
-#fig = plt.figure(1, figsize = (4.5, 2.5))
-#
-## plot data for intron numner
-#ax1 = CreateAx(3, 1, 1, fig, NumMeans, NumSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Hst', 'Nst', 'Un'], ['grey','black','white'], 'Number of introns per gene', 20)
-#ax2 = CreateAx(3, 1, 2, fig, LengthMeans, LengthSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Hst', 'Nst', 'Un'], ['grey','black','white'], 'Intron length (Kbp)', 20)
-#ax3 = CreateAx(3, 1, 3, fig, HostIntronMeans, HostIntronSEM, [0, 0.2], [0.1, 0.3], ['With', 'None'], ['grey','black'], 'Intron length (Kbp)', 70)
-#
-## make lists with bracket and star positions
-#XPosNum = [[0.1, 0.28, 16, 0.2, 16.7], [0.1, 0.5, 17, 0.3, 18.2], [0.32, 0.5, 16, 0.4, 16.7]]
-#XPosLength = [[0.1, 0.28, 16, 0.2, 16.7], [0.1, 0.5, 17, 0.3, 18.2], [0.32, 0.5, 16, 0.4, 16.7]]
-#XPosHost = [[0.1, 0.28, 63, 0.2, 67]]
-#    
-## annotate figure to add significance
-#for i in range(len(Significance['number'])):
-#    if Significance['number'][i] != '':
-#        ax1 = AddSignificance(ax1, Significance['number'][i], XPosNum[i][0], XPosNum[i][1], XPosNum[i][2], XPosNum[i][3], XPosNum[i][4])
-#for i in range(len(Significance['length'])):
-#    if Significance['length'][i]  != '':
-#        ax2 = AddSignificance(ax2, Significance['length'][i], XPosLength[i][0], XPosLength[i][1], XPosLength[i][2], XPosLength[i][3], XPosLength[i][4])
-#for i in range(len(Significance['host'])):
-#    if Significance['host'][i] != '':
-#        ax3 = AddSignificance(ax3, Significance['host'][i], XPosHost[i][0], XPosHost[i][1], XPosHost[i][2], XPosHost[i][3], XPosHost[i][4])
-#
-#
-## add subplot labels
-#ax1.text(-0.35, 21.5, 'A', horizontalalignment='center', verticalalignment='center',
-#         color = 'black', fontname = 'Arial', size = 9)
-#ax1.text(0.8, 21.5, 'B', horizontalalignment='center', verticalalignment='center',
-#         color = 'black', fontname = 'Arial', size = 9)
-#ax1.text(2.1, 21.5, 'C', horizontalalignment='center', verticalalignment='center',
-#         color = 'black', fontname = 'Arial', size = 9)
-#
-## make sure subplots do not overlap
-#plt.tight_layout()
-#
-## one can control padding between subplots with w_pad and h_pad 
-##plt.tight_layout(pad=0.4, w_pad=0.5, h_pad=1.0)
-#
-### padding between subplots can also be controlled with gridspec
-##gs = gridspec.GridSpec(1, 3) # N rows and columns
-##gs.update(wspace=0.3, hspace=0) # set the spacing between axes. 
-#
-## save figure
-#fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
-
-
-
-
-##################### cdf plots
-
 # create figure
 fig = plt.figure(1, figsize = (3.5, 4))
 
