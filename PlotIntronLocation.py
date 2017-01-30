@@ -368,7 +368,7 @@ ax1 = CreateAx(1, 2, 1, fig, TotalCount, 'histo', 'Number of introns per gene', 
 #ax2 = CreateAx(1, 2, 2, fig, [WithIntronPos, PWithPos] , 'cdf', 'Probability', 'black', 1)
 #ax2 = CreateAx(1, 2, 2, fig, [IntronlessPos, PNonePos] , 'cdf', 'Probability', 'lightgrey', 1)
 
-ax2 = CreateAx(1, 2, 2, fig, [WithIntronPos, IntronlessPos] , 'cdf', 'Probability', ['black', 'lightgrey'], 500)
+ax2 = CreateAx(1, 2, 2, fig, [WithIntronPos, IntronlessPos] , 'cdf', 'Probability', ['black', 'lightgrey'], 300)
 
 
 
