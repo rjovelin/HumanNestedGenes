@@ -85,10 +85,6 @@ for i in range(len(HostNestedPairs)):
     else:
         ExternalIntronless.add(external)
 
-print(len(ExternalIntronless), len(ExternalWithIntron))
-
-
-
 # count the number of intron per external gene for all genes, external genes
 # with intronless internal genes and external genes with intron-containing internal genes
 TotalCount, IntronlessCount, WithIntronCount = [], [], []
@@ -98,10 +94,6 @@ for gene in ExternalIntronless:
     IntronlessCount.append(len(IntronCoord[gene]))
 for gene in ExternalWithIntron:
     WithIntronCount.append(len(IntronCoord[gene]))
-
-print('all', max(TotalCount))
-print('intronless', max(IntronlessCount))
-print('with intron', max(WithIntronCount))
 
 
 # 2) plot the distribution of intron position of the external introns containing internal genes
@@ -154,36 +146,34 @@ for i in range(len(HostNestedPairs)):
                 assert InternalStart not in range(IntronCoord[external][j][0], IntronCoord[external][j][1])
   
 
-avecintron = {}
-sansintron = {}
-
-for i in IntronlessPos:
-    if i in sansintron:
-        sansintron[i] += 1
-    else:
-        sansintron[i] = 1
-for i in WithIntronPos:
-    if i in avecintron:
-        avecintron[i] += 1
-    else:
-        avecintron[i] = 1
-        
-        
-a = [[key, val] for key, val in avecintron.items()]
-b = [[key, val] for key, val in sansintron.items()]        
-
-a.sort()
-b.sort()
-
-print(a)
-print(b)
-
-
-
-print('intronless', max(IntronlessPos))        
-print('with intron', max(WithIntronPos))        
+#avecintron = {}
+#sansintron = {}
+#for i in IntronlessPos:
+#    if i in sansintron:
+#        sansintron[i] += 1
+#    else:
+#        sansintron[i] = 1
+#for i in WithIntronPos:
+#    if i in avecintron:
+#        avecintron[i] += 1
+#    else:
+#        avecintron[i] = 1
+#a = [[key, val] for key, val in avecintron.items()]
+#b = [[key, val] for key, val in sansintron.items()]        
+#a.sort()
+#b.sort()
+#print(a)
+#print(b)
+#print('intronless', max(IntronlessPos))        
+#print('with intron', max(WithIntronPos))        
         
     
+# sort lists
+WithIntronPos = np.sort(WithIntronPos)
+IntronlessPos = np.sort(IntronlessPos)
+# compute probabilities
+PWithPos = np.array(range(len(WithIntronPos))) / len(WithIntronPos)
+PNonePos = np.array(range(len(IntronlessPos))) / len(IntronlessPos) 
 
 
 ## create a list of lists with intron numbers/length for hosts, nested and un-nested genes
@@ -263,71 +253,52 @@ print('with intron', max(WithIntronPos))
 #            Significance[i].append('***')
 #  
 #
-## create a function to format the subplots
-#def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Ticklabel, ColorScheme, YLabel, YMax):
-#    '''
-#    (int, int, int, figure_object, list, list, list, list, list, str, str, int)
-#    Take the number of a column, and rows in the figure object and the position of
-#    the ax in figure, 2 lists of data, a list of bar positions, the list of tick
-#    positions and their labels, a list of colors, a label for the Y axis,
-#    a maximum value for the Y axis and return an ax instance in the figure
-#    '''    
-#    # create subplot in figure
-#    # add a plot to figure (N row, N column, plot N)
-#    ax = figure.add_subplot(Rows, Columns, Position)
-#    # plot variable
-#    ax.bar(BarPos, Means, 0.2, yerr = SEM, color = ColorScheme,
-#           edgecolor = 'black', linewidth = 1,
-#           error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
-#    # set font for all text in figure
-#    FigFont = {'fontname':'Arial'}   
-#    # write label for y
-#    ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-#    # add a range for the Y axis
-#    plt.ylim([0, YMax])
-#    # do not show lines around figure  
-#    ax.spines["top"].set_visible(False)    
-#    ax.spines["bottom"].set_visible(True)    
-#    ax.spines["right"].set_visible(False)    
-#    ax.spines["left"].set_visible(True)  
-#    # edit tick paramters
-#    plt.tick_params(
-#        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-#        which='both',      # both major and minor ticks are affected
-#        bottom='on',      # ticks along the bottom edge are off
-#        top='off',         # ticks along the top edge are off
-#        right = 'off',
-#        left = 'on',          
-#        labelbottom='on', # labels along the bottom edge are on
-#        colors = 'black',
-#        labelsize = 8,
-#        direction = 'out') # ticks are outside the frame when bottom = 'on'  
-#    # add ticks on the x axis
-#    plt.xticks(TickPos, Ticklabel)    
-#    # Set the tick labels font name
-#    for label in ax.get_yticklabels():
-#        label.set_fontname('Arial')   
-#    # create a margin around the x axis
-#    plt.margins(0.1)
-#    return ax      
-#
-#
-#
-## use this function to annotate the graph with significance levels
-#def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
-#    '''
-#    (ax, str, num, num, num, num, num) -> ax
-#    Take a matplotlib ax object, the significance level (as stars), the positions
-#    of the bracket and star and return the ax with annotated significance level
-#    '''
-#    ax.annotate("", xy=(XLine1, YLine), xycoords='data', xytext=(XLine2, YLine), textcoords='data',
-#                 arrowprops=dict(arrowstyle="-", ec='#aaaaaa', connectionstyle="bar,fraction=0.2", linewidth = 1))
-#    # add stars for significance
-#    ax.text(XText, YText, SignificanceLevel, horizontalalignment='center', verticalalignment='center',
-#            color = 'grey', fontname = 'Arial', size = 6)
-#    return ax
-#
-#
+
+
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, figure, Data, DataType, YLabel):
+    '''
+    (int, int, int, figure_object, list, list, list, list, list, str, str, int)
+    Take the number of a column, and rows in the figure object and the position of
+    the ax in figure, 2 lists of data, a list of bar positions, the list of tick
+    positions and their labels, a list of colors, a label for the Y axis,
+    a maximum value for the Y axis and return an ax instance in the figure
+    '''    
+    # create subplot in figure
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # plot data    
+    if DataType == 'histo':
+        ax.hist(Data, bins = np.arange(0, max(Data) + 1, 1))
+    elif DataType == 'cdf':
+        ax.step(Data[0], Data[1], linewidth = 1.2, linestyle = '-', color = 'black')
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    # write label for y
+    ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
+    # add a range for the Y axis
+    #plt.ylim([0, YMax])
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(True)    
+    ax.spines["right"].set_visible(False)    
+    ax.spines["left"].set_visible(True)  
+    # edit tick paramters
+    plt.tick_params(axis='both', which='both', bottom='on', top='off', right = 'off',
+                    left = 'on', labelbottom='on', colors = 'black', labelsize = 8,
+                    direction = 'out')  
+    # add ticks on the x axis
+    #plt.xticks(TickPos, Ticklabel)    
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')   
+    # create a margin around the x axis
+    plt.margins(0.1)
+    return ax      
+
+
+
+
 ## create figure
 #fig = plt.figure(1, figsize = (4.5, 2.5))
 #
@@ -373,4 +344,34 @@ print('with intron', max(WithIntronPos))
 #
 ## save figure
 #fig.savefig('truc.pdf', bbox_inches = 'tight')
+
+
+
+
+
+
+##################### cdf plots
+
+# create figure
+fig = plt.figure(1, figsize = (4.5, 2.5))
+
+
+ax1 = CreateAx(1, 2, 1, fig, TotalCount, 'histo', 'Number of introns per gene')
+ax2 = (1, 2, 2, fig, [WithIntronPos, PWithPos] , 'cdf', 'Probability')
+ax2 = (1, 2, 2, fig, [IntronlessPos, PNonePos] , 'cdf', 'Probability')
+
+
+def CombineHighValues(L, cutoff):
+    '''
+    (list, int) -> list
+    Take a list of overlap length and return a modified list with values higher
+    than cutoff equal to cutoff
+    '''
+    for i in range(len(L)):
+        if L[i] >= cutoff:
+            L[i] = cutoff
+    return L
+
+    
+fig.savefig('truc.pdf', bbox_inches = 'tight')
 
