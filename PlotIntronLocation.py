@@ -256,7 +256,7 @@ PNonePos = np.array(range(len(IntronlessPos))) / len(IntronlessPos)
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, DataType, YLabel):
+def CreateAx(Columns, Rows, Position, figure, Data, DataType, YLabel, Colors, YMax):
     '''
     (int, int, int, figure_object, list, list, list, list, list, str, str, int)
     Take the number of a column, and rows in the figure object and the position of
@@ -269,15 +269,23 @@ def CreateAx(Columns, Rows, Position, figure, Data, DataType, YLabel):
     ax = figure.add_subplot(Rows, Columns, Position)
     # plot data    
     if DataType == 'histo':
-        ax.hist(Data, bins = np.arange(0, max(Data) + 1, 1))
+        ax.hist(Data, bins = np.arange(0, max(Data) + 1, 1), facecolor= Colors, linewidth = 0.7)
+    
+#    elif DataType == 'cdf':
+#        ax.hist(Data, bins = np.arange(0, max(Data[0]) + 1, 1), facecolor= Colors, linewidth = 0.7, histtype='bar', stacked=True)
+    
+    
     elif DataType == 'cdf':
-        ax.step(Data[0], Data[1], linewidth = 1.2, linestyle = '-', color = 'black')
+        ax.hist(Data, bins = np.arange(0, max([max(Data[0]), max(Data[1])]) + 1, 1), linewidth = 0.7, histtype='bar', stacked=True)
+    
+#    elif DataType == 'cdf':
+#        ax.step(Data[0], Data[1], linewidth = 1.2, linestyle = '-', color = Colors)
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for y
     ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
     # add a range for the Y axis
-    #plt.ylim([0, YMax])
+    plt.ylim([0, YMax])
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
@@ -353,12 +361,17 @@ def CreateAx(Columns, Rows, Position, figure, Data, DataType, YLabel):
 ##################### cdf plots
 
 # create figure
-fig = plt.figure(1, figsize = (4.5, 2.5))
+fig = plt.figure(1, figsize = (3.5, 4))
 
 
-ax1 = CreateAx(1, 2, 1, fig, TotalCount, 'histo', 'Number of introns per gene')
-ax2 = (1, 2, 2, fig, [WithIntronPos, PWithPos] , 'cdf', 'Probability')
-ax2 = (1, 2, 2, fig, [IntronlessPos, PNonePos] , 'cdf', 'Probability')
+ax1 = CreateAx(1, 2, 1, fig, TotalCount, 'histo', 'Number of introns per gene', 'lightgrey', 100)
+#ax2 = CreateAx(1, 2, 2, fig, [WithIntronPos, PWithPos] , 'cdf', 'Probability', 'black', 1)
+#ax2 = CreateAx(1, 2, 2, fig, [IntronlessPos, PNonePos] , 'cdf', 'Probability', 'lightgrey', 1)
+
+ax2 = CreateAx(1, 2, 2, fig, [WithIntronPos, IntronlessPos] , 'cdf', 'Probability', ['black', 'lightgrey'], 500)
+
+
+
 
 
 def CombineHighValues(L, cutoff):
@@ -371,6 +384,12 @@ def CombineHighValues(L, cutoff):
         if L[i] >= cutoff:
             L[i] = cutoff
     return L
+
+
+
+# make sure subplots do not overlap
+plt.tight_layout()
+
 
     
 fig.savefig('truc.pdf', bbox_inches = 'tight')
