@@ -67,8 +67,6 @@ UnNestedGenes = MakeNonOverlappingGeneSet(Nested, GeneCoord)
 HostNestedPairs = GetHostNestedPairs(Matches)
 
 
-
-
 # 1) plot the distribution of intron number per external gene 
 
 # make a set of external transcripts
@@ -96,10 +94,12 @@ for gene in ExternalWithIntron:
     WithIntronCount.append(len(IntronCoord[gene]))
 
 
-# 2) plot the distribution of intron position of the external introns containing internal genes
-# separately when internal genes are intronless or with introns
+# 2) plot the distribution of intron position for gene-containing introns of external genes
+# 3) plot the distribution of intron position divided by the total number of introns
 
 IntronlessPos, WithIntronPos = [], []
+IntronlessPosNorm, WithIntronPosNorm = [], []
+
 for i in range(len(HostNestedPairs)):
     # get the external and internal transcripts of the pair
     external, internal = HostNestedPairs[i][0], HostNestedPairs[i][1]
@@ -121,8 +121,10 @@ for i in range(len(HostNestedPairs)):
                 # check if internal gene is ontronless or not
                 if internal in IntronCoord:
                     WithIntronPos.append(len(IntronCoord[external]) -j)
+                    WithIntronPosNorm.append((len(IntronCoord[external]) -j) / len(IntronCoord[external]))                    
                 else:
                     IntronlessPos.append(len(IntronCoord[external]) -j)
+                    IntronlessPosNorm.append((len(IntronCoord[external]) -j) / len(IntronCoord[external]))
             # update boolean
             FoundIntron = True
             # verify that internal gene is not in tron once intron has been found
@@ -137,8 +139,10 @@ for i in range(len(HostNestedPairs)):
                 # check if internal gene is ontronless or not
                 if internal in IntronCoord:
                     WithIntronPos.append(j+1)
+                    WithIntronPosNorm.append((j+1) / len(IntronCoord[external]))
                 else:
                     IntronlessPos.append(j+1)
+                    IntronlessPosNorm.append((j+1) / len(IntronCoord[external]))                    
                 # update boolean
                 FoundIntron = True
             # verify that internal gene is not in tron once intron has been found
@@ -146,68 +150,16 @@ for i in range(len(HostNestedPairs)):
                 assert InternalStart not in range(IntronCoord[external][j][0], IntronCoord[external][j][1])
   
 
-#avecintron = {}
-#sansintron = {}
-#for i in IntronlessPos:
-#    if i in sansintron:
-#        sansintron[i] += 1
-#    else:
-#        sansintron[i] = 1
-#for i in WithIntronPos:
-#    if i in avecintron:
-#        avecintron[i] += 1
-#    else:
-#        avecintron[i] = 1
-#a = [[key, val] for key, val in avecintron.items()]
-#b = [[key, val] for key, val in sansintron.items()]        
-#a.sort()
-#b.sort()
-#print(a)
-#print(b)
-#print('intronless', max(IntronlessPos))        
-#print('with intron', max(WithIntronPos))        
-        
-    
 # sort lists
-WithIntronPos = np.sort(WithIntronPos)
-IntronlessPos = np.sort(IntronlessPos)
+WithIntronPosNorm = np.sort(WithIntronPosNorm)
+IntronlessPosNorm = np.sort(IntronlessPosNorm)
 # compute probabilities
-PWithPos = np.array(range(len(WithIntronPos))) / len(WithIntronPos)
-PNonePos = np.array(range(len(IntronlessPos))) / len(IntronlessPos) 
+PWithPosNorm = np.array(range(len(WithIntronPosNorm))) / len(WithIntronPosNorm)
+PNonePosNorm = np.array(range(len(IntronlessPosNorm))) / len(IntronlessPosNorm) 
 
 
-## create a list of lists with intron numbers/length for hosts, nested and un-nested genes
-#IntronNumbers = [HostNum, NestedNum, OthersNum]
-## create a list of lists with intron length for hosts, nested and un-nested genes
-#IntronLength = [HostLength, NestedLength, OthersLength]
-## create a list of lists with intron length of host genes with and without nested genes
-#HostIntrons = [WithGene, WithoutGene]
-#
-#
-#
-## create a function to get the mean and SEM of items in a list
-#def GetMeanSEM(L):
-#    '''
-#    (list) -> (list, list)
-#    Take a list of inner lists of numbers and return a list with mean values
-#    and a parallel list with SEM values for each item of the outter list
-#    '''
-#    # create lists of mean and SEM
-#    MeanVal, SEMVal = [], []
-#    # loop over the outter ist
-#    for i in range(len(L)):
-#        MeanVal.append(np.mean(L[i]))
-#        SEMVal.append(np.std(L[i]) / math.sqrt(len(L[i])))
-#    return MeanVal, SEMVal
-#
-#
-#    
-## create lists with means and with SEM
-#NumMeans, NumSEM = GetMeanSEM(IntronNumbers)
-#LengthMeans, LengthSEM = GetMeanSEM(IntronLength)
-#HostIntronMeans, HostIntronSEM = GetMeanSEM(HostIntrons)
-#
-## perform statistical tests between gene categories
+
+# perform statistical tests between gene categories
 ## create dict to store results
 ## {number or length: [P_host-nested, P_host-unnested, P_nested-unnested], host: [P_withgene_nogene]
 #PValues = {}
@@ -256,7 +208,7 @@ PNonePos = np.array(range(len(IntronlessPos))) / len(IntronlessPos)
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, YLabel, Colors, YMax):
+def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XLabel, YRange, YMax, XRange, Colors, GraphType):
     '''
     (int, int, int, figure_object, list, list, list, list, list, str, str, int)
     Take the number of a column, and rows in the figure object and the position of
@@ -268,17 +220,24 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel, Colors, YMax):
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
     # plot data    
-    if type(Data[0]) == list:
-        ax.hist(Data, bins = np.arange(0, max([max(Data[0]), max(Data[1])]) + 1, 1), linewidth = 0.7, histtype='bar', stacked=True)
-    else:
-        ax.hist(Data, bins = np.arange(0, max(Data) + 1, 1), facecolor= Colors, linewidth = 0.7)
-    
+    if GraphType == 'histo':
+        ax.hist(Data[0], bins = np.arange(0, max([max(Data[0]), max(Data[1])]) + 1, 1), linewidth = 0.7, histtype='step', fill = True, facecolor = Colors[0], edgecolor = Colors[0], alpha = 0.5, stacked = False)    
+        ax.hist(Data[1], bins = np.arange(0, max([max(Data[0]), max(Data[1])]) + 1, 1), linewidth = 0.7, histtype='step', fill = True, facecolor = Colors[1], edgecolor = Colors[1], alpha = 0.5, stacked = False)
+    elif GraphType == 'cdf':
+        ax.step(Data[0], Data[1], linewidth = 1, linestyle = '-', color = Colors[0], alpha = 0.5)
+        ax.step(Data[2], Data[3], linewidth = 1, linestyle = '-', color = Colors[1], alpha = 0.5)
+        
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
-    # write label for y
-    ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-    # add a range for the Y axis
+    # write label axis
+    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+    ax.set_xlabel(XLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+    # set a limit to y axis
     plt.ylim([0, YMax])
+    # add a range to the axis
+    plt.xticks(XRange, size = 7, color = 'black', ha = 'right', **FigFont)
+    plt.yticks(YRange, size = 7, color = 'black', ha = 'right', **FigFont)        
+    
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
@@ -286,48 +245,30 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel, Colors, YMax):
     ax.spines["left"].set_visible(True)  
     # edit tick paramters
     plt.tick_params(axis='both', which='both', bottom='on', top='off', right = 'off',
-                    left = 'on', labelbottom='on', colors = 'black', labelsize = 8,
-                    direction = 'out')  
+                    left = 'on', labelbottom='on', colors = 'black', labelsize = 7, direction = 'out')  
     # add ticks on the x axis
     #plt.xticks(TickPos, Ticklabel)    
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')   
     # create a margin around the x axis
-    plt.margins(0.1)
+    plt.margins(0.05)
     return ax      
 
-
-
-
 # create figure
-fig = plt.figure(1, figsize = (3.5, 4))
+fig = plt.figure(1, figsize = (2.5, 5))
 
-
-ax1 = CreateAx(1, 2, 1, fig, TotalCount, 'Number of introns per gene', 'lightgrey', max(TotalCount))
-ax2 = CreateAx(1, 2, 2, fig, [WithIntronPos, IntronlessPos] , 'Position of gene-containing introns', ['black', 'lightgrey'], max([max(WithIntronPos), max(IntronlessPos)]))
-
-
-
-
-
-def CombineHighValues(L, cutoff):
-    '''
-    (list, int) -> list
-    Take a list of overlap length and return a modified list with values higher
-    than cutoff equal to cutoff
-    '''
-    for i in range(len(L)):
-        if L[i] >= cutoff:
-            L[i] = cutoff
-    return L
-
-
+# plot distribution of intron number
+YMax1 = max(max([WithIntronCount.count(i) for i in WithIntronCount]),  max([IntronlessCount.count(i) for i in IntronlessCount])) + 10
+ax1 = CreateAx(1, 3, 1, fig, [WithIntronCount, IntronlessCount], 'N external genes', 'Number of introns', np.arange(0, YMax1 + 10, 10), YMax1, np.arange(0, 80, 10), ['orange', 'blue'], 'histo')
+# plot distribution of intron position
+YMax2 = max(max([WithIntronPos.count(i) for i in WithIntronPos]), max([IntronlessPos.count(i) for i in IntronlessPos])) + 10
+ax2 = CreateAx(1, 3, 2, fig, [WithIntronPos, IntronlessPos], 'N of external genes', 'Position of gene-containing introns', np.arange(0, YMax2 + 20, 20), YMax2, np.arange(0, 60, 10), ['orange', 'blue'], 'histo')
+# plot distribution of intron position / intron number
+ax3 = CreateAx(1, 3, 3, fig, [WithIntronPosNorm, PWithPosNorm, IntronlessPosNorm, PNonePosNorm] , 'Probability', 'Intron position / intron number', np.arange(0, 1.1, 0.1), 1, np.arange(0, 5, 0.1), ['orange', 'blue'], 'cdf')
 
 # make sure subplots do not overlap
 plt.tight_layout()
 
 
-    
 fig.savefig('truc.pdf', bbox_inches = 'tight')
-
