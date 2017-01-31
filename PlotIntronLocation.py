@@ -256,7 +256,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XLabel, YRange, YMax
     return ax      
 
 # create figure
-fig = plt.figure(1, figsize = (2.5, 5))
+fig = plt.figure(1, figsize = (2.5, 4.5))
 
 # plot distribution of intron number
 YMax1 = max(max([WithIntronCount.count(i) for i in WithIntronCount]),  max([IntronlessCount.count(i) for i in IntronlessCount])) + 10
