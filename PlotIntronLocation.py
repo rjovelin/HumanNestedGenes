@@ -265,7 +265,7 @@ ax1 = CreateAx(1, 3, 1, fig, [WithIntronCount, IntronlessCount], 'N external gen
 YMax2 = max(max([WithIntronPos.count(i) for i in WithIntronPos]), max([IntronlessPos.count(i) for i in IntronlessPos])) + 10
 ax2 = CreateAx(1, 3, 2, fig, [WithIntronPos, IntronlessPos], 'N of external genes', 'Position of gene-containing introns', np.arange(0, YMax2 + 20, 20), YMax2, np.arange(0, 60, 10), ['orange', 'blue'], 'histo')
 # plot distribution of intron position / intron number
-ax3 = CreateAx(1, 3, 3, fig, [WithIntronPosNorm, PWithPosNorm, IntronlessPosNorm, PNonePosNorm] , 'Probability', 'Intron position / intron number', np.arange(0, 1.1, 0.1), 1, np.arange(0, 5, 0.1), ['orange', 'blue'], 'cdf')
+ax3 = CreateAx(1, 3, 3, fig, [WithIntronPosNorm, PWithPosNorm, IntronlessPosNorm, PNonePosNorm] , 'Probability', 'Intron position / intron number', np.arange(0, 1.1, 0.1), 1, np.arange(0, 1.1, 0.1), ['orange', 'blue'], 'cdf')
 
 # make sure subplots do not overlap
 plt.tight_layout()
