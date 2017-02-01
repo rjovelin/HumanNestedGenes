@@ -92,6 +92,13 @@ ExpressionProfile = TransformRelativeExpression(ExpressionProfile)
 # make a list of all gene sets
 AllGeneSets = [NonOverlappingGenes, NestedGenes, PiggyBackGenes, ConvergentGenes, DivergentGenes]
 
+# remove genes that do not have expression profile
+for i in range(len(AllGeneSets)):
+    # make a list of genes to remove
+    to_remove = [gene for gene in AllGeneSets[i] if gene not in ExpressionProfile]
+    for gene in to_remove:
+        AllGeneSets[i].remove(gene)
+
 # make a list of tissues
 infile = open('GTEX_Median_Normalized_FPKM.txt')
 header = infile.readline().rstrip().split('\t')
@@ -123,13 +130,13 @@ for i in range(len(AllGeneSets)):
     # loop over each gene in given set
     for gene in AllGeneSets[i]:
         # check if gene has expression profile
-        if gene in ExpressionProfile:
-            # get the index of the maximum expression value
-            pos = ExpressionProfile[gene].index(max(ExpressionProfile[gene]))
-            # check that there is a single maximum expression value
-            assert ExpressionProfile[gene].count(max(ExpressionProfile[gene])) == 1, '> 1 max value'
-            # update counter at pos index
-            HighestExpression[GeneCats[i]][pos] += 1
+        assert gene in ExpressionProfile
+        # get the index of the maximum expression value
+        pos = ExpressionProfile[gene].index(max(ExpressionProfile[gene]))
+        # check that there is a single maximum expression value
+        assert ExpressionProfile[gene].count(max(ExpressionProfile[gene])) == 1, '> 1 max value'
+        # update counter at pos index
+        HighestExpression[GeneCats[i]][pos] += 1
 
 # divide by the total number of genes in each category to get proportions
 for i in range(len(GeneCats)):
