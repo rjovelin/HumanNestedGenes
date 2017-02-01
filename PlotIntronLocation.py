@@ -18,6 +18,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
+import matplotlib.lines as mlines
 import matplotlib.gridspec as gridspec
 from matplotlib import rc
 rc('mathtext', default='regular')
@@ -243,14 +244,25 @@ ax3 = CreateAx(1, 3, 3, fig, [WithIntronPosNorm, PWithPosNorm, IntronlessPosNorm
 plt.tight_layout()
 
 ## annotate graphs with legends
-Yes = mpatches.Patch(facecolor = 'orange', edgecolor = 'black', linewidth = 0.5, label= 'Internal genes with introns')
-No = mpatches.Patch(facecolor = 'blue', edgecolor = 'black', linewidth = 0.5, label= 'Intronless internal genes')
-ax1.legend(handles = [Yes, No], bbox_to_anchor=(0.2, 0.4), alpha = 0.5, loc = 3, fontsize = 5, frameon = False, ncol = 1)
-ax1.text(0.2, 0.5, 'Internal genes:', color = 'black', size = 5, fontname = 'Arial')
-ax2.legend(handles = [Yes, No], bbox_to_anchor=(0.2, 0.4), alpha = 0.5, loc = 3, fontsize = 5, frameon = False, ncol = 1)
-ax2.text(0.2, 0.5, 'Internal genes:', color = 'black', size = 5, fontname = 'Arial')
+# create patches 
+Title = mpatches.Patch(facecolor = 'none', edgecolor = 'none', linewidth = 0, label= 'Internal genes:', alpha = 0)
+Yes = mpatches.Patch(facecolor = 'orange', edgecolor = 'none', linewidth = 0.5, label= 'with introns', alpha = 0.5)
+No = mpatches.Patch(facecolor = 'blue', edgecolor = 'black', linewidth = 0.5, label= 'intronless', alpha = 0.5)
+ax1.legend(handles = [Title, Yes, No], bbox_to_anchor=(0.2, 0.4), loc = 3, fontsize = 5, frameon = False, ncol = 1)
+ax2.legend(handles = [Title, Yes, No], bbox_to_anchor=(0.2, 0.4), loc = 3, fontsize = 5, frameon = False, ncol = 1)
+# create lines
+orange_line = mlines.Line2D([], [], color='orange', marker='', markersize=15, label='with introns', alpha = 0.5)
+blue_line = mlines.Line2D([], [], color='blue', marker='', markersize=15, label='intronless', alpha = 0.5)
+ax3.legend(handles = [Title, orange_line, blue_line], bbox_to_anchor=(0.05, 0.5), loc = 3, fontsize = 5, frameon = False, ncol = 1)
+
 
 ## annotate graphs with p values
+#ax1.text(0.2, 0.5, 'Internal genes:', color = 'black', size = 5, fontname = 'Arial')
+#ax2.text(0.2, 0.5, 'Internal genes:', color = 'black', size = 5, fontname = 'Arial')
+
+
+
+
 ## rename outputfile
 
 
