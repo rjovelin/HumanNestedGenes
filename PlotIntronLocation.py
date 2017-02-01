@@ -202,13 +202,13 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XLabel, YRange, YMax
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label axis
-    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
-    ax.set_xlabel(XLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+    ax.set_ylabel(YLabel, color = 'black',  size = 6.5, ha = 'center', **FigFont)
+    ax.set_xlabel(XLabel, color = 'black',  size = 6.5, ha = 'center', **FigFont)
     # set a limit to y axis
     plt.ylim([0, YMax])
     # add a range to the axis
-    plt.xticks(XRange, size = 7, color = 'black', ha = 'center', **FigFont)
-    plt.yticks(YRange, size = 7, color = 'black', ha = 'right', **FigFont)        
+    plt.xticks(XRange, size = 6.5, color = 'black', ha = 'center', **FigFont)
+    plt.yticks(YRange, size = 6.5, color = 'black', ha = 'right', **FigFont)        
     
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
