@@ -235,7 +235,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XLabel, YRange, YMax
     # set a limit to y axis
     plt.ylim([0, YMax])
     # add a range to the axis
-    plt.xticks(XRange, size = 7, color = 'black', ha = 'right', **FigFont)
+    plt.xticks(XRange, size = 7, color = 'black', ha = 'center', **FigFont)
     plt.yticks(YRange, size = 7, color = 'black', ha = 'right', **FigFont)        
     
     # do not show lines around figure  
