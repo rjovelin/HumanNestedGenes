@@ -210,7 +210,7 @@ for i in range(len(Tissues)):
         YLabel = True
     else:
         YLabel = False
-    ax = CreateAx(10, 3, j, fig, Proportions[tissue], tissue.lower().replace('_', '\n'), 0.31, YLabel)
+    ax = CreateAx(10, 3, j, fig, Proportions[tissue], tissue.lower().replace('_', '\n'), 0.41, YLabel)
     j += 1
 
     # create legend
