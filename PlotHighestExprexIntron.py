@@ -236,4 +236,4 @@ for i in range(len(Tissues)):
 plt.tight_layout(pad=0.2, w_pad=0, h_pad=0.5)
 
 fig.savefig('HighestExpressionIntronless.pdf', bbox_inches = 'tight')
-fig.savefig('HighestExpressionIntronless.pdf', bbox_inches = 'tight')
+fig.savefig('HighestExpressionIntronless.eps', bbox_inches = 'tight')
