@@ -242,8 +242,14 @@ ax3 = CreateAx(1, 3, 3, fig, [WithIntronPosNorm, PWithPosNorm, IntronlessPosNorm
 # make sure subplots do not overlap
 plt.tight_layout()
 
-
 ## annotate graphs with legends
+Yes = mpatches.Patch(facecolor = 'orange', edgecolor = 'black', linewidth = 0.5, label= 'Internal genes with introns')
+No = mpatches.Patch(facecolor = 'blue', edgecolor = 'black', linewidth = 0.5, label= 'Intronless internal genes')
+ax1.legend(handles = [Yes, No], bbox_to_anchor=(0.2, 0.4), alpha = 0.5, loc = 3, fontsize = 5, frameon = False, ncol = 1)
+ax1.text(0.2, 0.5, 'Internal genes:', color = 'black', size = 5, fontname = 'Arial')
+ax2.legend(handles = [Yes, No], bbox_to_anchor=(0.2, 0.4), alpha = 0.5, loc = 3, fontsize = 5, frameon = False, ncol = 1)
+ax2.text(0.2, 0.5, 'Internal genes:', color = 'black', size = 5, fontname = 'Arial')
+
 ## annotate graphs with p values
 ## rename outputfile
 
