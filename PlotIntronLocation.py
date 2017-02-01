@@ -157,55 +157,27 @@ IntronlessPosNorm = np.sort(IntronlessPosNorm)
 PWithPosNorm = np.array(range(len(WithIntronPosNorm))) / len(WithIntronPosNorm)
 PNonePosNorm = np.array(range(len(IntronlessPosNorm))) / len(IntronlessPosNorm) 
 
+# compare distributions of intron numbers, intron position
+PVals = []
+Data = [IntronlessCount, WithIntronCount, IntronlessPos, WithIntronPos, IntronlessPosNorm, WithIntronPosNorm]
+for i in range(0, len(Data), 2):
+    val, P =  stats.ks_2samp(Data[i], Data[i+1])
+    PVals.append(P)
 
+print(PVals)
 
-# perform statistical tests between gene categories
-## create dict to store results
-## {number or length: [P_host-nested, P_host-unnested, P_nested-unnested], host: [P_withgene_nogene]
-#PValues = {}
-## initialize dict with empty list
-#PValues['number'] = []
-## loop list of intron numbers
-#for i in range(0, len(IntronNumbers) -1):
-#    for j in range(i+1, len(IntronNumbers)):
-#        P = stats.ranksums(IntronNumbers[i], IntronNumbers[j])[1]
-#        PValues['number'].append(P)
-#PValues['length'] = []
-## loop list of intron length
-#for i in range(0, len(IntronLength) -1):
-#    for j in range(i+1, len(IntronLength)):
-#        P = stats.ranksums(IntronLength[i], IntronLength[j])[1]
-#        PValues['length'].append(P)
-#PValues['host'] = []
-## loop list of host intron length
-#for i in range(0, len(HostIntrons) -1):
-#    for j in range(i+1, len(HostIntrons)):
-#        P = stats.ranksums(HostIntrons[i], HostIntrons[j])[1]
-#        PValues['host'].append(P)
-#
-## print p values
-#for i in PValues:
-#    print(i, PValues[i])
-#
-#
-## create a dict with significance level as stars
-#Significance = {}
-#for i in PValues:
-#    # initialize dict with empty list
-#    Significance[i] = [] 
-#    # get the significance level
-#    for pval in PValues[i]:
-#        if pval >= 0.05:
-#            Significance[i].append('')
-#        elif pval < 0.05 and pval >= 0.01:
-#            Significance[i].append('*')
-#        elif pval < 0.01 and pval >= 0.001:
-#            Significance[i].append('**')
-#        elif pval < 0.001:
-#            Significance[i].append('***')
-#  
-#
+# get significance levels
+for i in range(len(PVals)):
+    if PVals[i] >= 0.05:
+        PVals[i] = ''
+    elif PVals[i] < 0.05 and PVals[i] >= 0.01:
+        PVals[i] = '*'
+    elif PVals[i] < 0.01 and PVals[i] >= 0.001:
+        PVals[i] = '**'
+    elif PVals[i] < 0.001:
+        PVals[i] = '***'
 
+print(PVals)  
 
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XLabel, YRange, YMax, XRange, Colors, GraphType):
@@ -269,6 +241,12 @@ ax3 = CreateAx(1, 3, 3, fig, [WithIntronPosNorm, PWithPosNorm, IntronlessPosNorm
 
 # make sure subplots do not overlap
 plt.tight_layout()
+
+
+## annotate graphs with legends
+## annotate graphs with p values
+## rename outputfile
+
 
 
 fig.savefig('truc.pdf', bbox_inches = 'tight')
