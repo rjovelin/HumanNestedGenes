@@ -172,11 +172,11 @@ for i in range(len(PVals)):
     if PVals[i] >= 0.05:
         PVals[i] = ''
     elif PVals[i] < 0.05 and PVals[i] >= 0.01:
-        PVals[i] = '*'
+        PVals[i] = '$\it{P}$ < 0.05'
     elif PVals[i] < 0.01 and PVals[i] >= 0.001:
-        PVals[i] = '**'
+        PVals[i] = '$\it{P}$ < 0.01'
     elif PVals[i] < 0.001:
-        PVals[i] = '***'
+        PVals[i] = '$\it{P}$ < 0.001'
 
 print(PVals)  
 
@@ -255,16 +255,15 @@ orange_line = mlines.Line2D([], [], color='orange', marker='', markersize=15, la
 blue_line = mlines.Line2D([], [], color='blue', marker='', markersize=15, label='intronless', alpha = 0.5)
 ax3.legend(handles = [Title, orange_line, blue_line], bbox_to_anchor=(0.05, 0.5), loc = 3, fontsize = 5, frameon = False, ncol = 1)
 
+# annotate graphs with p values
+for i in range(len(PVals)):
+    if PVals[i] != '':
+        if i == 0:
+            ax1.text(25, 20, PVals[i], color = 'black', size = 5, fontname = 'Arial')
+        elif i == 1:
+            ax2.text(15, 60, PVals[i], color = 'black', size = 5, fontname = 'Arial')
+        elif i == 2:
+            ax3.text(0.4, 0.3, PVals[i], color = 'black', size = 5, fontname = 'Arial')
 
-## annotate graphs with p values
-#ax1.text(0.2, 0.5, 'Internal genes:', color = 'black', size = 5, fontname = 'Arial')
-#ax2.text(0.2, 0.5, 'Internal genes:', color = 'black', size = 5, fontname = 'Arial')
-
-
-
-
-## rename outputfile
-
-
-
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig('IntronPositionInternalGenes.pdf', bbox_inches = 'tight')
+fig.savefig('IntronPositionInternalGenes.eps', bbox_inches = 'tight')
