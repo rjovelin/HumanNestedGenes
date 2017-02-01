@@ -5,13 +5,6 @@ Created on Tue Jan 10 14:34:07 2017
 @author: RJovelin
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Nov 23 15:14:49 2016
-
-@author: RJovelin
-"""
-
 # use this script to plot the proportion of external and internal nested genes
 # with highest expression in each tissue
 
