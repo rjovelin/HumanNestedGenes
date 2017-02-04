@@ -145,14 +145,14 @@ def GetExpxDigOverlap(Overlap, ExpDiv):
     assert sum(c) <= 1 and sum(d) <= 1
     
     # create a list with overlap and expression divergence
-    OverlpLengthDiv = []
-    for i in OverlapDivg:
+    OverlapLengthDiv = []
+    for i in ExpDiv:
         k = set(i.split(':'))
         # find the overlap length for the corresponding pair
-        for j in OverlapLength:
+        for j in Overlap:
             m = set(j.split(':'))
             if k == m:
-                OverlpLengthDiv.append([OverlapDivg[i], OverlapLength[j]])
+                OverlapLengthDiv.append([ExpDiv[i], Overlap[j]])
     
     # make parallel lists of overlap length and divergence, store in a list
     Div, Ovl = [], []
@@ -233,7 +233,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, Colors):
 # create figure
 fig = plt.figure(1, figsize = (3, 2))
 
-ax1 = CreateAx(1, 1, 1, fig, OverlapLengthDiv, 'red')
+ax1 = CreateAx(1, 1, 1, fig, NestedLengthDiv, 'red')
 
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
