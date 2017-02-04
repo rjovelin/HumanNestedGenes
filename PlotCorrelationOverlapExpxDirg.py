@@ -122,43 +122,13 @@ OverlapDivg, NestedDivg = Divergence[0], Divergence[1]
 PiggybackDivg, ConvergentDivg, DivergentDivg = Divergence[2], Divergence[3], Divergence[4]
 
    
-# check that pairs are recorded once
-a = list(OverlapDivg.keys())
-b = list(OverlapLength.keys())
-for i in range(len(a)):
-    a[i] = set(a[i].split(':'))
-for i in range(len(b)):
-    b[i] = set(b[i].split(':'))
-c, d = [], []
-for i in a:
-    c.append(b.count(i))
-for i in b:
-    d.append(a.count(i))
-c, d = set(c), set(d)
-assert sum(c) <= 1 and sum(d) <= 1
-
-# create a list with overlap and expression divergence
-OverlpLengthDiv = []
-for i in OverlapDivg:
-    k = set(i.split(':'))
-    # find the overlap length for the corresponding pair
-    for j in OverlapLength:
-        m = set(j.split(':'))
-        if k == m:
-            OverlpLengthDiv.append([OverlapDivg[i], OverlapLength[j]])
-print(len(OverlpLengthDiv))
-
-
-
-
 # use this function to match the overlap length and the expression divergence for the same pair
 def GetExpxDigOverlap(Overlap, ExpDiv):
     '''
     (dict, dict) -> list
-    
-    
+    Take the dictionaries of overlap length and expression divergence
+    and return a list of lists with matched overlap and length and expression divergence
     '''
-    
     # check that pairs are recorded once
     a = list(Overlap.keys())
     b = list(ExpDiv.keys())
@@ -173,7 +143,7 @@ def GetExpxDigOverlap(Overlap, ExpDiv):
         d.append(a.count(i))
     c, d = set(c), set(d)
     assert sum(c) <= 1 and sum(d) <= 1
-
+    
     # create a list with overlap and expression divergence
     OverlpLengthDiv = []
     for i in OverlapDivg:
@@ -192,6 +162,7 @@ NestedLengthDiv = GetExpxDigOverlap(NestedLength, NestedDivg)
 PiggybackLengthDiv = GetExpxDigOverlap(PiggybackLength, PiggybackDivg)
 ConvergentLengthDiv = GetExpxDigOverlap(ConvergentLength, ConvergentDivg)
 DivergentLengthDiv = GetExpxDigOverlap(DivergentLength, DivergentDivg)
+
 
 
 # make a list of gene category names parallel to the list of gene pairs
