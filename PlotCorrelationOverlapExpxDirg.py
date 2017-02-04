@@ -164,86 +164,79 @@ ConvergentLengthDiv = GetExpxDigOverlap(ConvergentLength, ConvergentDivg)
 DivergentLengthDiv = GetExpxDigOverlap(DivergentLength, DivergentDivg)
 
 
-
 # make a list of gene category names parallel to the list of gene pairs
-#GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
-#
-## create figure
-#fig = plt.figure(1, figsize = (3, 2))
-#
-## add a plot to figure (N row, N column, plot N)
-#ax = fig.add_subplot(1, 1, 1)
-## set colors
-#colorscheme = ['grey','grey','grey','grey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
-## plot nucleotide divergence
-#ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85, 2.15], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
-#       edgecolor = 'black', linewidth = 0.5,
-#       error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
-## set font for all text in figure
-#FigFont = {'fontname':'Arial'}   
-## write y axis label
-#ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
-## add ticks and lebels
-#plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
-## add a range for the Y and X axes
-#plt.ylim([0, 0.61])
-#plt.xlim([0, 2.45])
-## do not show lines around figure  
-#ax.spines["top"].set_visible(False)    
-#ax.spines["bottom"].set_visible(True)    
-#ax.spines["right"].set_visible(False)
-#ax.spines["left"].set_visible(True)  
-## edit tick parameters    
-#plt.tick_params(axis='both', which='both', bottom='on', top='off',
-#                right = 'off', left = 'on', labelbottom='on',
-#                colors = 'black', labelsize = 7, direction = 'out')  
-## Set the tick labels font name
-#for label in ax.get_yticklabels():
-#    label.set_fontname('Arial')   
-#      
-#
-## perform statistical tests between gene categories
-## create list to store the p-values
-#PValues = []
-## loop over inner list, compare gene categories
-#for i in range(0, len(Divergence) -1):
-#    for j in range(i+1, len(Divergence)):
-#        P = stats.ranksums(Divergence[i], Divergence[j])[1]
-#        PValues.append(P)
-## print p values
-#for p in PValues:
-#    print(p)
-#
-## convert p-values to star significance level
-#Significance = []
-#for pvalue in PValues:
-#    if pvalue >= 0.05:
-#        Significance.append('')
-#    elif pvalue < 0.05 and pvalue >= 0.01:
-#        Significance.append('*')
-#    elif pvalue < 0.01 and pvalue >= 0.001:
-#        Significance.append('**')
-#    elif pvalue < 0.001:
-#        Significance.append('***')
-#
-#
-## annotate figure to add significance
-## significant comparisons were already determined, add letters to show significance
-#Diff = ['A', 'B', 'C', 'B', 'D', 'E', 'F', 'G']
-#ypos = [0.55] * 8
-#xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25]
-#for i in range(len(Diff)):
-#    ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-#    
-## save figure
-#fig.savefig('truc.pdf', bbox_inches = 'tight')
-#
-#
-#
-#
-#
-#
-#
+GeneCats = ['Ovl', 'Nst', 'Pbk', 'Conv', 'Div']
+
+
+
+
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, figure, Data, Colors):
+    '''
+    (int, int, int, figure_object, list, list, list, list, list, str, str, int)
+    Take the number of a column, and rows in the figure object and the position of
+    the ax in figure, 2 lists of data, a list of bar positions, the list of tick
+    positions and their labels, a list of colors, a label for the Y axis,
+    a maximum value for the Y axis and return an ax instance in the figure
+    '''    
+    # create subplot in figure
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # plot data
+    ax.scatter(Data[0], Data[1], edgecolor = 'black', facecolor = Colors, lw = 1, s = 5, alpha = 0.8)
+    
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    # write axis label
+    ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
+    ax.set_xlabel('Overlap length', color = 'black',  size = 7, ha = 'center', **FigFont)
+#    # add ticks and labels
+#    ax.set_xticklabels([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
+#    # add a range to the axis
+#    plt.xticks(XRange, size = 6.5, color = 'black', ha = 'center', **FigFont)
+#    plt.yticks(YRange, size = 6.5, color = 'black', ha = 'right', **FigFont)       
+
+
+    # add a range for the Y and X axes
+    #plt.ylim([0, 0.61])
+    #plt.xlim([0, 2.45])
+    # add title
+    ax.set_title('title', size = 10, ha = 'center', **FigFont)    
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(True)    
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(True)  
+    # edit tick parameters    
+    plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                    right = 'off', left = 'on', labelbottom='on',
+                    colors = 'black', labelsize = 7, direction = 'out')  
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')   
+    return ax
+
+
+
+# create figure
+fig = plt.figure(1, figsize = (3, 2))
+
+
+
+
+
+      
+
+   
+# save figure
+fig.savefig('truc.pdf', bbox_inches = 'tight')
+
+
+
+
+
+
+
 #
 #
 #
