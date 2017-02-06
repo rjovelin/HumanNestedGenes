@@ -171,14 +171,8 @@ ConvergentLengthDiv = GetExpxDigOverlap(ConvergentLength, ConvergentDivg)
 DivergentLengthDiv = GetExpxDigOverlap(DivergentLength, DivergentDivg)
 
 
-# make a list of gene category names parallel to the list of gene pairs
-GeneCats = ['Ovl', 'Nst', 'Pbk', 'Conv', 'Div']
-
-
-
-
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, Colors):
+def CreateAx(Columns, Rows, Position, figure, Data, Colors, Title):
     '''
     (int, int, int, figure_object, list, list, list, list, list, str, str, int)
     Take the number of a column, and rows in the figure object and the position of
@@ -190,7 +184,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, Colors):
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
     # plot data
-    ax.scatter(Data[0], Data[1], marker = 'o', edgecolor = 'black', facecolor = Colors, lw = 1, s = 5, alpha = 0.8)
+    ax.scatter(Data[0], Data[1], marker = 'o', edgecolor = Colors, facecolor = Colors, lw = 0.5, s = 4, alpha = 0.5)
     
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
@@ -203,12 +197,11 @@ def CreateAx(Columns, Rows, Position, figure, Data, Colors):
 #    plt.xticks(XRange, size = 6.5, color = 'black', ha = 'center', **FigFont)
 #    plt.yticks(YRange, size = 6.5, color = 'black', ha = 'right', **FigFont)       
 
-
     # add a range for the Y and X axes
-    #plt.ylim([0, 0.61])
-    #plt.xlim([0, 2.45])
+    plt.ylim([0, 1.5])
+    plt.xlim([0, 500000])
     # add title
-    ax.set_title('title', size = 10, ha = 'center', **FigFont)    
+    ax.set_title(Title, size = 7, ha = 'center', **FigFont)    
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
@@ -221,19 +214,22 @@ def CreateAx(Columns, Rows, Position, figure, Data, Colors):
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')   
+    
     return ax
 
-
-
-
-
-
-
-
 # create figure
-fig = plt.figure(1, figsize = (3, 2))
+fig = plt.figure(1, figsize = (5, 4))
 
-ax1 = CreateAx(1, 1, 1, fig, NestedLengthDiv, 'red')
+ax1 = CreateAx(3, 2, 1, fig, OverlapLengthDiv, 'black', 'all')
+ax2 = CreateAx(3, 2, 2, fig, NestedLengthDiv, 'black', 'nested')
+ax3 = CreateAx(3, 2, 3, fig, PiggybackLengthDiv, 'black', 'piggyback')
+ax4 = CreateAx(3, 2, 4, fig, ConvergentLengthDiv, 'black', 'convergent')
+ax5 = CreateAx(3, 2, 5, fig, DivergentLengthDiv,'black', 'divergent')
+
+
+
+# make sure subplots do not overlap
+plt.tight_layout()
 
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
