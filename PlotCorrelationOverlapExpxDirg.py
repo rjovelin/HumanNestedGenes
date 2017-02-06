@@ -190,7 +190,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, Colors):
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
     # plot data
-    ax.scatter(Data[0], Data[1], edgecolor = 'black', facecolor = Colors, lw = 1, s = 5, alpha = 0.8)
+    ax.scatter(Data[0], Data[1], marker = 'o', edgecolor = 'black', facecolor = Colors, lw = 1, s = 5, alpha = 0.8)
     
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
