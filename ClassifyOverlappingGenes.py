@@ -8,7 +8,7 @@ Created on Wed Dec 14 15:53:18 2016
 # use this script to classify overlapping genes into 4 groups
 
 # usage ClassifyOverlappingGenes.py [options]
-# [human/chimp/gorilla]: species to consider
+# [human/chimp/gorilla/mouse]: species to consider
 
 # import modules
 # use Agg backend on server without X server
@@ -31,7 +31,7 @@ from HsaNestedGenes import *
 
 # get the species to consider from the command line
 CurrSpecies = sys.argv[1]
-assert CurrSpecies in ['human', 'chimp', 'gorilla'], 'species name is not valid'
+assert CurrSpecies in ['human', 'chimp', 'gorilla', 'mouse'], 'species name is not valid'
 
 # load dictionary of overlapping genes
 if CurrSpecies == 'human':
@@ -40,6 +40,8 @@ elif CurrSpecies == 'chimp':
     json_data = open('ChimpOverlappingGenes.json')
 elif CurrSpecies == 'gorilla':
     json_data = open('GorillaOverlappingGenes.json')
+elif CurrSpecies == 'mouse':
+    json_data = open('MouseOverlappingGenes.json')
 # load dictionary
 OverlappingGenes = json.load(json_data)
 json_data.close()
@@ -54,6 +56,8 @@ elif CurrSpecies == 'chimp':
     GFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
 elif CurrSpecies == 'gorilla':
     GFF = 'Gorilla_gorilla.gorGor3.1.86.gff3'
+elif CurrSpecies == 'mouse':
+    GFF = 'Mus_musculus.GRCm38.86.gff3'       
     
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
@@ -76,7 +80,6 @@ IntronCoord = GeneIntronCoord(ExonCoord)
 IntronCoord = CleanGeneFeatureCoord(IntronCoord, MapTranscriptGene)
 # Combine all intron from all transcripts for a given gene {gene: [(region_start, region_end), ...]}
 CombinedIntronCoord = CombineAllGeneRegions(IntronCoord, MapTranscriptGene)
-
 
 
 # define 4 categories of overlapping genes:
