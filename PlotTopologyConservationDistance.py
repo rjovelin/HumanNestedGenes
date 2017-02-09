@@ -148,9 +148,11 @@ for i in range(len(AllPairs)):
         Sp2Pairs.append(pairs)
 
 NotOverlap = []
+Missing = []
 for i in range(len(HumanPairs)):
     L = []
     total = 0
+    missing = 0
     for pair in HumanPairs[i]:
         # get the orthologs
         orthos = set()
@@ -158,7 +160,7 @@ for i in range(len(HumanPairs)):
         orthos.add(Orthos[pair[1]])
         if orthos not in Sp2Pairs[0]:
             total += 1
-            if Orthos[pair[0]] in Sp2Coord and Orthos[pair[1]]:
+            if Orthos[pair[0]] in Sp2Coord and Orthos[pair[1]] in Sp2Coord:
                 # get the coordinates of the non-overlapping orthologs
                 chromo1 = Sp2Coord[Orthos[pair[0]]][0]
                 chromo2 = Sp2Coord[Orthos[pair[1]]][0]
@@ -172,13 +174,16 @@ for i in range(len(HumanPairs)):
                         L.append(k - j - 1)
                     elif k < j:
                         L.append(j - k - 1)
+            else:
+                missing += 1
     AllCounts.append(L)
     NotOverlap.append(total)
+    Missing.append(missing)
 for i in range(len(AllCounts)):
     print(i, len(AllCounts[i]), min(AllCounts[i]), AllCounts[i].count(min(AllCounts[i])), max(AllCounts[i]), AllCounts[i].count(max(AllCounts[i])), np.mean(AllCounts[i]), np.median(AllCounts[i]))
 
 print(NotOverlap)
-
+print(Missing)
 
 
 #############
