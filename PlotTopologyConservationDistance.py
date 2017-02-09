@@ -26,17 +26,20 @@ import numpy as np
 from scipy import stats
 from HsaNestedGenes import *
 
-
+species = sys.argv[1]
 
 # load dictionaries of overlapping genes
-jsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json', 'HumanPiggyBackGenes.json',
-             'HumanConvergentGenes.json', 'HumanDivergentGenes.json', 
-             'ChimpOverlappingGenes.json', 'ChimpNestedGenes.json', 'ChimpPiggyBackGenes.json',
-             'ChimpConvergentGenes.json', 'ChimpDivergentGenes.json']
 
-
-
-
+if species == 'chimp':
+    jsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json', 'HumanPiggyBackGenes.json',
+                 'HumanConvergentGenes.json', 'HumanDivergentGenes.json', 
+                 'ChimpOverlappingGenes.json', 'ChimpNestedGenes.json', 'ChimpPiggyBackGenes.json',
+                 'ChimpConvergentGenes.json', 'ChimpDivergentGenes.json']
+elif species == 'mouse':
+    jsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json', 'HumanPiggyBackGenes.json',
+                 'HumanConvergentGenes.json', 'HumanDivergentGenes.json', 
+                 'MouseOverlappingGenes.json', 'MouseNestedGenes.json', 'MousePiggyBackGenes.json',
+                 'MouseConvergentGenes.json', 'MouseDivergentGenes.json']
 
 
 # make a list of dictionaries
@@ -49,20 +52,17 @@ for i in range(len(jsonFiles)):
     json_data.close()
     AllOverlap.append(overlapping)
 
-# assign dicts to variables
-HsaOverlapping, HsaNested, HsaPiggyback = AllOverlap[0], AllOverlap[1], AllOverlap[2]
-HsaConvergent, HsaDivergent = AllOverlap[3], AllOverlap[4]
-
-PtrOverlapping, PtrNested, PtrPiggyback = AllOverlap[5], AllOverlap[6], AllOverlap[7]
-PtrConvergent, PtrDivergent = AllOverlap[8], AllOverlap[9]
-
 # get GFF file
-GFF = ['Homo_sapiens.GRCh38.86.gff3', 'Pan_troglodytes.CHIMP2.1.4.86.gff3']
-
+if species == 'chimp':
+    GFF = ['Homo_sapiens.GRCh38.86.gff3', 'Pan_troglodytes.CHIMP2.1.4.86.gff3']
+elif species == 'mouse':
+    GFF = ['Homo_sapiens.GRCh38.86.gff3', 'Mus_musculus.GRCm38.86.gff3']
 
 
 # make a list of gene coordinates       
 AllCoordinates = []
+AllOrdered = []
+
 # loop over GFF files
 for i in range(len(GFF)):
     # get the coordinates of genes on each chromo
@@ -74,9 +74,15 @@ for i in range(len(GFF)):
     GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
     # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
     GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
+    # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
+    OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
     AllCoordinates.append(GeneCoord)
+    AllOrdered.append(OrderedGenes)
+HumanOrdered = AllOrdered[0]
+Sp2Ordered = AllOrdered[1]
+HumanCoord = AllCoordinates[0]
+Sp2Coord = AllCoordinates[1]
 
-HsaGeneCoord, PtrGeneCoord = AllCoordinates[0], AllCoordinates[1]
 
 # make a list of gene sets
 GeneSets = []
@@ -84,29 +90,94 @@ for i in range(len(AllOverlap)):
     overlapping = MakeFullPartialOverlapGeneSet(AllOverlap[i])
     GeneSets.append(overlapping)
 
-HsaOverlappingGenes, HsaNestedGenes, HsaPiggyBackGenes, HsaConvergentGenes, HsaDivergentGenes = GeneSets[0], GeneSets[1], GeneSets[2], GeneSets[3], GeneSets[4]
-PtrOverlappingGenes, PtrNestedGenes, PtrPiggyBackGenes, PtrConvergentGenes, PtrDivergentGenes = GeneSets[5], GeneSets[6], GeneSets[7], GeneSets[8], GeneSets[9]
-
 # get 1:1 orthologs between human and chimp
-Orthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
+if species == 'chimp':
+    Orthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
+elif species == 'mouse':
+    Orthos = MatchOrthologPairs('HumanMouseOrthologs.txt')
+
+#Counts = []
+#for i in range(len(GeneSets[:5])):
+#    total = [0,0,0]
+#    for j in GeneSets[i]:
+#        if j in Orthos:
+#            total[0] += 1
+#            if Orthos[j] in GeneSets[i+5]:
+#                total[1] += 1
+#            else:
+#                if Orthos[j] in GeneSets[5]:
+#                    total[2] += 1
+#    Counts.append(total)
+#  
+#for i in range(len(GeneSets[:5])):
+#    print(i, len(GeneSets[i]), Counts[i])
 
 
+# make pairs of overlapping genes
+AllPairs = []
+for i in range(len(AllOverlap)):
+    pairs = GetHostNestedPairs(AllOverlap[i])
+    AllPairs.append(pairs)
+for i in AllPairs:
+    print(len(i), end = ' ')
+print('\n')
 
-Counts = []
-for i in range(len(GeneSets[:5])):
-    total = [0,0]
-    for j in GeneSets[i]:
-        if j in Orthos:
-            if Orthos[j] in GeneSets[i+5]:
-                total[0] += 1
-            else:
-                if Orthos[j] in GeneSets[5]:
-                    total[1] += 1
-    Counts.append(total)
-  
-for i in range(len(GeneSets[:5])):
-    print(i, len(GeneSets[i]), Counts[i])
 
+# remove human genes lacking orthologs
+for i in range(len(AllPairs[:5])):
+    to_remove = []
+    for pair in AllPairs[i]:
+        if pair[0] not in Orthos or pair[1] not in Orthos:
+            to_remove.append(pair)
+    for pair in to_remove:
+        AllPairs[i].remove(pair)
+for i in AllPairs:
+    print(len(i), end = ' ')
+print('\n')
+
+
+# count the number of genes of non-overlapping orthologs of human overlapping genes
+AllCounts = []
+HumanPairs, Sp2Pairs = [], []
+for i in range(len(AllPairs)):
+    if i < 5:
+        pairs = [j for j in AllPairs[i]]
+        HumanPairs.append(pairs)
+    else:
+        pairs = [set(j) for j in AllPairs[i]]
+        Sp2Pairs.append(pairs)
+
+NotOverlap = []
+for i in range(len(HumanPairs)):
+    L = []
+    total = 0
+    for pair in HumanPairs[i]:
+        # get the orthologs
+        orthos = set()
+        orthos.add(Orthos[pair[0]])
+        orthos.add(Orthos[pair[1]])
+        if orthos not in Sp2Pairs[0]:
+            total += 1
+            if Orthos[pair[0]] in Sp2Coord and Orthos[pair[1]]:
+                # get the coordinates of the non-overlapping orthologs
+                chromo1 = Sp2Coord[Orthos[pair[0]]][0]
+                chromo2 = Sp2Coord[Orthos[pair[1]]][0]
+                if chromo1 != chromo2:
+                    L.append(1000)
+                else:
+                    # get the index of both genes on chromo
+                    j = Sp2Ordered[chromo1].index(Orthos[pair[0]])
+                    k = Sp2Ordered[chromo1].index(Orthos[pair[1]])
+                    if k > j:
+                        L.append(k - j - 1)
+                    elif k < j:
+                        L.append(j - k - 1)
+    AllCounts.append(L)
+    NotOverlap.append(total)
+for i in range(len(AllCounts)):
+    print(i, len(AllCounts[i]), min(AllCounts[i]), AllCounts[i].count(min(AllCounts[i])), max(AllCounts[i]), AllCounts[i].count(max(AllCounts[i])), np.mean(AllCounts[i]), np.median(AllCounts[i]))
+
+print(NotOverlap)
 
 
 
