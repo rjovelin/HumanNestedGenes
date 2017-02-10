@@ -167,6 +167,7 @@ for i in range(len(HumanPairs)):
                 if chromo1 != chromo2:
                     L.append(1000)
                 else:
+                    print(Orthos[pair[0]], Orthos[pair[1]])
                     # get the index of both genes on chromo
                     j = Sp2Ordered[chromo1].index(Orthos[pair[0]])
                     k = Sp2Ordered[chromo1].index(Orthos[pair[1]])
