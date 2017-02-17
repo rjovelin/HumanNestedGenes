@@ -221,7 +221,7 @@ ax.plot([0, 2.8], [0, 0], lw = 0.7, color = 'black')
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
 # write y axis label
-ax.set_ylabel('% of orthologous gene pairs\nwith divergent topology', color = 'black',  size = 7, ha = 'center', **FigFont)
+ax.set_ylabel('% excess of orthologous gene pairs\nwith conserved topology', color = 'black',  size = 7, ha = 'center', **FigFont)
 # add ticks and lebels
 XTickpos = [0.4, 0.9, 1.4, 1.9, 2.4]    
 XTicklabels = ['all', 'nst', 'pbk', 'conv', 'div']
