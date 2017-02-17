@@ -253,4 +253,5 @@ chimp = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.
 ax.legend(handles = [chimp, mouse], loc = (0.2, 0.8), fontsize = 7, frameon = False, ncol = 2)
 
 # save figure to file
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig('DifferencesTopologyConservation.pdf', bbox_inches = 'tight')
+fig.savefig('DifferencesTopologyConservation.eps', bbox_inches = 'tight')
