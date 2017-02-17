@@ -156,9 +156,15 @@ for chromo in HumanOrdered:
                 # add gene pair to Distant
                 k = 3
             if HumanOrdered[chromo][i] in Orthos and HumanOrdered[chromo][j] in Orthos:
-                HsaPairsDist[k].append([HumanOrdered[chromo][i], HumanOrdered[chromo][j]])
+                #HsaPairsDist[k].append([HumanOrdered[chromo][i], HumanOrdered[chromo][j]])
                 
-            
+                HsaPairsDist[k].append({Orthos[HumanOrdered[chromo][i]], Orthos[HumanOrdered[chromo][j]]})
+   
+
+
+
+
+         
 print('generated human gene pairs by distance')
 
 
@@ -195,11 +201,20 @@ print('generated species 2 gene pairs by distance')
 
 
 # add the pairs of non-overlapping genes to the lists of gene pairs
-HumanPairs.extend(HsaPairsDist)
+#HumanPairs.extend(HsaPairsDist)
+
+HumanOrthos = []
+for i in range(len(HumanPairs)):
+    toadd = []    
+    for pair in HumanPairs[i]:
+        toadd.append({Orthos[pair[0]], Orthos[pair[1]]})
+    HumanOrthos.append(toadd)
+HumanOrthos.extend(HsaPairDist)
+
+
+
 Sp2Pairs.extend(Sp2PairsDist)
 
-for i in range(len(HumanPairs)):
-    print(i, len(HumanPairs[i]), len(Sp2Pairs[i]))
 
 
 # create a list of overlapping gene categories parallel to the list of overlapping pairs
@@ -209,7 +224,11 @@ GeneCats = ['overlapping', 'nested', 'piggyback', 'convergent', 'divergent',
 # create dictionary of gene pairs for each overlapping categories
 HsaGenes = {}
 for i in range(len(GeneCats)):
-    HsaGenes[GeneCats[i]] = HumanPairs[i]
+    #HsaGenes[GeneCats[i]] = HumanPairs[i]
+    HsaGenes[GeneCats[i]] = HumanOrthos[i]
+
+
+
 # create a dictionary of gene pairs without any order, for each overlapping gene categories
 Sp2Genes = {}
 for i in range(len(GeneCats)):
@@ -222,9 +241,24 @@ for i in range(len(GeneCats)):
 
 
 
+
+for i in HsaGenes:
+    HsaGenes[i] = np.array(HsaGenes)
+for i in Sp2Genes:
+    Sp2Genes[i] = np.array(Sp2Genes)
+
+
+
+
+
+
+
+
+
+
 # count the number of gene pairs for which orthologs in are the same topology
 PairCounts = {}
-for i in range(len(GeneCats)):
+for i in range(len(GeneCats) -1):
     # initialize counter
     total = 0
     # loop over gene pairs for the given gene category
@@ -237,14 +271,14 @@ for i in range(len(GeneCats)):
 
 
 
-newfile = open('PairsCounts.txt', 'a')
-header = '\t'.join(['species', 'genes', 'conserved', 'total', 'ratio'])
-newfile.write(header + '\n')
-
-for i in range(len(GeneCats)):
-    line = '\t'.join([species, GeneCats[i], str(PairCounts[GeneCats[i]][0]), str(PairCounts[GeneCats[i]][1]), str(PairCounts[GeneCats[i]][0] / PairCounts[GeneCats[i]][1])])
-    newfile.write(line + '\n')
-newfile.close()
+#newfile = open('PairsCounts.txt', 'a')
+#header = '\t'.join(['species', 'genes', 'conserved', 'total', 'ratio'])
+#newfile.write(header + '\n')
+#
+#for i in range(len(GeneCats)):
+#    line = '\t'.join([species, GeneCats[i], str(PairCounts[GeneCats[i]][0]), str(PairCounts[GeneCats[i]][1]), str(PairCounts[GeneCats[i]][0] / PairCounts[GeneCats[i]][1])])
+#    newfile.write(line + '\n')
+#newfile.close()
 
 
 
