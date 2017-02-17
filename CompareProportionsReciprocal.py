@@ -5,8 +5,6 @@ Created on Fri Feb 17 11:56:27 2017
 @author: RJovelin
 """
 
-
-
 # use this script to compare the proportions of human overlapping genes conserved in chimp and mouse
 # and the proportions of overlapping genes in chimp and mouse conserved in human
 
@@ -215,9 +213,9 @@ fig = plt.figure(1, figsize = (3, 2))
 ax = fig.add_subplot(1, 1, 1)
 # plot data
 Colors = ['black', 'lightgrey'] * 5    
-BarPos = [0, 0.2, 0.5, 0.7, 1, 1.2, 1.5, 1.7, 2, 2.2]
+BarPos = [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4]
 ax.bar(BarPos, Differences, width = 0.2, color = Colors, edgecolor = 'black', linewidth = 0.7)
-ax.plot([-0.1, 2.5], [0, 0], lw = 0.7, color = 'black')
+ax.plot([0, 2.8], [0, 0], lw = 0.7, color = 'black')
 
 
 # set font for all text in figure
@@ -225,7 +223,7 @@ FigFont = {'fontname':'Arial'}
 # write y axis label
 ax.set_ylabel('% of orthologous gene pairs\nwith divergent topology', color = 'black',  size = 7, ha = 'center', **FigFont)
 # add ticks and lebels
-XTickpos = [0.2, 0.7, 1.2, 1.7, 2.2]    
+XTickpos = [0.4, 0.9, 1.4, 1.9, 2.4]    
 XTicklabels = ['all', 'nst', 'pbk', 'conv', 'div']
 plt.xticks(XTickpos, XTicklabels, rotation = 0, size = 7, color = 'black', ha = 'center', **FigFont)
 # edit y axis ticks
@@ -238,38 +236,8 @@ ax.spines["bottom"].set_visible(False)
 ax.spines["right"].set_visible(False)
 ax.spines["left"].set_visible(True)  
 
-
-
+# make sure the y axis crosses the x axis at 0
 ax.spines['left'].set_position('zero')
-#ax.spines['bottom'].set_position('zero')
-#ax.spines['left'].set_smart_bounds(True)
-#ax.spines['bottom'].set_smart_bounds(True)
-
-
-
-#ax.set_title('centered spines')
-#ax.plot(x, y)
-#ax.spines['left'].set_position('center')
-#ax.spines['right'].set_color('none')
-#ax.spines['bottom'].set_position('center')
-#ax.spines['top'].set_color('none')
-#ax.spines['left'].set_smart_bounds(True)
-#ax.spines['bottom'].set_smart_bounds(True)
-#ax.xaxis.set_ticks_position('bottom')
-#ax.yaxis.set_ticks_position('left')
-#
-#
-#ax.set_title('zeroed spines')
-#ax.plot(x, y)
-#ax.spines['right'].set_color('none')
-#ax.spines['bottom'].set_position('zero')
-#ax.spines['top'].set_color('none')
-#ax.spines['left'].set_smart_bounds(True)
-#ax.spines['bottom'].set_smart_bounds(True)
-#ax.xaxis.set_ticks_position('bottom')
-#ax.yaxis.set_ticks_position('left')
-#
-
 
 # edit tick parameters    
 plt.tick_params(axis='both', which='both', bottom='off', top='off',
@@ -282,7 +250,7 @@ for label in ax.get_yticklabels():
 # add legend
 mouse = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'mouse')
 chimp = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'chimp')
-ax.legend(handles = [chimp, mouse], loc = (0, 1.1), fontsize = 7, frameon = False, ncol = 2)
+ax.legend(handles = [chimp, mouse], loc = (0.2, 0.8), fontsize = 7, frameon = False, ncol = 2)
 
 # save figure to file
 fig.savefig('truc.pdf', bbox_inches = 'tight')
