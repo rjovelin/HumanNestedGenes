@@ -77,6 +77,9 @@ for i in range(len(GFF)):
 HumanOrdered, Sp2Ordered = AllOrdered[0], AllOrdered[1]
 HumanCoord, Sp2Coord = AllCoordinates[0], AllCoordinates[1]
 
+print('ordered genes')
+print('got gene coordinates')
+
 
 # get 1:1 orthologs between human and other species
 if species == 'chimp':
@@ -84,30 +87,34 @@ if species == 'chimp':
 elif species == 'mouse':
     Orthos = MatchOrthologPairs('HumanMouseOrthologs.txt')
 
-#Counts = []
-#for i in range(len(GeneSets[:5])):
-#    total = [0,0,0]
-#    for j in GeneSets[i]:
-#        if j in Orthos:
-#            total[0] += 1
-#            if Orthos[j] in GeneSets[i+5]:
-#                total[1] += 1
-#            else:
-#                if Orthos[j] in GeneSets[5]:
-#                    total[2] += 1
-#    Counts.append(total)
-#  
-#for i in range(len(GeneSets[:5])):
-#    print(i, len(GeneSets[i]), Counts[i])
-
+print('mapped orthologs')
+print(len(Orthos))
 
 # make pairs of overlapping genes
 AllPairs = []
 for i in range(len(AllOverlap)):
     pairs = GetHostNestedPairs(AllOverlap[i])
     AllPairs.append(pairs)
+# get the human gene pairs
 HumanPairs = AllPairs[:5]
-Sp2Pairs = AllPairs[5:]
+
+print('made lists of gene pairs')
+
+
+# make a list of sets of gene pairs for the 2nd species
+Sp2Pairs = []
+for i in range(5, len(AllPairs)):
+    Sp2Pairs.append([set(j) for j in AllPairs[i]])
+        
+print('made sets of gene pairs in species 2')        
+        
+        
+# do qc
+for i in range(1, len(Sp2Pairs)):
+    for pair in Sp2Pairs[i]:
+        assert pair in Sp2Pairs[0]
+
+print('done with QC')
 
 # remove human genes lacking orthologs
 for i in range(len(HumanPairs)):
@@ -118,51 +125,11 @@ for i in range(len(HumanPairs)):
     for pair in to_remove:
         HumanPairs[i].remove(pair)
 
+print('removed human gene pairs lacking orthologs')
+for i in HumanPairs:
+    print(len(i))
 
-
-
-
-def MakeGenePairsDistance(GeneCoord, OrderedGenes, Orthos, species = 'human'):
-    '''
-    (dict, dict) -> tuple
-    Take the dictionary of gene coordinates, the dictionary of ordered genes
-    along each chromosome, and return a tuple with lists of gene pairs
-    separated by a given distance (in bp): proximal, intermediate and distant
-    '''
-        
-    # make lists of gene pairs [[gene1, gene2], ....[gene n, gene n+1]]
-    Proximal, Moderate, Intermediate, Distant = [], [], [], []
-    # loop over chromosomes
-    for chromo in OrderedGenes:
-        # loop over the list of ordered genes
-        for i in range(len(OrderedGenes[chromo]) - 1):
-            # get the end position of gene 1
-            EndGene1 = GeneCoord[OrderedGenes[chromo][i]][2]                
-            # grab 2nd gene to form a pair                
-            for j in range(i+1, len(OrderedGenes[chromo])):
-                # get the start position of gene 2
-                StartGene2 = GeneCoord[OrderedGenes[chromo][j]][1]
-                # check if distance is less that 500 bp
-                D = StartGene2 - EndGene1
-                if D >= 0 and D < 1000:
-                    # add gene pair to Proximal
-                    Proximal.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
-                elif D >= 1000 and D < 10000:
-                    # add gene pair to Intermediate
-                    Moderate.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
-                elif D >= 10000 and D < 50000:
-                    # add gene pair to Intermediate
-                    Intermediate.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
-                elif D >= 50000:
-                    # add gene pair to Distant
-                    Distant.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
-    return Proximal, Moderate, Intermediate, Distant
-
-
-#########################################
-
-# make lists of gene pairs [[gene1, gene2], ....[gene n, gene n+1]]
-#HsaProximal, HsaModerate, HsaIntermediate, HsaDistant = [], [], [], []
+# make lists of gene pairs in human [[gene1, gene2], ....[gene n, gene n+1]]
 HsaPairsDist = [[], [], [], []]
 # loop over chromosomes
 for chromo in HumanOrdered:
@@ -188,35 +155,57 @@ for chromo in HumanOrdered:
             elif D >= 50000:
                 # add gene pair to Distant
                 k = 3
-            # check that human genes in pair have orthologs    
             if HumanOrdered[chromo][i] in Orthos and HumanOrdered[chromo][j] in Orthos:
                 HsaPairsDist[k].append([HumanOrdered[chromo][i], HumanOrdered[chromo][j]])
+                
             
+print('generated human gene pairs by distance')
 
 
+# make lists of sets of gene pairs in species 2 [{gene1, gene2}, ....{gene n, gene n+1}]
+Sp2PairsDist = [[], [], [], []]
+# loop over chromosomes
+for chromo in Sp2Ordered:
+    # loop over the list of ordered genes
+    for i in range(len(Sp2Ordered[chromo]) - 1):
+        # get the end position of gene 1
+        EndGene1 = Sp2Coord[Sp2Ordered[chromo][i]][2]                
+        # grab 2nd gene to form a pair                
+        for j in range(i+1, len(Sp2Ordered[chromo])):
+            # get the start position of gene 2
+            StartGene2 = Sp2Coord[Sp2Ordered[chromo][j]][1]
+            # check if distance is less that 500 bp
+            D = StartGene2 - EndGene1
+            if D >= 0 and D < 1000:
+                # add gene pair to Proximal
+                k = 0
+            elif D >= 1000 and D < 10000:
+                # add gene pair to Intermediate
+                k = 1                
+            elif D >= 10000 and D < 50000:
+                # add gene pair to Intermediate
+                k = 2
+            elif D >= 50000:
+                # add gene pair to Distant
+                k = 3
+            # populate lists with sets of gene pairs    
+            Sp2PairsDist[k].append({Sp2Ordered[chromo][i], Sp2Ordered[chromo][j]})
+
+print('generated species 2 gene pairs by distance')
 
 
+# add the pairs of non-overlapping genes to the lists of gene pairs
+HumanPairs.extend(HsaPairsDist)
+Sp2Pairs.extend(Sp2PairsDist)
 
-
-
-
-
-
-
-
-########################################
-
-DistantPairs = MakeGenePairsDistance(HumanCoord, HumanOrdered)
-for i in DistantPairs:
-    HumanPairs.append(i)
-DistantPairs = MakeGenePairsDistance(Sp2Coord, Sp2Ordered)
-for i in DistantPairs:
-    Sp2Pairs.append(i)
-
+for i in range(len(HumanPairs)):
+    print(i, len(HumanPairs[i]), len(Sp2Pairs[i]))
 
 
 # create a list of overlapping gene categories parallel to the list of overlapping pairs
-GeneCats = ['overlapping', 'nested', 'piggyback', 'convergent', 'divergent']
+GeneCats = ['overlapping', 'nested', 'piggyback', 'convergent', 'divergent',
+            'proximal', 'moderate', 'intermediate', 'distant']
+
 # create dictionary of gene pairs for each overlapping categories
 HsaGenes = {}
 for i in range(len(GeneCats)):
@@ -224,10 +213,43 @@ for i in range(len(GeneCats)):
 # create a dictionary of gene pairs without any order, for each overlapping gene categories
 Sp2Genes = {}
 for i in range(len(GeneCats)):
-    Sp2Genes[GeneCats[i]] = [set(j) for j in Sp2Pairs[i]]
-     
-# do qc
-for i in range(1, len(GeneCats)):
-    for pair in Sp2Genes[GeneCats[i]]:
-        assert pair in Sp2Genes['overlapping']
+    Sp2Genes[GeneCats[i]] = Sp2Pairs[i]
+print('generated dictionaries')
+
+
+for i in range(len(GeneCats)):
+    print(GeneCats[i], len(HsaGenes[GeneCats[i]]), len(Sp2Genes[GeneCats[i]]))
+
+
+
+# count the number of gene pairs for which orthologs in are the same topology
+PairCounts = {}
+for i in range(len(GeneCats)):
+    # initialize counter
+    total = 0
+    # loop over gene pairs for the given gene category
+    for pair in HsaGenes[GeneCats[i]]:
+        # check if pair has same topology
+        if set([Orthos[pair[0]], Orthos[pair[1]]]) in Sp2Genes[GeneCats[i]]:
+            total += 1
+    # populate dict
+    PairCounts[GeneCats[i]] = [total, len(HsaGenes[GeneCats[i]])]
+
+
+
+newfile = open('PairsCounts.txt', 'a')
+header = '\t'.join(['species', 'genes', 'conserved', 'total', 'ratio'])
+newfile.write(header + '\n')
+
+for i in range(len(GeneCats)):
+    line = '\t'.join([species, GeneCats[i], str(PairCounts[GeneCats[i]][0]), str(PairCounts[GeneCats[i]][1]), str(PairCounts[GeneCats[i]][0] / PairCounts[GeneCats[i]][1])])
+    newfile.write(line + '\n')
+newfile.close()
+
+
+
+
+
+
+
 
