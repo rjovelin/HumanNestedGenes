@@ -233,40 +233,73 @@ Sp2Pairs.extend(Sp2PairsDist)
 
 
 
-for i in HsaPairsDist:
-    print(len(i))
-for i in Sp2PairsDist:
-    print(len(i))
+for i in range(len(HumanOrthos)):
+    HumanOrthos[i] = np.array(HumanOrthos[i])
+    Sp2Pairs[i] = np.array(Sp2Pairs[i])
+    total = sum(np.in1d(HumanOrthos[i], HumanOrthos[i], invert = False))
+    print(i, total)
 
 
 
 
 
-# create a list of overlapping gene categories parallel to the list of overlapping pairs
-GeneCats = ['overlapping', 'nested', 'piggyback', 'convergent', 'divergent',
-            'proximal', 'moderate', 'intermediate', 'distant']
-
-# create dictionary of gene pairs for each overlapping categories
-HsaGenes = {}
-for i in range(len(GeneCats)):
-    #HsaGenes[GeneCats[i]] = HumanPairs[i]
-    HsaGenes[GeneCats[i]] = HumanOrthos[i]
-
-
-
-# create a dictionary of gene pairs without any order, for each overlapping gene categories
-Sp2Genes = {}
-for i in range(len(GeneCats)):
-    Sp2Genes[GeneCats[i]] = Sp2Pairs[i]
-print('generated dictionaries')
-
-
-for i in range(len(GeneCats)):
-    print(GeneCats[i], len(HsaGenes[GeneCats[i]]), len(Sp2Genes[GeneCats[i]]))
 
 
 
 
+#
+#for i in HsaPairsDist:
+#    print(len(i))
+#for i in Sp2PairsDist:
+#    print(len(i))
+#
+#
+#
+#
+#
+## create a list of overlapping gene categories parallel to the list of overlapping pairs
+#GeneCats = ['overlapping', 'nested', 'piggyback', 'convergent', 'divergent',
+#            'proximal', 'moderate', 'intermediate', 'distant']
+#
+## create dictionary of gene pairs for each overlapping categories
+#HsaGenes = {}
+#for i in range(len(GeneCats)):
+#    #HsaGenes[GeneCats[i]] = HumanPairs[i]
+#    HsaGenes[GeneCats[i]] = HumanOrthos[i]
+#
+#
+#
+## create a dictionary of gene pairs without any order, for each overlapping gene categories
+#Sp2Genes = {}
+#for i in range(len(GeneCats)):
+#    Sp2Genes[GeneCats[i]] = Sp2Pairs[i]
+#print('generated dictionaries')
+#
+#
+#for i in range(len(GeneCats)):
+#    print(GeneCats[i], len(HsaGenes[GeneCats[i]]), len(Sp2Genes[GeneCats[i]]))
+#
+#
+#
+#
+### count the number of gene pairs for which orthologs in are the same topology
+##PairCounts = {}
+##for i in range(len(GeneCats) -1):
+##    # initialize counter
+##    total = 0
+##    # loop over gene pairs for the given gene category
+##    for pair in HsaGenes[GeneCats[i]]:
+##        # check if pair has same topology
+##        if set([Orthos[pair[0]], Orthos[pair[1]]]) in Sp2Genes[GeneCats[i]]:
+##            total += 1
+##    # populate dict
+##    PairCounts[GeneCats[i]] = [total, len(HsaGenes[GeneCats[i]])]
+#
+#
+#
+#
+#
+#
 ## count the number of gene pairs for which orthologs in are the same topology
 #PairCounts = {}
 #for i in range(len(GeneCats) -1):
@@ -275,57 +308,39 @@ for i in range(len(GeneCats)):
 #    # loop over gene pairs for the given gene category
 #    for pair in HsaGenes[GeneCats[i]]:
 #        # check if pair has same topology
-#        if set([Orthos[pair[0]], Orthos[pair[1]]]) in Sp2Genes[GeneCats[i]]:
+#        if pair in Sp2Genes[GeneCats[i]]:
 #            total += 1
 #    # populate dict
-#    PairCounts[GeneCats[i]] = [total, len(HsaGenes[GeneCats[i]])]
-
-
-
-
-
-
-# count the number of gene pairs for which orthologs in are the same topology
-PairCounts = {}
-for i in range(len(GeneCats) -1):
-    # initialize counter
-    total = 0
-    # loop over gene pairs for the given gene category
-    for pair in HsaGenes[GeneCats[i]]:
-        # check if pair has same topology
-        if pair in Sp2Genes[GeneCats[i]]:
-            total += 1
-    # populate dict
-    PairCounts[GeneCats[i]] = total
-
-
-for i in HsaGenes:
-    HsaGenes[i] = np.array(HsaGenes[i])
-for i in Sp2Genes:
-    Sp2Genes[i] = np.array(Sp2Genes[i])
-
-
-for i in HsaGenes:
-    print(len(HsaGenes[i]))
-for i in Sp2Genes:
-    print(len(Sp2Genes[i]))
-
-
-CountPairs = {}
-for i in range(len(GeneCats) -1):
-    truc = 0
-    for j in HsaGenes[GeneCats[i]]:
-        if j in Sp2Genes[GeneCats[i]]:
-            truc += 1
-    #total = np.in1d(HsaGenes[GeneCats[i]], Sp2Genes[GeneCats[i]], invert = False)
-    print(GeneCats[i], HsaGenes[GeneCats[i]][:10], Sp2Genes[GeneCats[i]][:10])
-    total = np.in1d(HsaGenes[GeneCats[i]], HsaGenes[GeneCats[i]], invert = False)
-    
-    print(GeneCats[i], truc, sum(total))    
-    CountPairs[GeneCats[i]] = sum(total)
-
-for i in range(len(GeneCats) -1):
-    print(GeneCats[i], PairCounts[GeneCats[i]], CountPairs[GeneCats[i]])
+#    PairCounts[GeneCats[i]] = total
+#
+#
+#for i in HsaGenes:
+#    HsaGenes[i] = np.array(HsaGenes[i])
+#for i in Sp2Genes:
+#    Sp2Genes[i] = np.array(Sp2Genes[i])
+#
+#
+#for i in HsaGenes:
+#    print(len(HsaGenes[i]))
+#for i in Sp2Genes:
+#    print(len(Sp2Genes[i]))
+#
+#
+#CountPairs = {}
+#for i in range(len(GeneCats) -1):
+#    truc = 0
+#    for j in HsaGenes[GeneCats[i]]:
+#        if j in Sp2Genes[GeneCats[i]]:
+#            truc += 1
+#    #total = np.in1d(HsaGenes[GeneCats[i]], Sp2Genes[GeneCats[i]], invert = False)
+#    print(GeneCats[i], HsaGenes[GeneCats[i]][:10], Sp2Genes[GeneCats[i]][:10])
+#    total = np.in1d(HsaGenes[GeneCats[i]], HsaGenes[GeneCats[i]], invert = False)
+#    
+#    print(GeneCats[i], truc, sum(total))    
+#    CountPairs[GeneCats[i]] = sum(total)
+#
+#for i in range(len(GeneCats) -1):
+#    print(GeneCats[i], PairCounts[GeneCats[i]], CountPairs[GeneCats[i]])
 
 
 
