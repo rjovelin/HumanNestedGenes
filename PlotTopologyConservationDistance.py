@@ -235,11 +235,11 @@ HumanGenes, Sp2Genes = [], []
 
 for i in range(len(HumanOrthos)):
     HumanGenes.append(np.array(HumanOrthos[i]))
-    SP2Genes.append(np.array(Sp2Pairs[i]))
+    Sp2Genes.append(np.array(Sp2Pairs[i]))
 
 for i in range(len(HumanGenes)):
-    print(i, sum(np.in1d(HumanGenes[i], HumanGenes[i], invert = False)))
-    
+    print(i, 'hsa', sum(np.in1d(HumanGenes[i], HumanGenes[i], invert = False)))
+    print(i, 'sp2', sum(np.in1d(HumanGenes[i], SP2Genes[i], invert = False)))
 
 
 
