@@ -229,15 +229,17 @@ HumanOrthos.extend(HsaPairsDist)
 
 
 Sp2Pairs.extend(Sp2PairsDist)
+print(len(HumanOrthos), len(Sp2Pairs))
 
-
-
+HumanGenes, Sp2Genes = [], []
 
 for i in range(len(HumanOrthos)):
-    HumanOrthos[i] = np.array(HumanOrthos[i])
-    Sp2Pairs[i] = np.array(Sp2Pairs[i])
-    total = sum(np.in1d(HumanOrthos[i], HumanOrthos[i], invert = False))
-    print(i, total)
+    HumanGenes.append(np.array(HumanOrthos[i]))
+    SP2Genes.append(np.array(Sp2Pairs[i]))
+
+for i in range(len(HumanGenes)):
+    print(i, sum(np.in1d(HumanGenes[i], HumanGenes[i], invert = False)))
+    
 
 
 
