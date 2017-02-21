@@ -88,7 +88,7 @@ elif species == 'mouse':
     Orthos = MatchOrthologPairs('HumanMouseOrthologs.txt')
 
 print('mapped orthologs')
-print(len(Orthos))
+
 
 # make pairs of overlapping genes
 AllPairs = []
@@ -317,7 +317,10 @@ for i in range(len(GeneCats) -1):
     for j in HsaGenes[GeneCats[i]]:
         if j in Sp2Genes[GeneCats[i]]:
             truc += 1
-    total = np.in1d(HsaGenes[GeneCats[i]], Sp2Genes[GeneCats[i]], invert = False)
+    #total = np.in1d(HsaGenes[GeneCats[i]], Sp2Genes[GeneCats[i]], invert = False)
+    print(GeneCats[i], HsaGenes[GeneCats[i]][:10], Sp2Genes[GeneCats[i]][:10])
+    total = np.in1d(HsaGenes[GeneCats[i]], HsaGenes[GeneCats[i]], invert = False)
+    
     print(GeneCats[i], truc, sum(total))    
     CountPairs[GeneCats[i]] = sum(total)
 
