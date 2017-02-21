@@ -239,7 +239,7 @@ for i in range(len(HumanOrthos)):
 
 for i in range(len(HumanGenes)):
     print(i, 'hsa', sum(np.in1d(HumanGenes[i], HumanGenes[i], invert = False)))
-    print(i, 'sp2', sum(np.in1d(HumanGenes[i], SP2Genes[i], invert = False)))
+    print(i, 'sp2', sum(np.in1d(HumanGenes[i], Sp2Genes[i], invert = False)))
 
 
 
