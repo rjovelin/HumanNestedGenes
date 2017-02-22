@@ -242,8 +242,9 @@ for i in range(len(HumanGenes)):
     print(i, 'sp2', sum(np.in1d(HumanGenes[i], Sp2Genes[i], invert = False)))
 
 
-
-
+print(HumanGenes[1])
+print('\n\n')
+print(Sp2Genes[1])
 
 
 
