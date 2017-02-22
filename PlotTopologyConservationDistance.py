@@ -95,24 +95,10 @@ AllPairs = []
 for i in range(len(AllOverlap)):
     pairs = GetHostNestedPairs(AllOverlap[i])
     AllPairs.append(pairs)
-# get the human gene pairs
+# get the gene pairs
 HumanPairs = AllPairs[:5]
-
+Sp2Pairs = AllPairs[5:]
 print('made lists of gene pairs')
-
-
-# make a list of sets of gene pairs for the 2nd species
-Sp2Pairs = []
-for i in range(5, len(AllPairs)):
-    Sp2Pairs.append([set(j) for j in AllPairs[i]])
-print('made sets of gene pairs in species 2')        
-        
-        
-# do qc
-for i in range(1, len(Sp2Pairs)):
-    for pair in Sp2Pairs[i]:
-        assert pair in Sp2Pairs[0]
-print('done with QC')
 
 # remove human genes lacking orthologs
 for i in range(len(HumanPairs)):
@@ -123,8 +109,36 @@ for i in range(len(HumanPairs)):
     for pair in to_remove:
         HumanPairs[i].remove(pair)
 print('removed human gene pairs lacking orthologs')
-for i in HumanPairs:
-    print(len(i))
+
+# replace human genes by their orthologs
+for i in range(len(HumanPairs)):
+    for j in range(len(HumanPairs[i])):
+        HumanPairs[i][j][0] = Orthos[HumanPairs[i][j][0]]
+        HumanPairs[i][j][1] = Orthos[HumanPairs[i][j][1]]
+
+# sort gene pairs
+for i in range(len(HumanPairs)):
+    for j in range(len(HumanPairs[i])):
+        HumanPairs[i][j].sort()
+for i in range(len(Sp2Pairs)):
+    for j in range(len(Sp2Pairs[i])):
+        Sp2Pairs[i][j].sort()
+
+# replace gene lists with strings
+for i in range(len(HumanPairs)):
+    for j in range(len(HumanPairs[i])):
+        HumanPairs[i][j] = ':'.join(HumanPairs[i][j])
+for i in range(len(Sp2Pairs)):
+    for j in range(len(Sp2Pairs[i])):
+        Sp2Pairs[i][j] = ':'.join(Sp2Pairs[i][j])
+
+       
+# do qc
+for i in range(1, len(Sp2Pairs)):
+    for pair in Sp2Pairs[i]:
+        assert pair in Sp2Pairs[0]
+print('done with QC')
+
 
 # make lists of gene pairs in human [[gene1, gene2], ....[gene n, gene n+1]]
 HsaPairsDist = [[], [], [], []]
@@ -155,27 +169,15 @@ for chromo in HumanOrdered:
                 # add gene pair to Distant
                 k = 3
             if HumanOrdered[chromo][i] in Orthos and HumanOrdered[chromo][j] in Orthos and k in range(4):
-                #HsaPairsDist[k].append([HumanOrdered[chromo][i], HumanOrdered[chromo][j]])
-                
-                HsaPairsDist[k].append({Orthos[HumanOrdered[chromo][i]], Orthos[HumanOrdered[chromo][j]]})
+                # add the human orthologs
+                pair = [Orthos[HumanOrdered[chromo][i]], Orthos[HumanOrdered[chromo][j]]]
+                # sort gene pair
+                pair.sort()
+                # concert list to string
+                pair = ':'.join(pair)
+                HsaPairsDist[k].append(pair)
    
-
-
-for i in HsaPairsDist:
-    print(len(i))
-
-         
 print('generated human gene pairs by distance')
-
-
-
-
-
-
-
-
-
-
 
 
 # make lists of sets of gene pairs in species 2 [{gene1, gene2}, ....{gene n, gene n+1}]
@@ -208,145 +210,40 @@ for chromo in Sp2Ordered:
                 k = 3
             # populate lists with sets of gene pairs    
             if k in range(4):
-                Sp2PairsDist[k].append({Sp2Ordered[chromo][i], Sp2Ordered[chromo][j]})
-
-    
+                # get gene pair
+                pair = [Sp2Ordered[chromo][i], Sp2Ordered[chromo][j]]
+                # sort pair
+                pair.sort()
+                # convert list to string
+                pair = ':'.join(pair)
+                Sp2PairsDist[k].append(pair)
 
 print('generated species 2 gene pairs by distance')
 
 
 # add the pairs of non-overlapping genes to the lists of gene pairs
-#HumanPairs.extend(HsaPairsDist)
-
-HumanOrthos = []
-for i in range(len(HumanPairs)):
-    toadd = []    
-    for pair in HumanPairs[i]:
-        toadd.append({Orthos[pair[0]], Orthos[pair[1]]})
-    HumanOrthos.append(toadd)
-HumanOrthos.extend(HsaPairsDist)
-
-
-
+HumanPairs.extend(HsaPairsDist)
 Sp2Pairs.extend(Sp2PairsDist)
-print(len(HumanOrthos), len(Sp2Pairs))
+print(len(HumanPairs), len(Sp2Pairs))
 
-HumanGenes, Sp2Genes = [], []
+# convert lists to numpy arrays
+for i in range(len(HumanPairs)):
+    HumanPairs[i] = np.array(HumanPairs[i])
+for i in range(len(Sp2Pairs)):
+    Sp2Pairs[i] = np.array(Sp2Pairs[i])
 
-for i in range(len(HumanOrthos)):
-    HumanGenes.append(np.array(HumanOrthos[i]))
-    Sp2Genes.append(np.array(Sp2Pairs[i]))
+# count the number of pairs with conserved topology
+CountPairs = []
+for i in range(len(HumanPairs) - 1):
+    total = sum(np.in1d(HumanPairs[i], Sp2Pairs[i], invert = False))    
+    CountPairs.append([total, len(HumanPairs[i])])
 
-for i in range(len(HumanGenes)):
-    print(i, 'hsa', sum(np.in1d(HumanGenes[i], HumanGenes[i], invert = False)))
-    print(i, 'sp2', sum(np.in1d(HumanGenes[i], Sp2Genes[i], invert = False)))
+# create a list of overlapping gene categories parallel to the list of overlapping pairs
+GeneCats = ['overlapping', 'nested', 'piggyback', 'convergent', 'divergent',
+            'proximal', 'moderate', 'intermediate', 'distant']
 
-
-print(HumanGenes[1])
-print('\n\n')
-print(Sp2Genes[1])
-
-
-
-
-
-#
-#for i in HsaPairsDist:
-#    print(len(i))
-#for i in Sp2PairsDist:
-#    print(len(i))
-#
-#
-#
-#
-#
-## create a list of overlapping gene categories parallel to the list of overlapping pairs
-#GeneCats = ['overlapping', 'nested', 'piggyback', 'convergent', 'divergent',
-#            'proximal', 'moderate', 'intermediate', 'distant']
-#
-## create dictionary of gene pairs for each overlapping categories
-#HsaGenes = {}
-#for i in range(len(GeneCats)):
-#    #HsaGenes[GeneCats[i]] = HumanPairs[i]
-#    HsaGenes[GeneCats[i]] = HumanOrthos[i]
-#
-#
-#
-## create a dictionary of gene pairs without any order, for each overlapping gene categories
-#Sp2Genes = {}
-#for i in range(len(GeneCats)):
-#    Sp2Genes[GeneCats[i]] = Sp2Pairs[i]
-#print('generated dictionaries')
-#
-#
-#for i in range(len(GeneCats)):
-#    print(GeneCats[i], len(HsaGenes[GeneCats[i]]), len(Sp2Genes[GeneCats[i]]))
-#
-#
-#
-#
-### count the number of gene pairs for which orthologs in are the same topology
-##PairCounts = {}
-##for i in range(len(GeneCats) -1):
-##    # initialize counter
-##    total = 0
-##    # loop over gene pairs for the given gene category
-##    for pair in HsaGenes[GeneCats[i]]:
-##        # check if pair has same topology
-##        if set([Orthos[pair[0]], Orthos[pair[1]]]) in Sp2Genes[GeneCats[i]]:
-##            total += 1
-##    # populate dict
-##    PairCounts[GeneCats[i]] = [total, len(HsaGenes[GeneCats[i]])]
-#
-#
-#
-#
-#
-#
-## count the number of gene pairs for which orthologs in are the same topology
-#PairCounts = {}
-#for i in range(len(GeneCats) -1):
-#    # initialize counter
-#    total = 0
-#    # loop over gene pairs for the given gene category
-#    for pair in HsaGenes[GeneCats[i]]:
-#        # check if pair has same topology
-#        if pair in Sp2Genes[GeneCats[i]]:
-#            total += 1
-#    # populate dict
-#    PairCounts[GeneCats[i]] = total
-#
-#
-#for i in HsaGenes:
-#    HsaGenes[i] = np.array(HsaGenes[i])
-#for i in Sp2Genes:
-#    Sp2Genes[i] = np.array(Sp2Genes[i])
-#
-#
-#for i in HsaGenes:
-#    print(len(HsaGenes[i]))
-#for i in Sp2Genes:
-#    print(len(Sp2Genes[i]))
-#
-#
-#CountPairs = {}
-#for i in range(len(GeneCats) -1):
-#    truc = 0
-#    for j in HsaGenes[GeneCats[i]]:
-#        if j in Sp2Genes[GeneCats[i]]:
-#            truc += 1
-#    #total = np.in1d(HsaGenes[GeneCats[i]], Sp2Genes[GeneCats[i]], invert = False)
-#    print(GeneCats[i], HsaGenes[GeneCats[i]][:10], Sp2Genes[GeneCats[i]][:10])
-#    total = np.in1d(HsaGenes[GeneCats[i]], HsaGenes[GeneCats[i]], invert = False)
-#    
-#    print(GeneCats[i], truc, sum(total))    
-#    CountPairs[GeneCats[i]] = sum(total)
-#
-#for i in range(len(GeneCats) -1):
-#    print(GeneCats[i], PairCounts[GeneCats[i]], CountPairs[GeneCats[i]])
-
-
-
+for i in range(len(GeneCats) - 1):
+    print(GeneCats[i], CountPairs[i][0] / CountPairs[i][1])
 
 
 #newfile = open('PairsCounts.txt', 'a')
@@ -359,17 +256,14 @@ print(Sp2Genes[1])
 #newfile.close()
 
 
-a = np.array([{'MouseNestedGenes.json', 'ChimpOverlappingGenes.json'},
-       {'MouseDivergentGenes.json', 'HumanConvergentGenes.json'},
-       {'ChimpConvergentGenes.json', 'HumanPiggyBackGenes.json'},
-       {'MouseOverlappingGenes.json', 'HumanNestedGenes.json'},
-       {'ChimpDivergentGenes.json', 'ChimpNestedGenes.json'},
-       {'MouseConvergentGenes.json', 'HumanDivergentGenes.json'},
-       {'MousePiggyBackGenes.json', 'ChimpPiggyBackGenes.json'}])
-print(sum(np.in1d(a, a)))
-print(sum(np.in1d(a, a, invert = False)) / len(a))
-
-
-
-
+#newfile = open('test.txt', 'w')
+#newfile.write('a\n')
+#newfile.write(str(sum(np.in1d(a, a))) + '\n')
+#newfile.write(str(sum(np.in1d(a, a, invert = False)) / len(a)) + '\n')
+#newfile.write('\n\n')
+#
+#
+#truc = '\t'.join([str(sum(np.in1d(b, b))), str(sum(np.in1d(b, b[:15]))), str(sum(np.in1d(b, b[:20]))), str(sum(np.in1d(b, b[:30]))), str(sum(np.in1d(b, b[:50])))])
+#newfile.write(truc + '\n')
+#newfile.close()
 
