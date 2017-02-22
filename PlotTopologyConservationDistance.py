@@ -178,47 +178,6 @@ for chromo in HumanOrdered:
 print('generated human gene pairs by distance')
 
 
-## make lists of sets of gene pairs in species 2 [{gene1, gene2}, ....{gene n, gene n+1}]
-#Sp2PairsDist = [[], [], [], []]
-## loop over chromosomes
-#for chromo in Sp2Ordered:
-#    # loop over the list of ordered genes
-#    for i in range(len(Sp2Ordered[chromo]) - 1):
-#        # get the end position of gene 1
-#        EndGene1 = Sp2Coord[Sp2Ordered[chromo][i]][2]                
-#        # grab 2nd gene to form a pair                
-#        for j in range(i+1, len(Sp2Ordered[chromo])):
-#            # get the start position of gene 2
-#            StartGene2 = Sp2Coord[Sp2Ordered[chromo][j]][1]
-#            # check if distance is less that 500 bp
-#            D = StartGene2 - EndGene1
-#            # assign infinity value to k
-#            k = float('inf')
-#            if D >= 0 and D < 1000:
-#                # add gene pair to Proximal
-#                k = 0
-#            elif D >= 1000 and D < 10000:
-#                # add gene pair to Intermediate
-#                k = 1                
-#            elif D >= 10000 and D < 50000:
-#                # add gene pair to Intermediate
-#                k = 2
-#            elif D >= 50000:
-#                # add gene pair to Distant
-#                k = 3
-#            # populate lists with sets of gene pairs    
-#            if k in range(4):
-#                # get gene pair
-#                pair = [Sp2Ordered[chromo][i], Sp2Ordered[chromo][j]]
-#                # sort pair
-#                pair.sort()
-#                # convert list to string
-#                pair = ':'.join(pair)
-#                Sp2PairsDist[k].append(pair)
-
-
-########################################
-
 # make lists of sets of gene pairs in species 2 [{gene1, gene2}, ....{gene n, gene n+1}]
 Sp2PairsDist = [[], [], [], []]
 # loop over chromosomes
@@ -279,7 +238,7 @@ for i in range(len(HumanPairs)):
 
 # count the number of pairs with conserved topology
 CountPairs = []
-for i in range(len(HumanPairs) - 1):
+for i in range(len(HumanPairs)):
     total = sum(np.in1d(HumanPairs[i], Sp2Pairs[i], invert = False))    
     CountPairs.append([total, len(HumanPairs[i])])
 
@@ -287,7 +246,7 @@ for i in range(len(HumanPairs) - 1):
 GeneCats = ['overlapping', 'nested', 'piggyback', 'convergent', 'divergent',
             'proximal', 'moderate', 'intermediate', 'distant']
 
-for i in range(len(GeneCats) - 1):
+for i in range(len(GeneCats)):
     print(GeneCats[i], CountPairs[i][0] / CountPairs[i][1])
 
 
