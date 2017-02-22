@@ -19,7 +19,7 @@ newfile.write('\n')
 newfile.write('python3 PlotTopologyConservationDistance.py ' + species)
 newfile.close()            
 
-MyCommand = 'qsub -l walltime=10:00:00,nodes=1:ppn=4 ' + outputfile
+MyCommand = 'qsub -l walltime=10:00:00,nodes=1:ppn=12,mem=46g ' + outputfile
 os.system(MyCommand)
 print(MyCommand)
         
