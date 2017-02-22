@@ -148,37 +148,76 @@ for chromo in HumanOrdered:
     for i in range(len(HumanOrdered[chromo]) - 1):
         # get the end position of gene 1
         EndGene1 = HumanCoord[HumanOrdered[chromo][i]][2]                
-        # grab 2nd gene to form a pair                
-        for j in range(i+1, len(HumanOrdered[chromo])):
-            # get the start position of gene 2
-            StartGene2 = HumanCoord[HumanOrdered[chromo][j]][1]
-            # check if distance is less that 500 bp
-            D = StartGene2 - EndGene1
-            # assign infinity value to k
-            k = float('inf')
-            if D >= 0 and D < 1000:
-                # add gene pair to Proximal
-                k = 0
-            elif D >= 1000 and D < 10000:
-                # add gene pair to Intermediate
-                k = 1                
-            elif D >= 10000 and D < 50000:
-                # add gene pair to Intermediate
-                k = 2
-            elif D >= 50000:
-                # add gene pair to Distant
-                k = 3
-            if HumanOrdered[chromo][i] in Orthos and HumanOrdered[chromo][j] in Orthos and k in range(4):
-                # add the human orthologs
-                pair = [Orthos[HumanOrdered[chromo][i]], Orthos[HumanOrdered[chromo][j]]]
-                # sort gene pair
-                pair.sort()
-                # concert list to string
-                pair = ':'.join(pair)
-                HsaPairsDist[k].append(pair)
-   
+        # get the start position of adjacent gene 2
+        StartGene2 = HumanCoord[HumanOrdered[chromo][i+1]][1]
+        # check if distance is less that 500 bp
+        D = StartGene2 - EndGene1
+        # assign infinity value to k
+        k = float('inf')
+        if D >= 0 and D < 1000:
+            # add gene pair to Proximal
+            k = 0
+        elif D >= 1000 and D < 10000:
+            # add gene pair to Intermediate
+            k = 1                
+        elif D >= 10000 and D < 50000:
+            # add gene pair to Intermediate
+            k = 2
+        elif D >= 50000:
+            # add gene pair to Distant
+            k = 3
+        if HumanOrdered[chromo][i] in Orthos and HumanOrdered[chromo][i+1] in Orthos and k in range(4):
+            # add the human orthologs
+            pair = [Orthos[HumanOrdered[chromo][i]], Orthos[HumanOrdered[chromo][i+1]]]
+            # sort gene pair
+            pair.sort()
+            # concert list to string
+            pair = ':'.join(pair)
+            HsaPairsDist[k].append(pair)
+
 print('generated human gene pairs by distance')
 
+
+## make lists of sets of gene pairs in species 2 [{gene1, gene2}, ....{gene n, gene n+1}]
+#Sp2PairsDist = [[], [], [], []]
+## loop over chromosomes
+#for chromo in Sp2Ordered:
+#    # loop over the list of ordered genes
+#    for i in range(len(Sp2Ordered[chromo]) - 1):
+#        # get the end position of gene 1
+#        EndGene1 = Sp2Coord[Sp2Ordered[chromo][i]][2]                
+#        # grab 2nd gene to form a pair                
+#        for j in range(i+1, len(Sp2Ordered[chromo])):
+#            # get the start position of gene 2
+#            StartGene2 = Sp2Coord[Sp2Ordered[chromo][j]][1]
+#            # check if distance is less that 500 bp
+#            D = StartGene2 - EndGene1
+#            # assign infinity value to k
+#            k = float('inf')
+#            if D >= 0 and D < 1000:
+#                # add gene pair to Proximal
+#                k = 0
+#            elif D >= 1000 and D < 10000:
+#                # add gene pair to Intermediate
+#                k = 1                
+#            elif D >= 10000 and D < 50000:
+#                # add gene pair to Intermediate
+#                k = 2
+#            elif D >= 50000:
+#                # add gene pair to Distant
+#                k = 3
+#            # populate lists with sets of gene pairs    
+#            if k in range(4):
+#                # get gene pair
+#                pair = [Sp2Ordered[chromo][i], Sp2Ordered[chromo][j]]
+#                # sort pair
+#                pair.sort()
+#                # convert list to string
+#                pair = ':'.join(pair)
+#                Sp2PairsDist[k].append(pair)
+
+
+########################################
 
 # make lists of sets of gene pairs in species 2 [{gene1, gene2}, ....{gene n, gene n+1}]
 Sp2PairsDist = [[], [], [], []]
@@ -188,35 +227,33 @@ for chromo in Sp2Ordered:
     for i in range(len(Sp2Ordered[chromo]) - 1):
         # get the end position of gene 1
         EndGene1 = Sp2Coord[Sp2Ordered[chromo][i]][2]                
-        # grab 2nd gene to form a pair                
-        for j in range(i+1, len(Sp2Ordered[chromo])):
-            # get the start position of gene 2
-            StartGene2 = Sp2Coord[Sp2Ordered[chromo][j]][1]
-            # check if distance is less that 500 bp
-            D = StartGene2 - EndGene1
-            # assign infinity value to k
-            k = float('inf')
-            if D >= 0 and D < 1000:
-                # add gene pair to Proximal
-                k = 0
-            elif D >= 1000 and D < 10000:
-                # add gene pair to Intermediate
-                k = 1                
-            elif D >= 10000 and D < 50000:
-                # add gene pair to Intermediate
-                k = 2
-            elif D >= 50000:
-                # add gene pair to Distant
-                k = 3
-            # populate lists with sets of gene pairs    
-            if k in range(4):
-                # get gene pair
-                pair = [Sp2Ordered[chromo][i], Sp2Ordered[chromo][j]]
-                # sort pair
-                pair.sort()
-                # convert list to string
-                pair = ':'.join(pair)
-                Sp2PairsDist[k].append(pair)
+        # get the start position of adjacent gene 2
+        StartGene2 = Sp2Coord[Sp2Ordered[chromo][i+1]][1]
+        # check if distance is less that 500 bp
+        D = StartGene2 - EndGene1
+        # assign infinity value to k
+        k = float('inf')
+        if D >= 0 and D < 1000:
+            # add gene pair to Proximal
+            k = 0
+        elif D >= 1000 and D < 10000:
+            # add gene pair to Intermediate
+            k = 1                
+        elif D >= 10000 and D < 50000:
+            # add gene pair to Intermediate
+            k = 2
+        elif D >= 50000:
+            # add gene pair to Distant
+            k = 3
+        # populate lists with sets of gene pairs    
+        if k in range(4):
+            # get gene pair
+            pair = [Sp2Ordered[chromo][i], Sp2Ordered[chromo][i+1]]
+            # sort pair
+            pair.sort()
+            # convert list to string
+            pair = ':'.join(pair)
+            Sp2PairsDist[k].append(pair)
 
 print('generated species 2 gene pairs by distance')
 
@@ -224,13 +261,21 @@ print('generated species 2 gene pairs by distance')
 # add the pairs of non-overlapping genes to the lists of gene pairs
 HumanPairs.extend(HsaPairsDist)
 Sp2Pairs.extend(Sp2PairsDist)
-print(len(HumanPairs), len(Sp2Pairs))
+
 
 # convert lists to numpy arrays
 for i in range(len(HumanPairs)):
     HumanPairs[i] = np.array(HumanPairs[i])
 for i in range(len(Sp2Pairs)):
     Sp2Pairs[i] = np.array(Sp2Pairs[i])
+
+
+for i in range(len(HumanPairs)):
+    print(i, len(HumanPairs[i]), len(Sp2Pairs[i]))
+
+
+
+
 
 # count the number of pairs with conserved topology
 CountPairs = []
