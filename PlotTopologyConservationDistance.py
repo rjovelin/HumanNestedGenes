@@ -140,7 +140,7 @@ for i in range(1, len(Sp2Pairs)):
 print('done with QC')
 
 
-# make lists of gene pairs in human [[gene1, gene2], ....[gene n, gene n+1]]
+# make lists of adjacent gene pairs with varying distance in human [[gene1, gene2], ....[gene n, gene n+1]]
 HsaPairsDist = [[], [], [], []]
 # loop over chromosomes
 for chromo in HumanOrdered:
@@ -178,8 +178,8 @@ for chromo in HumanOrdered:
 print('generated human gene pairs by distance')
 
 
-# make lists of sets of gene pairs in species 2 [{gene1, gene2}, ....{gene n, gene n+1}]
-Sp2PairsDist = [[], [], [], []]
+# make list of adjacent gene pairs regardless of distance [gene1:gene2, ....gene_n:gene_n+1]
+Sp2PairsDist = []
 # loop over chromosomes
 for chromo in Sp2Ordered:
     # loop over the list of ordered genes
@@ -188,38 +188,23 @@ for chromo in Sp2Ordered:
         EndGene1 = Sp2Coord[Sp2Ordered[chromo][i]][2]                
         # get the start position of adjacent gene 2
         StartGene2 = Sp2Coord[Sp2Ordered[chromo][i+1]][1]
-        # check if distance is less that 500 bp
+        # check that genes are not overlapping
         D = StartGene2 - EndGene1
-        # assign infinity value to k
-        k = float('inf')
-        if D >= 0 and D < 1000:
-            # add gene pair to Proximal
-            k = 0
-        elif D >= 1000 and D < 10000:
-            # add gene pair to Intermediate
-            k = 1                
-        elif D >= 10000 and D < 50000:
-            # add gene pair to Intermediate
-            k = 2
-        elif D >= 50000:
-            # add gene pair to Distant
-            k = 3
-        # populate lists with sets of gene pairs    
-        if k in range(4):
+        if D >= 0:
             # get gene pair
             pair = [Sp2Ordered[chromo][i], Sp2Ordered[chromo][i+1]]
             # sort pair
             pair.sort()
             # convert list to string
             pair = ':'.join(pair)
-            Sp2PairsDist[k].append(pair)
+            Sp2PairsDist.append(pair)
 
 print('generated species 2 gene pairs by distance')
 
 
 # add the pairs of non-overlapping genes to the lists of gene pairs
 HumanPairs.extend(HsaPairsDist)
-Sp2Pairs.extend(Sp2PairsDist)
+Sp2Pairs.append(Sp2PairsDist)
 
 
 # convert lists to numpy arrays
@@ -230,16 +215,19 @@ for i in range(len(Sp2Pairs)):
 
 
 for i in range(len(HumanPairs)):
-    print(i, len(HumanPairs[i]), len(Sp2Pairs[i]))
+    print(i, 'hsa', len(HumanPairs[i]))
 
-
-
+for i in range(len(Sp2Pairs)):
+    print(i, 'sp2', len(Sp2Pairs[i]))
 
 
 # count the number of pairs with conserved topology
 CountPairs = []
 for i in range(len(HumanPairs)):
-    total = sum(np.in1d(HumanPairs[i], Sp2Pairs[i], invert = False))    
+    if i < 5:
+        total = sum(np.in1d(HumanPairs[i], Sp2Pairs[i], invert = False))
+    else:
+        total = sum(np.in1d(HumanPairs[i], Sp2Pairs[5]))
     CountPairs.append([total, len(HumanPairs[i])])
 
 # create a list of overlapping gene categories parallel to the list of overlapping pairs
