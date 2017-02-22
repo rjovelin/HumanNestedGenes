@@ -218,14 +218,8 @@ print('generated species 2 gene pairs by distance')
 # add the pairs of non-overlapping genes to the lists of gene pairs
 #HumanPairs.extend(HsaPairsDist)
 
+HumanOrthos = []
 for i in range(len(HumanPairs)):
-    for j in range(len(HumanPairs[i])):
-        HumanPairs[i][j][0] = Orthos[HumanPairs[i][j][0]]
-        HumanPairs[i][j][1] = Orthos[HumanPairs[i][j][1]]        
-        HumanPairs[i][j] = set(HumanPairs[i][j])
-    print(HumanPairs[i][:10])
-        
-HumanPairs.extend(HsaPairsDist)
     toadd = []    
     for pair in HumanPairs[i]:
         toadd.append({Orthos[pair[0]], Orthos[pair[1]]})
@@ -242,26 +236,6 @@ HumanGenes, Sp2Genes = [], []
 for i in range(len(HumanOrthos)):
     HumanGenes.append(np.array(HumanOrthos[i]))
     Sp2Genes.append(np.array(Sp2Pairs[i]))
-
-
-# create a list of overlapping gene categories parallel to the list of overlapping pairs
-GeneCats = ['overlapping', 'nested', 'piggyback', 'convergent', 'divergent',
-            'proximal', 'moderate', 'intermediate', 'distant']
-
-# create dictionary of gene pairs for each overlapping categories
-HsaGenes = {}
-for i in range(len(GeneCats)):
-    HsaGenes[GeneCats[i]] = HumanPairs[i]
-
-# create a dictionary of gene pairs without any order, for each overlapping gene categories
-Sp2Genes = {}
-for i in range(len(GeneCats)):
-    Sp2Genes[GeneCats[i]] = Sp2Pairs[i]
-print('generated dictionaries')
-
-
-for i in range(len(GeneCats)):
-    print(GeneCats[i], len(HsaGenes[GeneCats[i]]), len(Sp2Genes[GeneCats[i]]))
 
 for i in range(len(HumanGenes)):
     print(i, 'hsa', sum(np.in1d(HumanGenes[i], HumanGenes[i], invert = False)))
@@ -373,52 +347,6 @@ for i in range(len(HumanGenes)):
 
 
 
-## count the number of gene pairs for which orthologs in are the same topology
-#PairCounts = {}
-#for i in range(len(GeneCats) -1):
-#    # initialize counter
-#    total = 0
-#    # loop over gene pairs for the given gene category
-#    for pair in HsaGenes[GeneCats[i]]:
-#        # check if pair has same topology
-#        if set([Orthos[pair[0]], Orthos[pair[1]]]) in Sp2Genes[GeneCats[i]]:
-#            total += 1
-#    # populate dict
-#    PairCounts[GeneCats[i]] = [total, len(HsaGenes[GeneCats[i]])]
-
-
-
-# count the number of gene pairs for which orthologs in are the same topology
-PairCounts = {}
-for i in range(len(GeneCats) -1):
-    # initialize counter
-    total = 0
-    # loop over gene pairs for the given gene category
-    for pair in HsaGenes[GeneCats[i]]:
-        # check if pair has same topology
-        if pair in Sp2Genes[GeneCats[i]]:
-            total += 1
-    # populate dict
-    PairCounts[GeneCats[i]] = [total, len(HsaGenes[GeneCats[i]])]
-
-
-for i in HsaGenes:
-    HsaGenes[i] = np.array(HsaGenes[i])
-for i in Sp2Genes:
-    Sp2Genes[i] = np.array(Sp2Genes[i])
-
-
-
-CountPairs = {}
-for i in range(len(GeneCats) - 1):
-    print('array', i)
-    CountPairs[GeneCats[i]] = sum(np.in1d(HsaGenes[GeneCats[i]], Sp2Genes[GeneCats[i]], invert = False))
-
-
-for i in range(len(GeneCats) - 1):
-    print(i, PairCounts[GeneCats[i]], CountPairs[GeneCats[i]], PairCounts[GeneCats[i]] == CountPairs[GeneCats[i]])
-
-
 
 #newfile = open('PairsCounts.txt', 'a')
 #header = '\t'.join(['species', 'genes', 'conserved', 'total', 'ratio'])
@@ -439,6 +367,7 @@ a = np.array([{'MouseNestedGenes.json', 'ChimpOverlappingGenes.json'},
        {'MousePiggyBackGenes.json', 'ChimpPiggyBackGenes.json'}])
 print(sum(np.in1d(a, a)))
 print(sum(np.in1d(a, a, invert = False)) / len(a))
+
 
 
 
