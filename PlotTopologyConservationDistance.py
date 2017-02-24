@@ -75,6 +75,9 @@ print('got gene coordinates')
 HsaPtrOrthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
 HsaMmuOrthos = MatchOrthologPairs('HumanMouseOrthologs.txt')
 
+# make a list of dictionaries with orthologs
+Orthos = [HsaPtrOrthos, HsaMmuOrthos]
+
 print('mapped orthologs')
 
 
@@ -96,14 +99,14 @@ print('made lists of gene pairs')
 for i in range(len(HumanPairs)):
     to_remove = []
     for pair in HumanPairs[i]:
-        if pair[0] not in HsaPtrOrthos or pair[1] not in HsaPtrOrthos:
+        if pair[0] not in Orthos[0] or pair[1] not in Orthos[0]:
             to_remove.append(pair)
     for pair in to_remove:
         HumanPairs[i].remove(pair)
 for i in range(len(HsaPairs)):
     to_remove = []
     for pair in HsaPairs[i]:
-        if pair[0] not in HsaMmuOrthos or pair[1] not in HsaMmuOrthos:
+        if pair[0] not in Orthos[1] or pair[1] not in Orthos[1]:
             to_remove.append(pair)
     for pair in to_remove:
         HsaPairs[i].remove(pair)        
@@ -121,12 +124,8 @@ species = ['hsa_ptr', 'hsa_mmu']
 for i in range(len(species)):
     for j in range(len(AllGenePairs[species[i]])):
         for k in range(len(AllGenePairs[species[i]][j])):
-            if i == 0:
-                AllGenePairs[species[i]][j][k][0] = HsaPtrOrthos[AllGenePairs[species[i]][j][k][0]]
-                AllGenePairs[species[i]][j][k][1] = HsaPtrOrthos[AllGenePairs[species[i]][j][k][1]]
-            elif i == 1:
-                AllGenePairs[species[i]][j][k][0] = HsaMmuOrthos[AllGenePairs[species[i]][j][k][0]]
-                AllGenePairs[species[i]][j][k][1] = HsaMmuOrthos[AllGenePairs[species[i]][j][k][1]]
+            AllGenePairs[species[i]][j][k][0] = Orthos[i][AllGenePairs[species[i]][j][k][0]]
+            AllGenePairs[species[i]][j][k][1] = Orthos[i][AllGenePairs[species[i]][j][k][1]]
 
 # sort gene pairs
 for sp in AllGenePairs:
@@ -149,105 +148,95 @@ for sp in AllGenePairs:
 print('done with QC')
 
 
-################## continue here
-
-
-
-##### a, distribution of conservation by distance in chimp and mouse
-##### b, distribution of overlapping conservation in each category and overlapping in chimp
-##### c, distribution of overlapping conservation in each category and overlapping in mouse
-##### d differences between conservation opf human overalpping in other species and overlapping genes in opther species in human
-
-
-
-
-
-
-
-
-# make lists of adjacent gene pairs with varying distance in human [[gene1, gene2], ....[gene n, gene n+1]]
-HsaPairsDist = []
-for i in range(7):
-    HsaPairsDist.append([])
-# loop over chromosomes
-for chromo in HumanOrdered:
-    # loop over the list of ordered genes
-    for i in range(len(HumanOrdered[chromo]) - 1):
-        # get the end position of gene 1
-        EndGene1 = HumanCoord[HumanOrdered[chromo][i]][2]                
-        # get the start position of adjacent gene 2
-        StartGene2 = HumanCoord[HumanOrdered[chromo][i+1]][1]
-        # check if distance is less that 500 bp
-        D = StartGene2 - EndGene1
-        # assign infinity value to k
-        k = float('inf')
-        if D < 0:
-            k = 0
-        elif D >= 0 and D < 1000:
-            k = 1
-        elif D >= 1000 and D < 10000:
-            k = 2                
-        elif D >= 10000 and D < 50000:
-            k = 3
-        elif D >= 50000 and D < 100000:
-            k = 4
-        elif D >= 100000 and D < 150000:
-            k = 5
-        elif D >= 150000:
-            k = 6
-        if HumanOrdered[chromo][i] in Orthos and HumanOrdered[chromo][i+1] in Orthos and k in range(13):
-            # add the human orthologs
-            pair = [Orthos[HumanOrdered[chromo][i]], Orthos[HumanOrdered[chromo][i+1]]]
-            # sort gene pair
-            pair.sort()
-            # concert list to string
-            pair = ':'.join(pair)
-            HsaPairsDist[k].append(pair)
+# make lists of adjacent gene pairs with varying distance in human conserved in chimp and mouse
+# [[gene1, gene2], ....[gene n, gene n+1]]
+for i in range(len(species)):
+    HsaPairsDist = []    
+    for j in range(7):
+        HsaPairsDist.append([])
+    # loop over chromosomes
+    for chromo in HumanOrdered:
+        # loop over the list of ordered genes
+        for k in range(len(HumanOrdered[chromo]) - 1):
+            # get the end position of gene 1
+            EndGene1 = HumanCoord[HumanOrdered[chromo][k]][2]                
+            # get the start position of adjacent gene 2
+            StartGene2 = HumanCoord[HumanOrdered[chromo][k+1]][1]
+            # computance distance between genes
+            D = StartGene2 - EndGene1
+            # assign infinity value to k
+            m = float('inf')
+            if D < 0:
+                m = 0
+            elif D >= 0 and D < 1000:
+                m = 1
+            elif D >= 1000 and D < 10000:
+                m = 2                
+            elif D >= 10000 and D < 50000:
+                m = 3
+            elif D >= 50000 and D < 100000:
+                m = 4
+            elif D >= 100000 and D < 150000:
+                m = 5
+            elif D >= 150000:
+                m = 6
+            if HumanOrdered[chromo][k] in Orthos[i] and HumanOrdered[chromo][k+1] in Orthos[i] and m in range(7):
+                # add the human orthologs
+                pair = [Orthos[i][HumanOrdered[chromo][k]], Orthos[i][HumanOrdered[chromo][k+1]]]
+                # sort gene pair
+                pair.sort()
+                # concert list to string
+                pair = ':'.join(pair)
+                HsaPairsDist[m].append(pair)
+    # add the pairs of non-overlapping genes to the lists of gene pairs
+    AllGenePaies[species[i]].extend(HsaPairsDist)
 
 print('generated human gene pairs by distance')
 
 
-# make list of adjacent gene pairs regardless of distance [gene1:gene2, ....gene_n:gene_n+1]
-Sp2PairsDist = []
-# loop over chromosomes
-for chromo in Sp2Ordered:
-    # loop over the list of ordered genes
-    for i in range(len(Sp2Ordered[chromo]) - 1):
-        # get the end position of gene 1
-        EndGene1 = Sp2Coord[Sp2Ordered[chromo][i]][2]                
-        # get the start position of adjacent gene 2
-        StartGene2 = Sp2Coord[Sp2Ordered[chromo][i+1]][1]
-        # check that genes are not overlapping
-        D = StartGene2 - EndGene1
-        if D >= 0:
-            # get gene pair
-            pair = [Sp2Ordered[chromo][i], Sp2Ordered[chromo][i+1]]
-            # sort pair
-            pair.sort()
-            # convert list to string
-            pair = ':'.join(pair)
-            Sp2PairsDist.append(pair)
+# make list of adjacent gene pairs regardless of distance in chimp and mouse [gene1:gene2, ....gene_n:gene_n+1]
+sp2 = ['ptr', 'mmu']
+Sp2Coord = [ChimpCoord, MouseCoord]
+Sp2Ordered = [ChimpOrdered, MouseOrdered]
+for i in range(len(sp2)):
+    Sp2PairsDist = []
+    # loop over chromosomes
+    for chromo in Sp2Ordered[i]:
+        # loop over the list of ordered genes
+        for j in range(len(Sp2Ordered[i][chromo]) - 1):
+            # get the end position of gene 1
+            EndGene1 = Sp2Coord[i][Sp2Ordered[i][chromo][j]][2]                
+            # get the start position of adjacent gene 2
+            StartGene2 = Sp2Coord[i][Sp2Ordered[i][chromo][j+1]][1]
+            # check that genes are not overlapping
+            D = StartGene2 - EndGene1
+            if D >= 0:
+                # get gene pair
+                pair = [Sp2Ordered[i][chromo][j], Sp2Ordered[i][chromo][j+1]]
+                # sort pair
+                pair.sort()
+                # convert list to string
+                pair = ':'.join(pair)
+                Sp2PairsDist.append(pair)
+    AllGenePairs[sp2[i]].append(Sp2PairsDist)
 
 print('generated species 2 gene pairs by distance')
 
 
-# add the pairs of non-overlapping genes to the lists of gene pairs
-HumanPairs.extend(HsaPairsDist)
-Sp2Pairs.append(Sp2PairsDist)
-
-
 # convert lists to numpy arrays
-for i in range(len(HumanPairs)):
-    HumanPairs[i] = np.array(HumanPairs[i])
-for i in range(len(Sp2Pairs)):
-    Sp2Pairs[i] = np.array(Sp2Pairs[i])
+for sp in AllGenePairs:
+    for i in range(len(AllGenePairs[sp])):
+        AllGenePairs[sp][i] = np.array(AllGenePairs[sp][i])
 
+for sp in AllGenePairs:
+    for i in range(len(AllGenePairs[sp])):
+        print(sp, i, len(AllGenePairs[sp][i]))
 
-for i in range(len(HumanPairs)):
-    print(i, 'hsa', len(HumanPairs[i]))
-
-for i in range(len(Sp2Pairs)):
-    print(i, 'sp2', len(Sp2Pairs[i]))
+################## continue here
+##### a, distribution of conservation by distance in chimp and mouse
+##### b, distribution of overlapping conservation in each category and overlapping in chimp
+##### c, distribution of overlapping conservation in each category and overlapping in mouse
+##### d differences between conservation opf human overalpping in other species and overlapping genes in opther species in human
 
 
 # count the number of pairs with conserved topology
@@ -277,22 +266,6 @@ for i in range(len(HumanPairs)):
 #    if i < 5:
 #        total = sum(np.in1d(HumanPairs[i], Sp2Pairs[0], invert = False))
 #        CountPairs.append([total, len(HumanPairs[i])])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 # create a list of overlapping gene categories parallel to the list of overlapping pairs
@@ -340,33 +313,8 @@ for gene in HsaMmuOrthos:
     assert HsaMmuOrthos[gene] not in MouseOrthos
     MouseOrthos[HsaMmuOrthos[gene]] = gene
 
-# make pairs of overlapping genes
-AllPairs = []
-for i in range(len(AllOverlap)):
-    pairs = GetHostNestedPairs(AllOverlap[i])
-    AllPairs.append(pairs)
-# make lissts of gene pairs
-HumanPairs = AllPairs[:5]
-HsaPairs = copy.deepcopy(HumanPairs)
-ChimpPairs = AllPairs[5:10]
-MousePairs = AllPairs[10:]
 
-# remove human genes lacking orthologs
-for i in range(len(HumanPairs)):
-    to_remove = []
-    for pair in HumanPairs[i]:
-        if pair[0] not in HsaPtrOrthos or pair[1] not in HsaPtrOrthos:
-            to_remove.append(pair)
-    for pair in to_remove:
-        HumanPairs[i].remove(pair)
-for i in range(len(HsaPairs)):
-    to_remove = []
-    for pair in HsaPairs[i]:
-        if pair[0] not in HsaMmuOrthos or pair[1] not in HsaMmuOrthos:
-            to_remove.append(pair)
-    for pair in to_remove:
-        HsaPairs[i].remove(pair)
-# remove chimp genes lacking orthologs
+# remove gene pairs lacking orthologs
 for i in range(len(ChimpPairs)):
     to_remove = []
     for pair in ChimpPairs[i]:
@@ -374,7 +322,6 @@ for i in range(len(ChimpPairs)):
             to_remove.append(pair)
     for pair in to_remove:
         ChimpPairs[i].remove(pair)
-# remove mouse genes lacking orthologs
 for i in range(len(MousePairs)):
     to_remove = []
     for pair in MousePairs[i]:
@@ -393,14 +340,6 @@ for i in range(len(ChimpPairs)):
     ChimpSets.append([set(j) for j in ChimpPairs[i]])
 for i in range(len(MousePairs)):
     MouseSets.append([set(j) for j in MousePairs[i]])
-
-# do qc
-for i in range(1, len(ChimpSets)):
-    for pair in ChimpSets[i]:
-        assert pair in ChimpSets[0]
-for i in range(1, len(MouseSets)):
-    for pair in MouseSets[i]:
-        assert pair in MouseSets[0]
 
 # make a list of counts of conserved and non-conserved human overlapping genes in chimp
 HumanConserved = []
