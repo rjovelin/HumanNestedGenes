@@ -331,22 +331,23 @@ for i in range(len(MousePairs)):
         MousePairs[i].remove(pair)
 
 
+# add dictionaries of orthologs to list
+Orthos.append(ChimpOrthos)
+Orthos.append(MouseOrthos)
 
 
-
-
+# make a list of gene pair lists
+GenePairs = [HumanPairs, HsaPairs, ChimpPairs, MousePairs]
 # make a list of sets of gene pairs
-HumanSets, HsaSets, ChimpSets, MouseSets = [], [], [], []
-for i in range(len(HumanPairs)):
-    HumanSets.append([set(j) for j in HumanPairs[i]])
-for i in range(len(HsaPairs)):
-    HsaSets.append([set(j) for j in HsaPairs[i]])    
-for i in range(len(ChimpPairs)):
-    ChimpSets.append([set(j) for j in ChimpPairs[i]])
-for i in range(len(MousePairs)):
-    MouseSets.append([set(j) for j in MousePairs[i]])
+GeneSets = []
+for i in range(len(GenePairs)):
+    spsets = []
+    for j in range(len(GenePairs[i])):
+        spsets.append([set(k) for k in GenePairs[i][j]])
+    GeneSets.append(spsets)
 
 
+################### continue here
 
 
 
