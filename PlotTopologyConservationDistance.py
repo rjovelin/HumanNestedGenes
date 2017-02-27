@@ -112,6 +112,13 @@ for i in range(len(HsaPairs)):
         HsaPairs[i].remove(pair)        
 print('removed human gene pairs lacking orthologs')
 
+
+# 1) plot proportions of gene pairs with varying distance conserved in chimp and mouse
+# 2) plot proportions of overlapping gene pairs with conserved topology in chimp and mouse
+# 3) plot proportions of overlapping gene pairs that are overlapping in chimp and mouse
+# 4) plot differences between conservation of human overalapping in chimop and mouse
+#    and overlapping genes in chimp and mouse conserved in human human
+
 # create a dict with lists of gene pairs
 AllGenePairs = {}
 AllGenePairs['hsa_ptr'] = copy.deepcopy(HumanPairs)
@@ -232,11 +239,6 @@ for sp in AllGenePairs:
     for i in range(len(AllGenePairs[sp])):
         print(sp, i, len(AllGenePairs[sp][i]))
 
-##### a, distribution of conservation by distance in chimp and mouse
-##### b, distribution of overlapping conservation in each category and overlapping in chimp
-##### c, distribution of overlapping conservation in each category and overlapping in mouse
-##### d differences between conservation opf human overalpping in other species and overlapping genes in opther species in human
-
 
 # get the proportions of non-overlapping adjacent gene pairs with conserved topology
 NonOverlap = []
@@ -268,9 +270,6 @@ for i in range(5):
     total = sum(np.in1d(AllGenePairs['hsa_mmu'][i], AllGenePairs['mmu'][0], invert = False))
     OverlapAll.append(total / len(AllGenePairs['hsa_mmu'][i]))
     
-
-
-
 
 CountPairs = {}
 for i in range(len(species)):
@@ -350,14 +349,6 @@ for i in range(len(GenePairs)):
     print(i, len(GenePairs[i]), len(GeneSets[i]), len(Orthos[i]))
     for j in range(len(GenePairs[i])):
         print(j, len(GenePairs[i][j]), len(GeneSets[i][j]))
-################### continue here
-
-#GenePairs = [HumanPairs, HsaPairs, ChimpPairs, MousePairs]
-#GeneSets = [Humanset, hsaset, chimpset, mouseset]
-#orthos = [humanorthos, hsaorthos, chimporthos, mouseorthos]
-
-
-
 
 # make a list of counts of conserved and non-conserved human overlapping genes in chimp and mouse
 Conserved = []
@@ -460,51 +451,156 @@ print(Differences)
 #    Differences.append(HumanProp[i])
 #    Differences.append(HsaProp[i])
 
+
+####################
+
+
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, figure, Data, Colors, BarPos, YLabel,
+             XTickpos, XTicklabels, YTicksRange, YMin, YMax):
+    '''
+    Returns a ax instance in figure
+    '''    
+
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # plot data
+    ax.bar(BarPos, Data, width = 0.2, color = Colors, edgecolor = 'black', linewidth = 0.7)
+    # draw x axis line
+    ax.plot([0, 2.8], [0, 0], lw = 0.7, color = 'black')
+    
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    # write y axis label
+    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+    # add ticks and lebels
+    plt.xticks(XTickpos, XTicklabels, rotation = 0, size = 7, color = 'black', ha = 'center', **FigFont)
+    # edit y axis ticks
+    plt.yticks(YTicksRange)
+    # add a range for the Y and X axes
+    plt.ylim([YMin, YMax])    
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(False)    
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(True)  
+    
+    # make sure the y axis crosses the x axis at 0
+    ax.spines['left'].set_position('zero')
+
+    # edit tick parameters    
+    plt.tick_params(axis='both', which='both', bottom='off', top='off',
+                    right = 'off', left = 'on', labelbottom='on',
+                    colors = 'black', labelsize = 7, direction = 'out')  
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')   
+    
+    ## add margins
+    #plt.margins(0.1)
+    
+    return ax
+
+
+
+
+# 1) plot proportions of gene pairs with varying distance conserved in chimp and mouse
+# 2) plot proportions of overlapping gene pairs with conserved topology in chimp and mouse
+# 3) plot proportions of overlapping gene pairs that are overlapping in chimp and mouse
+# 4) plot differences between conservation of human overalapping in chimop and mouse
+#    and overlapping genes in chimp and mouse conserved in human human
+
+
+
 # create figure
-fig = plt.figure(1, figsize = (3, 2))
-
-# add a plot to figure (N row, N column, plot N)
-ax = fig.add_subplot(1, 1, 1)
-# plot data
-Colors = ['black', 'lightgrey'] * 5    
-BarPos = [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4]
-ax.bar(BarPos, Differences, width = 0.2, color = Colors, edgecolor = 'black', linewidth = 0.7)
-ax.plot([0, 2.8], [0, 0], lw = 0.7, color = 'black')
+fig = plt.figure(1, figsize = (5, 4))
 
 
-# set font for all text in figure
-FigFont = {'fontname':'Arial'}   
-# write y axis label
-ax.set_ylabel('% excess of orthologous gene pairs\nwith conserved topology', color = 'black',  size = 7, ha = 'center', **FigFont)
-# add ticks and lebels
-XTickpos = [0.4, 0.9, 1.4, 1.9, 2.4]    
-XTicklabels = ['all', 'nst', 'pbk', 'conv', 'div']
-plt.xticks(XTickpos, XTicklabels, rotation = 0, size = 7, color = 'black', ha = 'center', **FigFont)
-# edit y axis ticks
-plt.yticks(np.arange(-20, 120, 20))   
-# add a range for the Y and X axes
-plt.ylim([-20, 100])    
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(False)    
-ax.spines["right"].set_visible(False)
-ax.spines["left"].set_visible(True)  
+#ax1 = CreateAx
+#ax2 = CreateAx
+#ax3 = CreateAx
+ax4 = CreateAx(2, 2, 4, fig, Differences, ['black', 'lightgrey'] * 5, [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4],
+               '% excess of orthologous gene pairs\nwith conserved topology', [0.4, 0.9, 1.4, 1.9, 2.4], ['all', 'nst', 'pbk', 'conv', 'div'],
+               np.arange(-20, 120, 20), -20, 100)
 
-# make sure the y axis crosses the x axis at 0
-ax.spines['left'].set_position('zero')
-
-# edit tick parameters    
-plt.tick_params(axis='both', which='both', bottom='off', top='off',
-                right = 'off', left = 'on', labelbottom='on',
-                colors = 'black', labelsize = 7, direction = 'out')  
-# Set the tick labels font name
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')   
 
 # add legend
 mouse = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'mouse')
 chimp = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'chimp')
-ax.legend(handles = [chimp, mouse], loc = (0.2, 0.8), fontsize = 7, frameon = False, ncol = 2)
+ax4.legend(handles = [chimp, mouse], loc = (0.2, 0.8), fontsize = 7, frameon = False, ncol = 2)
 
 # save figure to file
 fig.savefig('truc.pdf', bbox_inches = 'tight')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+############################
+
+
+
+## create figure
+#fig = plt.figure(1, figsize = (3, 2))
+#
+## add a plot to figure (N row, N column, plot N)
+#ax = fig.add_subplot(1, 1, 1)
+## plot data
+#Colors = ['black', 'lightgrey'] * 5    
+#BarPos = [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4]
+#ax.bar(BarPos, Differences, width = 0.2, color = Colors, edgecolor = 'black', linewidth = 0.7)
+#ax.plot([0, 2.8], [0, 0], lw = 0.7, color = 'black')
+#
+#
+## set font for all text in figure
+#FigFont = {'fontname':'Arial'}   
+## write y axis label
+#ax.set_ylabel('% excess of orthologous gene pairs\nwith conserved topology', color = 'black',  size = 7, ha = 'center', **FigFont)
+## add ticks and lebels
+#XTickpos = [0.4, 0.9, 1.4, 1.9, 2.4]    
+#XTicklabels = ['all', 'nst', 'pbk', 'conv', 'div']
+#plt.xticks(XTickpos, XTicklabels, rotation = 0, size = 7, color = 'black', ha = 'center', **FigFont)
+## edit y axis ticks
+#plt.yticks(np.arange(-20, 120, 20))   
+## add a range for the Y and X axes
+#plt.ylim([-20, 100])    
+## do not show lines around figure  
+#ax.spines["top"].set_visible(False)    
+#ax.spines["bottom"].set_visible(False)    
+#ax.spines["right"].set_visible(False)
+#ax.spines["left"].set_visible(True)  
+#
+## make sure the y axis crosses the x axis at 0
+#ax.spines['left'].set_position('zero')
+#
+## edit tick parameters    
+#plt.tick_params(axis='both', which='both', bottom='off', top='off',
+#                right = 'off', left = 'on', labelbottom='on',
+#                colors = 'black', labelsize = 7, direction = 'out')  
+## Set the tick labels font name
+#for label in ax.get_yticklabels():
+#    label.set_fontname('Arial')   
+#
+## add legend
+#mouse = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'mouse')
+#chimp = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'chimp')
+#ax.legend(handles = [chimp, mouse], loc = (0.2, 0.8), fontsize = 7, frameon = False, ncol = 2)
+#
+## save figure to file
+#fig.savefig('truc.pdf', bbox_inches = 'tight')
