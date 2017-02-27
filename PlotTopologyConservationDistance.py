@@ -347,78 +347,116 @@ for i in range(len(GenePairs)):
     GeneSets.append(spsets)
 
 
+
 ################### continue here
 
+#GenePairs = [HumanPairs, HsaPairs, ChimpPairs, MousePairs]
+#GeneSets = [Humanset, hsaset, chimpset, mouseset]
+#orthos = [humanorthos, hsaorthos, chimporthos, mouseorthos]
 
 
 
 
+# make a list of counts of conserved and non-conserved human overlapping genes in chimp and mouse
+Conserved = []
+for i in range(len(GenePairs)):
+    if i < 2:
+        j = i + 2
+    else:
+        j = i - 2
+    conservation = []
+    for k in range(len(GenePairs[i])):
+        conserved, divergent = 0, 0
+        for pair in GenePairs[i][k]:
+            if set([Orthos[i][pair[0]], Orthos[i][pair[1]]]) in GeneSets[j]:
+                conserved += 1
+            else:
+                divergent += 1
+        conservation.append([conserved, divergent])
+    Conserved.append(conservation) 
 
 
 
 
+#HumanConserved = []
+#for i in range(len(HumanPairs)):
+#    conserved, divergent = 0, 0
+#    for pair in HumanPairs[i]:
+#        if set([HsaPtrOrthos[pair[0]], HsaPtrOrthos[pair[1]]]) in ChimpSets[i]:
+#            conserved += 1
+#        else:
+#            divergent += 1
+#    HumanConserved.append([conserved, divergent])
+## make a list of counts of conserved and non-conserved human overlapping genes in mouse
+#HsaConserved = []
+#for i in range(len(HsaPairs)):
+#    conserved, divergent = 0, 0
+#    for pair in HsaPairs[i]:
+#        if set([HsaMmuOrthos[pair[0]], HsaMmuOrthos[pair[1]]]) in MouseSets[i]:
+#            conserved += 1
+#        else:
+#            divergent += 1
+#    HsaConserved.append([conserved, divergent])
+## make a list of counts of conserved and non-conserved chimp overlapping genes in human
+#ChimpConserved = []
+#for i in range(len(ChimpPairs)):
+#    conserved, divergent = 0, 0
+#    for pair in ChimpPairs[i]:
+#        if set([ChimpOrthos[pair[0]], ChimpOrthos[pair[1]]]) in HumanSets[i]:
+#            conserved += 1
+#        else:
+#            divergent += 1
+#    ChimpConserved.append([conserved, divergent])
+## make a list of counts of conserved and non-conserved mouse overlapping genes in human
+#MouseConserved = []
+#for i in range(len(MousePairs)):
+#    conserved, divergent = 0, 0
+#    for pair in MousePairs[i]:
+#        if set([MouseOrthos[pair[0]], MouseOrthos[pair[1]]]) in HsaSets[i]:
+#            conserved += 1
+#        else:
+#            divergent += 1
+#    MouseConserved.append([conserved, divergent])
 
-
-# make a list of counts of conserved and non-conserved human overlapping genes in chimp
-HumanConserved = []
-for i in range(len(HumanPairs)):
-    conserved, divergent = 0, 0
-    for pair in HumanPairs[i]:
-        if set([HsaPtrOrthos[pair[0]], HsaPtrOrthos[pair[1]]]) in ChimpSets[i]:
-            conserved += 1
-        else:
-            divergent += 1
-    HumanConserved.append([conserved, divergent])
-# make a list of counts of conserved and non-conserved human overlapping genes in mouse
-HsaConserved = []
-for i in range(len(HsaPairs)):
-    conserved, divergent = 0, 0
-    for pair in HsaPairs[i]:
-        if set([HsaMmuOrthos[pair[0]], HsaMmuOrthos[pair[1]]]) in MouseSets[i]:
-            conserved += 1
-        else:
-            divergent += 1
-    HsaConserved.append([conserved, divergent])
-# make a list of counts of conserved and non-conserved chimp overlapping genes in human
-ChimpConserved = []
-for i in range(len(ChimpPairs)):
-    conserved, divergent = 0, 0
-    for pair in ChimpPairs[i]:
-        if set([ChimpOrthos[pair[0]], ChimpOrthos[pair[1]]]) in HumanSets[i]:
-            conserved += 1
-        else:
-            divergent += 1
-    ChimpConserved.append([conserved, divergent])
-# make a list of counts of conserved and non-conserved mouse overlapping genes in human
-MouseConserved = []
-for i in range(len(MousePairs)):
-    conserved, divergent = 0, 0
-    for pair in MousePairs[i]:
-        if set([MouseOrthos[pair[0]], MouseOrthos[pair[1]]]) in HsaSets[i]:
-            conserved += 1
-        else:
-            divergent += 1
-    MouseConserved.append([conserved, divergent])
 
 # create lists with proportions of overlapping genes with conserved topologies
-# [prop human overlapping genes conserved, prop chimp overlapping genes conserved in human, etc]
-HumanProp, HsaProp = [], []
-for i in range(len(HumanConserved)):
-    man = HumanConserved[i][0] / sum(HumanConserved[i])    
-    sp2 = ChimpConserved[i][0] / sum(ChimpConserved[i])
-    diff = (sp2 - man) * 100 
-    HumanProp.append(diff) 
-for i in range(len(HsaConserved)):
-    man = HsaConserved[i][0] / sum(HsaConserved[i])
-    sp2 = MouseConserved[i][0] / sum(MouseConserved[i])
-    diff = (sp2 - man) * 100
-    HsaProp.append(diff)
-  
+# [[prop human overlapping genes conserved, prop chimp overlapping genes conserved in human, etc]]
+Proportions = []
+for i in range(2):
+    prop = []
+    for j in range(len(Conserved[i])):
+        man = Conserved[i][j][0] / sum(Conserved[i][j])
+        sp2 = Conserved[i+2][j][0] / sum(Conserved[i+2][j])
+        diff = (sp2 - man) * 100
+        prop.append(diff)
+    Proportions.append(prop)
 
+
+
+#HumanProp, HsaProp = [], []
+#for i in range(len(HumanConserved)):
+#    man = HumanConserved[i][0] / sum(HumanConserved[i])    
+#    sp2 = ChimpConserved[i][0] / sum(ChimpConserved[i])
+#    diff = (sp2 - man) * 100 
+#    HumanProp.append(diff) 
+#for i in range(len(HsaConserved)):
+#    man = HsaConserved[i][0] / sum(HsaConserved[i])
+#    sp2 = MouseConserved[i][0] / sum(MouseConserved[i])
+#    diff = (sp2 - man) * 100
+#    HsaProp.append(diff)
+  
+# create a single list with differences between human and chimp and between
+# human and mouse for each overlapping gene category
 Differences = []
-for i in range(len(HumanProp)):
-    Differences.append(HumanProp[i])
-    Differences.append(HsaProp[i])
+for i in range(len(Proportions[0])):
+    Differences.append(Proportions[0][i])
+    Differences.append(Proportions[1][i])
+
+
+
+#for i in range(len(HumanProp)):
+#    Differences.append(HumanProp[i])
+#    Differences.append(HsaProp[i])
 
 # create figure
 fig = plt.figure(1, figsize = (3, 2))
