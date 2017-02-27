@@ -226,7 +226,7 @@ NonOverlap = []
 for i in range(5, len(AllGenePairs['hsa_ptr'])):
     # count the number of adjacent gene pairs gene pairs that are adjacent in chimp
     total = sum(np.in1d(AllGenePairs['hsa_ptr'][i], AllGenePairs['ptr'][5], invert = False))
-    NonOverlap.append(total / len(AllGenePairs['hsa_ptr'][i]))
+    NonOverlap.append((total / len(AllGenePairs['hsa_ptr'][i])) * 100)
     # count the number of adjacent gene pairs gene pairs that are adjacent in mouse
     total = sum(np.in1d(AllGenePairs['hsa_mmu'][i], AllGenePairs['mmu'][5], invert = False))
     NonOverlap.append((total / len(AllGenePairs['hsa_mmu'][i])) * 100)    
@@ -237,7 +237,7 @@ OverlapCat = []
 for i in range(5):
     # count the number of overlapping gene pairs that are also overlapping in the same category in chimp
     total = sum(np.in1d(AllGenePairs['hsa_ptr'][i], AllGenePairs['ptr'][i], invert = False))
-    OverlapCat.append(total / len(AllGenePairs['hsa_ptr'][i]))
+    OverlapCat.append((total / len(AllGenePairs['hsa_ptr'][i])) * 100)
     # count the number of overlapping gene pairs that are also overlapping in the same category in mouse
     total = sum(np.in1d(AllGenePairs['hsa_mmu'][i], AllGenePairs['mmu'][i], invert = False))
     OverlapCat.append((total / len(AllGenePairs['hsa_mmu'][i])) * 100)
@@ -248,7 +248,7 @@ OverlapAll = []
 for i in range(5):
     # count the number of overlapping gene pairs that are also overlapping in chimp
     total = sum(np.in1d(AllGenePairs['hsa_ptr'][i], AllGenePairs['ptr'][0], invert = False))
-    OverlapAll.append(total / len(AllGenePairs['hsa_ptr'][i]))
+    OverlapAll.append((total / len(AllGenePairs['hsa_ptr'][i])) * 100)
     # count the number of overlapping gene pairs that are also overlapping in mouse
     total = sum(np.in1d(AllGenePairs['hsa_mmu'][i], AllGenePairs['mmu'][0], invert = False))
     OverlapAll.append((total / len(AllGenePairs['hsa_mmu'][i])) * 100)
@@ -507,6 +507,10 @@ ax4 = CreateAx(2, 2, 4, fig, Differences, Colors[3], BarPos[3], YLabels[3],
 mouse = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'mouse')
 chimp = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'chimp')
 ax4.legend(handles = [chimp, mouse], loc = (0.2, 0.8), fontsize = 7, frameon = False, ncol = 2)
+
+
+# make sure subplots do not overlap
+plt.tight_layout()
 
 # save figure to file
 fig.savefig('truc.pdf', bbox_inches = 'tight')
