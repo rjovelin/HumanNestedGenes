@@ -415,19 +415,17 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XTicklabels):
     ax.spines["bottom"].set_visible(False)    
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(True)  
-    
     # make sure the y axis crosses the x axis at 0
     ax.spines['left'].set_position('zero')
 
     # edit tick parameters
     if Position == 4:
-        plt.tick_params(axis='both', which='both', bottom='off', top='off',
-                        right = 'off', left = 'on', labelbottom='on',
-                        colors = 'black', labelsize = 7, direction = 'out') 
+        BottomTicks = 'off'
     else:
-        plt.tick_params(axis='both', which='both', bottom='on', top='off',
-                        right = 'off', left = 'on', labelbottom='on',
-                        colors = 'black', labelsize = 7, direction = 'out')  
+        BottomTicks = 'on'
+    plt.tick_params(axis='both', which='both', bottom=BottomTicks, top='off',
+                    right = 'off', left = 'on', labelbottom='on',
+                    colors = 'black', labelsize = 7, direction = 'out') 
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')   
@@ -451,13 +449,10 @@ YLabels = ['% with orthologous gene pairs', '', '', '% excess of orthologous gen
 
 # 1) plot proportions of gene pairs with varying distance conserved in chimp and mouse
 ax1 = CreateAx(2, 2, 1, fig, NonOverlap, YLabels[0], XTicklabels[0]) 
-
 # 2) plot proportions of overlapping gene pairs with conserved topology in chimp and mouse
 ax2 = CreateAx(2, 2, 2, fig, OverlapCat, YLabels[1], XTicklabels[1]) 
-
 # 3) plot proportions of overlapping gene pairs that are overlapping in chimp and mouse
 ax3 = CreateAx(2, 2, 3, fig, OverlapAll, YLabels[2], XTicklabels[2]) 
-
 # 4) plot differences between conservation of human overalapping in chimop and mouse
 #    and overlapping genes in chimp and mouse conserved in human human
 ax4 = CreateAx(2, 2, 4, fig, Differences, YLabels[3], XTicklabels[3])
@@ -474,7 +469,5 @@ plt.tight_layout()
 
 # save figure to file
 fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
 
 
