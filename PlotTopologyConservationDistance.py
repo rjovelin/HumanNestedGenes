@@ -346,8 +346,10 @@ for i in range(len(GenePairs)):
         spsets.append([set(k) for k in GenePairs[i][j]])
     GeneSets.append(spsets)
 
-
-
+for i in range(len(GenePairs)):
+    print(i, len(GenePairs[i]), len(GeneSets[i]), len(Orthos[i]))
+    for j in range(len(GenePairs[i])):
+        print(j, len(GenePairs[i][j]), len(GeneSets[i][j]))
 ################### continue here
 
 #GenePairs = [HumanPairs, HsaPairs, ChimpPairs, MousePairs]
@@ -368,14 +370,14 @@ for i in range(len(GenePairs)):
     for k in range(len(GenePairs[i])):
         conserved, divergent = 0, 0
         for pair in GenePairs[i][k]:
-            if set([Orthos[i][pair[0]], Orthos[i][pair[1]]]) in GeneSets[j]:
+            if set([Orthos[i][pair[0]], Orthos[i][pair[1]]]) in GeneSets[j][k]:
                 conserved += 1
             else:
                 divergent += 1
         conservation.append([conserved, divergent])
     Conserved.append(conservation) 
 
-
+print(Conserved)
 
 
 #HumanConserved = []
@@ -452,7 +454,7 @@ for i in range(len(Proportions[0])):
     Differences.append(Proportions[0][i])
     Differences.append(Proportions[1][i])
 
-
+print(Differences)
 
 #for i in range(len(HumanProp)):
 #    Differences.append(HumanProp[i])
