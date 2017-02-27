@@ -68,18 +68,12 @@ for i in range(len(GFF)):
 HumanOrdered, ChimpOrdered, MouseOrdered = AllOrdered[0], AllOrdered[1], AllOrdered[2]
 HumanCoord, ChimpCoord, MouseCoord = AllCoordinates[0], AllCoordinates[1], AllCoordinates[2]
 
-print('ordered genes')
-print('got gene coordinates')
-
 # get 1:1 orthologs between human and chimp
 HsaPtrOrthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
 HsaMmuOrthos = MatchOrthologPairs('HumanMouseOrthologs.txt')
 
 # make a list of dictionaries with orthologs
 Orthos = [HsaPtrOrthos, HsaMmuOrthos]
-
-print('mapped orthologs')
-
 
 # make pairs of overlapping genes
 AllPairs = []
@@ -92,8 +86,6 @@ HumanPairs = AllPairs[:5]
 HsaPairs = copy.deepcopy(HumanPairs)
 ChimpPairs = AllPairs[5:10]
 MousePairs = AllPairs[10:]
-
-print('made lists of gene pairs')
 
 # remove human genes lacking orthologs
 for i in range(len(HumanPairs)):
@@ -110,7 +102,6 @@ for i in range(len(HsaPairs)):
             to_remove.append(pair)
     for pair in to_remove:
         HsaPairs[i].remove(pair)        
-print('removed human gene pairs lacking orthologs')
 
 
 # 1) plot proportions of gene pairs with varying distance conserved in chimp and mouse
@@ -151,9 +142,6 @@ for sp in AllGenePairs:
     for i in range(1, len(AllGenePairs[sp])):
         for pair in AllGenePairs[sp][i]:
             assert pair in AllGenePairs[sp][0]
-
-print('done with QC')
-
 
 # make lists of adjacent gene pairs with varying distance in human conserved in chimp and mouse
 # [[gene1, gene2], ....[gene n, gene n+1]]
@@ -198,8 +186,6 @@ for i in range(len(species)):
     # add the pairs of non-overlapping genes to the lists of gene pairs
     AllGenePairs[species[i]].extend(HsaPairsDist)
 
-print('generated human gene pairs by distance')
-
 
 # make list of adjacent gene pairs regardless of distance in chimp and mouse [gene1:gene2, ....gene_n:gene_n+1]
 sp2 = ['ptr', 'mmu']
@@ -227,19 +213,14 @@ for i in range(len(sp2)):
                 Sp2PairsDist.append(pair)
     AllGenePairs[sp2[i]].append(Sp2PairsDist)
 
-print('generated species 2 gene pairs by distance')
-
 
 # convert lists to numpy arrays
 for sp in AllGenePairs:
     for i in range(len(AllGenePairs[sp])):
         AllGenePairs[sp][i] = np.array(AllGenePairs[sp][i])
 
-for sp in AllGenePairs:
-    for i in range(len(AllGenePairs[sp])):
-        print(sp, i, len(AllGenePairs[sp][i]))
 
-
+# 1) plot proportions of gene pairs with varying distance conserved in chimp and mouse
 # get the proportions of non-overlapping adjacent gene pairs with conserved topology
 NonOverlap = []
 for i in range(5, len(AllGenePairs['hsa_ptr'])):
@@ -248,8 +229,9 @@ for i in range(5, len(AllGenePairs['hsa_ptr'])):
     NonOverlap.append(total / len(AllGenePairs['hsa_ptr'][i]))
     # count the number of adjacent gene pairs gene pairs that are adjacent in mouse
     total = sum(np.in1d(AllGenePairs['hsa_mmu'][i], AllGenePairs['mmu'][5], invert = False))
-    NonOverlap.append(total / len(AllGenePairs['hsa_mmu'][i]))    
+    NonOverlap.append((total / len(AllGenePairs['hsa_mmu'][i])) * 100)    
 
+# 2) plot proportions of overlapping gene pairs with conserved topology in chimp and mouse
 # get the proportions of overlapping gene pairs with conserved topology in each overlapping category
 OverlapCat = []
 for i in range(5):
@@ -258,8 +240,9 @@ for i in range(5):
     OverlapCat.append(total / len(AllGenePairs['hsa_ptr'][i]))
     # count the number of overlapping gene pairs that are also overlapping in the same category in mouse
     total = sum(np.in1d(AllGenePairs['hsa_mmu'][i], AllGenePairs['mmu'][i], invert = False))
-    OverlapCat.append(total / len(AllGenePairs['hsa_mmu'][i]))
+    OverlapCat.append((total / len(AllGenePairs['hsa_mmu'][i])) * 100)
 
+# 3) plot proportions of overlapping gene pairs that are overlapping in chimp and mouse
 # get the proportions of overlapping gene pairs that are also overlapping (regadless of category)
 OverlapAll = []
 for i in range(5):
@@ -268,40 +251,37 @@ for i in range(5):
     OverlapAll.append(total / len(AllGenePairs['hsa_ptr'][i]))
     # count the number of overlapping gene pairs that are also overlapping in mouse
     total = sum(np.in1d(AllGenePairs['hsa_mmu'][i], AllGenePairs['mmu'][0], invert = False))
-    OverlapAll.append(total / len(AllGenePairs['hsa_mmu'][i]))
+    OverlapAll.append((total / len(AllGenePairs['hsa_mmu'][i])) * 100)
     
 
-CountPairs = {}
-for i in range(len(species)):
-    for j in range(len(AllGenePairs[species[i]])):
-        if j < 5:
-            total = sum(np.in1d(AllGenePairs[species[i]][j], AllGenePairs[sp2[i]][j], invert = False))
-        else:
-            total = sum(np.in1d(AllGenePairs[species[i]][j], AllGenePairs[sp2[i]][5], invert = False)) 
-        if species[i] in CountPairs:
-            CountPairs[species[i]].append([total, len(AllGenePairs[species[i]][j])])
-        elif species[i] not in CountPairs:
-            CountPairs[species[i]] = [[total, len(AllGenePairs[species[i]][j])]]
-            
-  
+#CountPairs = {}
+#for i in range(len(species)):
+#    for j in range(len(AllGenePairs[species[i]])):
+#        if j < 5:
+#            total = sum(np.in1d(AllGenePairs[species[i]][j], AllGenePairs[sp2[i]][j], invert = False))
+#        else:
+#            total = sum(np.in1d(AllGenePairs[species[i]][j], AllGenePairs[sp2[i]][5], invert = False)) 
+#        if species[i] in CountPairs:
+#            CountPairs[species[i]].append([total, len(AllGenePairs[species[i]][j])])
+#        elif species[i] not in CountPairs:
+#            CountPairs[species[i]] = [[total, len(AllGenePairs[species[i]][j])]]
+#            
+#  
+#
+## create a list of overlapping gene categories parallel to the list of overlapping pairs
+#GeneCats = ['overlapping', 'nested', 'piggyback', 'convergent', 'divergent',
+#            'proximal', 'moderate', 'intermediate', 'distant']
+#
+#for sp in CountPairs:
+#    for i in range(len(CountPairs[sp])):
+#        print(sp + '\t' + str(i) + '\t' + str(CountPairs[sp][i][0] / CountPairs[sp][i][1]))
 
-# create a list of overlapping gene categories parallel to the list of overlapping pairs
-GeneCats = ['overlapping', 'nested', 'piggyback', 'convergent', 'divergent',
-            'proximal', 'moderate', 'intermediate', 'distant']
 
-for sp in CountPairs:
-    for i in range(len(CountPairs[sp])):
-        print(sp + '\t' + str(i) + '\t' + str(CountPairs[sp][i][0] / CountPairs[sp][i][1]))
+
         
 
-
-
-
-
-##############################
-##############################
-
-
+# 4) plot differences between conservation of human overalapping in chimop and mouse
+#    and overlapping genes in chimp and mouse conserved in human human
 
 # make a reverse dictionary of orthologs 
 ChimpOrthos = {}
@@ -334,7 +314,6 @@ for i in range(len(MousePairs)):
 Orthos.append(ChimpOrthos)
 Orthos.append(MouseOrthos)
 
-
 # make a list of gene pair lists
 GenePairs = [HumanPairs, HsaPairs, ChimpPairs, MousePairs]
 # make a list of sets of gene pairs
@@ -344,11 +323,6 @@ for i in range(len(GenePairs)):
     for j in range(len(GenePairs[i])):
         spsets.append([set(k) for k in GenePairs[i][j]])
     GeneSets.append(spsets)
-
-for i in range(len(GenePairs)):
-    print(i, len(GenePairs[i]), len(GeneSets[i]), len(Orthos[i]))
-    for j in range(len(GenePairs[i])):
-        print(j, len(GenePairs[i][j]), len(GeneSets[i][j]))
 
 # make a list of counts of conserved and non-conserved human overlapping genes in chimp and mouse
 Conserved = []
@@ -368,49 +342,6 @@ for i in range(len(GenePairs)):
         conservation.append([conserved, divergent])
     Conserved.append(conservation) 
 
-print(Conserved)
-
-
-#HumanConserved = []
-#for i in range(len(HumanPairs)):
-#    conserved, divergent = 0, 0
-#    for pair in HumanPairs[i]:
-#        if set([HsaPtrOrthos[pair[0]], HsaPtrOrthos[pair[1]]]) in ChimpSets[i]:
-#            conserved += 1
-#        else:
-#            divergent += 1
-#    HumanConserved.append([conserved, divergent])
-## make a list of counts of conserved and non-conserved human overlapping genes in mouse
-#HsaConserved = []
-#for i in range(len(HsaPairs)):
-#    conserved, divergent = 0, 0
-#    for pair in HsaPairs[i]:
-#        if set([HsaMmuOrthos[pair[0]], HsaMmuOrthos[pair[1]]]) in MouseSets[i]:
-#            conserved += 1
-#        else:
-#            divergent += 1
-#    HsaConserved.append([conserved, divergent])
-## make a list of counts of conserved and non-conserved chimp overlapping genes in human
-#ChimpConserved = []
-#for i in range(len(ChimpPairs)):
-#    conserved, divergent = 0, 0
-#    for pair in ChimpPairs[i]:
-#        if set([ChimpOrthos[pair[0]], ChimpOrthos[pair[1]]]) in HumanSets[i]:
-#            conserved += 1
-#        else:
-#            divergent += 1
-#    ChimpConserved.append([conserved, divergent])
-## make a list of counts of conserved and non-conserved mouse overlapping genes in human
-#MouseConserved = []
-#for i in range(len(MousePairs)):
-#    conserved, divergent = 0, 0
-#    for pair in MousePairs[i]:
-#        if set([MouseOrthos[pair[0]], MouseOrthos[pair[1]]]) in HsaSets[i]:
-#            conserved += 1
-#        else:
-#            divergent += 1
-#    MouseConserved.append([conserved, divergent])
-
 
 # create lists with proportions of overlapping genes with conserved topologies
 # [[prop human overlapping genes conserved, prop chimp overlapping genes conserved in human, etc]]
@@ -424,19 +355,6 @@ for i in range(2):
         prop.append(diff)
     Proportions.append(prop)
 
-
-
-#HumanProp, HsaProp = [], []
-#for i in range(len(HumanConserved)):
-#    man = HumanConserved[i][0] / sum(HumanConserved[i])    
-#    sp2 = ChimpConserved[i][0] / sum(ChimpConserved[i])
-#    diff = (sp2 - man) * 100 
-#    HumanProp.append(diff) 
-#for i in range(len(HsaConserved)):
-#    man = HsaConserved[i][0] / sum(HsaConserved[i])
-#    sp2 = MouseConserved[i][0] / sum(MouseConserved[i])
-#    diff = (sp2 - man) * 100
-#    HsaProp.append(diff)
   
 # create a single list with differences between human and chimp and between
 # human and mouse for each overlapping gene category
@@ -445,14 +363,7 @@ for i in range(len(Proportions[0])):
     Differences.append(Proportions[0][i])
     Differences.append(Proportions[1][i])
 
-print(Differences)
 
-#for i in range(len(HumanProp)):
-#    Differences.append(HumanProp[i])
-#    Differences.append(HsaProp[i])
-
-
-####################
 
 
 # create a function to format the subplots
@@ -467,7 +378,8 @@ def CreateAx(Columns, Rows, Position, figure, Data, Colors, BarPos, YLabel,
     # plot data
     ax.bar(BarPos, Data, width = 0.2, color = Colors, edgecolor = 'black', linewidth = 0.7)
     # draw x axis line
-    ax.plot([0, 2.8], [0, 0], lw = 0.7, color = 'black')
+    if Position == 4:
+        ax.plot([0, 2.8], [0, 0], lw = 0.7, color = 'black')
     
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
@@ -519,9 +431,76 @@ fig = plt.figure(1, figsize = (5, 4))
 #ax1 = CreateAx
 #ax2 = CreateAx
 #ax3 = CreateAx
-ax4 = CreateAx(2, 2, 4, fig, Differences, ['black', 'lightgrey'] * 5, [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4],
-               '% excess of orthologous gene pairs\nwith conserved topology', [0.4, 0.9, 1.4, 1.9, 2.4], ['all', 'nst', 'pbk', 'conv', 'div'],
-               np.arange(-20, 120, 20), -20, 100)
+
+
+
+
+
+# 1) plot proportions of gene pairs with varying distance conserved in chimp and mouse
+# get the proportions of non-overlapping adjacent gene pairs with conserved topology
+print(NonOverlap)
+print(OverlapCat)
+print(OverlapAll)
+
+
+
+
+[0.68611111111111112, 0.54855518711511131, 0.92485119047619047, 0.76479400749063675, 0.93409019236833801, 0.88601872780109781, 0.91476872505282936, 0.86489306207616068, 0.87984981226533165, 0.82042494859492798, 0.88163884673748105, 0.8197767145135566, 0.82381530984204132, 0.75690954773869346]
+[0.24344262295081967, 0.40451745379876797, 0.39930555555555558, 0.46613545816733065, 0.078260869565217397, 0.37947494033412887, 0.30030959752321984, 0.437696335078534, 0.13007159904534607, 0.24320987654320989]
+[0.24344262295081967, 0.40451745379876797, 0.44444444444444442, 0.60557768924302791, 0.1072463768115942, 0.3937947494033413, 0.30959752321981426, 0.46492146596858641, 0.15393794749403342, 0.27654320987654318]
+
+
+
+
+
+
+BarPos = [[0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4, 2.7, 2.9, 3.2, 3.4],
+          [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4],
+          [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4],
+          [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4]]
+
+Colors = [['black', 'lightgrey'] * 5, 
+          ['black', 'lightgrey'] * 5,
+          ['black', 'lightgrey'] * 5,
+          ['black', 'lightgrey'] * 5]
+
+
+YLabels = ['% with orthologous gene pairs',
+           '',
+           '',
+           '% excess of orthologous gene pairs\nwith conserved topology']
+
+
+XTickpos = [[0.4, 0.9, 1.4, 1.9, 2.4, 2.9, 3.4],
+            [0.4, 0.9, 1.4, 1.9, 2.4],
+            [0.4, 0.9, 1.4, 1.9, 2.4],
+            [0.4, 0.9, 1.4, 1.9, 2.4]]
+
+XTicklabels = [['< 0', '0-1000', '1000-10000', '10000-50000', '50000-100000', '100000-150000', '> 150000'],
+               [],
+               [],
+               ['all', 'nst', 'pbk', 'conv', 'div']]
+
+YTicksRange = [np.arange(0, 120, 20),
+               np.arange(0, 120, 20),
+               np.arange(0, 120, 20),
+               np.arange(-20, 120, 20)]
+
+YLimits = [[0, 100], [0, 100], [0, 100], [-20, 100]]
+
+
+
+ax1 = CreateAx(2, 2, 1, fig, NonOverlap, Colors[0], BarPos[0], YLabels[0],
+               XTickpos[0], XTicklabels[0], YTicksRange[0], YLimits[0][0], YLimits[0][1]) 
+
+
+
+
+
+
+
+ax4 = CreateAx(2, 2, 4, fig, Differences, Colors[3], BarPos[3], YLabels[3],
+               XTickpos[3], XTicklabels[3], YTicksRange[3], YLimits[3][0], YLimits[3][1])
 
 
 # add legend
@@ -531,23 +510,6 @@ ax4.legend(handles = [chimp, mouse], loc = (0.2, 0.8), fontsize = 7, frameon = F
 
 # save figure to file
 fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
