@@ -461,10 +461,10 @@ ax4 = CreateAx(2, 2, 4, fig, Differences, YLabels[3], XTicklabels[3])
 
 
 # add subplot labels
-ax1.text(-10, 110, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax2.text(-10, 110, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax3.text(-10, 110, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax4.text(-10, 110, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(-2, 110, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax2.text(-2, 110, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax3.text(-2, 110, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax4.text(-2, 110, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
 
         
