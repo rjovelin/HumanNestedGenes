@@ -354,11 +354,16 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel):
         XTickpos = [0.4, 0.9, 1.4, 1.9, 2.4, 2.9, 3.4]
         Alignment = 'right'
         XTicklabels = ['< 0', '0-1', '1-10', '10-50', '50-100', '100-150', '> 150']
+        # draw x axis line
+        ax.plot([0, 3.8], [0, 0], lw = 0.7, color = 'black')
     else:
         BarPos = [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4]
         XTickpos = [0.4, 0.9, 1.4, 1.9, 2.4]
         Alignment = 'center'
         XTicklabels = ['all', 'nst', 'pbk', 'conv', 'div']
+        # draw x axis line
+        ax.plot([0, 2.8], [0, 0], lw = 0.7, color = 'black')
+    
     if Position == 4:
         YTicksRange = np.arange(-20, 120, 20)
         YMin, YMax = -20, 100
@@ -370,9 +375,10 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel):
 
     # plot data
     ax.bar(BarPos, Data, width = 0.2, color = Colors, edgecolor = 'black', linewidth = 0.7)
-    # draw x axis line
-    if Position == 4:
-        ax.plot([0, 2.8], [0, 0], lw = 0.7, color = 'black')
+    
+#    # draw x axis line
+#    if Position == 4:
+#        ax.plot([0, 2.8], [0, 0], lw = 0.7, color = 'black')
     
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
@@ -417,7 +423,10 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel):
 # create figure
 fig = plt.figure(1, figsize = (5, 4))
 
-YLabels = ['% with orthologous gene pairs', '', '', '% excess of orthologous gene pairs\nwith conserved topology']
+YLabels = ['% with orthologous gene pairs',
+           '',
+           '',
+           '% excess of orthologous gene pairs\nwith conserved topology']
 
 
 # 1) plot proportions of gene pairs with varying distance conserved in chimp and mouse
@@ -432,10 +441,10 @@ ax4 = CreateAx(2, 2, 4, fig, Differences, YLabels[3])
 
 
 # add subplot labels
-ax1.text(-2, 110, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax2.text(-2, 110, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax3.text(-2, 110, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax4.text(-2, 110, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(-0.5, 110, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax2.text(-0.5, 110, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax3.text(-0.5, 110, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax4.text(-0.5, 110, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
 
         
