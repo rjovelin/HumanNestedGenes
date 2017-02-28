@@ -460,14 +460,60 @@ ax3 = CreateAx(2, 2, 3, fig, OverlapAll, YLabels[2], XTicklabels[2])
 ax4 = CreateAx(2, 2, 4, fig, Differences, YLabels[3], XTicklabels[3])
 
 
+# add subplot labels
+ax1.text(-0.45, 0.85, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(0.8, 0.85, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax3.text(-0.45, 0.85, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax3.text(0.8, 0.85, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+
+
+        
+        
+
+
 # add legend
 mouse = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'mouse')
 chimp = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'chimp')
 ax4.legend(handles = [chimp, mouse], loc = (0.2, 0.8), fontsize = 7, frameon = False, ncol = 2)
 
+#No = mpatches.Patch(facecolor = '#fb9a99', edgecolor = 'black', linewidth = 0.5, label= 'NoOv')
+#Ns = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 0.5, label= 'Nst')
+#Pk = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 0.5, label= 'Pbk')
+#Co = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 0.5, label= 'Conv')
+#Dv = mpatches.Patch(facecolor = '#33a02c', edgecolor = 'black', linewidth = 0.5, label= 'Div')
+#ax.legend(handles = [No, Ns, Pk, Co, Dv], bbox_to_anchor=(-10, 0.6), loc = 3, fontsize = 6, frameon = False, ncol = 5)
+
+
+## add legend
+#N = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'non-disease')
+#D = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'disease')
+#ax1.legend(handles = [D, N], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
+
+
+
+
+
+
+
+
+
+
+
+
 
 # make sure subplots do not overlap
 plt.tight_layout()
+
+## adjust padding between subplots
+## pad controls the padding around the figure border
+## hpad and wpad control the padding between subplots
+#plt.tight_layout(pad=0.2, w_pad=0, h_pad=0.5)
+
+
+
+
+
+
 
 # save figure to file
 fig.savefig('truc.pdf', bbox_inches = 'tight')
