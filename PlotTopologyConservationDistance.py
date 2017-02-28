@@ -450,7 +450,7 @@ ax4.text(-0.8, 115, 'D', ha='center', va='center', color = 'black', fontname = '
 # add legend
 mouse = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'mouse')
 chimp = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'chimp')
-ax1.legend(handles = [chimp, mouse], loc = (0.8, 1.1), fontsize = 7, frameon = False, ncol = 2)
+ax1.legend(handles = [chimp, mouse], loc = (0.8, 1.3), fontsize = 7, frameon = False, ncol = 2)
 
 #ax1.legend(handles = [chimp, mouse], bbox_to_anchor=(-10, 0.6), loc = 3, fontsize = 7, frameon = False, ncol = 2)
 
