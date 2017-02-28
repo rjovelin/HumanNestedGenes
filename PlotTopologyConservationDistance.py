@@ -426,7 +426,7 @@ fig = plt.figure(1, figsize = (5, 4))
 YLabels = ['% with orthologous gene pairs',
            '',
            '',
-           '% excess of orthologous gene pairs\nwith conserved topology']
+           '% excess of orthologous gene\npairs with conserved topology']
 
 
 # 1) plot proportions of gene pairs with varying distance conserved in chimp and mouse
