@@ -423,9 +423,9 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel):
 # create figure
 fig = plt.figure(1, figsize = (5, 4))
 
-YLabels = ['% with orthologous gene pairs',
-           '',
-           '',
+YLabels = ['% with orthologous adjacent gene pairs',
+           '% overlapping gene pairs with conserved topology',
+           '% with orthologous overlapping gene pairs ',
            '% excess of orthologous gene\npairs with conserved topology']
 
 
@@ -447,28 +447,12 @@ ax3.text(-0.8, 115, 'C', ha='center', va='center', color = 'black', fontname = '
 ax4.text(-0.8, 115, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
 
-        
-        
-
-
 # add legend
 mouse = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'mouse')
 chimp = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'chimp')
-ax1.legend(handles = [chimp, mouse], loc = (0.1, 1.1), fontsize = 7, frameon = False, ncol = 2)
+ax1.legend(handles = [chimp, mouse], loc = (0.8, 1.1), fontsize = 7, frameon = False, ncol = 2)
 
-#No = mpatches.Patch(facecolor = '#fb9a99', edgecolor = 'black', linewidth = 0.5, label= 'NoOv')
-#Ns = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 0.5, label= 'Nst')
-#Pk = mpatches.Patch(facecolor = '#1f78b4', edgecolor = 'black', linewidth = 0.5, label= 'Pbk')
-#Co = mpatches.Patch(facecolor = '#b2df8a', edgecolor = 'black', linewidth = 0.5, label= 'Conv')
-#Dv = mpatches.Patch(facecolor = '#33a02c', edgecolor = 'black', linewidth = 0.5, label= 'Div')
-#ax.legend(handles = [No, Ns, Pk, Co, Dv], bbox_to_anchor=(-10, 0.6), loc = 3, fontsize = 6, frameon = False, ncol = 5)
-
-
-## add legend
-#N = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'non-disease')
-#D = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'disease')
-#ax1.legend(handles = [D, N], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
-
+#ax1.legend(handles = [chimp, mouse], bbox_to_anchor=(-10, 0.6), loc = 3, fontsize = 7, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
 plt.tight_layout()
