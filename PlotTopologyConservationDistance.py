@@ -461,10 +461,10 @@ ax4 = CreateAx(2, 2, 4, fig, Differences, YLabels[3], XTicklabels[3])
 
 
 # add subplot labels
-ax1.text(-0.45, 0.85, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax1.text(0.8, 0.85, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax3.text(-0.45, 0.85, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax3.text(0.8, 0.85, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(-10, 110, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax2.text(-10, 110, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax3.text(-10, 110, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax4.text(-10, 110, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
 
         
@@ -490,17 +490,6 @@ ax4.legend(handles = [chimp, mouse], loc = (0.2, 0.8), fontsize = 7, frameon = F
 #ax1.legend(handles = [D, N], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
 
 
-
-
-
-
-
-
-
-
-
-
-
 # make sure subplots do not overlap
 plt.tight_layout()
 
@@ -508,11 +497,6 @@ plt.tight_layout()
 ## pad controls the padding around the figure border
 ## hpad and wpad control the padding between subplots
 #plt.tight_layout(pad=0.2, w_pad=0, h_pad=0.5)
-
-
-
-
-
 
 
 # save figure to file
