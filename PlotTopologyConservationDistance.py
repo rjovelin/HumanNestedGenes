@@ -254,32 +254,6 @@ for i in range(5):
     OverlapAll.append((total / len(AllGenePairs['hsa_mmu'][i])) * 100)
     
 
-#CountPairs = {}
-#for i in range(len(species)):
-#    for j in range(len(AllGenePairs[species[i]])):
-#        if j < 5:
-#            total = sum(np.in1d(AllGenePairs[species[i]][j], AllGenePairs[sp2[i]][j], invert = False))
-#        else:
-#            total = sum(np.in1d(AllGenePairs[species[i]][j], AllGenePairs[sp2[i]][5], invert = False)) 
-#        if species[i] in CountPairs:
-#            CountPairs[species[i]].append([total, len(AllGenePairs[species[i]][j])])
-#        elif species[i] not in CountPairs:
-#            CountPairs[species[i]] = [[total, len(AllGenePairs[species[i]][j])]]
-#            
-#  
-#
-## create a list of overlapping gene categories parallel to the list of overlapping pairs
-#GeneCats = ['overlapping', 'nested', 'piggyback', 'convergent', 'divergent',
-#            'proximal', 'moderate', 'intermediate', 'distant']
-#
-#for sp in CountPairs:
-#    for i in range(len(CountPairs[sp])):
-#        print(sp + '\t' + str(i) + '\t' + str(CountPairs[sp][i][0] / CountPairs[sp][i][1]))
-
-
-
-        
-
 # 4) plot differences between conservation of human overalapping in chimop and mouse
 #    and overlapping genes in chimp and mouse conserved in human human
 
@@ -367,7 +341,7 @@ for i in range(len(Proportions[0])):
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XTicklabels):
+def CreateAx(Columns, Rows, Position, figure, Data, YLabel):
     '''
     Returns a ax instance in figure
     '''    
@@ -379,10 +353,12 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XTicklabels):
         BarPos = [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4, 2.7, 2.9, 3.2, 3.4]
         XTickpos = [0.4, 0.9, 1.4, 1.9, 2.4, 2.9, 3.4]
         Alignment = 'right'
+        XTicklabels = ['< 0', '0-1', '1-10', '10-50', '50-100', '100-150', '> 150']
     else:
         BarPos = [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4]
         XTickpos = [0.4, 0.9, 1.4, 1.9, 2.4]
         Alignment = 'center'
+        XTicklabels = ['all', 'nst', 'pbk', 'conv', 'div']
     if Position == 4:
         YTicksRange = np.arange(-20, 120, 20)
         YMin, YMax = -20, 100
@@ -441,23 +417,18 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XTicklabels):
 # create figure
 fig = plt.figure(1, figsize = (5, 4))
 
-XTicklabels = [['< 0', '0-1', '1-10', '10-50', '50-100', '100-150', '> 150'],
-               [],
-               [],
-               ['all', 'nst', 'pbk', 'conv', 'div']]
-
 YLabels = ['% with orthologous gene pairs', '', '', '% excess of orthologous gene pairs\nwith conserved topology']
 
 
 # 1) plot proportions of gene pairs with varying distance conserved in chimp and mouse
-ax1 = CreateAx(2, 2, 1, fig, NonOverlap, YLabels[0], XTicklabels[0]) 
+ax1 = CreateAx(2, 2, 1, fig, NonOverlap, YLabels[0]) 
 # 2) plot proportions of overlapping gene pairs with conserved topology in chimp and mouse
-ax2 = CreateAx(2, 2, 2, fig, OverlapCat, YLabels[1], XTicklabels[1]) 
+ax2 = CreateAx(2, 2, 2, fig, OverlapCat, YLabels[1]) 
 # 3) plot proportions of overlapping gene pairs that are overlapping in chimp and mouse
-ax3 = CreateAx(2, 2, 3, fig, OverlapAll, YLabels[2], XTicklabels[2]) 
+ax3 = CreateAx(2, 2, 3, fig, OverlapAll, YLabels[2]) 
 # 4) plot differences between conservation of human overalapping in chimop and mouse
 #    and overlapping genes in chimp and mouse conserved in human human
-ax4 = CreateAx(2, 2, 4, fig, Differences, YLabels[3], XTicklabels[3])
+ax4 = CreateAx(2, 2, 4, fig, Differences, YLabels[3])
 
 
 # add subplot labels
