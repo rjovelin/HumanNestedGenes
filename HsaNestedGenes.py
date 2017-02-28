@@ -711,7 +711,7 @@ def MatchOrthologPairs(OrthoFile):
     
   
 # Map humangenes to their orthologs in 2 other species  
-def ParseOrthologFile(OrthoFile):
+def MatchOrthologTrios(OrthoFile):
     '''
     (file) -> dict
     Take a file with orthology assignment between 3 species and return a dictionary
@@ -731,15 +731,15 @@ def ParseOrthologFile(OrthoFile):
             if 'ortholog' in line:
                 if line.count('ortholog') == 2:
                     line = line.split('\t')
-                    assert len(line) == 8
+                    assert len(line) == 10
                     # get gene IDs of the 3 species
-                    gene1, gene2, gene3 = line[0], line[2], line[5]
+                    gene1, gene2, gene3 = line[0], line[2], line[6]
                     # check that genes are ensembl gene IDs
                     for i in [gene1, gene2, gene3]:
                         assert 'ENS' in i, 'gene id is not valid'
-                    assert 'ortholog' in line[3] and 'ortholog' in line[6], 'ortholog should be in homology type'
+                    assert 'ortholog' in line[4] and 'ortholog' in line[8], 'ortholog should be in homology type'
                     # record 1:1 orthologs
-                    if line[3] == 'ortholog_one2one' and line[6] == 'ortholog_one2one':
+                    if line[4] == 'ortholog_one2one' and line[8] == 'ortholog_one2one':
                         if gene1 not in Orthos:
                             Orthos[gene1] = [set(), set()]
                             Orthos[gene1][0].add(gene2)
@@ -748,7 +748,7 @@ def ParseOrthologFile(OrthoFile):
                             Orthos[gene1][0].add(gene2)
                             Orthos[gene1][1].add(gene3)
     infile.close()                      
-    
+ 
     # check that all orthologs are 1;1 orthologs
     # make a dict {gene1: [gene2, gene3]}
     for gene in Orthos:
