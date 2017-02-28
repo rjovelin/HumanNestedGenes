@@ -441,16 +441,16 @@ ax4 = CreateAx(2, 2, 4, fig, Differences, YLabels[3])
 
 
 # add subplot labels
-ax1.text(-0.8, 115, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax2.text(-0.8, 115, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax3.text(-0.8, 115, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax4.text(-0.8, 115, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax1.text(-0.8, 113, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax2.text(-0.8, 113, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax3.text(-0.8, 113, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax4.text(-0.8, 113, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
 
 # add legend
 mouse = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'mouse')
 chimp = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'chimp')
-ax1.legend(handles = [chimp, mouse], loc = (0.8, 1.3), fontsize = 7, frameon = False, ncol = 2)
+ax1.legend(handles = [chimp, mouse], loc = (0.17, 1), fontsize = 7, frameon = False, ncol = 2)
 
 #ax1.legend(handles = [chimp, mouse], bbox_to_anchor=(-10, 0.6), loc = 3, fontsize = 7, frameon = False, ncol = 2)
 
