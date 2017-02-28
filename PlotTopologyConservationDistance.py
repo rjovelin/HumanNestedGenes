@@ -423,9 +423,9 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel):
 # create figure
 fig = plt.figure(1, figsize = (5, 4))
 
-YLabels = ['% with orthologous adjacent gene pairs',
-           '% overlapping gene pairs with conserved topology',
-           '% with orthologous overlapping gene pairs ',
+YLabels = ['% with orthologous\nadjacent gene pairs',
+           '% overlapping gene pairs\nwith conserved topology',
+           '% with orthologous\noverlapping gene pairs ',
            '% excess of orthologous gene\npairs with conserved topology']
 
 
