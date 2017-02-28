@@ -454,7 +454,7 @@ ax4.text(-0.8, 115, 'D', ha='center', va='center', color = 'black', fontname = '
 # add legend
 mouse = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'mouse')
 chimp = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'chimp')
-ax4.legend(handles = [chimp, mouse], loc = (0.2, 0.8), fontsize = 7, frameon = False, ncol = 2)
+ax1.legend(handles = [chimp, mouse], loc = (0.1, 1.1), fontsize = 7, frameon = False, ncol = 2)
 
 #No = mpatches.Patch(facecolor = '#fb9a99', edgecolor = 'black', linewidth = 0.5, label= 'NoOv')
 #Ns = mpatches.Patch(facecolor = '#a6cee3', edgecolor = 'black', linewidth = 0.5, label= 'Nst')
