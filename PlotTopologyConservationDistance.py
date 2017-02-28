@@ -378,9 +378,11 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XTicklabels):
     if Position == 1:
         BarPos = [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4, 2.7, 2.9, 3.2, 3.4]
         XTickpos = [0.4, 0.9, 1.4, 1.9, 2.4, 2.9, 3.4]
+        Alignment = 'right'
     else:
         BarPos = [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4]
         XTickpos = [0.4, 0.9, 1.4, 1.9, 2.4]
+        Alignment = 'center'
     if Position == 4:
         YTicksRange = np.arange(-20, 120, 20)
         YMin, YMax = -20, 100
@@ -405,7 +407,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XTicklabels):
         Rotation = 30
     else:
         Rotation = 0
-    plt.xticks(XTickpos, XTicklabels, rotation = Rotation, size = 7, color = 'black', ha = 'center', **FigFont)
+    plt.xticks(XTickpos, XTicklabels, rotation = Rotation, size = 7, color = 'black', ha = Alignment, **FigFont)
     # edit y axis ticks
     plt.yticks(YTicksRange)
     # add a range for the Y and X axes
