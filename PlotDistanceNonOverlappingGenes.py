@@ -90,20 +90,29 @@ for i in range(len(ChimpPairs)):
     for j in range(len(ChimpPairs[i])):
         ChimpPairs[i][j] = set(ChimpPairs[i][j])
 
-# get the intergenic distance between non-nested orthologs of human nested genes
-GeneDist = []  
-nonadjacent = 0
 
+
+# 1) plot the proportions of orthologous gene pairs that are adjacent, separated
+# and on different chromosomes
+# 2) plot a histogram of the intergenic distance between non-nested adjacent
+# chimp orthologs of human nested genes
+
+SepOvlp, SepNonOvlp, AdjOvlp, AdjNonOvlp, DiffLG = 0, 0, 0, 0, 0
+
+# get the intergenic distance between non-nested adjacent orthologs of human nested genes
+GeneDist = []  
+ 
+# loop over human nested gene pairs
 for i in range(len(HumanPairs[1])):
+    # get the orthologs of the human genes
+    ortho1, ortho2 = Orthos[HumanPairs[1][i][0]], Orthos[HumanPairs[1][i][1]]
     # check if human gene pairs is nested in chimp
-    if set(HumanPairs[1][i]) not in ChimpPairs[1]:
-        ortho1, ortho2 = Orthos[HumanPairs[1][i][0]], Orthos[HumanPairs[1][i][1]]
+    if set([ortho1, ortho2]) not in ChimpPairs[1]:
         # get chromosomes of chimp orthologs
         chromo1, chromo2 = ChimpCoord[ortho1][0], ChimpCoord[ortho2][0]        
         # check if chromosomes are different
         if chromo1 != chromo2:
-            # add infinity to list
-            GeneDist.append(float('inf'))
+            DiffLG += 1
         else:
             # get start positions of chimp orthologs
             S1, S2 = ChimpCoord[ortho1][1], ChimpCoord[ortho2][1]
@@ -111,7 +120,19 @@ for i in range(len(HumanPairs[1])):
             E1, E2 = ChimpCoord[ortho1][2], ChimpCoord[ortho2][2]            
             # get indices of chimp orthologs in the ordred gene list
             P1, P2 = ChimpOrdered[chromo1].index(ortho1), ChimpOrdered[chromo2].index(ortho2)
-            D = 'na'            
+            D, Adjacent = 'na', 'na'            
+            # check if orthologs are overlapping in chimp
+            if set([ortho1, ortho2]) in ChimpPairs[0]:
+                # chimp genes are overlapping
+                # check if they are adjcent
+                
+                
+                
+########### continue here                
+                
+            
+            
+            
             if S1 < S2:
                 assert P1 < P2
                 if P2 != P1 + 1:
@@ -130,11 +151,8 @@ for i in range(len(HumanPairs[1])):
                 GeneDist.append(D)  
                 
             
-print(min(GeneDist))
-print(max(GeneDist))
-print(np.mean(GeneDist))
-print(np.median(GeneDist))
-print(GeneDist.count(float('inf')))
+print('nonadjacent', nonadjacent)
+
 
 
 infinity, negatif, positif, zero = [], [], [], []
@@ -147,15 +165,30 @@ for i in GeneDist:
         negatif.append(i)
     elif i == 0:
         zero.append(i)
-    
+
+
+negatif.sort()
+positif.sort()
+
+   
 print(len(infinity), len(negatif), len(positif), len(zero))
 print(min(negatif), max(negatif))
 print(min(positif), max(positif))
 
 
+print(positif)
+print('\n\n')
+print(negatif)
 
-# plot a histogram of the intergenic distance between non-nested chimp
-# orthologs of human nested genes
+
+# 1) plot the proportions of orthologous gene pairs that are adjacent, separated and on different chromosomes
+
+
+
+
+
+
+# 2) plot a histogram of the intergenic distance between non-nested adjacent chimp orthologs of human nested genes
 
 
 ###################
