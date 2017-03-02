@@ -242,8 +242,8 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
     ax = figure.add_subplot(Rows, Columns, Position)
     # plot data    
     if GraphType == 'histo':
-        ax.hist(Data[0], bins = np.arange(0, max([max(Data[0]), max(Data[1])]) + 1, 1), linewidth = 0.7, histtype='step', fill = True, facecolor = Colors[0], edgecolor = Colors[0], alpha = 0.5, stacked = False)    
-        ax.hist(Data[1], bins = np.arange(0, max([max(Data[0]), max(Data[1])]) + 1, 1), linewidth = 0.7, histtype='step', fill = True, facecolor = Colors[1], edgecolor = Colors[1], alpha = 0.5, stacked = False)
+        ax.hist(Data, bins = np.arange(min(Data), max(Data)+1000, 1000), linewidth = 0.7, histtype='bar', fill = True, facecolor = 'black', edgecolor = 'black', alpha = 1)    
+        
     
         # set font for all text in figure
         FigFont = {'fontname':'Arial'}   
@@ -279,12 +279,13 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         # Pie chart, where the slices will be ordered and plotted counter-clockwise:
         sizes, labels = Data[0], Data[1]
         explode = [0] * len(sizes) # "explode" slices        
-        #explode = (0, 0, 0, 0) 
-        colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral', 'lightgreen', 'red']
-        ax.pie(sizes, explode=explode, labels=labels, colors = colors, autopct='%1.1f%%',
-               shadow=False, startangle=90)
+        colors = ['lightgreen', 'gold', 'lightskyblue', '#9e9ac8', 'lightcoral']
+        '%1.1f%%'
+        ax.pie(sizes, explode=explode, labels=None, colors = colors, autopct=None,
+               shadow=False, startangle=90, pctdistance=0.6, labeldistance=1.1, 
+               counterclock=True)
         # draw a circle at the center of pie to make it look like a donut
-        centre_circle = plt.Circle((0,0),0.75,color='black', fc='white',linewidth=1)
+        centre_circle = plt.Circle((0,0),0.65,color='black', fc='white',linewidth=1)
         # modify line parameters of pie chart
         plt.rcParams['patch.linewidth'] = 1  
         plt.rcParams['patch.edgecolor'] = 'black' 
@@ -301,8 +302,36 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         ax.axis('equal')  
         # add circle to pie chart
         fig.gca().add_artist(centre_circle)
+        
+        
+        
+        
 
-               
+       
+        
+        
+
+       
+        
+        
+        
+#        from matplotlib import pyplot as plt
+#from matplotlib.patches import Rectangle
+#someX, someY = 0.5, 0.5
+#fig,ax = plt.subplots()
+#currentAxis = plt.gca()
+#currentAxis.add_patch(Rectangle((someX - 0.1, someY - 0.1), 0.2, 0.2,
+#                      alpha=1, facecolor='none'))
+#        
+        
+        
+        
+        
+        
+        
+        #plt.legend(pie[0], Data[1], loc="upper right")        
+        
+                   
     return ax      
 
 
@@ -312,12 +341,74 @@ fig = plt.figure(1, figsize = (2.5, 4.5))
 ax1 = CreateAx(1, 1, 1, fig, [PairCounts, Labels], 'donut')
 
 
+
+
+
+#http://matplotlib.org/api/patches_api.html
+
+#class matplotlib.patches.Rectangle(xy, width, height, angle=0.0, **kwargs)
+#Bases: matplotlib.patches.Patch
+#
+#Draw a rectangle with lower left at xy = (x, y) with specified width and height.
+#
+#angle
+#rotation in degrees (anti-clockwise)
+#fill is a boolean indicating whether to fill the rectangle
+#
+#Valid kwargs are:
+#
+#Property	Description
+#agg_filter	unknown
+#alpha	float or None
+#animated	[True | False]
+#antialiased or aa	[True | False] or None for default
+#axes	an Axes instance
+#capstyle	[‘butt’ | ‘round’ | ‘projecting’]
+#clip_box	a matplotlib.transforms.Bbox instance
+#clip_on	[True | False]
+#clip_path	[ (Path, Transform) | Patch | None ]
+#color	matplotlib color spec
+#contains	a callable function
+#edgecolor or ec	mpl color spec, None, ‘none’, or ‘auto’
+#facecolor or fc	mpl color spec, or None for default, or ‘none’ for no color
+#figure	a matplotlib.figure.Figure instance
+#fill	[True | False]
+#gid	an id string
+#hatch	[‘/’ | ‘\’ | ‘|’ | ‘-‘ | ‘+’ | ‘x’ | ‘o’ | ‘O’ | ‘.’ | ‘*’]
+#joinstyle	[‘miter’ | ‘round’ | ‘bevel’]
+#label	string or anything printable with ‘%s’ conversion.
+#linestyle or ls	[‘solid’ | ‘dashed’, ‘dashdot’, ‘dotted’ | (offset, on-off-dash-seq) | '-' | '--' | '-.' | ':' | 'None' | ' ' | '']
+#linewidth or lw	float or None for default
+#path_effects	unknown
+#picker	[None|float|boolean|callable]
+#rasterized	[True | False | None]
+#sketch_params	unknown
+#snap	unknown
+#transform	Transform instance
+#url	a url string
+#visible	[True | False]
+#zorder	any number
+
+
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 
 
 
 
-
+#import matplotlib.pyplot as plt
+#fig, ax = plt.subplots()
+#ax.axis('equal')
+## Width of the "rings" (percentages if the largest "radius"==1)
+#width = 0.35 
+## Note the different "radius" values: largest --> outside "donut".
+#kwargs = dict(colors=['#66FF66', '#9999FF', '#FF9999'], startangle=90)
+#inside, _ = ax.pie([45, 87, 77], radius=1-width, **kwargs)
+#outside, _ = ax.pie([96, 124, 88], radius=1, **kwargs)
+## This is the key. We'll set the "width" for all wedges generated by ax.pie.
+## (The inside radius for each donut will be "radius" - "width")
+#plt.setp(inside + outside, width=width, edgecolor='white')
+#ax.legend(inside[::-1], ['Hardware', 'Software', 'Services'], frameon=False)
+#plt.show()
 
 
 
