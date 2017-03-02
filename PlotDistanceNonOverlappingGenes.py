@@ -120,58 +120,71 @@ for i in range(len(HumanPairs[1])):
             E1, E2 = ChimpCoord[ortho1][2], ChimpCoord[ortho2][2]            
             # get indices of chimp orthologs in the ordred gene list
             P1, P2 = ChimpOrdered[chromo1].index(ortho1), ChimpOrdered[chromo2].index(ortho2)
-            D, Adjacent = 'na', 'na'            
+            D = 'na'            
             # check if orthologs are overlapping in chimp
             if set([ortho1, ortho2]) in ChimpPairs[0]:
                 # chimp genes are overlapping
                 # check if they are adjcent
-                
-                
-                
-########### continue here                
-                
-            
-            
-            
-            if S1 < S2:
-                assert P1 < P2
-                if P2 != P1 + 1:
-                    nonadjacent += 1
-                # get the distance between genes
-                D = S2 - E1
-            else:
-                assert P2 < P1
-                if P1 != P2 + 1:
-                    nonadjacent += 1
-                # get the distance between genes              
-                D = S1 - E2
+                if S1 < S2:
+                    assert P1 < P2
+                    if P2 != P1 + 1:
+                        # overlapping non adjacent
+                        SepOvlp += 1
+                    elif P2 == P1 + 1:
+                        # overlapping adjacent
+                        AdjOvlp += 1
+                        # get the distance between genes
+                        D = S2 - E1
+                elif S1 > S2:
+                    assert P2 < P1
+                    if P1 != P2 + 1:
+                        # overlapping non adjacent
+                        SepOvlp += 1
+                    elif P1 == P2 + 1:
+                        # overlapping adjacent
+                        AdjOvlp += 1
+                        # get the distance between genes              
+                        D = S1 - E2
+            elif set([ortho1, ortho2]) not in ChimpPairs[0]:
+                # chimp genes are not overlapping
+                # check if they are adjacent
+                if S1 < S2:
+                    assert P1 < P2
+                    if P2 != P1 + 1:
+                        # non-overlapping non-adjacent
+                        SepNonOvlp += 1
+                    elif P2 == P1 + 1:
+                        # non-overlapping adjacent
+                        AdjNonOvlp += 1
+                        # get the distance between genes
+                        D = S2 - E1
+                elif S1 > S2:
+                    assert P2 < P1
+                    if P1 != P2 + 1:
+                        # non-overlapping non adjacent
+                        SepNonOvlp += 1
+                    elif P1 == P2 + 1:
+                        # non-overlapping adjacent
+                        AdjNonOvlp += 1
+                        # get the distance between genes              
+                        D = S1 - E2
             if D != 'na':
-                if D < 0:
-                    assert set([ortho1, ortho2]) in ChimpPairs[0]
                 GeneDist.append(D)  
                 
             
-print('nonadjacent', nonadjacent)
+print(SepOvlp, SepNonOvlp, AdjOvlp, AdjNonOvlp, DiffLG)
 
-
-
-infinity, negatif, positif, zero = [], [], [], []
+negatif, positif, zero = [], [], []
 for i in GeneDist:
-    if i == float('inf'):
-        infinity.append(i)
-    elif i != float('inf') and i > 0:
+    if i > 0:
         positif.append(i)
     elif i < 0:
         negatif.append(i)
     elif i == 0:
         zero.append(i)
-
-
 negatif.sort()
 positif.sort()
-
-   
-print(len(infinity), len(negatif), len(positif), len(zero))
+print(len(negatif), len(positif), len(zero))
 print(min(negatif), max(negatif))
 print(min(positif), max(positif))
 
