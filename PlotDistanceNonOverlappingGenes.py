@@ -93,11 +93,11 @@ for i in range(len(ChimpPairs)):
 
 
 # 1) plot the proportions of orthologous gene pairs that are adjacent, separated
-# and on different chromosomes
+# and on different chromosomes and nested
 # 2) plot a histogram of the intergenic distance between non-nested adjacent
 # chimp orthologs of human nested genes
 
-SepOvlp, SepNonOvlp, AdjOvlp, AdjNonOvlp, DiffLG = 0, 0, 0, 0, 0
+SepOvlp, SepNonOvlp, AdjOvlp, AdjNonOvlp, DiffLG, NstCons = 0, 0, 0, 0, 0, 0
 
 # get the intergenic distance between non-nested adjacent orthologs of human nested genes
 GeneDist = []  
@@ -145,6 +145,8 @@ for i in range(len(HumanPairs[1])):
                         AdjOvlp += 1
                         # get the distance between genes              
                         D = S1 - E2
+                elif S1 == S2:
+                    print('merde')
             elif set([ortho1, ortho2]) not in ChimpPairs[0]:
                 # chimp genes are not overlapping
                 # check if they are adjacent
@@ -168,11 +170,41 @@ for i in range(len(HumanPairs[1])):
                         AdjNonOvlp += 1
                         # get the distance between genes              
                         D = S1 - E2
+                elif S1 == S2:
+                    print('shit')
             if D != 'na':
                 GeneDist.append(D)  
-                
+    elif set([ortho1, ortho2]) in ChimpPairs[1]:
+        # orthologs of human nested genes are also nested
+        NstCons += 1            
+
+# make a list of counts
+PairCounts = [SepOvlp, SepNonOvlp, AdjOvlp, AdjNonOvlp, DiffLG, NstCons]
+# make a list of labels
+Labels = ['Separated overlapping', 'Separated non-overlapping', 'Adjacent overlapping', 'Adjacent non-overlapping', 'Different chromosomes', 'Nested']
+# remove counts and labels equal to 0
+to_remove = []
+for i in range(len(PairCounts)):
+    if PairCounts[i] == 0:
+        to_remove.append(PairCounts[i])
+        to_remove.append(Labels[i])
+for i in to_remove:
+    if i in PairCounts:
+        PairCounts.remove(i)
+    elif i in Labels:
+        Labels.remove(i)
+# associate counts and corresponding labels
+CountsLabels = list(zip(PairCounts, Labels))  
+# sort count, labels according to counts    
+CountsLabels.sort()
+PairCounts = [i[0] for i in CountsLabels]
+Labels = [i[1] for i in CountsLabels]
+# get proportions of gene pairs
+Proportions = [str(round((i / sum(PairCounts)*100),1)) for i in PairCounts]
             
-print(SepOvlp, SepNonOvlp, AdjOvlp, AdjNonOvlp, DiffLG)
+print(PairCounts)
+print(Labels)
+
 
 negatif, positif, zero = [], [], []
 for i in GeneDist:
@@ -187,8 +219,6 @@ positif.sort()
 print(len(negatif), len(positif), len(zero))
 print(min(negatif), max(negatif))
 print(min(positif), max(positif))
-
-
 print(positif)
 print('\n\n')
 print(negatif)
@@ -197,14 +227,98 @@ print(negatif)
 # 1) plot the proportions of orthologous gene pairs that are adjacent, separated and on different chromosomes
 
 
-
-
-
-
 # 2) plot a histogram of the intergenic distance between non-nested adjacent chimp orthologs of human nested genes
 
 
-###################
+
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
+#def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XLabel, YRange, YMax, XRange, Colors, GraphType):
+    '''
+    return an ax object
+    '''    
+    # create subplot in figure
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # plot data    
+    if GraphType == 'histo':
+        ax.hist(Data[0], bins = np.arange(0, max([max(Data[0]), max(Data[1])]) + 1, 1), linewidth = 0.7, histtype='step', fill = True, facecolor = Colors[0], edgecolor = Colors[0], alpha = 0.5, stacked = False)    
+        ax.hist(Data[1], bins = np.arange(0, max([max(Data[0]), max(Data[1])]) + 1, 1), linewidth = 0.7, histtype='step', fill = True, facecolor = Colors[1], edgecolor = Colors[1], alpha = 0.5, stacked = False)
+    
+        # set font for all text in figure
+        FigFont = {'fontname':'Arial'}   
+        # write label axis
+        ax.set_ylabel(YLabel, color = 'black',  size = 6.5, ha = 'center', **FigFont)
+        ax.set_xlabel(XLabel, color = 'black',  size = 6.5, ha = 'center', **FigFont)
+        # set a limit to y axis
+        plt.ylim([0, YMax])
+        # add a range to the axis
+        plt.xticks(XRange, size = 6.5, color = 'black', ha = 'center', **FigFont)
+        plt.yticks(YRange, size = 6.5, color = 'black', ha = 'right', **FigFont)        
+    
+        # do not show lines around figure  
+        ax.spines["top"].set_visible(False)    
+        ax.spines["bottom"].set_visible(True)    
+        ax.spines["right"].set_visible(False)    
+        ax.spines["left"].set_visible(True)  
+        # edit tick paramters
+        plt.tick_params(axis='both', which='both', bottom='on', top='off', right = 'off',
+                    left = 'on', labelbottom='on', colors = 'black', labelsize = 7, direction = 'out')  
+        # add ticks on the x axis
+        #plt.xticks(TickPos, Ticklabel)    
+        # Set the tick labels font name
+        for label in ax.get_yticklabels():
+            label.set_fontname('Arial')   
+        # create a margin around the x axis
+        plt.margins(0.05)
+    
+    
+    
+    
+    elif GraphType == 'donut':
+        # Pie chart, where the slices will be ordered and plotted counter-clockwise:
+        sizes, labels = Data[0], Data[1]
+        explode = [0] * len(sizes) # "explode" slices        
+        #explode = (0, 0, 0, 0) 
+        colors = ['yellowgreen', 'gold', 'lightskyblue', 'lightcoral', 'lightgreen', 'red']
+        ax.pie(sizes, explode=explode, labels=labels, colors = colors, autopct='%1.1f%%',
+               shadow=False, startangle=90)
+        # draw a circle at the center of pie to make it look like a donut
+        centre_circle = plt.Circle((0,0),0.75,color='black', fc='white',linewidth=1)
+        # modify line parameters of pie chart
+        plt.rcParams['patch.linewidth'] = 1  
+        plt.rcParams['patch.edgecolor'] = 'black' 
+
+
+        #matplotlib.pyplot.pie(x, explode=None, labels=None, colors=None,
+        #                      autopct=None, pctdistance=0.6, shadow=False,
+        #                      labeldistance=1.1, startangle=None, radius=None,
+        #                      counterclock=True, wedgeprops=None, textprops=None,
+        #                      center=(0, 0), frame=False, hold=None, data=None)        
+
+
+        # Equal aspect ratio ensures that pie is drawn as a circle
+        ax.axis('equal')  
+        # add circle to pie chart
+        fig.gca().add_artist(centre_circle)
+
+               
+    return ax      
+
+
+
+# create figure
+fig = plt.figure(1, figsize = (2.5, 4.5))
+ax1 = CreateAx(1, 1, 1, fig, [PairCounts, Labels], 'donut')
+
+
+fig.savefig('truc.pdf', bbox_inches = 'tight')
+
+
+
+
+
+
 
 
 
