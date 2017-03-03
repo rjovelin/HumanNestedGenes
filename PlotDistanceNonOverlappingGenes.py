@@ -202,32 +202,18 @@ Labels = [i[1] for i in CountsLabels]
 # get proportions of gene pairs
 Proportions = [str(round((i / sum(PairCounts)*100),1)) for i in PairCounts]
             
-print(PairCounts)
-print(Labels)
-
-
-negatif, positif, zero = [], [], []
-for i in GeneDist:
-    if i > 0:
-        positif.append(i)
-    elif i < 0:
-        negatif.append(i)
-    elif i == 0:
-        zero.append(i)
-negatif.sort()
-positif.sort()
-print(len(negatif), len(positif), len(zero))
-print(min(negatif), max(negatif))
-print(min(positif), max(positif))
-print(positif)
-print('\n\n')
-print(negatif)
-
-
 # 1) plot the proportions of orthologous gene pairs that are adjacent, separated and on different chromosomes
 
 
 # 2) plot a histogram of the intergenic distance between non-nested adjacent chimp orthologs of human nested genes
+
+# collapse values for | distance | > 100 Kb
+for i in range(len(GeneDist)):
+    if GeneDist[i] < -100000:
+        GeneDist[i] = -110000
+    elif GeneDist[i] > 100000:
+        GeneDist[i] = 110000
+
 
 
 
@@ -242,17 +228,19 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
     ax = figure.add_subplot(Rows, Columns, Position)
     # plot data    
     if GraphType == 'histo':
-        ax.hist(Data, bins = np.arange(min(Data), max(Data)+1000, 1000), linewidth = 0.7, histtype='bar', fill = True, facecolor = 'black', edgecolor = 'black', alpha = 1)    
+        ax.hist(Data, bins = np.arange(min(Data), max(Data)+10000, 10000), linewidth = 0.7, histtype='bar', fill = True, facecolor = '#9e9ac8', edgecolor = 'black', alpha = 1)    
         # set font for all text in figure
         FigFont = {'fontname':'Arial'}   
         # write label axis
         ax.set_ylabel('Proportion of nested gene pairs in human', color = 'black',  size = 7, ha = 'center', **FigFont)
-        ax.set_xlabel('Intergenic distance in chimp', color = 'black',  size = 7, ha = 'center', **FigFont)
+        ax.set_xlabel('Intergenic distance in chimp (Kb)', color = 'black',  size = 7, ha = 'center', **FigFont)
         # set a limit to y axis
-        #plt.ylim([0, YMax])
-        # add a range to the axis
-        plt.xticks(XRange, size = 7, color = 'black', ha = 'center', **FigFont)
-        plt.yticks(np.arange(0, 1, 0.2), size = 7, color = 'black', ha = 'right', **FigFont)        
+        plt.ylim([0, 70])
+        # add ticks on the x axis
+        TickPos = ['', '-100', '', '-80', '', '-60', '',
+                   '-40', '', '-20', '', '0', '', '20', '',
+                   '40', '', '60', '', '80', '', '100', '']
+        plt.xticks(np.arange(-110000, 120000, 10000), TickPos, size = 7, color = 'black', ha = 'center', **FigFont)
         # do not show lines around figure  
         ax.spines["top"].set_visible(False)    
         ax.spines["bottom"].set_visible(True)    
@@ -261,17 +249,11 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         # edit tick paramters
         plt.tick_params(axis='both', which='both', bottom='on', top='off', right = 'off',
                     left = 'on', labelbottom='on', colors = 'black', labelsize = 7, direction = 'out')  
-        # add ticks on the x axis
-        #plt.xticks(TickPos, Ticklabel)    
         # Set the tick labels font name
         for label in ax.get_yticklabels():
             label.set_fontname('Arial')   
-        # create a margin around the x axis
+        # add margin
         plt.margins(0.05)
-    
-    
-    
-    
     elif GraphType == 'donut':
         # Pie chart, where the slices will be ordered and plotted counter-clockwise:
         sizes, labels = Data[0], Data[1]
@@ -302,16 +284,6 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         
         
         
-        
-
-       
-        
-        
-
-       
-        
-        
-        
 #        from matplotlib import pyplot as plt
 #from matplotlib.patches import Rectangle
 #someX, someY = 0.5, 0.5
@@ -322,10 +294,6 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
 #        
         
         
-        
-        
-        
-        
         #plt.legend(pie[0], Data[1], loc="upper right")        
         
                    
@@ -334,9 +302,9 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
 
 
 # create figure
-fig = plt.figure(1, figsize = (2.5, 4.5))
-ax1 = CreateAx(1, 1, 1, fig, [PairCounts, Labels], 'donut')
-
+fig = plt.figure(1, figsize = (5.5, 2.5))
+ax1 = CreateAx(2, 1, 1, fig, [PairCounts, Labels], 'donut')
+ax2 = CreateAx(2, 1, 2, fig, GeneDist, 'histo')
 
 
 
@@ -386,6 +354,8 @@ ax1 = CreateAx(1, 1, 1, fig, [PairCounts, Labels], 'donut')
 #visible	[True | False]
 #zorder	any number
 
+# make sure subplots do not overlap
+plt.tight_layout()
 
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 
@@ -410,69 +380,7 @@ fig.savefig('truc.pdf', bbox_inches = 'tight')
 
 
 
-## create figure
-#fig = plt.figure(1, figsize = (2.5, 4.5))
-#
-## plot distribution of intron number
-#YMax1 = max(max([WithIntronCount.count(i) for i in WithIntronCount]),  max([IntronlessCount.count(i) for i in IntronlessCount])) + 10
-#ax1 = CreateAx(1, 3, 1, fig, [WithIntronCount, IntronlessCount], 'N external genes', 'Number of introns', np.arange(0, YMax1 + 10, 10), YMax1, np.arange(0, 80, 10), ['orange', 'blue'], 'histo')
-## plot distribution of intron position
-#YMax2 = max(max([WithIntronPos.count(i) for i in WithIntronPos]), max([IntronlessPos.count(i) for i in IntronlessPos])) + 10
-#ax2 = CreateAx(1, 3, 2, fig, [WithIntronPos, IntronlessPos], 'N external genes', 'Intron position', np.arange(0, YMax2 + 20, 20), YMax2, np.arange(0, 60, 10), ['orange', 'blue'], 'histo')
-## plot distribution of intron position / intron number
-#ax3 = CreateAx(1, 3, 3, fig, [WithIntronPosNorm, PWithPosNorm, IntronlessPosNorm, PNonePosNorm] , 'Probability', 'Intron position / intron number', np.arange(0, 1.1, 0.1), 1, np.arange(0, 1.1, 0.1), ['orange', 'blue'], 'cdf')
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#
-#    # create subplot in figure
-#    # add a plot to figure (N row, N column, plot N)
-#    ax = figure.add_subplot(Rows, Columns, Position)
-#    # plot data    
-#    if GraphType == 'histo':
-#        ax.hist(Data[0], bins = np.arange(0, max([max(Data[0]), max(Data[1])]) + 1, 1), linewidth = 0.7, histtype='step', fill = True, facecolor = Colors[0], edgecolor = Colors[0], alpha = 0.5, stacked = False)    
-#        ax.hist(Data[1], bins = np.arange(0, max([max(Data[0]), max(Data[1])]) + 1, 1), linewidth = 0.7, histtype='step', fill = True, facecolor = Colors[1], edgecolor = Colors[1], alpha = 0.5, stacked = False)
-#    elif GraphType == 'cdf':
-#        ax.step(Data[0], Data[1], linewidth = 1, linestyle = '-', color = Colors[0], alpha = 0.5)
-#        ax.step(Data[2], Data[3], linewidth = 1, linestyle = '-', color = Colors[1], alpha = 0.5)
-#        
-#    # set font for all text in figure
-#    FigFont = {'fontname':'Arial'}   
-#    # write label axis
-#    ax.set_ylabel(YLabel, color = 'black',  size = 6.5, ha = 'center', **FigFont)
-#    ax.set_xlabel(XLabel, color = 'black',  size = 6.5, ha = 'center', **FigFont)
-#    # set a limit to y axis
-#    plt.ylim([0, YMax])
-#    # add a range to the axis
-#    plt.xticks(XRange, size = 6.5, color = 'black', ha = 'center', **FigFont)
-#    plt.yticks(YRange, size = 6.5, color = 'black', ha = 'right', **FigFont)        
-#    
-#    # do not show lines around figure  
-#    ax.spines["top"].set_visible(False)    
-#    ax.spines["bottom"].set_visible(True)    
-#    ax.spines["right"].set_visible(False)    
-#    ax.spines["left"].set_visible(True)  
-#    # edit tick paramters
-#    plt.tick_params(axis='both', which='both', bottom='on', top='off', right = 'off',
-#                    left = 'on', labelbottom='on', colors = 'black', labelsize = 7, direction = 'out')  
-#    # add ticks on the x axis
-#    #plt.xticks(TickPos, Ticklabel)    
-#    # Set the tick labels font name
-#    for label in ax.get_yticklabels():
-#        label.set_fontname('Arial')   
-#    # create a margin around the x axis
-#    plt.margins(0.05)
-#    return ax      
-#
-#
-## make sure subplots do not overlap
-#plt.tight_layout()
+
 #
 ### annotate graphs with legends
 ## create patches 
