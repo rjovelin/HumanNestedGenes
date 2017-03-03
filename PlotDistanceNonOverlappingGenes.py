@@ -243,19 +243,16 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
     # plot data    
     if GraphType == 'histo':
         ax.hist(Data, bins = np.arange(min(Data), max(Data)+1000, 1000), linewidth = 0.7, histtype='bar', fill = True, facecolor = 'black', edgecolor = 'black', alpha = 1)    
-        
-    
         # set font for all text in figure
         FigFont = {'fontname':'Arial'}   
         # write label axis
-        ax.set_ylabel(YLabel, color = 'black',  size = 6.5, ha = 'center', **FigFont)
-        ax.set_xlabel(XLabel, color = 'black',  size = 6.5, ha = 'center', **FigFont)
+        ax.set_ylabel('Proportion of nested gene pairs in human', color = 'black',  size = 7, ha = 'center', **FigFont)
+        ax.set_xlabel('Intergenic distance in chimp', color = 'black',  size = 7, ha = 'center', **FigFont)
         # set a limit to y axis
-        plt.ylim([0, YMax])
+        #plt.ylim([0, YMax])
         # add a range to the axis
-        plt.xticks(XRange, size = 6.5, color = 'black', ha = 'center', **FigFont)
-        plt.yticks(YRange, size = 6.5, color = 'black', ha = 'right', **FigFont)        
-    
+        plt.xticks(XRange, size = 7, color = 'black', ha = 'center', **FigFont)
+        plt.yticks(np.arange(0, 1, 0.2), size = 7, color = 'black', ha = 'right', **FigFont)        
         # do not show lines around figure  
         ax.spines["top"].set_visible(False)    
         ax.spines["bottom"].set_visible(True)    
