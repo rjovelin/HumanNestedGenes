@@ -237,9 +237,9 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         # set a limit to y axis
         plt.ylim([0, 70])
         # add ticks on the x axis
-        TickPos = ['', '-100', '', '-80', '', '-60', '',
-                   '-40', '', '-20', '', '0', '', '20', '',
-                   '40', '', '60', '', '80', '', '100', '']
+        TickPos = ['', '< -100', '', '', '', '', '-50',
+                   '', '', '', '', '0', '', '', '',
+                   '', '50', '', '', '', '', '> 100', '']
         plt.xticks(np.arange(-110000, 120000, 10000), TickPos, size = 7, color = 'black', ha = 'center', **FigFont)
         # do not show lines around figure  
         ax.spines["top"].set_visible(False)    
