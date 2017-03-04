@@ -302,11 +302,11 @@ ax2.text(-400000, 75, 'A', color = 'black', size = 7, fontname = 'Arial')
 ax2.text(-120000, 75, 'B', color = 'black', size = 7, fontname = 'Arial')
 
 # annotate donut plot
-YPos = [10, 20, 30, 40, 50] 
-XPos = [-400000, -350000, -300000, -250000, -20000]
-HA = ['left', 'left', 'left', 'left', 'left']
+YPos = [70, 20, 30, 40, 50] 
+XPos = [-300000, -350000, -300000, -250000, -200000]
+HA = ['right', 'right', 'right', 'left', 'left']
 for i in range(len(Labels)):
-    ax2.text(-XPos[i], YPos[i], Labels[i], color = 'black', size = 7, ha = 'left', fontname = 'Arial')
+    ax2.text(XPos[i], YPos[i], Labels[i], color = 'black', size = 7, ha = 'left', fontname = 'Arial')
     
 
 [8, 13, 38, 114, 115]
