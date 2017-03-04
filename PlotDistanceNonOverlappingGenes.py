@@ -215,11 +215,8 @@ for i in range(len(GeneDist)):
         GeneDist[i] = 110000
 
 
-
-
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
-#def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XLabel, YRange, YMax, XRange, Colors, GraphType):
     '''
     return an ax object
     '''    
@@ -228,7 +225,53 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
     ax = figure.add_subplot(Rows, Columns, Position)
     # plot data    
     if GraphType == 'histo':
-        ax.hist(Data, bins = np.arange(min(Data), max(Data)+10000, 10000), linewidth = 0.7, histtype='bar', fill = True, facecolor = '#9e9ac8', edgecolor = 'black', alpha = 1)    
+        # get current axis
+        currentAxis = plt.gca()
+        # add rectangle to current axis
+        currentAxis.add_patch(mpl.patches.Rectangle((-110000, 0), 110000, 70, linewidth = 0.7, fill = True, edgecolor = 'black', facecolor = '#f7fcb9', alpha = 1))      
+        currentAxis.add_patch(mpl.patches.Rectangle((0, 0), 110000, 70, linewidth = 0.7, fill = True, edgecolor = 'black', facecolor = '#ffeda0', alpha = 1))      
+        # plot data
+        ax.hist(Data, bins = np.arange(min(Data), max(Data)+10000, 10000), linewidth = 0.7, histtype='bar', fill = True, facecolor = '#0c2c84', edgecolor = 'black', alpha = 1)    
+        # plot a vertical ligne at x = 0
+        ax.plot((0, 0), (0, 70), linestyle = '-', linewidth = 0.7, color = 'black')   
+        
+        
+        
+        
+        
+        
+        #class matplotlib.patches.Rectangle(xy, width, height, angle=0.0, **kwargs)
+
+#agg_filter	unknown
+#alpha	float or None
+#axes	an Axes instance
+#capstyle	[‘butt’ | ‘round’ | ‘projecting’]
+#clip_box	a matplotlib.transforms.Bbox instance
+
+
+#gid	an id string
+#hatch	[‘/’ | ‘\’ | ‘|’ | ‘-‘ | ‘+’ | ‘x’ | ‘o’ | ‘O’ | ‘.’ | ‘*’]
+#joinstyle	[‘miter’ | ‘round’ | ‘bevel’]
+#label	string or anything printable with ‘%s’ conversion.
+#linestyle or ls	[‘solid’ | ‘dashed’, ‘dashdot’, ‘dotted’ | (offset, on-off-dash-seq) | '-' | '--' | '-.' | ':' | 'None' | ' ' | '']
+#linewidth or lw	float or None for default
+#path_effects	unknown
+#picker	[None|float|boolean|callable]
+#rasterized	[True | False | None]
+#sketch_params	unknown
+#snap	unknown
+#transform	Transform instance
+#url	a url string
+#visible	[True | False]
+#zorder	any number
+        
+        
+        
+        
+        
+        
+        
+        
         # set font for all text in figure
         FigFont = {'fontname':'Arial'}   
         # write label axis
@@ -258,7 +301,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         # Pie chart, where the slices will be ordered and plotted counter-clockwise:
         sizes, labels = Data[0], Data[1]
         explode = [0] * len(sizes) # "explode" slices        
-        colors = ['lightgreen', 'gold', 'lightskyblue', '#0c2c84', 'lightcoral']
+        colors = ['lightgreen', 'gold', 'lightskyblue', '#9e9ac8', 'lightcoral']
         '%1.1f%%'
         ax.pie(sizes, explode=explode, labels=None, colors = colors, autopct=None,
                shadow=False, startangle=90, pctdistance=0.6, labeldistance=1.1, 
