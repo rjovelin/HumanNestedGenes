@@ -201,6 +201,12 @@ PairCounts = [i[0] for i in CountsLabels]
 Labels = [i[1] for i in CountsLabels]
 # get proportions of gene pairs
 Proportions = [str(round((i / sum(PairCounts)*100),1)) for i in PairCounts]
+
+print(PairCounts)
+print(Labels)
+print(Proportions)
+
+
             
 # 1) plot the proportions of orthologous gene pairs that are adjacent, separated and on different chromosomes
 
@@ -234,6 +240,9 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         ax.hist(Data, bins = np.arange(min(Data), max(Data)+10000, 10000), linewidth = 0.7, histtype='bar', fill = True, facecolor = '#0c2c84', edgecolor = 'black', alpha = 1)    
         # set font for all text in figure
         FigFont = {'fontname':'Arial'}   
+        # annotate graph with subplot labels
+        ax.text(-90000, 55, 'Overlapping', color = 'black', size = 7, fontname = 'Arial')
+        ax.text(20000, 55, 'Non-overlapping', color = 'black', size = 7, fontname = 'Arial')
         # write label axis
         ax.set_ylabel('Proportion of nested gene pairs in human', color = 'black',  size = 7, ha = 'center', **FigFont)
         ax.set_xlabel('Intergenic distance in chimp (Kb)', color = 'black',  size = 7, ha = 'center', **FigFont)
@@ -262,43 +271,35 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         explode = [0] * len(sizes) # "explode" slices        
         colors = ['lightgreen', 'gold', 'lightskyblue', '#9e9ac8', 'lightcoral']
         '%1.1f%%'
-        ax.pie(sizes, explode=explode, labels=None, colors = colors, autopct=None,
-               shadow=False, startangle=90, pctdistance=0.6, labeldistance=1.1, 
-               counterclock=True)
+        patches, texts, autotexts = ax.pie(sizes, explode=explode, labels=labels, colors = colors, autopct='%1.1f%%',
+                                           shadow=False, startangle=90, pctdistance=0.6, labeldistance=1.1, 
+                                           counterclock=True)
+        for i in range(len(texts)):
+            texts[i].set_fontsize(7)
+        
+            
+               
+               
         # draw a circle at the center of pie to make it look like a donut
         centre_circle = plt.Circle((0,0),0.65,color='black', fc='white',linewidth=1)
         # modify line parameters of pie chart
-        plt.rcParams['patch.linewidth'] = 1  
-        plt.rcParams['patch.edgecolor'] = 'black' 
-
-
-        #matplotlib.pyplot.pie(x, explode=None, labels=None, colors=None,
-        #                      autopct=None, pctdistance=0.6, shadow=False,
-        #                      labeldistance=1.1, startangle=None, radius=None,
-        #                      counterclock=True, wedgeprops=None, textprops=None,
-        #                      center=(0, 0), frame=False, hold=None, data=None)        
-
-
+        mpl.rcParams['patch.linewidth'] = 1  
+        mpl.rcParams['patch.edgecolor'] = 'white' 
         # Equal aspect ratio ensures that pie is drawn as a circle
         ax.axis('equal')  
         # add circle to pie chart
         fig.gca().add_artist(centre_circle)
         
+        # annotate graph with legends
+        # create patches 
+        nst = mpatches.Patch(facecolor = 'lightcoral', edgecolor = 'black', linewidth = 0.5, label= 'Nested', alpha = 1)
+        adjNon = mpatches.Patch(facecolor = '#9e9ac8', edgecolor = 'black', linewidth = 0.5, label= 'Adjacent non-overlapping', alpha = 1)
+        sepNon = mpatches.Patch(facecolor = 'lightskyblue', edgecolor = 'black', linewidth = 0.5, label= 'Separated non-overlapping', alpha = 1)
+        adjO = mpatches.Patch(facecolor = 'gold', edgecolor = 'black', linewidth = 0.5, label= 'Adjacent overlapping', alpha = 1)
+        diffC = mpatches.Patch(facecolor = 'lightgreen', edgecolor = 'black', linewidth = 0.5, label= 'Different chromosomes', alpha = 1)
+        ax.legend(handles = [nst, adjNon, sepNon, adjO, diffC], bbox_to_anchor=(0.8, 0.8), loc = 3, fontsize = 7, frameon = False, ncol = 1)
+            
         
-        
-#        from matplotlib import pyplot as plt
-#from matplotlib.patches import Rectangle
-#someX, someY = 0.5, 0.5
-#fig,ax = plt.subplots()
-#currentAxis = plt.gca()
-#currentAxis.add_patch(Rectangle((someX - 0.1, someY - 0.1), 0.2, 0.2,
-#                      alpha=1, facecolor='none'))
-#        
-        
-        
-        #plt.legend(pie[0], Data[1], loc="upper right")        
-        
-                   
     return ax      
 
 
@@ -328,21 +329,6 @@ fig.savefig('truc.pdf', bbox_inches = 'tight')
 
 
 
-#import matplotlib.pyplot as plt
-#fig, ax = plt.subplots()
-#ax.axis('equal')
-## Width of the "rings" (percentages if the largest "radius"==1)
-#width = 0.35 
-## Note the different "radius" values: largest --> outside "donut".
-#kwargs = dict(colors=['#66FF66', '#9999FF', '#FF9999'], startangle=90)
-#inside, _ = ax.pie([45, 87, 77], radius=1-width, **kwargs)
-#outside, _ = ax.pie([96, 124, 88], radius=1, **kwargs)
-## This is the key. We'll set the "width" for all wedges generated by ax.pie.
-## (The inside radius for each donut will be "radius" - "width")
-#plt.setp(inside + outside, width=width, edgecolor='white')
-#ax.legend(inside[::-1], ['Hardware', 'Software', 'Services'], frameon=False)
-#plt.show()
-
 
 
 
@@ -359,12 +345,5 @@ fig.savefig('truc.pdf', bbox_inches = 'tight')
 #orange_line = mlines.Line2D([], [], color='orange', marker='', markersize=15, label='with introns', alpha = 0.5)
 #blue_line = mlines.Line2D([], [], color='blue', marker='', markersize=15, label='intronless', alpha = 0.5)
 #ax3.legend(handles = [Title, orange_line, blue_line], bbox_to_anchor=(0.05, 0.5), loc = 3, fontsize = 5, frameon = False, ncol = 1)
-#
-#
-#fig.savefig('truc.pdf', bbox_inches = 'tight')
-#
-#
-############################
-#
 #
 #
