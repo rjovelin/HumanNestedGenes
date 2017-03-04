@@ -228,38 +228,10 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         # get current axis
         currentAxis = plt.gca()
         # add rectangle to current axis
-        currentAxis.add_patch(mpl.patches.Rectangle((-110000, 0), 110000, 70, linewidth = 0.7, fill = True, edgecolor = 'black', facecolor = '#f7fcb9', alpha = 1))      
-        currentAxis.add_patch(mpl.patches.Rectangle((0, 0), 110000, 70, linewidth = 0.7, fill = True, edgecolor = 'black', facecolor = '#ffeda0', alpha = 1))      
+        currentAxis.add_patch(mpl.patches.Rectangle((-110000, 0), 110000, 70, linewidth = 0.7, fill = True, edgecolor = '#f7fcb9', facecolor = '#f7fcb9', alpha = 1))      
+        currentAxis.add_patch(mpl.patches.Rectangle((0, 0), 110000, 70, linewidth = 0.7, fill = True, edgecolor = '#ffeda0', facecolor = '#ffeda0', alpha = 1))      
         # plot data
         ax.hist(Data, bins = np.arange(min(Data), max(Data)+10000, 10000), linewidth = 0.7, histtype='bar', fill = True, facecolor = '#0c2c84', edgecolor = 'black', alpha = 1)    
-        # plot a vertical ligne at x = 0
-        #ax.plot((0, 0), (0, 70), linestyle = '-', linewidth = 0.7, color = 'black')   
-        
-        
-        
-        
-        
-        
-        #class matplotlib.patches.Rectangle(xy, width, height, angle=0.0, **kwargs)
-
-#agg_filter	unknown
-#alpha	float or None
-#axes	an Axes instance
-#capstyle	[‘butt’ | ‘round’ | ‘projecting’]
-#clip_box	a matplotlib.transforms.Bbox instance
-
-
-#gid	an id string
-#joinstyle	[‘miter’ | ‘round’ | ‘bevel’]
-#linestyle or ls	[‘solid’ | ‘dashed’, ‘dashdot’, ‘dotted’ | (offset, on-off-dash-seq) | '-' | '--' | '-.' | ':' | 'None' | ' ' | '']
-      
-        
-        
-        
-        
-        
-        
-        
         # set font for all text in figure
         FigFont = {'fontname':'Arial'}   
         # write label axis
@@ -282,7 +254,8 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
                     left = 'on', labelbottom='on', colors = 'black', labelsize = 7, direction = 'out')  
         # Set the tick labels font name
         for label in ax.get_yticklabels():
-            label.set_fontname('Arial')   
+            label.set_fontname('Arial')
+        plt.margins(0)
     elif GraphType == 'donut':
         # Pie chart, where the slices will be ordered and plotted counter-clockwise:
         sizes, labels = Data[0], Data[1]
@@ -335,53 +308,17 @@ fig = plt.figure(1, figsize = (5.5, 2.5))
 ax1 = CreateAx(2, 1, 1, fig, [PairCounts, Labels], 'donut')
 ax2 = CreateAx(2, 1, 2, fig, GeneDist, 'histo')
 
+# annotate graph with subplot labels
+ax2.text(-400000, 75, 'A', color = 'black', size = 7, fontname = 'Arial')
+ax2.text(-120000, 75, 'B', color = 'black', size = 7, fontname = 'Arial')
 
 
 
-#http://matplotlib.org/api/patches_api.html
 
-#class matplotlib.patches.Rectangle(xy, width, height, angle=0.0, **kwargs)
-#Bases: matplotlib.patches.Patch
-#
-#Draw a rectangle with lower left at xy = (x, y) with specified width and height.
-#
-#angle
-#rotation in degrees (anti-clockwise)
-#fill is a boolean indicating whether to fill the rectangle
-#
-#Valid kwargs are:
-#
-#Property	Description
-#agg_filter	unknown
-#alpha	float or None
-#animated	[True | False]
-#antialiased or aa	[True | False] or None for default
-#axes	an Axes instance
-#capstyle	[‘butt’ | ‘round’ | ‘projecting’]
-#clip_box	a matplotlib.transforms.Bbox instance
-#clip_on	[True | False]
-#clip_path	[ (Path, Transform) | Patch | None ]
-#color	matplotlib color spec
-#contains	a callable function
-#edgecolor or ec	mpl color spec, None, ‘none’, or ‘auto’
-#facecolor or fc	mpl color spec, or None for default, or ‘none’ for no color
-#figure	a matplotlib.figure.Figure instance
-#fill	[True | False]
-#gid	an id string
-#hatch	[‘/’ | ‘\’ | ‘|’ | ‘-‘ | ‘+’ | ‘x’ | ‘o’ | ‘O’ | ‘.’ | ‘*’]
-#joinstyle	[‘miter’ | ‘round’ | ‘bevel’]
-#label	string or anything printable with ‘%s’ conversion.
-#linestyle or ls	[‘solid’ | ‘dashed’, ‘dashdot’, ‘dotted’ | (offset, on-off-dash-seq) | '-' | '--' | '-.' | ':' | 'None' | ' ' | '']
-#linewidth or lw	float or None for default
-#path_effects	unknown
-#picker	[None|float|boolean|callable]
-#rasterized	[True | False | None]
-#sketch_params	unknown
-#snap	unknown
-#transform	Transform instance
-#url	a url string
-#visible	[True | False]
-#zorder	any number
+
+
+
+
 
 # make sure subplots do not overlap
 plt.tight_layout()
@@ -423,15 +360,6 @@ fig.savefig('truc.pdf', bbox_inches = 'tight')
 #blue_line = mlines.Line2D([], [], color='blue', marker='', markersize=15, label='intronless', alpha = 0.5)
 #ax3.legend(handles = [Title, orange_line, blue_line], bbox_to_anchor=(0.05, 0.5), loc = 3, fontsize = 5, frameon = False, ncol = 1)
 #
-## annotate graphs with p values
-#for i in range(len(PVals)):
-#    if PVals[i] != '':
-#        if i == 0:
-#            ax1.text(25, 20, PVals[i], color = 'black', size = 5, fontname = 'Arial')
-#        elif i == 1:
-#            ax2.text(15, 60, PVals[i], color = 'black', size = 5, fontname = 'Arial')
-#        elif i == 2:
-#            ax3.text(0.4, 0.3, PVals[i], color = 'black', size = 5, fontname = 'Arial')
 #
 #fig.savefig('truc.pdf', bbox_inches = 'tight')
 #
