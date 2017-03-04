@@ -258,7 +258,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         # Pie chart, where the slices will be ordered and plotted counter-clockwise:
         sizes, labels = Data[0], Data[1]
         explode = [0] * len(sizes) # "explode" slices        
-        colors = ['lightgreen', 'gold', 'lightskyblue', '#9e9ac8', 'lightcoral']
+        colors = ['lightgreen', 'gold', 'lightskyblue', '#0c2c84', 'lightcoral']
         '%1.1f%%'
         ax.pie(sizes, explode=explode, labels=None, colors = colors, autopct=None,
                shadow=False, startangle=90, pctdistance=0.6, labeldistance=1.1, 
