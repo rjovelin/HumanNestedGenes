@@ -278,15 +278,15 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         # add circle to pie chart
         fig.gca().add_artist(centre_circle)
         
-        # annotate graph with legends
-        # create patches 
-        nst = mpatches.Patch(facecolor = 'lightcoral', edgecolor = 'black', linewidth = 0.5, label= 'Nested', alpha = 1)
-        adjNon = mpatches.Patch(facecolor = '#9e9ac8', edgecolor = 'black', linewidth = 0.5, label= 'Adjacent non-overlapping', alpha = 1)
-        sepNon = mpatches.Patch(facecolor = 'lightskyblue', edgecolor = 'black', linewidth = 0.5, label= 'Separated non-overlapping', alpha = 1)
-        adjO = mpatches.Patch(facecolor = 'gold', edgecolor = 'black', linewidth = 0.5, label= 'Adjacent overlapping', alpha = 1)
-        diffC = mpatches.Patch(facecolor = 'lightgreen', edgecolor = 'black', linewidth = 0.5, label= 'Different chromosomes', alpha = 1)
-        ax.legend(handles = [nst, adjNon, sepNon, adjO, diffC], bbox_to_anchor=(0.8, 0.8), loc = 3, fontsize = 7, frameon = False, ncol = 1)
-       
+#        # annotate graph with legends
+#        # create patches 
+#        nst = mpatches.Patch(facecolor = 'lightcoral', edgecolor = 'black', linewidth = 0.5, label= 'Nested', alpha = 1)
+#        adjNon = mpatches.Patch(facecolor = '#9e9ac8', edgecolor = 'black', linewidth = 0.5, label= 'Adjacent non-overlapping', alpha = 1)
+#        sepNon = mpatches.Patch(facecolor = 'lightskyblue', edgecolor = 'black', linewidth = 0.5, label= 'Separated non-overlapping', alpha = 1)
+#        adjO = mpatches.Patch(facecolor = 'gold', edgecolor = 'black', linewidth = 0.5, label= 'Adjacent overlapping', alpha = 1)
+#        diffC = mpatches.Patch(facecolor = 'lightgreen', edgecolor = 'black', linewidth = 0.5, label= 'Different chromosomes', alpha = 1)
+#        ax.legend(handles = [nst, adjNon, sepNon, adjO, diffC], bbox_to_anchor=(0.8, 0.8), loc = 3, fontsize = 7, frameon = False, ncol = 1)
+#       
     return ax      
 
 
@@ -300,6 +300,19 @@ ax2 = CreateAx(2, 1, 2, fig, GeneDist, 'histo')
 # annotate graph with subplot labels
 ax2.text(-400000, 75, 'A', color = 'black', size = 7, fontname = 'Arial')
 ax2.text(-120000, 75, 'B', color = 'black', size = 7, fontname = 'Arial')
+
+# annotate donut plot
+YPos = [10, 20, 30, 40, 50] 
+XPos = [-400000, -350000, -300000, -250000, -20000]
+HA = ['left', 'left', 'left', 'left', 'left']
+for i in range(len(Labels)):
+    ax2.text(-XPos[i], YPos[i], Labels[i], color = 'black', size = 7, ha = 'left', fontname = 'Arial')
+    
+
+[8, 13, 38, 114, 115]
+['Different chromosomes', 'Adjacent overlapping', 'Separated non-overlapping', 'Adjacent non-overlapping', 'Nested']
+['2.8', '4.5', '13.2', '39.6', '39.9']
+
 
 
 # make sure subplots do not overlap
