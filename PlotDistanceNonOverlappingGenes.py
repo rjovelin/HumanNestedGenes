@@ -233,7 +233,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         # plot data
         ax.hist(Data, bins = np.arange(min(Data), max(Data)+10000, 10000), linewidth = 0.7, histtype='bar', fill = True, facecolor = '#0c2c84', edgecolor = 'black', alpha = 1)    
         # plot a vertical ligne at x = 0
-        ax.plot((0, 0), (0, 70), linestyle = '-', linewidth = 0.7, color = 'black')   
+        #ax.plot((0, 0), (0, 70), linestyle = '-', linewidth = 0.7, color = 'black')   
         
         
         
@@ -250,21 +250,9 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
 
 
 #gid	an id string
-#hatch	[‘/’ | ‘\’ | ‘|’ | ‘-‘ | ‘+’ | ‘x’ | ‘o’ | ‘O’ | ‘.’ | ‘*’]
 #joinstyle	[‘miter’ | ‘round’ | ‘bevel’]
-#label	string or anything printable with ‘%s’ conversion.
 #linestyle or ls	[‘solid’ | ‘dashed’, ‘dashdot’, ‘dotted’ | (offset, on-off-dash-seq) | '-' | '--' | '-.' | ':' | 'None' | ' ' | '']
-#linewidth or lw	float or None for default
-#path_effects	unknown
-#picker	[None|float|boolean|callable]
-#rasterized	[True | False | None]
-#sketch_params	unknown
-#snap	unknown
-#transform	Transform instance
-#url	a url string
-#visible	[True | False]
-#zorder	any number
-        
+      
         
         
         
@@ -295,8 +283,6 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         # Set the tick labels font name
         for label in ax.get_yticklabels():
             label.set_fontname('Arial')   
-        # add margin
-        plt.margins(0.05)
     elif GraphType == 'donut':
         # Pie chart, where the slices will be ordered and plotted counter-clockwise:
         sizes, labels = Data[0], Data[1]
