@@ -207,12 +207,6 @@ print(Labels)
 print(Proportions)
 
 
-            
-# 1) plot the proportions of orthologous gene pairs that are adjacent, separated and on different chromosomes
-
-
-# 2) plot a histogram of the intergenic distance between non-nested adjacent chimp orthologs of human nested genes
-
 # collapse values for | distance | > 100 Kb
 for i in range(len(GeneDist)):
     if GeneDist[i] < -100000:
@@ -271,15 +265,9 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         explode = [0] * len(sizes) # "explode" slices        
         colors = ['lightgreen', 'gold', 'lightskyblue', '#9e9ac8', 'lightcoral']
         '%1.1f%%'
-        patches, texts, autotexts = ax.pie(sizes, explode=explode, labels=labels, colors = colors, autopct='%1.1f%%',
-                                           shadow=False, startangle=90, pctdistance=0.6, labeldistance=1.1, 
-                                           counterclock=True)
-        for i in range(len(texts)):
-            texts[i].set_fontsize(7)
-        
-            
-               
-               
+        ax.pie(sizes, explode=explode, labels=None, colors = colors, autopct=None,
+               shadow=False, startangle=90, pctdistance=0.6, labeldistance=1.1, 
+               counterclock=True)
         # draw a circle at the center of pie to make it look like a donut
         centre_circle = plt.Circle((0,0),0.65,color='black', fc='white',linewidth=1)
         # modify line parameters of pie chart
@@ -298,15 +286,15 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         adjO = mpatches.Patch(facecolor = 'gold', edgecolor = 'black', linewidth = 0.5, label= 'Adjacent overlapping', alpha = 1)
         diffC = mpatches.Patch(facecolor = 'lightgreen', edgecolor = 'black', linewidth = 0.5, label= 'Different chromosomes', alpha = 1)
         ax.legend(handles = [nst, adjNon, sepNon, adjO, diffC], bbox_to_anchor=(0.8, 0.8), loc = 3, fontsize = 7, frameon = False, ncol = 1)
-            
-        
+       
     return ax      
-
 
 
 # create figure
 fig = plt.figure(1, figsize = (5.5, 2.5))
+# 1) plot the proportions of orthologous gene pairs that are adjacent, separated and on different chromosomes
 ax1 = CreateAx(2, 1, 1, fig, [PairCounts, Labels], 'donut')
+# 2) plot a histogram of the intergenic distance between non-nested adjacent chimp orthologs of human nested genes
 ax2 = CreateAx(2, 1, 2, fig, GeneDist, 'histo')
 
 # annotate graph with subplot labels
@@ -314,36 +302,7 @@ ax2.text(-400000, 75, 'A', color = 'black', size = 7, fontname = 'Arial')
 ax2.text(-120000, 75, 'B', color = 'black', size = 7, fontname = 'Arial')
 
 
-
-
-
-
-
-
-
 # make sure subplots do not overlap
 plt.tight_layout()
 
 fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
-
-
-
-
-
-
-#
-### annotate graphs with legends
-## create patches 
-#Title = mpatches.Patch(facecolor = 'none', edgecolor = 'none', linewidth = 0, label= 'Internal genes:', alpha = 0)
-#Yes = mpatches.Patch(facecolor = 'orange', edgecolor = 'none', linewidth = 0.5, label= 'with introns', alpha = 0.5)
-#No = mpatches.Patch(facecolor = 'blue', edgecolor = 'black', linewidth = 0.5, label= 'intronless', alpha = 0.5)
-#ax1.legend(handles = [Title, Yes, No], bbox_to_anchor=(0.2, 0.4), loc = 3, fontsize = 5, frameon = False, ncol = 1)
-#ax2.legend(handles = [Title, Yes, No], bbox_to_anchor=(0.2, 0.4), loc = 3, fontsize = 5, frameon = False, ncol = 1)
-## create lines
-#orange_line = mlines.Line2D([], [], color='orange', marker='', markersize=15, label='with introns', alpha = 0.5)
-#blue_line = mlines.Line2D([], [], color='blue', marker='', markersize=15, label='intronless', alpha = 0.5)
-#ax3.legend(handles = [Title, orange_line, blue_line], bbox_to_anchor=(0.05, 0.5), loc = 3, fontsize = 5, frameon = False, ncol = 1)
-#
-#
