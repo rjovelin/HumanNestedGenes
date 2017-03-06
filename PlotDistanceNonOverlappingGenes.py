@@ -302,15 +302,16 @@ ax2.text(-400000, 75, 'A', color = 'black', size = 7, fontname = 'Arial')
 ax2.text(-120000, 75, 'B', color = 'black', size = 7, fontname = 'Arial')
 
 # annotate donut plot
-YPos = [70, 20, 30, 40, 50] 
-XPos = [-300000, -350000, -300000, -250000, -200000]
-HA = ['right', 'right', 'right', 'left', 'left']
-for i in range(len(Labels)):
-    ax2.text(XPos[i], YPos[i], Labels[i], color = 'black', size = 7, ha = 'left', fontname = 'Arial')
+YPos = [70, 67, 52, 20, 50] 
+XPos = [-280000, -307000, -390000, -390000, -195000]
+HA = ['left', 'right', 'center', 'center', 'left']
+PropLabels = ['Different chromosomes', 'Adjacent overlapping', 'Separated\nnon-overlapping', 'Adjacent\nnon-overlapping', 'Nested']
+for i in range(len(PropLabels)):
+    ax2.text(XPos[i], YPos[i], PropLabels[i], color = 'black', size = 7, ha = HA[i], fontname = 'Arial')
     
 
 [8, 13, 38, 114, 115]
-['Different chromosomes', 'Adjacent overlapping', 'Separated non-overlapping', 'Adjacent non-overlapping', 'Nested']
+['Different chromosomes', 'Adjacent overlapping', 'Separated\nnon-overlapping', 'Adjacent non-overlapping', 'Nested']
 ['2.8', '4.5', '13.2', '39.6', '39.9']
 
 
