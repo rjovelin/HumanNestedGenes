@@ -298,7 +298,7 @@ ax1 = CreateAx(2, 1, 1, fig, [PairCounts, Labels], 'donut')
 ax2 = CreateAx(2, 1, 2, fig, GeneDist, 'histo')
 
 # annotate graph with subplot labels
-ax2.text(-400000, 75, 'A', color = 'black', size = 7, fontname = 'Arial')
+ax2.text(-425000, 75, 'A', color = 'black', size = 7, fontname = 'Arial')
 ax2.text(-120000, 75, 'B', color = 'black', size = 7, fontname = 'Arial')
 
 # annotate donut plot
