@@ -278,15 +278,6 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
         # add circle to pie chart
         fig.gca().add_artist(centre_circle)
         
-#        # annotate graph with legends
-#        # create patches 
-#        nst = mpatches.Patch(facecolor = 'lightcoral', edgecolor = 'black', linewidth = 0.5, label= 'Nested', alpha = 1)
-#        adjNon = mpatches.Patch(facecolor = '#9e9ac8', edgecolor = 'black', linewidth = 0.5, label= 'Adjacent non-overlapping', alpha = 1)
-#        sepNon = mpatches.Patch(facecolor = 'lightskyblue', edgecolor = 'black', linewidth = 0.5, label= 'Separated non-overlapping', alpha = 1)
-#        adjO = mpatches.Patch(facecolor = 'gold', edgecolor = 'black', linewidth = 0.5, label= 'Adjacent overlapping', alpha = 1)
-#        diffC = mpatches.Patch(facecolor = 'lightgreen', edgecolor = 'black', linewidth = 0.5, label= 'Different chromosomes', alpha = 1)
-#        ax.legend(handles = [nst, adjNon, sepNon, adjO, diffC], bbox_to_anchor=(0.8, 0.8), loc = 3, fontsize = 7, frameon = False, ncol = 1)
-#       
     return ax      
 
 
@@ -302,20 +293,13 @@ ax2.text(-425000, 75, 'A', color = 'black', size = 7, fontname = 'Arial')
 ax2.text(-120000, 75, 'B', color = 'black', size = 7, fontname = 'Arial')
 
 # annotate donut plot
-YPos = [70, 67, 52, 20, 50] 
-XPos = [-280000, -307000, -390000, -390000, -195000]
+YPos = [70, 67, 52, 0, 50] 
+XPos = [-280000, -307000, -390000, -340000, -195000]
 HA = ['left', 'right', 'center', 'center', 'left']
 PropLabels = ['Different chromosomes', 'Adjacent overlapping', 'Separated\nnon-overlapping', 'Adjacent\nnon-overlapping', 'Nested']
 for i in range(len(PropLabels)):
     ax2.text(XPos[i], YPos[i], PropLabels[i], color = 'black', size = 7, ha = HA[i], fontname = 'Arial')
     
-
-[8, 13, 38, 114, 115]
-['Different chromosomes', 'Adjacent overlapping', 'Separated\nnon-overlapping', 'Adjacent non-overlapping', 'Nested']
-['2.8', '4.5', '13.2', '39.6', '39.9']
-
-
-
 # make sure subplots do not overlap
 plt.tight_layout()
 
