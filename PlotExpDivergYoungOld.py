@@ -187,7 +187,8 @@ for i in range(len(InferredPairs)):
     for pair in InferredPairs[i]:
         external.add(pair[0])
         internal.add(pair[1])
-    ExtIntGenes.append(external, internal)
+    ExtIntGenes.append(external)
+    ExtIntGenes.append(internal)
 
 for i in ExtIntGenes:
     print(len(i))
