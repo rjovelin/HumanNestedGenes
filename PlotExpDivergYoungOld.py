@@ -120,7 +120,7 @@ for i in range(len(GorillaPairs)):
         if pair[0] not in gorillaorthos or pair[1] not in gorillaorthos:
             to_remove.append(pair)
     for pair in to_remove:
-        Gorillapairs[i].remove(pair)
+        GorillaPairs[i].remove(pair)
 
 print(len(HumanPairs[0]), len(HumanPairs[1]), len(ChimpPairs[0]), len(ChimpPairs[1]), len(GorillaPairs[0]), len(GorillaPairs[1]))
 
