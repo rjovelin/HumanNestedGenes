@@ -78,13 +78,19 @@ ChimpPairs = AllPairs[2:4]
 GorillaPairs = AllPairs[4:]
 
 # make list with sets of non-overlapping genes
-NonOverlapping = []
+NonOverlappingSets = []
 for i in range(3):
     j = i * 2
     print(i, j, jsonFiles[j])
     # make a set of non-overlapping gene
     nonoverlap = MakeNonOverlappingGeneSet(AllOverlap[j], AllCoordinates[i])
-    NonOverlapping.append(nonoverlap)    
+    NonOverlappingSets.append(nonoverlap)    
+
+# make sets of host and nested nested genes
+NestedSets = []
+for i in range(1, len(AllOverlap), 2):
+    nestedset = MakeFullPartialOverlapGeneSet(AllOverlap[i])
+    NestedSets.append(nestedset)
 
 # get 1:1 orthologs between human, chimp and gorilla {human:[chimp,gorilla]}
 Orthos = MatchOrthologTrios('HumanChimpGorillaOrthologs.txt')
@@ -170,7 +176,11 @@ print(len(ChimpOld), len(ChimpYoung))
 
 
 
-# make sets of nested genes
+
+
+
+
+
 # for young external and internal, remove genes if ortholog is nested
 
 
