@@ -80,15 +80,11 @@ GorillaPairs = AllPairs[4:]
 # make list with sets of non-overlapping genes
 NonOverlapping = []
 for i in range(3):
-    # make a set of overlapping genes
-    if i == 0:
-        overlap = MakeFullPartialOverlapGeneSet(HumanPairs[0])
-    elif i == 1:
-        overlap = MakeFullPartialOverlapGeneSet(ChimpPairs[0])
-    elif i == 2:
-        overlap = MakeFullPartialOverlapGeneSet(GorillaPairs[0])
+    j = i * 2
+    print(i, j, jsonFiles[j])
     # make a set of non-overlapping gene
-    nonoverlap = MakeNonOverlappingGeneSet(overlap, AllCoordinates[i])    
+    nonoverlap = MakeNonOverlappingGeneSet(AllOverlap[j], AllCoordinates[i])
+    NonOverlapping.append(nonoverlap)    
 
 # get 1:1 orthologs between human, chimp and gorilla {human:[chimp,gorilla]}
 Orthos = MatchOrthologTrios('HumanChimpGorillaOrthologs.txt')
@@ -105,7 +101,7 @@ for gene in Orthos:
 for i in range(len(HumanPairs)):
     to_remove = []
     for pair in HumanPairs[i]:
-        if pair[0] not in Orthos or pair[1] not in orthos:
+        if pair[0] not in Orthos or pair[1] not in Orthos:
             to_remove.append(pair)
     for pair in to_remove:
         HumanPairs[i].remove(pair)
