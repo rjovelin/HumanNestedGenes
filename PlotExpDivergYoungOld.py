@@ -283,6 +283,29 @@ print(set(exthuman).intersection(set(hsaextptr)))
 
 
 
+# make pairs of overlapping genes
+truc = []
+for i in range(len(AllOverlap)):
+    pairs = GetHostNestedPairs(AllOverlap[i])
+    truc.append(pairs)
+# make pairs of overlapping genes
+Humantruc = truc[1]
+Chimptruc = truc[3]
+Gorillatruc = truc[5]
+
+
+
+
+for gene in {'ENSG00000197757', 'ENSG00000145936', 'ENSG00000152254', 'ENSG00000187918', 'ENSG00000204010'}:
+    for pair in Humantruc:
+        if gene == pair[1]:
+            for 
+            print(pair, [])
+
+
+
+{'ENSG00000119917'}
+{'ENSG00000197757', 'ENSG00000152253', 'ENSG00000159917'}
 
 
 
