@@ -77,6 +77,24 @@ HumanPairs = AllPairs[:2]
 ChimpPairs = AllPairs[2:4]
 GorillaPairs = AllPairs[4:]
 
+
+
+
+inthuman, exthuman, intchimp, extchimp, intgorilla, extgorilla = [], [] , [] ,[], [], []
+for pair in HumanPairs[1]:
+    exthuman.append(pair[0])
+    inthuman.append(pair[1])
+for pair in ChimpPairs[1]:
+    extchimp.append(pair[0])
+    intchimp.append(pair[1])
+for pair in GorillaPairs[1]:
+    extgorilla.append(pair[0])
+    intgorilla.append(pair[1])
+
+
+
+
+
 # make list with sets of non-overlapping genes
 NonOverlappingSets = []
 for i in range(3):
@@ -173,6 +191,9 @@ ChimpYoung = FilterGenePairsWithoutExpression(ChimpYoung, ChimpExpression)
 
 InferredPairs = [HumanOld, HumanYoung, ChimpOld, ChimpYoung]
 
+
+
+
 for i in InferredPairs:
     print(len(i))
 
@@ -190,29 +211,93 @@ for i in range(len(InferredPairs)):
     ExtIntGenes.append(external)
     ExtIntGenes.append(internal)
 
+a = []
 for i in ExtIntGenes:
-    print(len(i))
+    a.append(len(i))
 
 
 
+c = []
+
+
+# for young external and internal, remove genes if ortholog is nested
+for i in range(len(ExtIntGenes)):
+    if i in [2, 3, 6, 7]:
+        to_remove = []
+        for gene in ExtIntGenes[i]:
+            if i in [2, 3]:
+                if Orthos[gene][0] in NestedSets[1] or Orthos[gene][1] in NestedSets[2]:
+                    # gene is nested in other species, cannot be a young nested gene in human
+                    to_remove.append(gene)
+                    c.append(gene)
+                    
+                    
+                    
+            elif i in [6, 7]:
+                if ChimpOrthologs[gene][0] in NestedSets[0] or ChimpOrthologs[gene][1] in NestedSets[2]:
+                    # gene is nested in other species, cannot be a young nested gene in chimp
+                    to_remove.append(gene)
+        for gene in to_remove:
+            ExtIntGenes[i].remove(gene)
+    else:
+        for gene in ExtIntGenes[i]:
+            if i in [0, 1]:
+                assert Orthos[gene][0] in NestedSets[1] or Orthos[gene][1] in NestedSets[2]
+            elif i in [4, 5]:
+                assert ChimpOrthologs[gene][0] in NestedSets[0] or ChimpOrthologs[gene][1] in NestedSets[2]
+
+
+
+
+
+
+
+
+
+b = []
+for i in ExtIntGenes:
+    b.append(len(i))
+
+
+
+
+for i in range(len(a)):
+    print(i, a[i], b[i], a[i] == b[i])
+
+hsaextptr, hsaintptr, hsaextgo, hsaintgo = [], [] , [] , []
+for gene in c:
+    if Orthos[gene][0] in intchimp:
+        hsaintptr.append(gene)
+    if Orthos[gene][0] in extchimp:
+        hsaextptr.append(gene)
+    if Orthos[gene][1] in intgorilla:
+        hsaintgo.append(gene)
+    if Orthos[gene][1] in extgorilla:
+        hsaextgo.append(gene)
+
+print(set(inthuman).intersection(set(hsaintptr)))
+print(set(inthuman).intersection(set(hsaextptr)))
+
+print(set(exthuman).intersection(set(hsaintptr)))
+print(set(exthuman).intersection(set(hsaextptr)))
+
+
+
+
+
+
+
+#HsaExtOld, HsaIntOld
 #
-#
-#HsaExtYoung, HsaExtOld, HsaIntYoung, HsaIntOld = set(), set(), set(), set()
+#HsaExtYoung, , HsaIntYoung,  = set(), set(), set(), set()
 #PtrExtYoung, PtrExtOld, PtrIntYoung, PtrIntOld = set(), set(), set(), set()
 #
-#for pair in HumanOld:
-#    HsaExtOld.add(pair[0])
-#    HsaIntOld.add(pair[0])
-#for pair in HumanYoung:
-#    HsaExtYoung.add(pair[0])
-#    HsaIntYoung.add(pair[1])
 #
-#for pair in ChimpOld:
+#
 #    
 #
 #
 #
-## for young external and internal, remove genes if ortholog is nested
 #
 #
 #
