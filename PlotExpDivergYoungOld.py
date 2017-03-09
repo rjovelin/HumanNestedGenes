@@ -71,6 +71,7 @@ for i in range(len(GFF)):
 AllPairs = []
 for i in range(len(AllOverlap)):
     pairs = GetHostNestedPairs(AllOverlap[i])
+    print(len(pairs))
     AllPairs.append(pairs)
 # make pairs of overlapping genes
 HumanPairs = AllPairs[:2]
@@ -317,7 +318,7 @@ hsapairs = GetHostNestedPairs(AllOverlap[1])
 print(len(hsapairs))
 to_remove = []
 for pair in hsapairs:
-    if pair[0] not in HumanExpression or pair[1] not in HumanExpression:
+    if pair[0] not in HumanpExpression or pair[1] not in HumanExpression:
         to_remove.append(pair)
 for pair in to_remove:
     hsapairs.remove(pair)
