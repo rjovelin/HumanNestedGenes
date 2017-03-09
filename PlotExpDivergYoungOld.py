@@ -312,6 +312,18 @@ for gene in {'ENSG00000197757', 'ENSG00000145936', 'ENSG00000152254', 'ENSG00000
 
 
 
+# make pairs of overlapping genes
+hsapairs = GetHostNestedPairs(AllOverlap[1])
+print(len(hsapairs))
+to_remove = []
+for pair in hsapairs:
+    if pair[0] not in HumanExpression or pair[1] not in HumanExpression:
+        to_remove.append(pair)
+for pair in to_remove:
+    hsapairs.remove(pair)
+print(len(hsapairs))
+
+
 #HsaExtOld, HsaIntOld
 #
 #HsaExtYoung, , HsaIntYoung,  = set(), set(), set(), set()
