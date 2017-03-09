@@ -299,8 +299,10 @@ Gorillatruc = truc[5]
 for gene in {'ENSG00000197757', 'ENSG00000145936', 'ENSG00000152254', 'ENSG00000187918', 'ENSG00000204010'}:
     for pair in Humantruc:
         if gene == pair[1]:
-            for 
-            print(pair, [])
+            for doublet in Chimptruc:
+                if Orthos[gene][0] == doublet[1]:
+                    print(pair, [Orthos[pair[0]][0], Orthos[pair[1]][0]], doublet)
+
 
 
 
