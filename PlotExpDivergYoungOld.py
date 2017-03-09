@@ -300,7 +300,7 @@ for gene in {'ENSG00000197757', 'ENSG00000145936', 'ENSG00000152254', 'ENSG00000
     for pair in Humantruc:
         if gene == pair[1]:
             for doublet in Chimptruc:
-                if Orthos[gene][0] == doublet[1]:
+                if Orthos[gene][0] == doublet[1] and pair[0] in Orthos and pair[1] in Orthos:
                     print(pair, [Orthos[pair[0]][0], Orthos[pair[1]][0]], doublet)
 
 
