@@ -108,6 +108,11 @@ for i in range(1, len(AllOverlap), 2):
     nestedset = MakeFullPartialOverlapGeneSet(AllOverlap[i])
     NestedSets.append(nestedset)
 
+# make sets of overlapping genes
+OverlapSets = []
+for i in range(0, len(AllOverlap), 2):
+    overlap = MakeFullPartialOverlapGeneSet(AllOverlap[i])
+    OverlapSets.append(overlap)
 
 # get 1:1 orthologs between human anc chimp
 OrthoPairs = MatchOrthologPairs('HumanChimpOrthologs.txt')
@@ -159,8 +164,6 @@ HumanOld = FilterGenePairsWithoutExpression(HumanOld, HumanExpression)
 HumanYoung = FilterGenePairsWithoutExpression(HumanYoung, HumanExpression)
 
 InferredPairs = [HumanOld, HumanYoung]
-for i in InferredPairs:
-    print(len(i))
 
 # compare expression divergence between young nested genes and their un-nested orthologs
 # compare expression divergence between young host genes and their un-nested orthologs
@@ -174,6 +177,7 @@ for i in range(len(InferredPairs)):
         internal.add(pair[1])
     ExtIntGenes.append(external)
     ExtIntGenes.append(internal)
+print('made sets of external and internal genes')
 for i in range(len(ExtIntGenes)):
     print(len(ExtIntGenes[i]))
 
@@ -189,6 +193,7 @@ for i in range(1, len(ExtIntGenes), 2):
                 to_remove.add(gene)
     for gene in to_remove:
         ExtIntGenes[i].remove(gene)             
+print('removed genes with nested orthologs')
 for i in range(len(ExtIntGenes)):
     print(len(ExtIntGenes[i]))
 
@@ -196,10 +201,10 @@ to_remove = set()
 # remove non-overlapping genes if their ortholog are overlapping
 for gene in NonOverlappingSets[0]:
     # check if ortholog is overlapping in chimp or gorilla
-    if gene in OrthoPairs and OrthoPairs[gene] in NonOverlappingSets[1]:
+    if gene in OrthoPairs and OrthoPairs[gene] in OverlapSets[1]:
         to_remove.add(gene)
     if gene in OrthoTrios:
-        if OrthoTrios[gene][0] in NonOverlappingSets[1] or OrthoTrios[gene][1] in NonOverlappingSets[2]:
+        if OrthoTrios[gene][0] in OverlapSets[1] or OrthoTrios[gene][1] in OverlapSets[2]:
             to_remove.add(gene)
 for gene in to_remove:
     NonOverlappingSets[0].remove(gene)
