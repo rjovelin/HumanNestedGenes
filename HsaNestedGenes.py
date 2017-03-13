@@ -1428,13 +1428,14 @@ def GenerateAllUnNestedGenes(NoOverlap, OrderedGenes):
 
 
 # use this function to sort young and ancestral nesting events
-def InferYoungOldNestingEvents(FirstSpOrthologs, SecondSpOverlapPairs, OutGroupOverlapPairs, FirstSpHostNestedPairs):
+def InferYoungOldNestingEvents(OrthologPairs, OrthologTrios, SecondSpOverlapPairs, OutGroupOverlapPairs, FirstSpHostNestedPairs):
     '''
-    (dict, list, list, list) -> (list, list)
-    Take a dictionary with ortholog gene trios, the lists of overlapping gene
-    pairs in the sister species and in the outgroup and the list of host:nested
-    pairs in the focal species and return a tuple with list of host: nested pairs
-    that are infered to be old and young (before the divergence of the 2 species or after)
+    (dict, dict, list, list, list) -> (list, list)
+    Take a dictionary with orthologs between 2 species, ortholog gene trios,
+    the lists of overlapping gene pairs in the sister species and in the outgroup
+    and the list of host:nested pairs in the focal species and return a tuple
+    with list of host: nested pairs that are infered to be old and young
+    (before the divergence of the 2 species or after)
     '''   
     # create lists of sets of gene pairs to remove the order between genes
     SecondOverlap, OutGroupOverlap = [], []
@@ -1448,28 +1449,22 @@ def InferYoungOldNestingEvents(FirstSpOrthologs, SecondSpOverlapPairs, OutGroupO
     old, young = [], []
     # loop over the gene pairs    
     for pair in FirstSpHostNestedPairs:
-        # check that both genes have orthologs
-        if pair[0] in FirstSpOrthologs and pair[1] in FirstSpOrthologs:
-            # check if gene pair is overlapping in second species and outgroup
-            # get ortholog of host in 2nd species
-            hostorthosp2 = FirstSpOrthologs[pair[0]][0]
-            # get ortholog of nested in 2nd species
-            nestedorthosp2 = FirstSpOrthologs[pair[1]][0]
-            # get ortholog of host in outgroup
-            hostorthoout = FirstSpOrthologs[pair[0]][1]
-            # get ortholog of nested gene in outgroup
-            nestedorthoout = FirstSpOrthologs[pair[1]][1]
-            # check if orthologs are overlapping in 2nd species
-            if {hostorthosp2, nestedorthosp2} not in SecondOverlap and {hostorthoout, nestedorthoout} not in OutGroupOverlap:
-                # nested is species-specific
-                young.append(pair)
-            elif {hostorthosp2, nestedorthosp2} in SecondOverlap and {hostorthoout, nestedorthoout} not in OutGroupOverlap:
-                # gene pair is overlapping in 2nd species, suffcient to be called old nested pair
+        # check that both genes have orthologs in sister species
+        if pair[0] in OrthologPairs and pair[1] in OrthologPairs:
+            # check that gene is overlapping in sister-species
+            hostorthosp2, nestedorthosp2 = OrthologPairs[pair[0]], OrthologPairs[pair[1]]
+            if {hostorthosp2, nestedorthosp2} in SecondOverlap:
+                # gene pair is overlapping in 2nd species, sufficient to be called old nested pair
                 old.append(pair)
-            elif {hostorthosp2, nestedorthosp2} in SecondOverlap and {hostorthoout, nestedorthoout} in OutGroupOverlap:
-                # gene pair is overlapping in 2nd species and outgroup, infer old nested pair
-                old.append(pair)
-
+            elif {hostorthosp2, nestedorthosp2} not in SecondOverlap:
+                # check is gene pair is overlapping in outgroup
+                if pair[0] in OrthologTrios and pair[1] in OrthologTrios:
+                    # get ortholog of host and nested in outgroup
+                    hostorthoout, nestedorthoout = OrthologTrios[pair[0]][1], OrthologTrios[pair[1]][1]
+                    # do nothing if nested in outgroup, nesting can result from convergence or to secondary loss in sister-species                    
+                    if {hostorthoout, nestedorthoout} not in OutGroupOverlap:
+                        # nested is specific-species
+                        young.append(pair)
     return old, young
 
 
