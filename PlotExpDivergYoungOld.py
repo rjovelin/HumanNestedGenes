@@ -226,6 +226,12 @@ for i in range(len(HsaGenes)):
 for i in range(len(HsaGenes)):
     print(len(HsaGenes[i]))        
     
+    
+for i in range(len(HsaGenes)):
+    print('E' in HsaGenes[i])    
+    
+    
+    
 for i in range(len(HsaGenes)):
     HsaGenes[i] = list(HsaGenes[i])
     D = ComputeExpressionDivergenceOrthologs(HsaGenes[i], HumanExpression, ChimpExpression)
