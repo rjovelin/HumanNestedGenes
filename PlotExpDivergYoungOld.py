@@ -114,12 +114,6 @@ OrthoPairs = MatchOrthologPairs('HumanChimpOrthologs.txt')
 # get 1:1 orthologs between human, chimp and gorilla {human:[chimp,gorilla]}
 OrthoTrios = MatchOrthologTrios('HumanChimpGorillaOrthologs.txt')
 
-# make sets of chimp and gorilla genes  with orthologs
-chimporthos, gorillaorthos = set(), set()
-for gene in Orthos:
-    chimporthos.add(Orthos[gene][0])
-    gorillaorthos.add(Orthos[gene][1])
-
 ## remove gene pairs lacking orthos
 #for i in range(len(HumanPairs)):
 #    to_remove = []
