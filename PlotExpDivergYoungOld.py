@@ -230,11 +230,14 @@ for i in range(len(HsaGenes)):
 for i in range(len(HsaGenes)):
     print('E' in HsaGenes[i])    
     
-    
-    
+# make lists with human and chimp orthologs
+HumanChimpPairs = []    
 for i in range(len(HsaGenes)):
-    HsaGenes[i] = list(HsaGenes[i])
-    D = ComputeExpressionDivergenceOrthologs(HsaGenes[i], HumanExpression, ChimpExpression)
+    pairs = [[gene, OrthoPairs[gene]] for gene in HsaGenes[i]]
+    HumanChimpPairs.append(pairs)
+
+for i in range(len(HumanChimpPairs)):
+    D = ComputeExpressionDivergenceOrthologs(HumanChimpPairs[i], HumanExpression, ChimpExpression)
     print(np.mean(D))
 
 
