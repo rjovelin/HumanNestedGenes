@@ -182,7 +182,7 @@ for i in range(len(ExtIntGenes)):
     print(len(ExtIntGenes[i]))
 
 # for young external and internal, remove genes if ortholog is nested
-for i in range(1, len(ExtIntGenes), 2):
+for i in range(2, len(ExtIntGenes)):
     to_remove = set()
     for gene in ExtIntGenes[i]:
         assert gene in OrthoPairs
@@ -222,7 +222,7 @@ HsaGenes.extend(ExtIntGenes)
 for i in range(len(HsaGenes)):
     to_remove = [gene for gene in HsaGenes[i] if gene not in HumanExpression]
     for gene in to_remove:
-        HsaGenes.remove(gene)
+        HsaGenes[i].remove(gene)
 for i in range(len(HsaGenes)):
     print(len(HsaGenes[i]))        
     
