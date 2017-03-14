@@ -223,6 +223,7 @@ for i in range(len(HsaGenes)):
     to_remove = [gene for gene in HsaGenes[i] if gene not in HumanExpression]
     for gene in to_remove:
         HsaGenes[i].remove(gene)
+    HsaGenes[i] = set(HsaGenes[i])
 for i in range(len(HsaGenes)):
     print(len(HsaGenes[i]))        
     
@@ -243,11 +244,12 @@ for i in range(1, len(ExpDivergence)):
     print(i, stats.ranksums(ExpDivergence[0], ExpDivergence[i])[1])
 
 # merge external and internal for the same age group
-Old, Young = [HsaGenes[1]], [HsaGenes[3]]
+Old, Young = [gene for gene in HsaGenes[1]], [gene for gene in HsaGenes[3]]
 Old.extend(HsaGenes[2])
 Young.extend(HsaGenes[4])
 
-Groups = [HsaGenes[0], Old, Young]
+
+Groups = [set(HsaGenes[0]), set(Old), set(Young)]
 GroupPairs = []
 for i in range(len(Groups)):
     pairs = [[gene, OrthoPairs[gene]] for gene in Groups[i] if gene in HumanExpression and OrthoPairs[gene] in ChimpExpression]
