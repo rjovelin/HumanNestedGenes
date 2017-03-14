@@ -232,9 +232,21 @@ for i in range(len(HsaGenes)):
     pairs = [[gene, OrthoPairs[gene]] for gene in HsaGenes[i] if gene in HumanExpression and OrthoPairs[gene] in ChimpExpression]
     HumanChimpPairs.append(pairs)
 
+
+ExpDivergence = []
+
+
 for i in range(len(HumanChimpPairs)):
     D = ComputeExpressionDivergenceOrthologs(HumanChimpPairs[i], HumanExpression, ChimpExpression)
-    print(np.mean(D))
+    print(np.mean(D), (np.std(D) / math.sqrt(len(D))))
+    ExpDivergence.append(D)
+
+for i in range(1, len(ExpDivergence)):
+    print(i, stats.ranksums(ExpDivergence[0], ExpDivergence[i])[1])
+
+
+
+
 
 
 ##############################################################
