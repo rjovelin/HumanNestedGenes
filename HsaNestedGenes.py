@@ -1050,7 +1050,7 @@ def FilterGenePairsWithoutExpression(HostNestedPairs, ExpressionProfile):
     '''
     (list, dict) -> list
     Take the list of gene pairs and the dictionary of expression profile for
-    each gene and return a modified list of gene pairs in whhich pairs of gene
+    each gene and return a modified list of gene pairs in which pairs of gene
     lacking expression are removed
     Precondition: genes without expression in the expression profile dictionary
     have been removed    
@@ -1059,8 +1059,8 @@ def FilterGenePairsWithoutExpression(HostNestedPairs, ExpressionProfile):
     # filter gene pairs based on expression
     to_remove = []
     for pair in HostNestedPairs:
-        # remove gene pair if at least one of the gene is not expressed
-        if pair[0] not in ExpressionProfile or pair[1] not in ExpressionProfile:
+        # remove gene pair if both genes are not expressed
+        if pair[0] not in ExpressionProfile and pair[1] not in ExpressionProfile:
             to_remove.append(pair)
     for pair in to_remove:
         HostNestedPairs.remove(pair)
