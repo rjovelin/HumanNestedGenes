@@ -232,9 +232,7 @@ for i in range(len(HsaGenes)):
     pairs = [[gene, OrthoPairs[gene]] for gene in HsaGenes[i] if gene in HumanExpression and OrthoPairs[gene] in ChimpExpression]
     HumanChimpPairs.append(pairs)
 
-
 ExpDivergence = []
-
 
 for i in range(len(HumanChimpPairs)):
     D = ComputeExpressionDivergenceOrthologs(HumanChimpPairs[i], HumanExpression, ChimpExpression)
@@ -244,6 +242,26 @@ for i in range(len(HumanChimpPairs)):
 for i in range(1, len(ExpDivergence)):
     print(i, stats.ranksums(ExpDivergence[0], ExpDivergence[i])[1])
 
+# merge external and internal for the same age group
+Old, Young = [HsaGenes[1]], [HsaGenes[3]]
+Old.extend(HsaGenes[2])
+Young.extend(HsaGenes[4])
+
+Groups = [HsaGenes[0], Old, Young]
+GroupPairs = []
+for i in range(len(Groups)):
+    pairs = [[gene, OrthoPairs[gene]] for gene in Groups[i] if gene in HumanExpression and OrthoPairs[gene] in ChimpExpression]
+    GroupPairs.append(pairs)
+
+ExpDiv = []
+for i in range(len(GroupPairs)):
+    D = ComputeExpressionDivergenceOrthologs(GroupPairs[i], HumanExpression, ChimpExpression)
+    print(np.mean(D), (np.std(D) / math.sqrt(len(D))))
+    ExpDiv.append(D)
+for i in range(1, len(ExpDiv)):
+    print(i, stats.ranksums(ExpDiv[0], ExpDiv[i])[1])
+
+# make sets of external and internal genes [hsaextold, hsaintold, hsaextyoung, hsaintyoung]
 
 
 
