@@ -24,18 +24,19 @@ from HsaNestedGenes import *
 
 # get the species to consider from the command line
 CurrSpecies = sys.argv[1]
-assert CurrSpecies in ['human', 'chimp', 'gorilla', 'mouse'], 'species name is not valid'
+assert CurrSpecies in ['human', 'chimp', 'gorilla', 'mouse', 'dog'], 'species name is not valid'
 
 # get GFF file
 HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
 PtrGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
 GgoGFF = 'Gorilla_gorilla.gorGor3.1.86.gff3'
 MmuGFF = 'Mus_musculus.GRCm38.86.gff3'
+CfamGFF = 'Canis_familiaris.CanFam3.1.87.gff3'
     
 # make a list of primate GFF files
 GFFs = [HsaGFF, PtrGFF, GgoGFF, MmuGFF]
 # make a dictionary with species: GFF list index
-Species = {'human': 0, 'chimp': 1, 'gorilla': 2, 'mouse': 3}
+Species = {'human': 0, 'chimp': 1, 'gorilla': 2, 'mouse': 3, 'dog': 4}
 # get the index of the GFF file corresponding to the current species
 i = Species[CurrSpecies]
 
@@ -74,6 +75,9 @@ elif i == 2:
 elif i == 3:
     # save overlapping genes as json file
     newfile = open('MouseOverlappingGenes.json', 'w')
+elif i == 4:
+    # save overlapping genes as json file
+    newfile = open('DogOverlappingGenes.json', 'w')
 
 # save dictionary to file        
 json.dump(SpOverlappingGenes, newfile, sort_keys = True, indent = 4)
