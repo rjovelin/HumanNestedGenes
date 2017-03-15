@@ -169,12 +169,11 @@ if Analysis == 'pairs':
     ChimpUnested = []
     for pair in HumanYoung:
         ChimpUnested.append([OrthoPairs[pair[0]], OrthoPairs[pair[1]]])
-    
     # compute expression divergence betwen human nested gene pairs
     HumanDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
     ChimpDiv = ComputeExpressionDivergenceGenePairs(ChimpUnested, ChimpExpression)
     P = PermutationResampling(HumanDiv, ChimpDiv, 10000, statistic = np.mean)
-    print(np.mean(HumanDiv), np.mean(ChimpDiv), P)
+    print(len(HumanDiv), len(ChimpDiv), np.mean(HumanDiv), np.mean(ChimpDiv), P)
     
 
 
