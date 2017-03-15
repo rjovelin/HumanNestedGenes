@@ -34,7 +34,7 @@ MmuGFF = 'Mus_musculus.GRCm38.86.gff3'
 CfamGFF = 'Canis_familiaris.CanFam3.1.87.gff3'
     
 # make a list of primate GFF files
-GFFs = [HsaGFF, PtrGFF, GgoGFF, MmuGFF]
+GFFs = [HsaGFF, PtrGFF, GgoGFF, MmuGFF, CfamGFF]
 # make a dictionary with species: GFF list index
 Species = {'human': 0, 'chimp': 1, 'gorilla': 2, 'mouse': 3, 'dog': 4}
 # get the index of the GFF file corresponding to the current species
