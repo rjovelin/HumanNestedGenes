@@ -1705,7 +1705,7 @@ def UpperQuartileFPKM(C, UQ, L):
     and return a FPKM estimate of gene expression normalized bu upper quartile
     '''
     
-    FPKM_UP = (C * 10^9) / (UQ * L)
+    FPKM_UP = (C * (10^9)) / (UQ * L)
     return FPKM_UP
 
 
