@@ -1696,6 +1696,50 @@ def ProteinDistance(seq1, seq2):
     else:
         return 'NA'
         
+
+# use this function to normalize expression counts in UQ-FPKM
+def UpperQuartileFPKM(C, UQ, L):
+    '''
+    (int, numb, int) -> float
+    Take the fragment counts, the upper quartile of fragment count, the gene length
+    and return a FPKM estimate of gene expression normalized bu upper quartile
+    '''
+    
+    FPKM_UP = (C * 10^9) / (UQ * L)
+    return FPKM_UP
+
+
         
-        
+# use this function to get upper-quartile normalized FPKM
+def ExpressionNormalization(ModeEncodeExpressionFile):
+    '''
+    (file) -> dict
+    Take a file with mouse expression from ModEncode and returns a dictionary
+    with normalized upp-quartile FPKM expression extimate
+    '''
+    
+    # create a dictionary {gene_ID: [count, length]}
+    expression = {}
+    infile = open(ModeEncodeExpressionFile)
+    infile.readline()
+    for line in infile:
+        if line.rstrip() != '':
+            line = line.rstrip().split('\t')
+            gene, length, count  = line[0], float(line[2]), float(line[4]) 
+            if 'ENS' in gene:
+                assert gene not in expression
+                expression[gene] = [count, length]
+    infile.close()
+    
+    # create a list with counts, do not include 0 for computation of UQ
+    Counts = [expression[gene][0] for gene in expression if expression[gene][0] != 0]
+    # compute upper-quartile
+    UQ = np.percentile(Counts, 75)
+    # create a dict with normalized fpkm
+    fpkm = {}
+    for gene in expression:
+        C, L = expression[gene][0], expression[gene][1]
+        FPKM_UQ = UpperQuartileFPKM(C, UQ, L)
+        fpkm[gene] = FPKM_UQ
+    return fpkm
     
