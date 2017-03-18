@@ -85,9 +85,10 @@ for tissue in MouseExpression:
     for gene in MouseExpression[tissue]:
         MouseExpression[tissue][gene] = np.median(MouseExpression[tissue][gene])
 
-
+# do some qc
 for tissue in MouseExpression:
     print(tissue, len(MouseExpression[tissue]))
+
 
 
 
