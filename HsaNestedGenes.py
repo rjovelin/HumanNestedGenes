@@ -7,6 +7,7 @@ Created on Fri Nov 11 21:04:34 2016
 
 import numpy as np
 import math
+import os
 
 
 # use this function to record the gene coordinates on each separate chromosome    
@@ -1742,4 +1743,42 @@ def ExpressionNormalization(ModeEncodeExpressionFile):
         FPKM_UQ = UpperQuartileFPKM(C, UQ, L)
         fpkm[gene] = FPKM_UQ
     return fpkm
+    
+
+# use this function to compute the expression level of a collection of samples
+def ComputeTissueExpression(Folder):
+    '''
+    (folder) -> list
+    Return a list of dictionaries with expression level for a given tissue
+    Precondition: all samples of a given tissue are organized in a same folder
+    '''
+    
+    # create a list of files in folder
+    files = [i for i in os.listdir(Folder) if '.tsv' in i]
+    # create a list to store the dictionaries with normalized expression
+    tissue_expression = []
+    for i in range(len(files)):
+        fpkm = ExpressionNormalization(Folder + '/' + files[i])
+        tissue_expression.append(fpkm)
+    return tissue_expression
+
+
+# use this expression to merge expression samples
+def MergeSamples(L):
+    '''
+    (list) -> dict    
+    Take a list of dictionaries with gene expression for given samples
+    and return a dictionary with gene: list of expression values pairs
+    '''
+    
+    # create a dictionary to store the expression values
+    expression = {}
+    for i in range(len(L)):
+        for gene in L[i]:
+            if gene in expression:
+                expression[gene].append(L[i][gene])
+            else:
+                expression[gene] = [L[i][gene]]
+    return expression
+    
     

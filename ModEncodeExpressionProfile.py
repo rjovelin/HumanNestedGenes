@@ -27,43 +27,90 @@ from HsaNestedGenes import *
 
 
 
+# make a list of mouse tissues matching human tissues with expression
+Tissues = ['Adipose_tissue', 'Subcutaneous_adipose_tissue	',
+           'Adrenal_gland', 'Urinary_bladder', 'Brain', 'Cerebellum',
+           'Cortical_plate', 'Frontal_cortex', 'Olfactory_bulb',
+           	'Mammary_gland', 	'Colon', 'Sigmoid_colon', 'Large_intestine',
+            'Heart', 'Kidney', 'Liver', 'Lung', 'Ovary', 'Pancreas',
+            'Small_intestine', 'Spleen', 'Stomach', 'Testis']								
+	
+# create a dictionary with tissue as key and a list of dictionaries with gene expression as value
+Expression = {}
+ 
+# move to directory with sample files for each tissue
+os.chdir('Mouse_Expression') 
 
-# get the UP-FPKM for each file separately
-# remove the genes with 0 counts
-# compute UP
-# get the normalization
+# loop over tissues, compute expression for each sample, store the dictionary
+for tissue in Tissues:
+    L = ComputeTissueExpression(tissue)
+    Expression[tissue] = L
+    
+# Match mouse tissues to human tissues
+HumanMatches = {'Adipose Tissue': ['Adipose_tissue', 'Subcutaneous_adipose_tissue'],
+                'Adrenal Gland': ['Adrenal_gland'],
+                'Bladder': ['Urinary_bladder'], 
+                'Brain': ['Brain', 'Cerebellum', 'Cortical_plate', 'Frontal_cortex', 'Olfactory_bulb'],
+                'Breast': ['Mammary_gland'],							
+                'Colon': ['Colon', 'Sigmoid_colon', 'Large_intestine'],					
+                'Heart': ['Heart'],						
+                'Kidney': ['Kidney'],								
+                'Liver': ['Liver'],								
+                'Lung': ['Lung'],								
+                'Ovary': ['Ovary']	,							
+                'Pancreas': ['Pancreas'],								
+                'Small Intestine':	 ['Small_intestine'],								
+                'Spleen': ['Spleen'],								
+                'Stomach': ['Stomach'],							
+                'Testis': ['Testis']}								
+		
+# create a dict with the tissue names matching human tissues and list with mouse gene expression
+MouseExpression = {}
+for tissue in HumanMatches:
+    if len(HumanMatches[tissue]) == 1:
+        # map list of mouse expression to human tissue name
+        MouseExpression[tissue] = Expression[HumanMatches[tissue]]
+    else:
+        # merge lists of dictionaries in a single list
+        MouseExpression[tissue] = []
+        for subtissue in HumanMatches[tissue]:
+            MouseExpression[tissue].extend(Expression[subtissue])
+
+# Merge all samples for a given tissue
+for tissue in MouseExpression:
+    MouseExpression[tissue] = MergeSamples(MouseExpression[tissue])
+
+# take the median expression for a given gene across the different samples
+for tissue in MouseExpression:
+    for gene in MouseExpression[tissue]:
+        MouseExpression[tissue][gene] = np.median(MouseExpression[tissue][gene])
+
+
+for tissue in MouseExpression:
+    print(tissue, len(MouseExpression[tissue]))
 
 
 
-Adipose Tissue				Adipose_tissue	Subcutaneous_adipose_tissue							
-Adrenal Gland				Adrenal_gland								
-Bladder				Urinary_bladder								
-Blood												
-Blood Vessel												
-Brain				Brain	Cerebellum		Cortical_plate		Frontal_cortex		Olfactory_bulb	
-Breast				Mammary_gland								
-Cervix Uteri												
-Colon				Colon	Sigmoid_colon		Large_intestine					
-Esophagus												
-Fallopian Tube												
-Heart				Heart								
-Kidney				Kidney								
-Liver				Liver								
-Lung				Lung								
-Muscle												
-Nerve												
-Ovary				Ovary								
-Pancreas				Pancreas								
-Pituitary												
-Prostate												
-Salivary Gland												
-Skin												
-Small Intestine				Small_intestine								
-Spleen				Spleen								
-Stomach				Stomach								
-Testis				Testis								
-Thyroid												
-Uterus												
-Vagina												
 
 
+
+#Human Tissue          Mouse Tissues
+#Adipose Tissue		Adipose_tissue, Subcutaneous_adipose_tissue							
+#Adrenal Gland		Adrenal_gland								
+#Bladder			Urinary_bladder								
+#Brain			Brain, Cerebellum, Cortical_plate, Frontal_cortex, Olfactory_bulb	
+#Breast			Mammary_gland								
+#Colon			Colon	Sigmoid_colon, Large_intestine					
+#Heart			Heart								
+#Kidney			Kidney								
+#Liver			Liver								
+#Lung				Lung								
+#Ovary			Ovary								
+#Pancreas			Pancreas								
+#Small Intestine		Small_intestine								
+#Spleen			Spleen								
+#Stomach			Stomach								
+#Testis			Testis								
+										
+
+##############################
