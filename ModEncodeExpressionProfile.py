@@ -28,7 +28,7 @@ from HsaNestedGenes import *
 
 
 # make a list of mouse tissues matching human tissues with expression
-Tissues = ['Adipose_tissue', 'Subcutaneous_adipose_tissue	',
+Tissues = ['Adipose_tissue', 'Subcutaneous_adipose_tissue',
            'Adrenal_gland', 'Urinary_bladder', 'Brain', 'Cerebellum',
            'Cortical_plate', 'Frontal_cortex', 'Olfactory_bulb',
            	'Mammary_gland', 	'Colon', 'Sigmoid_colon', 'Large_intestine',
