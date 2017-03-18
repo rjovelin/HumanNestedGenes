@@ -115,3 +115,8 @@ for tissue in MouseExpression:
 										
 
 ##############################
+
+
+
+# move back to parent directory
+os.chdir('../') 
