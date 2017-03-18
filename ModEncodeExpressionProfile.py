@@ -85,14 +85,46 @@ for tissue in MouseExpression:
     for gene in MouseExpression[tissue]:
         MouseExpression[tissue][gene] = np.median(MouseExpression[tissue][gene])
 
-# do some qc
-for tissue in MouseExpression:
-    print(tissue, len(MouseExpression[tissue]))
+# make a list with human tissue names in the same order as the tissues in the human expression file
+HumanTissueNames = ['Adipose Tissue', 'Adrenal Gland', 'Bladder',
+                    'Brain', 'Breast', 'Colon', 'Heart', 'Kidney', 
+                    'Liver', 'Lung', 'Ovary', 'Pancreas', 'Small Intestine',
+                    'Spleen', 'Stomach', 'Testis']	
 
+# create a dict to store the expression profile of gene 
+# (ie, list of expression values for each tissue in the same order as the list of HumanTissueNames)
+GeneExpression = {}
+# initiate dict with empty list for each gene
+for gene in MouseExpression[HumanTissueNames[0]]:
+    GeneExpression[gene] = []
+# loop over tissue, add expression for that tissue to the gene expression profile
+for tissue in HumanTissueNames:
+    for gene in MouseExpression[tissue]:
+        assert gene in GeneExpression
+        GeneExpression[gene].append(MouseExpression[tissue][gene])
 
+# move back to parent directory
+os.chdir('../') 
 
+# check that there are no gene doublons when gene name is parsed to match the GFF gene ID
+genes = [i[:i.index('.')] for i in GeneExpression]
+for i in genes:
+    assert genes.count(i) == 1
 
+# make a table with median UP-FPKM in each tissue for each gene
+header = ['Gene'] + HumanTissueNames
+header = '\t'.join(header)
 
+# open file for writing
+newfile = open('Mouse_Median_Normalized_FPKM.txt', 'w')
+newfile.write(header + '\n')
+for gene in GeneExpression:
+    line = [gene[:gene.index('.')]]
+    vals = list(map(lambda x: str(x), GeneExpression[gene]))
+    line.extend(vals)
+    line = '\t'.join(line)
+    newfile.write(line + '\n')
+newfile.close()
 
 
 #Human Tissue          Mouse Tissues
@@ -114,9 +146,3 @@ for tissue in MouseExpression:
 #Testis			Testis								
 										
 
-##############################
-
-
-
-# move back to parent directory
-os.chdir('../') 
