@@ -69,7 +69,7 @@ MouseExpression = {}
 for tissue in HumanMatches:
     if len(HumanMatches[tissue]) == 1:
         # map list of mouse expression to human tissue name
-        MouseExpression[tissue] = Expression[HumanMatches[tissue]]
+        MouseExpression[tissue] = Expression[HumanMatches[tissue]][0]
     else:
         # merge lists of dictionaries in a single list
         MouseExpression[tissue] = []
