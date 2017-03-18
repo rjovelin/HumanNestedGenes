@@ -125,24 +125,3 @@ for gene in GeneExpression:
     line = '\t'.join(line)
     newfile.write(line + '\n')
 newfile.close()
-
-
-#Human Tissue          Mouse Tissues
-#Adipose Tissue		Adipose_tissue, Subcutaneous_adipose_tissue							
-#Adrenal Gland		Adrenal_gland								
-#Bladder			Urinary_bladder								
-#Brain			Brain, Cerebellum, Cortical_plate, Frontal_cortex, Olfactory_bulb	
-#Breast			Mammary_gland								
-#Colon			Colon	Sigmoid_colon, Large_intestine					
-#Heart			Heart								
-#Kidney			Kidney								
-#Liver			Liver								
-#Lung				Lung								
-#Ovary			Ovary								
-#Pancreas			Pancreas								
-#Small Intestine		Small_intestine								
-#Spleen			Spleen								
-#Stomach			Stomach								
-#Testis			Testis								
-										
-
