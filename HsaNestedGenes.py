@@ -1706,7 +1706,7 @@ def UpperQuartileFPKM(C, UQ, L):
     and return a FPKM estimate of gene expression normalized bu upper quartile
     '''
     
-    FPKM_UP = (C * (10^9)) / (UQ * L)
+    FPKM_UP = (C * (10**9)) / (UQ * L)
     return FPKM_UP
 
 
@@ -1781,4 +1781,16 @@ def MergeSamples(L):
                 expression[gene] = [L[i][gene]]
     return expression
     
-    
+
+## use this function to generate gene expression profile for the same tissues in human and mouse
+#def MatchExpressionProfiles(HumanExpression):
+#    '''
+#    (dict) ->    
+#    
+#    
+#    '''
+#    
+#    
+#    
+#    
+#    ['Gene', 'Adipose Tissue', 'Adrenal Gland', 'Bladder', 'Blood', 'Blood Vessel', 'Brain', 'Breast', 'Cervix Uteri', 'Colon', 'Esophagus', 'Fallopian Tube', 'Heart', 'Kidney', 'Liver', 'Lung', 'Muscle', 'Nerve', 'Ovary', 'Pancreas', 'Pituitary', 'Prostate', 'Salivary Gland', 'Skin', 'Small Intestine', 'Spleen', 'Stomach', 'Testis', 'Thyroid', 'Uterus', 'Vagina']
