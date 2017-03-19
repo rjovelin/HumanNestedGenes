@@ -819,15 +819,16 @@ def ParsePrimateExpressionData(ExpressionFile, species):
 
 
 # use this function to parse the GTEX median expression file
-def ParseGTEXExpression(GTEXExpressionFile):
+def ParseExpressionFile(ExpressionFile):
     '''
     (file) -> dict
-    Take the file from GTEX with median expression in each tissue and return a
-    dictionary with gene: list of expression in tissues key, value pairs
+    Take the file with median gene expression in each tissue from GTEX in human
+    of from ModEncode in mouse and return a dictionary with gene: list of expression
+    in tissues key, value pairs
     '''
     # create a dict to store the expression (median tissue expression FPKM normalized by upper quartiles))
     Expression = {}
-    infile = open(GTEXExpressionFile)
+    infile = open(ExpressionFile)
     header = infile.readline()
     for line in infile:
         if line.startswith('ENS'):
