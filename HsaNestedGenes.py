@@ -1782,15 +1782,40 @@ def MergeSamples(L):
     return expression
     
 
-## use this function to generate gene expression profile for the same tissues in human and mouse
-#def MatchExpressionProfiles(HumanExpression):
-#    '''
-#    (dict) ->    
-#    
-#    
-#    '''
-#    
-#    
-#    
-#    
-#    ['Gene', 'Adipose Tissue', 'Adrenal Gland', 'Bladder', 'Blood', 'Blood Vessel', 'Brain', 'Breast', 'Cervix Uteri', 'Colon', 'Esophagus', 'Fallopian Tube', 'Heart', 'Kidney', 'Liver', 'Lung', 'Muscle', 'Nerve', 'Ovary', 'Pancreas', 'Pituitary', 'Prostate', 'Salivary Gland', 'Skin', 'Small Intestine', 'Spleen', 'Stomach', 'Testis', 'Thyroid', 'Uterus', 'Vagina']
+# use this function to generate gene expression profile for the same tissues in human and mouse
+def MatchHumanToMouseExpressionProfiles(HumanExpression):
+    '''
+    (dict) -> dict
+    Take the dictionary of human gene expression profiles from GTEX and return
+    a dictionary with expression profiles matching the tissues of gene expression
+    profiles in mouse
+    Precondition: tissues for mouse expression have already been filtered to 
+    match human tissues
+    '''
+    # Human tissues from GTEX include:
+    HumanTissues = ['Adipose Tissue', 'Adrenal Gland', 'Bladder', 'Blood',
+                    'Blood Vessel', 'Brain', 'Breast', 'Cervix Uteri', 'Colon',
+                    'Esophagus', 'Fallopian Tube', 'Heart', 'Kidney', 'Liver',
+                    'Lung', 'Muscle', 'Nerve', 'Ovary', 'Pancreas', 'Pituitary',
+                    'Prostate', 'Salivary Gland', 'Skin', 'Small Intestine', 'Spleen',
+                    'Stomach', 'Testis', 'Thyroid', 'Uterus', 'Vagina']
+    # mouse tissues from ModEncode include:
+    MouseTissues = ['Adipose Tissue',  'Adrenal Gland', 'Bladder', 'Brain',
+                    'Breast', 'Colon', 'Heart', 'Kidney', 'Liver', 'Lung',
+                    'Ovary', 'Pancreas', 'Small Intestine', 'Spleen',
+                    'Stomach', 'Testis']
+    # make a list of indices for mouse tissues in human mouse tissues
+    # to extract expression of human tissues in these tissues
+    ToExtract = [HumanTissues.index(tissue) for tissue in MouseTissues]
+
+    # create a new dictionary for human expression profiles
+    Profile = {}
+    # loop over human genes
+    for gene in HumanExpression:
+        # initialize gene: list pair
+        Profile[gene] = []
+        # loop over indices
+        for i in ToExtract:
+            # add expression level at index position
+            Profile[gene].append(HumanExpression[gene][i])
+    return Profile
