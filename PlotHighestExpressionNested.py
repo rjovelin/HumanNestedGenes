@@ -77,7 +77,7 @@ for pair in opposite:
     InternalOppositeGenes.add(pair[1])
 
 # parse the GTEX expression summary file to obtain the expression profile of each gene
-ExpressionProfile = ParseGTEXExpression('GTEX_Median_Normalized_FPKM.txt')
+ExpressionProfile = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
 # remove genes without any expression
 ExpressionProfile = RemoveGenesLackingExpression(ExpressionProfile)
 # transform absulte expression in relative expression
