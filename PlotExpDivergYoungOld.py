@@ -11,6 +11,7 @@ Created on Fri Nov 25 11:38:39 2016
 # their un-nested orthologs and between internal and their un-nested orthologs
 
 # usage python3 PlotExpDivergYoungOld.py [options]
+# [mouse/chimp]: sister-species of interest
 # -[pairs/orthos]: expression divergence within gene pairs or between orthologs
 
 # import modules
@@ -134,16 +135,17 @@ print(len(HumanOld), len(HumanYoung))
 print(len(ChimpOld), len(ChimpYoung))   
    
 # get expression profile in human and chimp
-HumanExpression = ParseGTEXExpression('GTEX_Median_Normalized_FPKM.txt')
-
-#ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
-
+HumanExpression = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
+ChimpExpression = ParseExpressionFile('Mouse_Median_Normalized_FPKM.txt')
 
 # remove genes without expression
 HumanExpression = RemoveGenesLackingExpression(HumanExpression)
+ChimpExpression = RemoveGenesLackingExpression(ChimpExpression)
 # get relative expression
 HumanExpression = TransformRelativeExpression(HumanExpression)
-
+ChimpExpression = TransformRelativeExpression(ChimpExpression)
+# match expression profiles 
+HumanExpression = MatchHumanToMouseExpressionProfiles(HumanExpression)
 
 # remove human pairs if orthologs are nested in chimp
 print(len(HumanYoung))    
@@ -160,7 +162,14 @@ for pair in to_remove:
     HumanYoung.remove(pair)
 print(len(HumanYoung))
 
+# remove human pairs if orthologs are not expressed
+to_remove = [pair for pair in HumanYoung if OrthoPairs[pair[0]] not in ChimpExpression or OrthoPairs[pair[1]] not in ChimpExpression]
+for pair in HumanYoung:
+    HumanYoung.remove(pair)
+print(len(HumanYoung))
 
+
+    
 
 ########################################
 ########################################
