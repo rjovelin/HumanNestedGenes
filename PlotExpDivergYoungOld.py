@@ -33,10 +33,29 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
+# get option from command
+SisterSp = sys.argv[1]
+Analysis = sys.argv[2]
+assert SisterSp in ['mouse', 'chimp']
+assert Analysis in ['pairs', 'orthos']
+
 # load dictionaries of overlapping genes
-jsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',  
-             'MouseOverlappingGenes.json', 'MouseNestedGenes.json',
-             'DogOverlappingGenes.json', 'DogNestedGenes.json']
+if SisterSp == 'chimp':
+    # sister species is chimp and outgroup is gorilla
+    jsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',  
+                 'ChimpOverlappingGenes.json', 'ChimpNestedGenes.json',
+                 'GorillaOverlappingGenes.json', 'GorillaNestedGenes.json']
+    # get GFF file
+    GFF = ['Homo_sapiens.GRCh38.86.gff3', 'Pan_troglodytes.CHIMP2.1.4.86.gff3', 'Gorilla_gorilla.gorGor3.1.86.gff3']
+elif SisterSp == 'mouse':
+    # sister species is mouse and outgroup is dog
+    jsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',  
+                 'MouseOverlappingGenes.json', 'MouseNestedGenes.json',
+                 'DogOverlappingGenes.json', 'DogNestedGenes.json']
+    # get GFF file
+    GFF = ['Homo_sapiens.GRCh38.86.gff3', 'Mus_musculus.GRCm38.86.gff3', 'Canis_familiaris.CanFam3.1.87.gff3']
+    
+
 # make a list of dictionaries
 AllOverlap = []
 # loop over files
@@ -46,9 +65,6 @@ for i in range(len(jsonFiles)):
     overlapping = json.load(json_data)
     json_data.close()
     AllOverlap.append(overlapping)
-
-# get GFF file
-GFF = ['Homo_sapiens.GRCh38.86.gff3', 'Mus_musculus.GRCm38.86.gff3', 'Canis_familiaris.CanFam3.1.87.gff3']
 
 # make a list of gene coordinates       
 AllCoordinates, AllOrdered = [], []
@@ -75,10 +91,8 @@ for i in range(len(AllOverlap)):
     AllPairs.append(pairs)
 # make pairs of overlapping genes
 HumanPairs = AllPairs[:2]
-ChimpPairs = AllPairs[2:4]
-GorillaPairs = AllPairs[4:]
-
-print(len(HumanPairs[1]), len(ChimpPairs[1]), len(GorillaPairs[1]))
+SisterPairs = AllPairs[2:4]
+OutGroupPairs = AllPairs[4:]
 
 # make list with sets of non-overlapping genes
 NonOverlappingSets = []
@@ -100,384 +114,259 @@ for i in range(0, len(AllOverlap), 2):
     overlap = MakeFullPartialOverlapGeneSet(AllOverlap[i])
     OverlapSets.append(overlap)
 
+# get 1:1 orthologs between human and sister-species
+# get 1:1 orthologs between human, sister-species and outgroup {human:[sistersp,outgroup]}
+if SisterSp == 'chimp':
+    OrthoPairs = MatchOrthologPairs('HumanChimpOrthologs.txt')
+    OrthoTrios = MatchOrthologTrios('HumanChimpGorillaOrthologs.txt')
+elif SisterSp == 'mouse':
+    OrthoPairs = MatchOrthologPairs('HumanMouseOrthologs.txt')
+    OrthoTrios = MatchOrthologTrios('HumanMouseDogOrthologs.txt')
 
-# get 1:1 orthologs between human anc chimp
-OrthoPairs = MatchOrthologPairs('HumanMouseOrthologs.txt')
-# get 1:1 orthologs between human, chimp and gorilla {human:[chimp,gorilla]}
-OrthoTrios = MatchOrthologTrios('HumanMouseDogOrthologs.txt')
-
-# reverse dict with human and chimp orthologs
-ChimpOrthos = {}
+# reverse dict with human and sister-species orthologs
+SisterOrthos = {}
 for gene in OrthoPairs:
-    ChimpOrthos[OrthoPairs[gene]] = gene
-# make a dict of ortho trios with chimp genes as key
-ChimpOrthoTrios = {}
+    SisterOrthos[OrthoPairs[gene]] = gene
+# make a dict of ortho trios with sister-species genes as key
+SisterOrthoTrios = {}
 for gene in OrthoTrios:
-    chimpgene, gorillagene = OrthoTrios[gene][0], OrthoTrios[gene][1]
-    ChimpOrthoTrios[chimpgene] = [gene, gorillagene]
+    sistergene, outgroupgene = OrthoTrios[gene][0], OrthoTrios[gene][1]
+    SisterOrthoTrios[sistergene] = [gene, outgroupgene]
+
 
 # infer young and old nesting events in human and chimp
-HumanOld, HumanYoung = InferYoungOldNestingEvents(OrthoPairs, OrthoTrios, ChimpPairs[1], GorillaPairs[1], HumanPairs[1])
-ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthos, ChimpOrthoTrios, HumanPairs[1], GorillaPairs[1], ChimpPairs[1])
-# do some QC   
-a = []
-for pair in HumanOld:
-    a.append(set([OrthoPairs[pair[0]], OrthoPairs[pair[1]]]))
-b = []
-for pair in ChimpOld:
-    b.append(set(pair))    
-print('ab', len(a), len(b))
-for i in a:
-    assert i in b
-   
+HumanOld, HumanYoung = InferYoungOldNestingEvents(OrthoPairs, OrthoTrios, SisterPairs[1], OutGroupPairs[1], HumanPairs[1])
+SisterSpOld, SisterSpYoung = InferYoungOldNestingEvents(SisterOrthos, SisterOrthoTrios, HumanPairs[1], OutGroupPairs[1], SisterPairs[1])
 
-print(len(HumanOld), len(HumanYoung))
-print(len(ChimpOld), len(ChimpYoung))   
-   
-# get expression profile in human and chimp
-HumanExpression = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
-ChimpExpression = ParseExpressionFile('Mouse_Median_Normalized_FPKM.txt')
+print(len(HumanOld), len(SisterSpOld))
+print(len(HumanYoung), len(SisterSpYoung))
+
+
+# do some QC   
+a = [set([OrthoPairs[pair[0]], OrthoPairs[pair[1]]]) for pair in HumanOld]
+b = [set(pair) for pair in SisterSpOld]
+for i in a:
+    assert i in b    
+ 
+# get expression profiles of human and sister-species
+if SisterSp == 'chimp':
+    HumanExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
+    SisterSpExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'chimp')
+elif SisterSp == 'mouse':
+    HumanExpression = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
+    SisterSpExpression = ParseExpressionFile('Mouse_Median_Normalized_FPKM.txt')
+    # match expression profiles between mouse and human 
+    HumanExpression = MatchHumanToMouseExpressionProfiles(HumanExpression)
 
 # remove genes without expression
 HumanExpression = RemoveGenesLackingExpression(HumanExpression)
-ChimpExpression = RemoveGenesLackingExpression(ChimpExpression)
+SisterSpExpression = RemoveGenesLackingExpression(SisterSpExpression)
 # get relative expression
 HumanExpression = TransformRelativeExpression(HumanExpression)
-ChimpExpression = TransformRelativeExpression(ChimpExpression)
-# match expression profiles 
-HumanExpression = MatchHumanToMouseExpressionProfiles(HumanExpression)
+SisterSpExpression = TransformRelativeExpression(SisterSpExpression)
 
-# remove human pairs if orthologs are nested in chimp
-print(len(HumanYoung))    
-to_remove = []
-for pair in HumanYoung:
-    if OrthoPairs[pair[0]] in NestedSets[1] or OrthoPairs[pair[1]] in NestedSets[1]:
-        to_remove.append(pair)
-for pair in to_remove:
-    HumanYoung.remove(pair)
-print(len(HumanYoung))    
-# remove human pairs if genes are not expressed
-to_remove = [pair for pair in HumanYoung if pair[0] not in HumanExpression or pair[1] not in HumanExpression]
-for pair in to_remove:
-    HumanYoung.remove(pair)
-print(len(HumanYoung))
-
-# remove human pairs if orthologs are not expressed
-to_remove = [pair for pair in HumanYoung if OrthoPairs[pair[0]] not in ChimpExpression or OrthoPairs[pair[1]] not in ChimpExpression]
-for pair in HumanYoung:
-    HumanYoung.remove(pair)
-print(len(HumanYoung))
+HumanInferredPairs = [HumanOld, HumanYoung]
+SisterSpInferredPairs = [SisterSpOld, SisterSpYoung]
 
 
+if Analysis == 'pairs':
+    # compare expression divergence between human host and nested genes and their un-nested orthologs in sister-species   
+    # remove human pairs if orthologs are nested in sister-species
+    print(len(HumanYoung))    
+    to_remove = []
+    for pair in HumanYoung:
+        if OrthoPairs[pair[0]] in NestedSets[1] or OrthoPairs[pair[1]] in NestedSets[1]:
+            to_remove.append(pair)
+    for pair in to_remove:
+        HumanYoung.remove(pair)
+    print(len(HumanYoung))    
+    # remove human pairs if genes are not expressed
+    to_remove = [pair for pair in HumanYoung if pair[0] not in HumanExpression or pair[1] not in HumanExpression]
+    for pair in to_remove:
+        HumanYoung.remove(pair)
+    print(len(HumanYoung))
+    # get the sister-species un-nested orthologs
+    SisterSpUnested = []
+    for pair in HumanYoung:
+        # check if orthologs are expressed in sister species
+        if OrthoPairs[pair[0]] in SisterSpExpression and OrthoPairs[pair[1]] in SisterSpExpression:
+            SisterSpUnested.append([OrthoPairs[pair[0]], OrthoPairs[pair[1]]])
+    # compute expression divergence betwen human nested gene pairs
+    HumanDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
+    # compute expression divergence between gene pairs in sister species    
+    SisterSpDiv = ComputeExpressionDivergenceGenePairs(SisterSpUnested, SisterSpExpression)
+    P = PermutationResampling(HumanDiv, SisterSpDiv, 10000, statistic = np.mean)
+    print(len(HumanDiv), len(SisterSpDiv), np.mean(HumanDiv), np.mean(SisterSpDiv), P)
     
 
-########################################
-########################################
 
-## get option from command
-#Analysis = sys.argv[1]
-#assert Analysis in ['pairs', 'orthos']
-#
-#
-## load dictionaries of overlapping genes
-#jsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',  
-#             'ChimpOverlappingGenes.json', 'ChimpNestedGenes.json',
-#             'GorillaOverlappingGenes.json', 'GorillaNestedGenes.json']
-## make a list of dictionaries
-#AllOverlap = []
-## loop over files
-#for i in range(len(jsonFiles)):
-#    # load dictionary of overlapping gene pairs
-#    json_data = open(jsonFiles[i])
-#    overlapping = json.load(json_data)
-#    json_data.close()
-#    AllOverlap.append(overlapping)
-#
-## get GFF file
-#GFF = ['Homo_sapiens.GRCh38.86.gff3', 'Pan_troglodytes.CHIMP2.1.4.86.gff3', 'Gorilla_gorilla.gorGor3.1.86.gff3']
-#
-## make a list of gene coordinates       
-#AllCoordinates, AllOrdered = [], []
-## loop over GFF files
-#for i in range(len(GFF)):
-#    # get the coordinates of genes on each chromo
-#    # {chromo: {gene:[chromosome, start, end, sense]}}
-#    GeneChromoCoord = ChromoGenesCoord(GFF[i])
-#    # map each gene to its mRNA transcripts
-#    MapGeneTranscript = GeneToTranscripts(GFF[i])
-#    # remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
-#    GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
-#    # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
-#    GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
-#    # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
-#    OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
-#    AllCoordinates.append(GeneCoord)
-#    AllOrdered.append(OrderedGenes)
-#
-## make pairs of overlapping genes
-#AllPairs = []
-#for i in range(len(AllOverlap)):
-#    pairs = GetHostNestedPairs(AllOverlap[i])
-#    AllPairs.append(pairs)
-## make pairs of overlapping genes
-#HumanPairs = AllPairs[:2]
-#ChimpPairs = AllPairs[2:4]
-#GorillaPairs = AllPairs[4:]
-#
-## make list with sets of non-overlapping genes
-#NonOverlappingSets = []
-#for i in range(3):
-#    j = i * 2
-#    # make a set of non-overlapping gene
-#    nonoverlap = MakeNonOverlappingGeneSet(AllOverlap[j], AllCoordinates[i])
-#    NonOverlappingSets.append(nonoverlap)    
-#
-## make sets of host and nested nested genes
-#NestedSets = []
-#for i in range(1, len(AllOverlap), 2):
-#    nestedset = MakeFullPartialOverlapGeneSet(AllOverlap[i])
-#    NestedSets.append(nestedset)
-#
-## make sets of overlapping genes
-#OverlapSets = []
-#for i in range(0, len(AllOverlap), 2):
-#    overlap = MakeFullPartialOverlapGeneSet(AllOverlap[i])
-#    OverlapSets.append(overlap)
-#
-## get 1:1 orthologs between human anc chimp
-#OrthoPairs = MatchOrthologPairs('HumanChimpOrthologs.txt')
-## get 1:1 orthologs between human, chimp and gorilla {human:[chimp,gorilla]}
-#OrthoTrios = MatchOrthologTrios('HumanChimpGorillaOrthologs.txt')
-#
-## reverse dict with human and chimp orthologs
-#ChimpOrthos = {}
-#for gene in OrthoPairs:
-#    ChimpOrthos[OrthoPairs[gene]] = gene
-## make a dict of ortho trios with chimp genes as key
-#ChimpOrthoTrios = {}
-#for gene in OrthoTrios:
-#    chimpgene, gorillagene = OrthoTrios[gene][0], OrthoTrios[gene][1]
-#    ChimpOrthoTrios[chimpgene] = [gene, gorillagene]
-#
-## infer young and old nesting events in human and chimp
-#HumanOld, HumanYoung = InferYoungOldNestingEvents(OrthoPairs, OrthoTrios, ChimpPairs[1], GorillaPairs[1], HumanPairs[1])
-#ChimpOld, ChimpYoung = InferYoungOldNestingEvents(ChimpOrthos, ChimpOrthoTrios, HumanPairs[1], GorillaPairs[1], ChimpPairs[1])
-## do some QC   
-#for pair in HumanOld:
-#    assert [OrthoPairs[pair[0]], OrthoPairs[pair[1]]] in ChimpOld    
-#    
-## get expression profile in human and chimp
-#HumanExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
-#ChimpExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'chimp')
-## remove genes without expression
-#HumanExpression = RemoveGenesLackingExpression(HumanExpression)
-#ChimpExpression = RemoveGenesLackingExpression(ChimpExpression)
-## get relative expression
-#HumanExpression = TransformRelativeExpression(HumanExpression)
-#ChimpExpression = TransformRelativeExpression(ChimpExpression)
+elif Analysis == 'orthos':
+    # compare expression divergence between young nested genes and their un-nested orthologs
+    # compare expression divergence between young host genes and their un-nested orthologs
+
+
 ## remove gene pairs with genes lacking expression
 #HumanOld = FilterGenePairsWithoutExpression(HumanOld, HumanExpression)
 #HumanYoung = FilterGenePairsWithoutExpression(HumanYoung, HumanExpression)
 #ChimpOld = FilterGenePairsWithoutExpression(ChimpOld, ChimpExpression)
 #ChimpYoung = FilterGenePairsWithoutExpression(ChimpYoung, ChimpExpression)
-#
-#HumanInferredPairs = [HumanOld, HumanYoung]
-#ChimpInferredPairs = [ChimpOld, ChimpYoung]
-#
-#if Analysis == 'pairs':
-#    # compare expression divergence between human host and nested genes and their un-nested orthologs in chimp   
-#    # remove human pairs if orthologs are nested in chimp
-#    print(len(HumanYoung))    
-#    to_remove = []
-#    for pair in HumanYoung:
-#        if OrthoPairs[pair[0]] in NestedSets[1] or OrthoPairs[pair[1]] in NestedSets[1]:
-#            to_remove.append(pair)
-#    for pair in to_remove:
-#        HumanYoung.remove(pair)
-#    print(len(HumanYoung))    
-#    # remove human pairs if genes are not expressed
-#    to_remove = [pair for pair in HumanYoung if pair[0] not in HumanExpression or pair[1] not in HumanExpression]
-#    for pair in to_remove:
-#        HumanYoung.remove(pair)
-#    print(len(HumanYoung))
-#    # remove pairs if orthologs lack expression
-#    to_remove = []
-#    for pair in HumanYoung:
-#        if OrthoPairs[pair[0]] not in ChimpExpression or OrthoPairs[pair[1]] not in ChimpExpression:
-#            to_remove.append(pair)
-#    for pair in to_remove:
-#        HumanYoung.remove(pair)
-#    print(len(HumanYoung))
-#    # get the chimp un-nested orthologs
-#    ChimpUnested = []
-#    for pair in HumanYoung:
-#        ChimpUnested.append([OrthoPairs[pair[0]], OrthoPairs[pair[1]]])
-#    # compute expression divergence betwen human nested gene pairs
-#    HumanDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
-#    ChimpDiv = ComputeExpressionDivergenceGenePairs(ChimpUnested, ChimpExpression)
-#    P = PermutationResampling(HumanDiv, ChimpDiv, 10000, statistic = np.mean)
-#    print(len(HumanDiv), len(ChimpDiv), np.mean(HumanDiv), np.mean(ChimpDiv), P)
-#    
-#
-#
-#elif Analysis == 'orthos':
-#    # compare expression divergence between young nested genes and their un-nested orthologs
-#    # compare expression divergence between young host genes and their un-nested orthologs
-#
-#    # make sets of external and internal genes [hsaextold, hsaintold, hsaextyoung, hsaintyoung]
-#    HumanExtIntGenes = []
-#    for i in range(len(HumanInferredPairs)):
-#        external, internal = set(), set()
-#        for pair in HumanInferredPairs[i]:
-#            external.add(pair[0])
-#            internal.add(pair[1])
-#        HumanExtIntGenes.append(external)
-#        HumanExtIntGenes.append(internal)
-#
-#    # make sets of external and internal genes [ptrextold, ptrintold, ptrextyoung, ptrintyoung]
-#    ChimpExtIntGenes = []
-#    for i in range(len(ChimpInferredPairs)):
-#        external, internal = set(), set()
-#        for pair in ChimpInferredPairs[i]:
-#            external.add(pair[0])
-#            internal.add(pair[1])
-#        ChimpExtIntGenes.append(external)
-#        ChimpExtIntGenes.append(internal)
-#
-#    # for young external and internal, remove genes if ortholog is nested
-#    for i in range(2, len(HumanExtIntGenes)):
-#        to_remove = set()
-#        for gene in HumanExtIntGenes[i]:
-#            assert gene in OrthoPairs
-#            if OrthoPairs[gene] in NestedSets[1]:
-#                to_remove.add(gene)
-#            if gene in OrthoTrios:
-#                if OrthoTrios[gene][0] in NestedSets[1] or OrthoTrios[gene][1] in NestedSets[2]:
-#                    to_remove.add(gene)
-#        for gene in to_remove:
-#            HumanExtIntGenes[i].remove(gene)             
-#
-#    # for young external and internal, remove genes if ortholog is nested
-#    for i in range(2, len(ChimpExtIntGenes)):
-#        to_remove = set()
-#        for gene in ChimpExtIntGenes[i]:
-#            assert gene in ChimpOrthos
-#            if ChimpOrthos[gene] in NestedSets[0]:
-#                to_remove.add(gene)
-#            if gene in ChimpOrthoTrios:
-#                if ChimpOrthoTrios[gene][0] in NestedSets[0] or ChimpOrthoTrios[gene][1] in NestedSets[2]:
-#                    to_remove.add(gene)
-#        for gene in to_remove:
-#            ChimpExtIntGenes[i].remove(gene)             
-#
-#    to_remove = set()
-#    # remove non-overlapping genes if their ortholog are overlapping
-#    for gene in NonOverlappingSets[0]:
-#        # check if ortholog is overlapping in chimp or gorilla
-#        if gene in OrthoPairs and OrthoPairs[gene] in OverlapSets[1]:
-#            to_remove.add(gene)
-#        if gene in OrthoTrios:
-#            if OrthoTrios[gene][0] in OverlapSets[1] or OrthoTrios[gene][1] in OverlapSets[2]:
-#                to_remove.add(gene)
-#    for gene in to_remove:
-#        NonOverlappingSets[0].remove(gene)
-#
-#    # remove non-overlapping genes genes without orthologs in chimp
-#    to_remove = [gene for gene in NonOverlappingSets[0] if gene not in OrthoPairs]
-#    for gene in to_remove:
-#        NonOverlappingSets[0].remove(gene)
-#
-#    # remove non-overlapping genes without expression
-#    to_remove = [gene for gene in NonOverlappingSets[0] if gene not in HumanExpression]
-#    for gene in to_remove:
-#        NonOverlappingSets[0].remove(gene)
-#
-#    #HsaGenes = [NonOverlappingSets[0]]
-#    #HsaGenes.extend(ExtIntGenes)
-#
-#    # remove genes without expression
-#    for i in range(len(HumanExtIntGenes)):
-#        to_remove = [gene for gene in HumanExtIntGenes[i] if gene not in HumanExpression]
-#        for gene in to_remove:
-#            HumanExtIntGenes[i].remove(gene)
-#        HumanExtIntGenes[i] = set(HumanExtIntGenes[i])
-#    for i in range(len(ChimpExtIntGenes)):
-#        to_remove = [gene for gene in ChimpExtIntGenes[i] if gene not in ChimpExpression]
-#        for gene in to_remove:
-#            ChimpExtIntGenes[i].remove(gene)
-#        ChimpExtIntGenes[i] = set(ChimpExtIntGenes[i])
-#    
-#    # remove gene "duplicates" by removing chimp genes with ortologs already present in each group
-#    for i in range(len(ChimpExtIntGenes)):
-#        to_remove = []
-#        for gene in ChimpExtIntGenes[i]:
-#            if ChimpOrthos[gene] in HumanExtIntGenes[i]:
-#                to_remove.append(gene)
-#        for gene in to_remove:
-#            ChimpExtIntGenes[i].remove(gene)
-#
-#    # add set of non-overlapping genes to list of external and internal genes
-#    HumanExtIntGenes.insert(0, NonOverlappingSets[0])
-#    # make lists with human and chimp orthologs
-#    HumanChimpPairs = []
-#    for i in range(len(HumanExtIntGenes)):
-#        pairs = [[gene, OrthoPairs[gene]] for gene in HumanExtIntGenes[i] if gene in HumanExpression and OrthoPairs[gene] in ChimpExpression]
-#        HumanChimpPairs.append(pairs)
-#    ChimpHumanPairs = []
-#    for i in range(len(ChimpExtIntGenes)):
-#        pairs = [[gene, ChimpOrthos[gene]] for gene in ChimpExtIntGenes[i] if gene in ChimpExpression and ChimpOrthos[gene] in HumanExpression]
-#        ChimpHumanPairs.append(pairs)
-#
-#    ExpDivergence = []
-#    for i in range(len(HumanChimpPairs)):
-#        D = ComputeExpressionDivergenceOrthologs(HumanChimpPairs[i], HumanExpression, ChimpExpression)
-#        ExpDivergence.append(D)
-#    
-#    ## add divergence for chimp-specific nesting events
-#    #ExpDivergence[-2].extend(ComputeExpressionDivergenceOrthologs(ChimpHumanPairs[-2], ChimpExpression, HumanExpression))
-#    #ExpDivergence[-1].extend(ComputeExpressionDivergenceOrthologs(ChimpHumanPairs[-1], ChimpExpression, HumanExpression))
-#    
-#    
-#    for i in range(1, len(ExpDivergence)):
-#        P = PermutationResampling(ExpDivergence[0], ExpDivergence[i], 10000, statistic = np.mean)
-#        print(i, len(ExpDivergence[i]), np.mean(ExpDivergence[0]), np.mean(ExpDivergence[i]), P)
-#
-#    print('merge young and old external and internal genes')
-#
-#    # merge external and internal for the same age group
-#    Old, Young = [i for i in ExpDivergence[1]], [i for i in ExpDivergence[3]]
-#    Old.extend(ExpDivergence[2])
-#    Young.extend(ExpDivergence[4])
-#
-#    ExpDiv = [ExpDivergence[0], Old, Young]
-#    for i in range(1, len(ExpDiv)):
-#        P = PermutationResampling(ExpDiv[0], ExpDiv[i], 10000, statistic = np.mean)
-#        print(i, len(ExpDiv[i]), np.mean(ExpDiv[0]), np.mean(ExpDiv[i]), P)
-#    
-#  
-#
-#
-#
-#
-### use this function to create lists of orthologs with both genes expressed
-##def ExpressedOrthologousPairs(Sp1Expression, Sp2Expression, Genes, Orthologs):
-##    '''
-##    (dict, dict, set, dict) -> list
-##    Take the dictionaries of expression profiles for species 1 and 2, the set
-##    of genes of interest in species 1, and the dictionary of orthologs and return
-##    a list of expressed orthologous pairs
-##    '''
-##    # create a list of gene pairs
-##    ExpressedOrthos = []
-##    # loop over gene set of interest
-##    for gene in Genes:
-##        # check that gene has ortholog
-##        if gene in Orthologs:
-##            # check that gene and its orthologs are expressed
-##            if gene in Sp1Expression and Orthologs[gene] in Sp2Expression:
-##                ExpressedOrthos.append([gene, Orthologs[gene]])
-##    return ExpressedOrthos
-#
+
+
+
+    # make sets of external and internal genes [hsaextold, hsaintold, hsaextyoung, hsaintyoung]
+    HumanExtIntGenes = []
+    for i in range(len(HumanInferredPairs)):
+        external, internal = set(), set()
+        for pair in HumanInferredPairs[i]:
+            external.add(pair[0])
+            internal.add(pair[1])
+        HumanExtIntGenes.append(external)
+        HumanExtIntGenes.append(internal)
+
+    # make sets of external and internal genes [ptrextold, ptrintold, ptrextyoung, ptrintyoung]
+    ChimpExtIntGenes = []
+    for i in range(len(ChimpInferredPairs)):
+        external, internal = set(), set()
+        for pair in ChimpInferredPairs[i]:
+            external.add(pair[0])
+            internal.add(pair[1])
+        ChimpExtIntGenes.append(external)
+        ChimpExtIntGenes.append(internal)
+
+    # for young external and internal, remove genes if ortholog is nested
+    for i in range(2, len(HumanExtIntGenes)):
+        to_remove = set()
+        for gene in HumanExtIntGenes[i]:
+            assert gene in OrthoPairs
+            if OrthoPairs[gene] in NestedSets[1]:
+                to_remove.add(gene)
+            if gene in OrthoTrios:
+                if OrthoTrios[gene][0] in NestedSets[1] or OrthoTrios[gene][1] in NestedSets[2]:
+                    to_remove.add(gene)
+        for gene in to_remove:
+            HumanExtIntGenes[i].remove(gene)             
+
+    # for young external and internal, remove genes if ortholog is nested
+    for i in range(2, len(ChimpExtIntGenes)):
+        to_remove = set()
+        for gene in ChimpExtIntGenes[i]:
+            assert gene in ChimpOrthos
+            if ChimpOrthos[gene] in NestedSets[0]:
+                to_remove.add(gene)
+            if gene in ChimpOrthoTrios:
+                if ChimpOrthoTrios[gene][0] in NestedSets[0] or ChimpOrthoTrios[gene][1] in NestedSets[2]:
+                    to_remove.add(gene)
+        for gene in to_remove:
+            ChimpExtIntGenes[i].remove(gene)             
+
+    to_remove = set()
+    # remove non-overlapping genes if their ortholog are overlapping
+    for gene in NonOverlappingSets[0]:
+        # check if ortholog is overlapping in chimp or gorilla
+        if gene in OrthoPairs and OrthoPairs[gene] in OverlapSets[1]:
+            to_remove.add(gene)
+        if gene in OrthoTrios:
+            if OrthoTrios[gene][0] in OverlapSets[1] or OrthoTrios[gene][1] in OverlapSets[2]:
+                to_remove.add(gene)
+    for gene in to_remove:
+        NonOverlappingSets[0].remove(gene)
+
+    # remove non-overlapping genes genes without orthologs in chimp
+    to_remove = [gene for gene in NonOverlappingSets[0] if gene not in OrthoPairs]
+    for gene in to_remove:
+        NonOverlappingSets[0].remove(gene)
+
+    # remove non-overlapping genes without expression
+    to_remove = [gene for gene in NonOverlappingSets[0] if gene not in HumanExpression]
+    for gene in to_remove:
+        NonOverlappingSets[0].remove(gene)
+
+    #HsaGenes = [NonOverlappingSets[0]]
+    #HsaGenes.extend(ExtIntGenes)
+
+    # remove genes without expression
+    for i in range(len(HumanExtIntGenes)):
+        to_remove = [gene for gene in HumanExtIntGenes[i] if gene not in HumanExpression]
+        for gene in to_remove:
+            HumanExtIntGenes[i].remove(gene)
+        HumanExtIntGenes[i] = set(HumanExtIntGenes[i])
+    for i in range(len(ChimpExtIntGenes)):
+        to_remove = [gene for gene in ChimpExtIntGenes[i] if gene not in ChimpExpression]
+        for gene in to_remove:
+            ChimpExtIntGenes[i].remove(gene)
+        ChimpExtIntGenes[i] = set(ChimpExtIntGenes[i])
+    
+    # remove gene "duplicates" by removing chimp genes with ortologs already present in each group
+    for i in range(len(ChimpExtIntGenes)):
+        to_remove = []
+        for gene in ChimpExtIntGenes[i]:
+            if ChimpOrthos[gene] in HumanExtIntGenes[i]:
+                to_remove.append(gene)
+        for gene in to_remove:
+            ChimpExtIntGenes[i].remove(gene)
+
+    # add set of non-overlapping genes to list of external and internal genes
+    HumanExtIntGenes.insert(0, NonOverlappingSets[0])
+    # make lists with human and chimp orthologs
+    HumanChimpPairs = []
+    for i in range(len(HumanExtIntGenes)):
+        pairs = [[gene, OrthoPairs[gene]] for gene in HumanExtIntGenes[i] if gene in HumanExpression and OrthoPairs[gene] in ChimpExpression]
+        HumanChimpPairs.append(pairs)
+    ChimpHumanPairs = []
+    for i in range(len(ChimpExtIntGenes)):
+        pairs = [[gene, ChimpOrthos[gene]] for gene in ChimpExtIntGenes[i] if gene in ChimpExpression and ChimpOrthos[gene] in HumanExpression]
+        ChimpHumanPairs.append(pairs)
+
+    ExpDivergence = []
+    for i in range(len(HumanChimpPairs)):
+        D = ComputeExpressionDivergenceOrthologs(HumanChimpPairs[i], HumanExpression, ChimpExpression)
+        ExpDivergence.append(D)
+    
+    ## add divergence for chimp-specific nesting events
+    #ExpDivergence[-2].extend(ComputeExpressionDivergenceOrthologs(ChimpHumanPairs[-2], ChimpExpression, HumanExpression))
+    #ExpDivergence[-1].extend(ComputeExpressionDivergenceOrthologs(ChimpHumanPairs[-1], ChimpExpression, HumanExpression))
+    
+    
+    for i in range(1, len(ExpDivergence)):
+        P = PermutationResampling(ExpDivergence[0], ExpDivergence[i], 10000, statistic = np.mean)
+        print(i, len(ExpDivergence[i]), np.mean(ExpDivergence[0]), np.mean(ExpDivergence[i]), P)
+
+    print('merge young and old external and internal genes')
+
+    # merge external and internal for the same age group
+    Old, Young = [i for i in ExpDivergence[1]], [i for i in ExpDivergence[3]]
+    Old.extend(ExpDivergence[2])
+    Young.extend(ExpDivergence[4])
+
+    ExpDiv = [ExpDivergence[0], Old, Young]
+    for i in range(1, len(ExpDiv)):
+        P = PermutationResampling(ExpDiv[0], ExpDiv[i], 10000, statistic = np.mean)
+        print(i, len(ExpDiv[i]), np.mean(ExpDiv[0]), np.mean(ExpDiv[i]), P)
+    
+  
+
+
+
+
+## use this function to create lists of orthologs with both genes expressed
+#def ExpressedOrthologousPairs(Sp1Expression, Sp2Expression, Genes, Orthologs):
+#    '''
+#    (dict, dict, set, dict) -> list
+#    Take the dictionaries of expression profiles for species 1 and 2, the set
+#    of genes of interest in species 1, and the dictionary of orthologs and return
+#    a list of expressed orthologous pairs
+#    '''
+#    # create a list of gene pairs
+#    ExpressedOrthos = []
+#    # loop over gene set of interest
+#    for gene in Genes:
+#        # check that gene has ortholog
+#        if gene in Orthologs:
+#            # check that gene and its orthologs are expressed
+#            if gene in Sp1Expression and Orthologs[gene] in Sp2Expression:
+#                ExpressedOrthos.append([gene, Orthologs[gene]])
+#    return ExpressedOrthos
+
 
 
 
