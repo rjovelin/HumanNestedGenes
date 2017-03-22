@@ -201,10 +201,6 @@ if Analysis == 'pairs':
     to_remove = []
     for pair in HumanYoung:
         if OrthoPairs[pair[0]] in NestedSets[1] or OrthoPairs[pair[1]] in NestedSets[1]:
-            
-#        if OrthoPairs[pair[0]] in OverlapSets[1] or OrthoPairs[pair[1]] in OverlapSets[1]:            
-            
-            
             to_remove.append(pair)
     for pair in to_remove:
         HumanYoung.remove(pair)
@@ -251,6 +247,68 @@ if Analysis == 'pairs':
         # check if orthologs are expressed in sister species
         if OrthoPairs[pair[0]] in SisterSpExpression and OrthoPairs[pair[1]] in SisterSpExpression:
             SisterSpUnested.append([OrthoPairs[pair[0]], OrthoPairs[pair[1]]])
+
+    # generate a dict to draw random genes in sister-species
+    SisterRandomGenes = GenerateAllUnNestedGenes(NestedSets[1], AllOrdered[1])
+    
+    # make a list of control un-nested pairs
+    for pair in SisterSpUnested:
+        gene1, gene2 = pair[0], pair[1]
+        # get gene orientation
+        orientation = GenePairOrientation(pair, AllCoordinates[1])
+        # get gene chromos
+        chromo1, chromo2 = AllCoordinates[1][gene1][0], AllCoordinates[1][gene2][0]
+        # compute distance between genes
+        D = ComputeDistanceBetweenGenes(gene1, gene2, AllCoordinates[1])
+
+
+        ####### continue here
+
+        
+        NotFound = True
+        while NotFound:
+            
+        # draw a random number, get genes corresponding to that number        
+        
+        
+        # count the number of possible genes to be drawn to form a random pair
+        # check genes on the same chromo
+        total = 0        
+        if chromo1 == chromo2:
+            # loop over genes on chromo
+            for i in range(0, len(AllOrdered[1][chromo1]) -1):
+                gene1 = AllOrdered[1][chromo1][i]
+                # check that genes are not overlapping
+                if gene1 not in NestedSets[1] and gene1 in SisterSpExpression:
+                    for j in range(i+1, len(AllOrdered[1][chromo1])):
+                        gene2 = AllOrdered[1][chromo1][j]
+                        if gene2 not in NestedSets[1] and gene2 in SisterSpExpression:
+                            if {AllCoordinates[1][gene1][-1], AllCoordinates[1][gene2][-1]} == {sense1, sense2}:
+                                # compute distance
+                                s1, s2 = AllCoordinates[1][gene1][1], AllCoordinates[1][gene2][1]
+                                e1, e2 = AllCoordinates[1][gene1][2], AllCoordinates[1][gene2][2]
+                                if s1 == s2:
+                                    d = 0
+                                else:
+                                    if s1 < s2:
+                                        d = s2 - e1
+                                    elif s2 < s1:
+                                        d = s1 - e2
+                                if D - 5000 <= d <= D + 5000:
+                                    total += 1
+        print(pair, total)
+                    
+
+
+
+
+
+
+
+
+
+
+
     # compute expression divergence betwen human nested gene pairs
     HumanDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
     # compute expression divergence between gene pairs in sister species    
