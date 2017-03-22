@@ -362,8 +362,37 @@ def OrderGenesAlongChromo(GeneCoord):
         for i in StartPos[chromo]:
             OrderedGenes[chromo].append(i[1])
     return OrderedGenes
+  
+
+# use this function to compute the distance between 2 genes
+def ComputeDistanceBetweenGenes(gene1, gene2, GeneCoord):
+    '''
+    (str, str, dict) -> int
+    Take 2 genes and the dictionary of gene coordinates and return the distance
+    betwen the 2 genes
+    Precondition: the 2 genes are located on the same chromosome
+    '''
     
-    
+    # check that genes are on the same chromosome
+    assert GeneCoord[gene1][0] == GeneCoord[gene2][0]    
+    # get start positions
+    S1, S2 = GeneCoord[gene1][1], GeneCoord[gene2][1]
+    # get end positions
+    E1, E2 = GeneCoord[gene1][2], GeneCoord[gene2][2]
+    # get gene coordinates
+    coordinates1 = set(range(GeneCoord[gene1][1], GeneCoord[gene1][2]))
+    coordinates2 = set(range(GeneCoord[gene2][1], GeneCoord[gene2][2]))
+    if len(coordinates1.intersection(coordinates2)) != 0:
+        # genes overlap, assign a distance of 0 bp
+        D = 0
+    else:
+        if S1 < S2:
+            D = S2 - E1
+        elif S2 < S1:
+            D = S1 - E2
+    return D
+
+  
 # use this function to find overlapping genes
 def FindOverlappingGenePairs(GeneCoord, OrderedGenes):
     '''
