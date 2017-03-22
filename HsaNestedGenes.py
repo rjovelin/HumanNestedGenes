@@ -1405,10 +1405,10 @@ def GenerateUnNestedGenePairs(HostGenes, GeneCoord, OrderedGenes, ExpressionProf
 # use this function to generate un-nested genes to randomly draw
 def GenerateAllUnNestedGenes(NoOverlap, OrderedGenes):
     '''
-    (set, dict, dict) -> dict
+    (set, dict) -> dict
     Take the set of host and nested genes, the dictionary of ordered genes
-    along each chromosome, the dictionary of gene: expression pairs and return 
-    a dictionary of pairs of number: un-nested gene on each chromsome
+    along each chromosome and return a dictionary of pairs of
+    number: un-nested gene on each chromsome
     '''
     
     # make a dictionary with chromsome as key and number: gene {chromo: {num: gene}}    
