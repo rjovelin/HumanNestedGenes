@@ -170,16 +170,76 @@ SisterSpInferredPairs = [SisterSpOld, SisterSpYoung]
 
 
 if Analysis == 'pairs':
+#    for pair in HumanYoung:
+##        print(pair)
+##        print(pair[0], AllCoordinates[0][pair[0]])
+##        print(pair[1], AllCoordinates[0][pair[1]])
+##        print(OrthoPairs[pair[0]], AllCoordinates[1][OrthoPairs[pair[0]]])
+##        print(OrthoPairs[pair[1]], AllCoordinates[1][OrthoPairs[pair[1]]])
+#        
+#        if pair == ['ENSG00000100504', 'ENSG00000131969']:
+#            print(AllOrdered[0]['14'].index('ENSG00000100504'))
+#            print(AllOrdered[0]['14'].index('ENSG00000131969'))
+#            print(AllOrdered[1]['12'].index('ENSMUSG00000021069'))
+#            print(AllOrdered[1]['12'].index('ENSMUSG00000090121'))
+#                   
+#            print(AllOrdered[1]['12'][263])
+#            print(AllOrdered[1]['12'][266])
+#
+#            
+#            print('ENSMUSG00000021068', AllCoordinates[1]['ENSMUSG00000021068'])
+#            print('ENSMUSG00000021071', AllCoordinates[1]['ENSMUSG00000021071'])
+         
+            
+
+
+    
+    
     # compare expression divergence between human host and nested genes and their un-nested orthologs in sister-species   
     # remove human pairs if orthologs are nested in sister-species
     print(len(HumanYoung))    
     to_remove = []
     for pair in HumanYoung:
         if OrthoPairs[pair[0]] in NestedSets[1] or OrthoPairs[pair[1]] in NestedSets[1]:
+            
+#        if OrthoPairs[pair[0]] in OverlapSets[1] or OrthoPairs[pair[1]] in OverlapSets[1]:            
+            
+            
             to_remove.append(pair)
     for pair in to_remove:
         HumanYoung.remove(pair)
-    print(len(HumanYoung))    
+    print(len(HumanYoung)) 
+
+#    # make a list of mouse genes if genes not nested in mouse but nested in human and outgroup
+#    SecondOverlap, OutGroupOverlap = [], []
+#    for pair in SisterPairs[1]:
+#        SecondOverlap.append(set(pair))
+#    for pair in OutGroupPairs[1]:
+#        OutGroupOverlap.append(set(pair))
+#    to_remove = set()
+#    for pair in HumanPairs[1]:
+#        if pair[0] in OrthoPairs and pair[1] in OrthoPairs:
+#            hostorthosp2, nestedorthosp2 = OrthoPairs[pair[0]], OrthoPairs[pair[1]]        
+#            if {hostorthosp2, nestedorthosp2} not in SecondOverlap:
+#                if pair[0] not in OrthoTrios or pair[1] not in OrthoTrios:
+#                    to_remove.add(pair[0])
+#                    to_remove.add(pair[1])
+#                elif pair[0] in OrthoTrios and pair[1] in OrthoTrios:
+#                    hostorthoout, nestedorthoout = OrthoTrios[pair[0]][1], OrthoTrios[pair[1]][1]                 
+#                    if {hostorthoout, nestedorthoout} in OutGroupOverlap:
+#                        to_remove.add(pair[0])
+#                        to_remove.add(pair[1])
+#    to_delete = []    
+#    for pair in HumanYoung:
+#        if pair[0] in to_remove or pair[1] in to_remove:
+#            to_delete.append(pair)
+#    for pair in to_delete:
+#        HumanYoung.remove(pair)            
+#    print(len(HumanYoung))
+    
+    
+    
+    
     # remove human pairs if genes are not expressed
     to_remove = [pair for pair in HumanYoung if pair[0] not in HumanExpression or pair[1] not in HumanExpression]
     for pair in to_remove:
