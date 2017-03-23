@@ -134,7 +134,7 @@ for gene in OrthoTrios:
     SisterOrthoTrios[sistergene] = [gene, outgroupgene]
 
 
-# infer young and old nesting events in human and chimp
+# infer young and old nesting events 
 HumanOld, HumanYoung = InferYoungOldNestingEvents(OrthoPairs, OrthoTrios, SisterPairs[1], OutGroupPairs[1], HumanPairs[1])
 SisterSpOld, SisterSpYoung = InferYoungOldNestingEvents(SisterOrthos, SisterOrthoTrios, HumanPairs[1], OutGroupPairs[1], SisterPairs[1])
 
@@ -170,31 +170,7 @@ SisterSpInferredPairs = [SisterSpOld, SisterSpYoung]
 
 
 if Analysis == 'pairs':
-#    for pair in HumanYoung:
-##        print(pair)
-##        print(pair[0], AllCoordinates[0][pair[0]])
-##        print(pair[1], AllCoordinates[0][pair[1]])
-##        print(OrthoPairs[pair[0]], AllCoordinates[1][OrthoPairs[pair[0]]])
-##        print(OrthoPairs[pair[1]], AllCoordinates[1][OrthoPairs[pair[1]]])
-#        
-#        if pair == ['ENSG00000100504', 'ENSG00000131969']:
-#            print(AllOrdered[0]['14'].index('ENSG00000100504'))
-#            print(AllOrdered[0]['14'].index('ENSG00000131969'))
-#            print(AllOrdered[1]['12'].index('ENSMUSG00000021069'))
-#            print(AllOrdered[1]['12'].index('ENSMUSG00000090121'))
-#                   
-#            print(AllOrdered[1]['12'][263])
-#            print(AllOrdered[1]['12'][266])
-#
-#            
-#            print('ENSMUSG00000021068', AllCoordinates[1]['ENSMUSG00000021068'])
-#            print('ENSMUSG00000021071', AllCoordinates[1]['ENSMUSG00000021071'])
-         
-            
-
-
-    
-    
+   
     # compare expression divergence between human host and nested genes and their un-nested orthologs in sister-species   
     # remove human pairs if orthologs are nested in sister-species
     print(len(HumanYoung))    
@@ -249,40 +225,54 @@ if Analysis == 'pairs':
             SisterSpUnested.append([OrthoPairs[pair[0]], OrthoPairs[pair[1]]])
 
     # generate a dict to draw random genes in sister-species
-    SisterRandomGenes = GenerateAllUnNestedGenes(NestedSets[1], AllOrdered[1])
+    SisterRandomGenes = GenerateAllUnNestedGenes(NestedSets[1], AllOrdered[1], SisterSpExpression)
     
     # make a list of control un-nested pairs
+    ControlPairs = []
     for pair in SisterSpUnested:
         gene1, gene2 = pair[0], pair[1]
         # get gene orientation
-        orientation = GenePairOrientation(pair, AllCoordinates[1])
+        orientation = set(GenePairOrientation(pair, AllCoordinates[1]))
         # get gene chromos
         chromo1, chromo2 = AllCoordinates[1][gene1][0], AllCoordinates[1][gene2][0]
         # compute distance between genes
         D = ComputeDistanceBetweenGenes(gene1, gene2, AllCoordinates[1])
-
-
-        ####### continue here
-
+        # check if genes are on the same chromosome
+        if chromo1 != chromo2:
+            # set up boolean pair is not found
+            NotFound = True
+            while NotFound:
+                # draw a random gene on each chromosome
+                i = random.randint(0, len(SisterRandomGenes[chromo1]) -1)
+                j = random.randint(0, len(SisterRandomGenes[chromo2]) -1)
+                G1 = SisterRandomGenes[chromo1][i]
+                G2 = SisterRandomGenes[chromo1][j]
+                # match orientation
+                sense1, sense2 = AllCoordinates[1][G1][-1], AllCoordinates[1][G2][-1]
+                if orientation == {sense1, sense2}:
+                    NotFound = False
         
-        NotFound = True
-        while NotFound:
             
-        # draw a random number, get genes corresponding to that number        
-        
-        
-        # count the number of possible genes to be drawn to form a random pair
-        # check genes on the same chromo
-        total = 0        
-        if chromo1 == chromo2:
+        else:
+            # set up boolean pair is not found
+            NotFound = True
+            
+            ############ continue here
+            
+            # modify function to generate pairs of genes to draw from 
+            # with matching criteria
+            # using the dict of random genes to draw from because genes have been filtered 
+            # from expressed genes and for non-nested genes
+            
+            # make a pool of gene pair satisfying matching criteria
+            PairPool = []
             # loop over genes on chromo
-            for i in range(0, len(AllOrdered[1][chromo1]) -1):
-                gene1 = AllOrdered[1][chromo1][i]
-                # check that genes are not overlapping
-                if gene1 not in NestedSets[1] and gene1 in SisterSpExpression:
-                    for j in range(i+1, len(AllOrdered[1][chromo1])):
-                        gene2 = AllOrdered[1][chromo1][j]
-                        if gene2 not in NestedSets[1] and gene2 in SisterSpExpression:
+            PossibleGenes = [SisterRandomGenes[chromo1][k] for k in SisterRandomGenes[chromo1]]
+            for k in range(0, len(PossibleGenes) -1):
+                for m in range(k+1, len(PossibleGenes)):
+                    # 
+                    
+                    
                             if {AllCoordinates[1][gene1][-1], AllCoordinates[1][gene2][-1]} == {sense1, sense2}:
                                 # compute distance
                                 s1, s2 = AllCoordinates[1][gene1][1], AllCoordinates[1][gene2][1]
@@ -297,10 +287,32 @@ if Analysis == 'pairs':
                                 if D - 5000 <= d <= D + 5000:
                                     total += 1
         print(pair, total)
+            
+            
+            
+            
+            
+            
+            
+            
+            #if pool size greater than 2, draw random genes
+           
+           
+           
+           while NotFound:
+            
+            
+            
+            
+            
+        # draw a random number, get genes corresponding to that number        
+        
+        
                     
 
 
-
+       if NotFound == False:
+           ControlPairs.append([G2, G2])
 
 
 
