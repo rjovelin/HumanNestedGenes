@@ -1432,12 +1432,12 @@ def GenerateUnNestedGenePairs(HostGenes, GeneCoord, OrderedGenes, ExpressionProf
 
 
 # use this function to generate un-nested genes to randomly draw
-def GenerateAllUnNestedGenes(Overlap, OrderedGenes):
+def GenerateAllUnNestedGenes(Overlap, OrderedGenes, ExpressionProfile):
     '''
-    (set, dict) -> dict
+    (set, dict, dict) -> dict
     Take the set of host and nested genes, the dictionary of ordered genes
-    along each chromosome and return a dictionary of pairs of
-    number: un-nested gene on each chromsome
+    along each chromosome, the dictionary of gene: expression pairs and return
+    a dictionary of pairs of number: un-nested gene on each chromsome
     '''
     
     # make a dictionary with chromsome as key and number: gene {chromo: {num: gene}}    
@@ -1450,8 +1450,8 @@ def GenerateAllUnNestedGenes(Overlap, OrderedGenes):
         ToDrawGenesFrom[chromo] = {}
         # loop over the list of ordered genes
         for i in range(len(OrderedGenes[chromo])):
-            # check that gene does not overlap with any other gene
-            if OrderedGenes[chromo][i] not in Overlap:
+            # check that gene does not overlap with any other gene and that gene is expressed
+            if OrderedGenes[chromo][i] not in Overlap and OrderedGenes[chromo][i] in ExpressionProfile:
                 # add gene pair and update counter
                 ToDrawGenesFrom[chromo][k] = OrderedGenes[chromo][i]
                 k += 1
