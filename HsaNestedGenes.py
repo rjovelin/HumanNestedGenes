@@ -1384,53 +1384,6 @@ def CollectUnNestedGeneIntronLength(UnNestedGenes,  GeneLongestTranscript, Trans
     return IntronLength
 
 
-# use this function to generate un-nested pairs of genes to randomly draw
-def GenerateUnNestedGenePairs(HostGenes, GeneCoord, OrderedGenes, ExpressionProfile):
-    '''
-    (dict, dict, dict, dict) -> dict
-    Take the dictionary of host and nested genes, the dictionary of gene coordinates,
-    the dictionary of ordered genes along each chromosome, the dictionary of
-    gene: expression pairs and return a dictionary of pairs of number: gene pair on each chromsome
-    that are distant of 500 bp at most
-    '''
-    
-    # make a set of nested and host genes
-    IncludingNestedGenes = set()
-    for gene in HostGenes:
-        IncludingNestedGenes.add(gene)
-        for nested in HostGenes[gene]:
-            IncludingNestedGenes.add(nested)
-    
-    # make a dictionary with chromsome as key and number: gene pairs {chromo: {num: [gene1, gene2]}}    
-    ToDrawFrom = {}
-    # loop over chromosomes
-    for chromo in OrderedGenes:
-        # set up counter
-        k = 0
-        # add chromo as key and intialize inner dict
-        ToDrawFrom[chromo] = {}
-        # loop over the list of ordered genes
-        for i in range(len(OrderedGenes[chromo])):
-            # check that gene is not host or nested, has expression
-            if OrderedGenes[chromo][i] in ExpressionProfile and OrderedGenes[chromo][i] not in IncludingNestedGenes:
-                # get the end position of gene 1
-                EndGene1 = GeneCoord[OrderedGenes[chromo][i]][2]                
-                # grab 2nd gene to form a pair                
-                for j in range(i+1, len(OrderedGenes[chromo])):
-                    # check that gene is not host or nested and has expression
-                    if OrderedGenes[chromo][j] in ExpressionProfile and OrderedGenes[chromo][j] not in IncludingNestedGenes:
-                        # get the start position of gene 2
-                        StartGene2 = GeneCoord[OrderedGenes[chromo][j]][1]
-                        # check if distance is less that 500 bp
-                        D = StartGene2 - EndGene1
-                        if D >= 0 and D <= 2000:
-                            # add gene pair and update counter
-                            ToDrawFrom[chromo][k] = [OrderedGenes[chromo][i], OrderedGenes[chromo][j]]
-                            k += 1
-    return ToDrawFrom
-
-
-
 # use this function to generate un-nested genes to randomly draw
 def GenerateAllUnNestedGenes(Overlap, OrderedGenes, ExpressionProfile):
     '''
@@ -1458,6 +1411,56 @@ def GenerateAllUnNestedGenes(Overlap, OrderedGenes, ExpressionProfile):
     return ToDrawGenesFrom
 
 
+# use this function to generate a pool of un-nested gene pairs randomly draw from
+def GenerateMatchingPoolPairs(pair, ToDrawGenesFrom, GeneCoord, Distance):
+    '''
+    (list, dict, dict, int) -> list
+    Take a gene pair, the dictionary of genes to draw from, the dictionary of 
+    gene coordinates and the matching distance and return a list of expressed
+    and matching gene pairs (distance, orientation and chromosome) to randomly draw from
+    '''
+    
+    PairPool = []
+    gene1, gene2 = pair[0], pair[1]
+    # get gene orientation
+    orientation = set(GenePairOrientation(pair, GeneCoord))
+    # get gene chromos
+    chromo1, chromo2 = GeneCoord[gene1][0], GeneCoord[gene2][0]
+    # compute distance between genes
+    D = ComputeDistanceBetweenGenes(gene1, gene2, GeneCoord)
+    # check if genes are on the same chromosome
+    if chromo1 != chromo2:
+        # make lists of genes on each chromosome
+        PossibleGenesChromo1 = [ToDrawGenesFrom[chromo1][i] for i in ToDrawGenesFrom[chromo1]]
+        PossibleGenesChromo2 = [ToDrawGenesFrom[chromo2][i] for i in ToDrawGenesFrom[chromo2]]
+        for i in range(len(PossibleGenesChromo1)):
+            for j in range(len(PossibleGenesChromo2)):
+                G1, G2 = PossibleGenesChromo1[i], PossibleGenesChromo2[j]
+                assert G1 != G2
+                # check that genes have matching orientation
+                if {GeneCoord[G1][-1], GeneCoord[G2][-1]} == orientation:
+                    # compute distance between genes
+                    d = ComputeDistanceBetweenGenes(G1, G2, GeneCoord)
+                    # check if distance is within limits                    
+                    if D - Distance <= d <= D + Distance:
+                        PairPool.append([G1, G2]) 
+    else:
+        # make a list of genes on chromo
+        PossibleGenes = [ToDrawGenesFrom[chromo1][i] for i in ToDrawGenesFrom[chromo1]]
+        for i in range(0, len(PossibleGenes) -1):
+            for j in range(i+1, len(PossibleGenes)):
+                G1, G2 = PossibleGenes[i], PossibleGenes[j]
+                assert G1 != G2
+                # check that genes have matching orientation
+                if {GeneCoord[G1][-1], GeneCoord[G2][-1]} == orientation:
+                    # compute distance between genes
+                    d = ComputeDistanceBetweenGenes(G1, G2, GeneCoord)
+                    # check if distance is within limits
+                    if D - Distance <= d <= D + Distance:
+                        PairPool.append([G1, G2])
+    return PairPool   
+    
+ 
 # use this function to sort young and ancestral nesting events
 def InferYoungOldNestingEvents(OrthologPairs, OrthologTrios, SecondSpOverlapPairs, OutGroupOverlapPairs, FirstSpHostNestedPairs):
     '''
