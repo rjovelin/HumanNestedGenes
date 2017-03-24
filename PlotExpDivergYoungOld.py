@@ -230,93 +230,16 @@ if Analysis == 'pairs':
     # make a list of control un-nested pairs
     ControlPairs = []
     for pair in SisterSpUnested:
-        gene1, gene2 = pair[0], pair[1]
-        # get gene orientation
-        orientation = set(GenePairOrientation(pair, AllCoordinates[1]))
-        # get gene chromos
-        chromo1, chromo2 = AllCoordinates[1][gene1][0], AllCoordinates[1][gene2][0]
-        # compute distance between genes
-        D = ComputeDistanceBetweenGenes(gene1, gene2, AllCoordinates[1])
-        # check if genes are on the same chromosome
-        if chromo1 != chromo2:
-            # set up boolean pair is not found
-            NotFound = True
-            while NotFound:
-                # draw a random gene on each chromosome
-                i = random.randint(0, len(SisterRandomGenes[chromo1]) -1)
-                j = random.randint(0, len(SisterRandomGenes[chromo2]) -1)
-                G1 = SisterRandomGenes[chromo1][i]
-                G2 = SisterRandomGenes[chromo1][j]
-                # match orientation
-                sense1, sense2 = AllCoordinates[1][G1][-1], AllCoordinates[1][G2][-1]
-                if orientation == {sense1, sense2}:
-                    NotFound = False
         
-            
-        else:
-            # set up boolean pair is not found
-            NotFound = True
-            
-            ############ continue here
-            
-            # modify function to generate pairs of genes to draw from 
-            # with matching criteria
-            # using the dict of random genes to draw from because genes have been filtered 
-            # from expressed genes and for non-nested genes
-            
-            # make a pool of gene pair satisfying matching criteria
-            PairPool = []
-            # loop over genes on chromo
-            PossibleGenes = [SisterRandomGenes[chromo1][k] for k in SisterRandomGenes[chromo1]]
-            for k in range(0, len(PossibleGenes) -1):
-                for m in range(k+1, len(PossibleGenes)):
-                    # 
-                    
-                    
-                            if {AllCoordinates[1][gene1][-1], AllCoordinates[1][gene2][-1]} == {sense1, sense2}:
-                                # compute distance
-                                s1, s2 = AllCoordinates[1][gene1][1], AllCoordinates[1][gene2][1]
-                                e1, e2 = AllCoordinates[1][gene1][2], AllCoordinates[1][gene2][2]
-                                if s1 == s2:
-                                    d = 0
-                                else:
-                                    if s1 < s2:
-                                        d = s2 - e1
-                                    elif s2 < s1:
-                                        d = s1 - e2
-                                if D - 5000 <= d <= D + 5000:
-                                    total += 1
-        print(pair, total)
-            
-            
-            
-            
-            
-            
-            
-            
-            #if pool size greater than 2, draw random genes
-           
-           
-           
-           while NotFound:
-            
-            
-            
-            
-            
-        # draw a random number, get genes corresponding to that number        
+        PairPool = GenerateMatchingPoolPairs(pair, SisterRandomGenes, AllCoordinates[1], 5000)
+        print(len(PairPool))
         
-        
-                    
-
-
-       if NotFound == False:
-           ControlPairs.append([G2, G2])
-
-
-
-
+        # draw a matching gene pair at random
+        i = random.randint(0, len(PairPool) -1)
+        ControlPairs.append(PairPool[i])
+                        
+            
+    print(len(ControlPairs))    
 
 
 
@@ -325,8 +248,14 @@ if Analysis == 'pairs':
     HumanDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
     # compute expression divergence between gene pairs in sister species    
     SisterSpDiv = ComputeExpressionDivergenceGenePairs(SisterSpUnested, SisterSpExpression)
+    ControlDiv = ComputeExpressionDivergenceGenePairs(ControlPairs, SisterSpExpression)    
     P = PermutationResampling(HumanDiv, SisterSpDiv, 10000, statistic = np.mean)
     print(len(HumanDiv), len(SisterSpDiv), np.mean(HumanDiv), np.mean(SisterSpDiv), P)
+    P = PermutationResampling(HumanDiv, ControlDiv, 10000, statistic = np.mean)
+    print(len(HumanDiv), len(ControlDiv), np.mean(HumanDiv), np.mean(ControlDiv), P)
+    P = PermutationResampling(SisterSpDiv, ControlDiv, 10000, statistic = np.mean)
+    print(len(SisterSpDiv), len(ControlDiv), np.mean(SisterSpDiv), np.mean(ControlDiv), P)
+    
     
 
 
