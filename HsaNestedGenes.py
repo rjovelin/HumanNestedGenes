@@ -1433,6 +1433,8 @@ def GenerateMatchingPoolPairs(pair, ToDrawGenesFrom, GeneCoord, Distance):
         # make lists of genes on each chromosome
         PossibleGenesChromo1 = [ToDrawGenesFrom[chromo1][i] for i in ToDrawGenesFrom[chromo1]]
         PossibleGenesChromo2 = [ToDrawGenesFrom[chromo2][i] for i in ToDrawGenesFrom[chromo2]]
+        print(len(PossibleGenesChromo1), len(PossibleGenesChromo2))
+        
         for i in range(len(PossibleGenesChromo1)):
             for j in range(len(PossibleGenesChromo2)):
                 G1, G2 = PossibleGenesChromo1[i], PossibleGenesChromo2[j]
@@ -1447,6 +1449,7 @@ def GenerateMatchingPoolPairs(pair, ToDrawGenesFrom, GeneCoord, Distance):
     else:
         # make a list of genes on chromo
         PossibleGenes = [ToDrawGenesFrom[chromo1][i] for i in ToDrawGenesFrom[chromo1]]
+        print(len(PossibleGenes))
         for i in range(0, len(PossibleGenes) -1):
             for j in range(i+1, len(PossibleGenes)):
                 G1, G2 = PossibleGenes[i], PossibleGenes[j]
