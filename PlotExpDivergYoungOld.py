@@ -223,32 +223,38 @@ if Analysis == 'pairs':
         # check if orthologs are expressed in sister species
         if OrthoPairs[pair[0]] in SisterSpExpression and OrthoPairs[pair[1]] in SisterSpExpression:
             SisterSpUnested.append([OrthoPairs[pair[0]], OrthoPairs[pair[1]]])
-
     # generate a dict to draw random genes in sister-species
     SisterRandomGenes = GenerateAllUnNestedGenes(NestedSets[1], AllOrdered[1], SisterSpExpression)
-    
     # make a list of control un-nested pairs
     ControlPairs = []
     for pair in SisterSpUnested:
-        
-        PairPool = GenerateMatchingPoolPairs(pair, SisterRandomGenes, AllCoordinates[1], 5000)
-        print(len(PairPool))
-        
+        # make a list of matching gene pairs (orientation, chromosome, distance)
+        PairPool = GenerateMatchingPoolPairs(pair, SisterRandomGenes, AllCoordinates[1], 2000)
+        print('pairpool', len(PairPool))
         # draw a matching gene pair at random
         i = random.randint(0, len(PairPool) -1)
         ControlPairs.append(PairPool[i])
                         
-            
-    print(len(ControlPairs))    
-
-
-
-
+    
+    
+        
     # compute expression divergence betwen human nested gene pairs
     HumanDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
     # compute expression divergence between gene pairs in sister species    
     SisterSpDiv = ComputeExpressionDivergenceGenePairs(SisterSpUnested, SisterSpExpression)
     ControlDiv = ComputeExpressionDivergenceGenePairs(ControlPairs, SisterSpExpression)    
+    
+    
+    HumanDiv.sort()
+    SisterSpDiv.sort()
+    ControlDiv.sort()
+         
+    
+    print(HumanDiv)
+    print(SisterSpDiv)
+    print(ControlDiv)
+    
+    
     P = PermutationResampling(HumanDiv, SisterSpDiv, 10000, statistic = np.mean)
     print(len(HumanDiv), len(SisterSpDiv), np.mean(HumanDiv), np.mean(SisterSpDiv), P)
     P = PermutationResampling(HumanDiv, ControlDiv, 10000, statistic = np.mean)
