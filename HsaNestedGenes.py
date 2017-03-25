@@ -379,17 +379,13 @@ def ComputeDistanceBetweenGenes(gene1, gene2, GeneCoord):
     S1, S2 = GeneCoord[gene1][1], GeneCoord[gene2][1]
     # get end positions
     E1, E2 = GeneCoord[gene1][2], GeneCoord[gene2][2]
-    # get gene coordinates
-    coordinates1 = set(range(GeneCoord[gene1][1], GeneCoord[gene1][2]))
-    coordinates2 = set(range(GeneCoord[gene2][1], GeneCoord[gene2][2]))
-    if len(coordinates1.intersection(coordinates2)) != 0:
-        # genes overlap, assign a distance of 0 bp
+    if S1 <= S2:
+        D = S2 - E1
+    elif S2 < S1:
+        D = S1 - E2
+    # return 0 for overlapping genes
+    if D < 0:
         D = 0
-    else:
-        if S1 < S2:
-            D = S2 - E1
-        elif S2 < S1:
-            D = S1 - E2
     return D
 
   
@@ -1415,9 +1411,10 @@ def GenerateAllUnNestedGenes(Overlap, OrderedGenes, ExpressionProfile):
 def GenerateMatchingPoolPairs(pair, ToDrawGenesFrom, GeneCoord, Distance):
     '''
     (list, dict, dict, int) -> list
-    Take a gene pair, the dictionary of genes to draw from, the dictionary of 
-    gene coordinates and the matching distance and return a list of expressed
-    and matching gene pairs (distance, orientation and chromosome) to randomly draw from
+    Take a gene pair gene, the dictionary of genes to draw from,
+    the dictionary of gene coordinates and the matching distance and return a
+    list of expressed and matching gene pairs (distance, orientation and
+    chromosome) to randomly draw from
     '''
     
     PairPool = []
@@ -1426,34 +1423,26 @@ def GenerateMatchingPoolPairs(pair, ToDrawGenesFrom, GeneCoord, Distance):
     orientation = set(GenePairOrientation(pair, GeneCoord))
     # get gene chromos
     chromo1, chromo2 = GeneCoord[gene1][0], GeneCoord[gene2][0]
-    # compute distance between genes
-    D = ComputeDistanceBetweenGenes(gene1, gene2, GeneCoord)
+    # compute distance between genes if genes are on the same chromosome
+    if chromo1 == chromo2:
+        D = ComputeDistanceBetweenGenes(gene1, gene2, GeneCoord)
     # check if genes are on the same chromosome
     if chromo1 != chromo2:
-        # make lists of genes on each chromosome
+        # make lists of genes on each matching chromosome
         PossibleGenesChromo1 = [ToDrawGenesFrom[chromo1][i] for i in ToDrawGenesFrom[chromo1]]
         PossibleGenesChromo2 = [ToDrawGenesFrom[chromo2][i] for i in ToDrawGenesFrom[chromo2]]
-        print(len(PossibleGenesChromo1), len(PossibleGenesChromo2))
-        
         for i in range(len(PossibleGenesChromo1)):
             for j in range(len(PossibleGenesChromo2)):
                 G1, G2 = PossibleGenesChromo1[i], PossibleGenesChromo2[j]
-                assert G1 != G2
-                # check that genes have matching orientation
+                # match gene orientation
                 if {GeneCoord[G1][-1], GeneCoord[G2][-1]} == orientation:
-                    # compute distance between genes
-                    d = ComputeDistanceBetweenGenes(G1, G2, GeneCoord)
-                    # check if distance is within limits                    
-                    if D - Distance <= d <= D + Distance:
-                        PairPool.append([G1, G2]) 
+                    PairPool.append([G1, G2]) 
     else:
         # make a list of genes on chromo
         PossibleGenes = [ToDrawGenesFrom[chromo1][i] for i in ToDrawGenesFrom[chromo1]]
-        print(len(PossibleGenes))
         for i in range(0, len(PossibleGenes) -1):
             for j in range(i+1, len(PossibleGenes)):
                 G1, G2 = PossibleGenes[i], PossibleGenes[j]
-                assert G1 != G2
                 # check that genes have matching orientation
                 if {GeneCoord[G1][-1], GeneCoord[G2][-1]} == orientation:
                     # compute distance between genes
