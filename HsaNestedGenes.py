@@ -1844,3 +1844,42 @@ def MatchHumanToMouseExpressionProfiles(HumanExpression):
             # add expression level at index position
             Profile[gene].append(HumanExpression[gene][i])
     return Profile
+    
+# use this function to parse the files with imprinted gene information
+def ParseImprinted(ImprintedGenesFile):
+    '''
+    (file) -> dict
+    Take the file with information on imprinted genes and return a dictionary 
+    of imprinted genes (gene name) and gene status (paternal/maternal) pairs    
+    '''
+    
+    # make a dictionary with gene name and imprinting status
+    imprinted = {}
+    infile = open(ImprintedGenesFile)
+    infile.readline()
+    for line in infile:
+        if line.rstrip() != '':
+            line = line.rstrip().split('\t')
+            # get gene status
+            if line[3] in ['Imprinted', 'Predicted']:
+                # get expressed allele
+                allele = line[-1]
+                assert allele in ['Paternal', 'Maternal']
+                # add gene name: allele pair to dict
+                assert line[0] not in imprinted
+                imprinted[line[0]] = allele
+                # check if gene has aliases
+                line[1] = line[1].replace(' ', '')
+                if line[1] != '':
+                    if ',' not in imprinted:
+                        assert line[1] not in imprinted
+                        imprinted[line[1]] = allele
+                    else:
+                        # get all alias names
+                        line[1] = line[1].split(',')
+                        for i in line[1]:
+                            assert i not in imprinted
+                            imprinted[i] = allele
+    infile.close()
+    return imprinted
+    
