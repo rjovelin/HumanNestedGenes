@@ -5,9 +5,7 @@ Created on Mon Mar 27 13:29:11 2017
 @author: RJovelin
 """
 
-# use this script to test enrichement of imprinted genes among nested genes
-
-
+# use this script to count the number of external and internal genes that are imprinted
 
 # import modules
 # use Agg backend on server without X server
@@ -26,7 +24,6 @@ import math
 import numpy as np
 from scipy import stats
 from HsaNestedGenes import *
-
 
 
 # get option from command
@@ -59,23 +56,28 @@ elif Species == 'mouse':
 
 # map gene names to gene IDs
 GeneNames = MapNametoID(GFF)
-
-# make a set of gene IDs that are imprinted
-ImprintedIDs = set()
+ 
+# make a dict with gene ID: imprinted allele
+ImprintedIDs = {}
 for gene in GeneNames:
     if GeneNames[gene] in Imprinted:
-        ImprintedIDs.add(gene)
+        ImprintedIDs[gene] = Imprinted[GeneNames[gene]]
 
-exttotal = 0
-for gene in External:
-    if gene in ImprintedIDs:
-        exttotal += 1
-inttotal = 0
-for gene in Internal:
-    if gene in ImprintedIDs:
-        inttotal += 1
+# count the number of external genes with imprinted status
+ExtImprinted = [gene for gene in External if gene in ImprintedIDs]
+# count the number of internal genes with imprinted status
+IntImprinted = [gene for gene in Internal if gene in ImprintedIDs]
+print('imprinted external genes', len(set(ExtImprinted)), round(len(set(ExtImprinted)) / len(External) * 100, 4))
+print('imprinted internal genes', len(set(IntImprinted)), round(len(set(IntImprinted)) / len(Internal) * 100, 4))
+ 
+# get the nested pairs in which both genes are imprinted
+ImprintedPairs = []
+for pair in NestedPairs:
+    if pair[0] in ImprintedIDs and pair[1] in ImprintedIDs:
+        ImprintedPairs.append(pair)
 
-print('ext', len(External), exttotal)
-print('int', len(Internal), inttotal)
-
-
+if len(ImprintedPairs) != 0:
+    for pair in ImprintedPairs:
+        print(pair[0], ImprintedIDs[pair[0]], pair[1], ImprintedIDs[pair[1]])
+        
+        
