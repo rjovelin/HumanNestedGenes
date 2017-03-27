@@ -141,8 +141,12 @@ SisterSpOld, SisterSpYoung = InferYoungOldNestingEvents(SisterOrthos, SisterOrth
 # do some QC   
 a = [set([OrthoPairs[pair[0]], OrthoPairs[pair[1]]]) for pair in HumanOld]
 b = [set(pair) for pair in SisterSpOld]
+assert len(a) == len(b)
 for i in a:
     assert i in b    
+
+
+
  
 # get expression profiles of human and sister-species
 if SisterSp == 'chimp':
