@@ -1902,21 +1902,19 @@ def MapNametoID(GFF):
     Names = {}
     infile = open(GFF, 'r')
     for line in infile:
-        line = line.rstrip()
-        if 'gene' in line and 'protein_coding' in line:
+        if 'gene' in line and not line.startswith('#'):
             line = line.rstrip().split('\t')
-            # check that gene is protein-coding            
-            assert line[2] == 'gene'
-            biotype = line[8][line[8].index('biotype=')+8: line[8].index(';', line[8].index('biotype=')+8)]
-            assert biotype == 'protein_coding'
-            # get the gene ID
-            gene = line[8][line[8].index('ID=gene:')+8: line[8].index(';')]
-            # get gene name
-            name = line[8][line[8].index('Name=') + len('Name='): line[8].index(';', line[8].index(';')+1)]
-            assert gene not in Names and name not in Names.values()            
-            Names[gene] = name
+            # consider protein-coding genes            
+            if line[2] == 'gene':
+                # check that gene is protein-coding            
+                biotype = line[8][line[8].index('biotype=')+8: line[8].index(';', line[8].index('biotype=')+8)]
+                if biotype == 'protein_coding':
+                    # get the gene ID
+                    gene = line[8][line[8].index('ID=gene:')+8: line[8].index(';')]
+                    # get gene name
+                    name = line[8][line[8].index('Name=') + len('Name='): line[8].index(';', line[8].index(';')+1)]
+                    assert gene not in Names and name not in Names.values()            
+                    Names[gene] = name
     infile.close()
     return Names    
-    
-    
     
