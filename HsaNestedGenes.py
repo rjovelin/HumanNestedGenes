@@ -1864,22 +1864,30 @@ def ParseImprinted(ImprintedGenesFile):
             if line[3] in ['Imprinted', 'Predicted']:
                 # get expressed allele
                 allele = line[-1]
-                assert allele in ['Paternal', 'Maternal']
+                # check for typo in the file
+                if allele == 'Paterna':
+                    allele = 'Paternal'
                 # add gene name: allele pair to dict
-                assert line[0] not in imprinted
-                imprinted[line[0]] = allele
+                if line[0] in imprinted:
+                    assert imprinted[line[0]] == allele
+                else:
+                    imprinted[line[0]] = allele
                 # check if gene has aliases
                 line[1] = line[1].replace(' ', '')
                 if line[1] != '':
-                    if ',' not in imprinted:
-                        assert line[1] not in imprinted
-                        imprinted[line[1]] = allele
+                    if ',' not in line[1]:
+                        if line[1] in imprinted:
+                            assert imprinted[line[1]] == allele
+                        else:
+                            imprinted[line[1]] = allele
                     else:
                         # get all alias names
                         line[1] = line[1].split(',')
                         for i in line[1]:
-                            assert i not in imprinted
-                            imprinted[i] = allele
+                            if i in imprinted:
+                                assert imprinted[i] == allele
+                            else:
+                                imprinted[i] = allele
     infile.close()
     return imprinted
     
