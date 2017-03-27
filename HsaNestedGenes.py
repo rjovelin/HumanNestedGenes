@@ -1913,8 +1913,6 @@ def MapNametoID(GFF):
                     gene = line[8][line[8].index('ID=gene:')+8: line[8].index(';')]
                     # get gene name
                     name = line[8][line[8].index('Name=') + len('Name='): line[8].index(';', line[8].index(';')+1)]
-                    assert gene not in Names, 'gene ID is already recorded'
-                    assert name not in list(Names.values()), 'gene name correspond to multiple IDs'            
                     Names[gene] = name
     infile.close()
     return Names    
