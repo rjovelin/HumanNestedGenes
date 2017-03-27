@@ -145,9 +145,6 @@ assert len(a) == len(b)
 for i in a:
     assert i in b    
 
-
-
- 
 # get expression profiles of human and sister-species
 if SisterSp == 'chimp':
     HumanExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
@@ -168,19 +165,24 @@ SisterSpExpression = TransformRelativeExpression(SisterSpExpression)
 HumanInferredPairs = [HumanOld, HumanYoung]
 SisterSpInferredPairs = [SisterSpOld, SisterSpYoung]
 
-
 if Analysis == 'pairs':
    
     # compare expression divergence between human host and nested genes and their un-nested orthologs in sister-species   
     # remove human pairs if orthologs are nested in sister-species
     print(len(HumanYoung))    
-    to_remove = []
-    for pair in HumanYoung:
-        if OrthoPairs[pair[0]] in NestedSets[1] or OrthoPairs[pair[1]] in NestedSets[1]:
-            to_remove.append(pair)
+    to_remove = [pair for pair in HumanYoung if OrthoPairs[pair[0]] in NestedSets[1] or OrthoPairs[pair[1]] in NestedSets[1]]
     for pair in to_remove:
         HumanYoung.remove(pair)
     print(len(HumanYoung)) 
+
+    # remove sister species pairs if orthologs are nested in human
+    to_remove = [pair for pair in SisterSpYoung if SisterOrthos[pair[0]] in NestedSets[0] or SisterOrthos[pair[1]] in NestedSets[0]]
+    for pair in to_remove:
+        SisterSpYoung.remove(pair)
+
+    
+
+
 
 #    # make a list of mouse genes if genes not nested in mouse but nested in human and outgroup
 #    SecondOverlap, OutGroupOverlap = [], []
@@ -217,33 +219,63 @@ if Analysis == 'pairs':
     for pair in to_remove:
         HumanYoung.remove(pair)
     print(len(HumanYoung))
+    
+    # remove sister species pairs if genes are not expressed
+    to_remove = [pair for pair in SisterSpYoung if pair[0] not in SisterSpExpression or pair[1] not in SisterSpExpression]
+    for pair in to_remove:
+        SisterSpYoung.remove(pair)
+    
     # get the sister-species un-nested orthologs
     SisterSpUnested = []
     for pair in HumanYoung:
         # check if orthologs are expressed in sister species
         if OrthoPairs[pair[0]] in SisterSpExpression and OrthoPairs[pair[1]] in SisterSpExpression:
             SisterSpUnested.append([OrthoPairs[pair[0]], OrthoPairs[pair[1]]])
+    
+    # get the human un-nested orthologs
+    HumanUnNested = []
+    for pair in SisterSpYoung:
+        # check that orthologs are expressed in human
+        if SisterOrthos[pair[0]] in HumanExpression and SisterOrthos[pair[1]] in HumanExpression:
+            HumanUnNested.append([SisterOrthos[pair[0]], SisterOrthos[pair[1]]])
+    
     # generate a dict to draw random genes in sister-species
     SisterRandomGenes = GenerateAllUnNestedGenes(NestedSets[1], AllOrdered[1], SisterSpExpression)
-    # make a list of control un-nested pairs
-    ControlPairs = []
+    # generate a dict to draw genes in human    
+    HumanRandomGenes = GenerateAllUnNestedGenes(NestedSets[0], AllOrdered[0], HumanExpression)
+    
+    # make a list of control un-nested pairs in sister species
+    SisterSpControlPairs = []
     for pair in SisterSpUnested:
         # make a list of matching gene pairs (orientation, chromosome, distance)
         PairPool = GenerateMatchingPoolPairs(pair, SisterRandomGenes, AllCoordinates[1], 2000)
         # draw a matching gene pair at random
         i = random.randint(0, len(PairPool) -1)
-        ControlPairs.append(PairPool[i])
-                        
-    # compute expression divergence betwen human nested gene pairs
-    HumanDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
-    # compute expression divergence between gene pairs in sister species    
-    SisterSpDiv = ComputeExpressionDivergenceGenePairs(SisterSpUnested, SisterSpExpression)
-    # compute expression divergence between control pairs    
-    ControlDiv = ComputeExpressionDivergenceGenePairs(ControlPairs, SisterSpExpression)    
+        SisterSpControlPairs.append(PairPool[i])
     
-    HumanDiv.sort()
-    SisterSpDiv.sort()
-    ControlDiv.sort()
+    # make a list of control un-nested pairs in human
+    HumanControlPairs = []    
+    for pair in HumanUnNested:
+        # make a list of matching gene pairs (orientation, chromosome, distance)
+        PairPool = GenerateMatchingPoolPairs(pair, HumanRandomGenes, AllCoordinates[0], 2000)
+        # draw a matching gene pair at random
+        i = random.randint(0, len(PairPool) -1)
+        HumanControlPairs.append(PairPool[i])
+
+    # compute expression divergence betwen human nested gene pairs
+    HumanNestedDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
+    # compute expression divergence between un-nested gene pairs in sister species    
+    SisterSpUnNestedDiv = ComputeExpressionDivergenceGenePairs(SisterSpUnested, SisterSpExpression)
+    # compute expression divergence between un-nested control pairs in sister species    
+    SisterSpControlDiv = ComputeExpressionDivergenceGenePairs(SisterSpControlPairs, SisterSpExpression)
+    # compute expression divergence between un-nested gene pairs in human
+    HumanUnNestedDiv = ComputeExpressionDivergenceGenePairs(HumanUnNested, HumanExpression)
+    # compute expression divergence between un-nested control pairs in human
+    HumanControlDiv = ComputeExpressionDivergenceGenePairs(HumanControlPairs, HumanExpression)
+    
+    
+    
+    ############## contrinue here
          
     
   
