@@ -138,10 +138,6 @@ for gene in OrthoTrios:
 HumanOld, HumanYoung = InferYoungOldNestingEvents(OrthoPairs, OrthoTrios, SisterPairs[1], OutGroupPairs[1], HumanPairs[1])
 SisterSpOld, SisterSpYoung = InferYoungOldNestingEvents(SisterOrthos, SisterOrthoTrios, HumanPairs[1], OutGroupPairs[1], SisterPairs[1])
 
-print(len(HumanOld), len(SisterSpOld))
-print(len(HumanYoung), len(SisterSpYoung))
-
-
 # do some QC   
 a = [set([OrthoPairs[pair[0]], OrthoPairs[pair[1]]]) for pair in HumanOld]
 b = [set(pair) for pair in SisterSpOld]
@@ -230,31 +226,23 @@ if Analysis == 'pairs':
     for pair in SisterSpUnested:
         # make a list of matching gene pairs (orientation, chromosome, distance)
         PairPool = GenerateMatchingPoolPairs(pair, SisterRandomGenes, AllCoordinates[1], 2000)
-        print('pairpool', len(PairPool))
         # draw a matching gene pair at random
         i = random.randint(0, len(PairPool) -1)
         ControlPairs.append(PairPool[i])
                         
-    
-    
-        
     # compute expression divergence betwen human nested gene pairs
     HumanDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
     # compute expression divergence between gene pairs in sister species    
     SisterSpDiv = ComputeExpressionDivergenceGenePairs(SisterSpUnested, SisterSpExpression)
+    # compute expression divergence between control pairs    
     ControlDiv = ComputeExpressionDivergenceGenePairs(ControlPairs, SisterSpExpression)    
-    
     
     HumanDiv.sort()
     SisterSpDiv.sort()
     ControlDiv.sort()
          
     
-    print(HumanDiv)
-    print(SisterSpDiv)
-    print(ControlDiv)
-    
-    
+  
     P = PermutationResampling(HumanDiv, SisterSpDiv, 10000, statistic = np.mean)
     print(len(HumanDiv), len(SisterSpDiv), np.mean(HumanDiv), np.mean(SisterSpDiv), P)
     P = PermutationResampling(HumanDiv, ControlDiv, 10000, statistic = np.mean)
@@ -408,233 +396,3 @@ elif Analysis == 'orthos':
         P = PermutationResampling(ExpDiv[0], ExpDiv[i], 10000, statistic = np.mean)
         print(i, len(ExpDiv[i]), np.mean(ExpDiv[0]), np.mean(ExpDiv[i]), P)
     
-  
-
-
-
-
-## use this function to create lists of orthologs with both genes expressed
-#def ExpressedOrthologousPairs(Sp1Expression, Sp2Expression, Genes, Orthologs):
-#    '''
-#    (dict, dict, set, dict) -> list
-#    Take the dictionaries of expression profiles for species 1 and 2, the set
-#    of genes of interest in species 1, and the dictionary of orthologs and return
-#    a list of expressed orthologous pairs
-#    '''
-#    # create a list of gene pairs
-#    ExpressedOrthos = []
-#    # loop over gene set of interest
-#    for gene in Genes:
-#        # check that gene has ortholog
-#        if gene in Orthologs:
-#            # check that gene and its orthologs are expressed
-#            if gene in Sp1Expression and Orthologs[gene] in Sp2Expression:
-#                ExpressedOrthos.append([gene, Orthologs[gene]])
-#    return ExpressedOrthos
-
-
-
-
-
-
-
-
-
-
-
-
-
-##############################################################  
-##############################################################
-
-
-
-
-
-## -*- coding: utf-8 -*-
-#"""
-#Created on Wed Mar  1 11:30:11 2017
-#
-#@author: RJovelin
-#"""
-#
-#
-## use this script to plot the distances between non-overlapping orthologs of human overlapping genes
-#
-## import modules
-## use Agg backend on server without X server
-#import matplotlib as mpl
-#mpl.use('Agg')
-#import matplotlib.pyplot as plt
-#import matplotlib.patches as mpatches
-#from matplotlib import rc
-#import matplotlib.gridspec as gridspec
-#rc('mathtext', default='regular')
-#import json
-#import random
-#import copy
-#import sys
-#import os
-#import math
-#import numpy as np
-#from scipy import stats
-#from HsaNestedGenes import *
-#
-#
-## load dictionaries of overlapping genes
-#jsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',  
-#             'ChimpOverlappingGenes.json', 'ChimpNestedGenes.json']
-#
-## make a list of dictionaries
-#AllOverlap = []
-## loop over files
-#for i in range(len(jsonFiles)):
-#    # load dictionary of overlapping gene pairs
-#    json_data = open(jsonFiles[i])
-#    overlapping = json.load(json_data)
-#    json_data.close()
-#    AllOverlap.append(overlapping)
-#
-## get GFF file
-#GFF = ['Homo_sapiens.GRCh38.86.gff3', 'Pan_troglodytes.CHIMP2.1.4.86.gff3']
-#
-## make a list of gene coordinates       
-#AllCoordinates, AllOrdered = [], []
-## loop over GFF files
-#for i in range(len(GFF)):
-#    # get the coordinates of genes on each chromo
-#    # {chromo: {gene:[chromosome, start, end, sense]}}
-#    GeneChromoCoord = ChromoGenesCoord(GFF[i])
-#    # map each gene to its mRNA transcripts
-#    MapGeneTranscript = GeneToTranscripts(GFF[i])
-#    # remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
-#    GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
-#    # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
-#    GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
-#    # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
-#    OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
-#    AllCoordinates.append(GeneCoord)
-#    AllOrdered.append(OrderedGenes)
-#HumanOrdered, ChimpOrdered = AllOrdered[0], AllOrdered[1]
-#HumanCoord, ChimpCoord = AllCoordinates[0], AllCoordinates[1]
-#
-## get 1:1 orthologs between human and chimp
-#Orthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
-#
-## make pairs of overlapping genes
-#AllPairs = []
-#for i in range(len(AllOverlap)):
-#    pairs = GetHostNestedPairs(AllOverlap[i])
-#    AllPairs.append(pairs)
-## get the gene pairs
-#HumanPairs = AllPairs[:2]
-#ChimpPairs = AllPairs[2:]
-#
-#
-#
-#extmissing, intmissing = set(), set()
-#for pair in HumanPairs[1]:
-#    if pair[0] not in Orthos:
-#        extmissing.add(pair[0])
-#    if pair[1] not in Orthos:
-#        intmissing.add(pair[1])
-#print(len(extmissing), len(intmissing))
-#
-#
-#print(len(HumanPairs[0]), len(HumanPairs[1]))
-## remove human genes lacking orthologs
-#for i in range(len(HumanPairs)):
-#    to_remove = []
-#    for pair in HumanPairs[i]:
-#        if pair[0] not in Orthos or pair[1] not in Orthos:
-#            to_remove.append(pair)
-#    for pair in to_remove:
-#        HumanPairs[i].remove(pair)
-## remove order for chimp gene pairs
-#for i in range(len(ChimpPairs)):
-#    for j in range(len(ChimpPairs[i])):
-#        ChimpPairs[i][j] = set(ChimpPairs[i][j])
-#print(len(HumanPairs[0]), len(HumanPairs[1]))
-#
-#
-#SepOvlp, SepNonOvlp, AdjOvlp, AdjNonOvlp, DiffLG, NstCons = [], [], [], [], [], []
-#Conserved, NotConserved = 0, 0
-#
-#
-## loop over human nested gene pairs
-#for pair in HumanPairs[1]:
-#    # get the orthologs of the human genes
-#    ortho1, ortho2 = Orthos[pair[0]], Orthos[pair[1]]
-#    # check if human gene pairs is nested in chimp
-#    if set([ortho1, ortho2]) not in ChimpPairs[1]:
-#        NotConserved += 1
-#        # get chromosomes of chimp orthologs
-#        chromo1, chromo2 = ChimpCoord[ortho1][0], ChimpCoord[ortho2][0]        
-#        if chromo1 == chromo2:
-#            # get start positions of chimp orthologs
-#            S1, S2 = ChimpCoord[ortho1][1], ChimpCoord[ortho2][1]
-#            # get end positions of chimp orthologs
-#            E1, E2 = ChimpCoord[ortho1][2], ChimpCoord[ortho2][2]            
-#            # get indices of chimp orthologs in the ordred gene list
-#            P1, P2 = ChimpOrdered[chromo1].index(ortho1), ChimpOrdered[chromo2].index(ortho2)
-#            # check if orthologs are overlapping in chimp
-#            if set([ortho1, ortho2]) in ChimpPairs[0]:
-#                # chimp genes are overlapping
-#                # check if they are adjcent
-#                if S1 < S2:
-#                    assert P1 < P2
-#                    if P2 != P1 + 1:
-#                        # overlapping non adjacent
-#                        SepOvlp.append(pair)
-#                    elif P2 == P1 + 1:
-#                        # overlapping adjacent
-#                        AdjOvlp.append(pair)
-#                elif S1 > S2:
-#                    assert P2 < P1
-#                    if P1 != P2 + 1:
-#                        # overlapping non adjacent
-#                        SepOvlp.append(pair)
-#                    elif P1 == P2 + 1:
-#                        # overlapping adjacent
-#                        AdjOvlp.append(pair)
-#                elif S1 == S2:
-#                    print('merde')
-#            elif set([ortho1, ortho2]) not in ChimpPairs[0]:
-#                # chimp genes are not overlapping
-#                # check if they are adjacent
-#                if S1 < S2:
-#                    assert P1 < P2
-#                    if P2 != P1 + 1:
-#                        # non-overlapping non-adjacent
-#                        SepNonOvlp.append(pair)
-#                    elif P2 == P1 + 1:
-#                        # non-overlapping adjacent
-#                        AdjNonOvlp.append(pair)
-#                elif S1 > S2:
-#                    assert P2 < P1
-#                    if P1 != P2 + 1:
-#                        # non-overlapping non adjacent
-#                        SepNonOvlp.append(pair)
-#                    elif P1 == P2 + 1:
-#                        # non-overlapping adjacent
-#                        AdjNonOvlp.append(pair)
-#                elif S1 == S2:
-#                    print('shit')
-#              
-#    elif set([ortho1, ortho2]) in ChimpPairs[1]:
-#        # orthologs of human nested genes are also nested
-#        Conserved += 1            
-#
-## make a list of counts
-#Pairs = [SepOvlp, SepNonOvlp, AdjOvlp, AdjNonOvlp, DiffLG, NstCons]
-#
-## make a list of labels
-#Labels = ['Separated overlapping', 'Separated non-overlapping', 'Adjacent overlapping', 'Adjacent non-overlapping', 'Different chromosomes', 'Nested']
-## remove counts and labels equal to 0
-#to_remove = []
-#for i in range(len(Pairs)):
-#    if len(Pairs[i]) != 0:
-#        print(Labels[i])
-#        print(Pairs[i][0][0], Pairs[i][0][1], Orthos[Pairs[i][0][0]], Orthos[Pairs[i][0][1]])
-#        print(HumanCoord[Pairs[i][0][0]], HumanCoord[Pairs[i][0][1]], ChimpCoord[Orthos[Pairs[i][0][0]]], ChimpCoord[Orthos[Pairs[i][0][1]]])
-#        
