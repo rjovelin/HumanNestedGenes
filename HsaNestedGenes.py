@@ -1916,4 +1916,24 @@ def MapNametoID(GFF):
                     Names[gene] = name
     infile.close()
     return Names    
+
+
+# use this function to parse the Cosmic list of cancer genes
+def ParseCosmicFile(Cosmic):
+    '''
+    (file) -> set
+    Take the file of cancer gene census from the Cosmic database and return
+    a set of gene for which mutations have been causally implicated in cancer
+    '''
+    
+    CancerGenes = set()
+    infile = open(Cosmic)
+    infile.readline()
+    for line in infile:
+        if line.rstrip() != '':
+            line = line.rstrip().split('\t')
+            CancerGenes.add(line[0])
+    infile.close()
+    return CancerGenes
+    
     
