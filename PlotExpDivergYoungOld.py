@@ -275,7 +275,7 @@ elif Analysis == 'orthos':
     SisterSpYoungInt = list(set([pair[1] for pair in SisterSpYoung if pair[1] in SisterSpExpression]))    
     # create a list of old external genes in human and sister species
     HumanOldExt = list(set([pair[0] for pair in HumanOld if pair[0] in HumanExpression]))
-    SisterSpOldExt = list(set([pair[0] for pair in SisterSpOld in pair[0] in SisterSpExpression]))
+    SisterSpOldExt = list(set([pair[0] for pair in SisterSpOld if pair[0] in SisterSpExpression]))
     # create a list of old internal genes in human and sister species
     HumanOldInt = list(set([pair[1] for pair in HumanOld if pair[1] in HumanExpression]))
     SisterSpOldInt = list(set([pair[1] for pair in SisterSpOld if pair[1] in SisterSpExpression]))
@@ -294,16 +294,30 @@ elif Analysis == 'orthos':
     for gene in to_remove:
         SisterSpYoungInt.remove(gene)
     
-    # remove old external and internal genes if their orthologs is not nested    
-    to_remove = [gene for gene in HumanOldExt if OrthoPairs[gene] not in NestedSets[1]]
-    print(len(to_remove))
+    # check that orthologs of old external and internal genes are nested    
+    for gene in HumanOldExt:
+        assert OrthoPairs[gene] in NestedSets[1]
+    for gene in HumanOldInt:
+        assert OrthoPairs[gene] in NestedSets[1]
+    for gene in SisterSpOldExt:
+        assert SisterOrthos[gene] in NestedSets[0]
+    for gene in SisterSpOldInt:
+        assert SisterOrthos[gene] in NestedSets[0]
     
+    # generate a dict to draw random genes in sister-species
+    SisterRandomGenes = GenerateAllUnNestedGenes(NestedSets[1], AllOrdered[1], SisterSpExpression)
+    # generate a dict to draw genes in human    
+    HumanRandomGenes = GenerateAllUnNestedGenes(NestedSets[0], AllOrdered[0], HumanExpression)
+
+
+
+
     ############## continue here
     
-    # check that orthologs of old external and internal genes are nested in other species    
+    #### remove genes if ortho is nested in sister species and in outgroup?    
     
-    # get random genes to draw from
     
+   
     # make a list of control genes 
     
     # make list of gene pairs
@@ -314,110 +328,73 @@ elif Analysis == 'orthos':
     
    
     
-    # generate a dict to draw random genes in sister-species
-    SisterRandomGenes = GenerateAllUnNestedGenes(NestedSets[1], AllOrdered[1], SisterSpExpression)
-    # generate a dict to draw genes in human    
-    HumanRandomGenes = GenerateAllUnNestedGenes(NestedSets[0], AllOrdered[0], HumanExpression)
-   
-   
-   
-   
-   
-   
-    # make a list of control un-nested pairs in sister species
-    SisterSpControlPairs = []
-    for pair in SisterSpUnested:
-        # make a list of matching gene pairs (orientation, chromosome, distance)
-        PairPool = GenerateMatchingPoolPairs(pair, SisterRandomGenes, AllCoordinates[1], 2000)
-        # draw a matching gene pair at random
-        i = random.randint(0, len(PairPool) -1)
-        SisterSpControlPairs.append(PairPool[i])
-    # make a list of control un-nested pairs in human
-    HumanControlPairs = []    
-    for pair in HumanUnNested:
-        # make a list of matching gene pairs (orientation, chromosome, distance)
-        PairPool = GenerateMatchingPoolPairs(pair, HumanRandomGenes, AllCoordinates[0], 2000)
-        # draw a matching gene pair at random
-        i = random.randint(0, len(PairPool) -1)
-        HumanControlPairs.append(PairPool[i])
-
-    # compute expression divergence betwen human nested gene pairs
-    HumanNestedDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
-    # compute expression divergence betweennested gene pairs in sister species
-    SisterSpNestedDiv = ComputeExpressionDivergenceGenePairs(SisterSpYoung, SisterSpExpression)
-    # compute expression divergence between un-nested gene pairs in human
-    HumanUnNestedDiv = ComputeExpressionDivergenceGenePairs(HumanUnNested, HumanExpression)
-    # compute expression divergence between un-nested gene pairs in sister species    
-    SisterSpUnNestedDiv = ComputeExpressionDivergenceGenePairs(SisterSpUnested, SisterSpExpression)
-    # compute expression divergence between un-nested control pairs in human
-    HumanControlDiv = ComputeExpressionDivergenceGenePairs(HumanControlPairs, HumanExpression)
-    # compute expression divergence between un-nested control pairs in sister species    
-    SisterSpControlDiv = ComputeExpressionDivergenceGenePairs(SisterSpControlPairs, SisterSpExpression)
-
-    # merge gene expression divergence for the nested genes in human and sister species
-    ExpDivNested = []
-    ExpDivNested.extend(HumanNestedDiv)
-    ExpDivNested.extend(SisterSpNestedDiv)
-    # merge gene expression divergence for the un-nested genes in human and sister species
-    ExpDivUnNested = []
-    ExpDivUnNested.extend(HumanUnNestedDiv)
-    ExpDivUnNested.extend(SisterSpUnNestedDiv)
-    # merge gene expression divergence fot the control pairs
-    ExpDivControl = []
-    ExpDivControl.extend(HumanControlDiv)
-    ExpDivControl.extend(SisterSpControlDiv)
-
-    P = PermutationResampling(ExpDivNested, ExpDivUnNested, 10000, statistic = np.mean)
-    print(len(ExpDivNested), len(ExpDivUnNested), np.mean(ExpDivNested), np.mean(ExpDivUnNested), P)
-    P = PermutationResampling(ExpDivNested, ExpDivControl, 10000, statistic = np.mean)
-    print(len(ExpDivNested), len(ExpDivControl), np.mean(ExpDivNested), np.mean(ExpDivControl), P)
-    P = PermutationResampling(ExpDivUnNested, ExpDivControl, 10000, statistic = np.mean)
-    print(len(ExpDivUnNested), len(ExpDivControl), np.mean(ExpDivUnNested), np.mean(ExpDivControl), P)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#    # make sets of external and internal genes [hsaextold, hsaintold, hsaextyoung, hsaintyoung]
-#    HumanExtIntGenes = []
-#    for i in range(len(HumanInferredPairs)):
-#        external, internal = set(), set()
-#        for pair in HumanInferredPairs[i]:
-#            external.add(pair[0])
-#            internal.add(pair[1])
-#        HumanExtIntGenes.append(external)
-#        HumanExtIntGenes.append(internal)
+#    SisterSpControlPairs = []
+#    for pair in SisterSpUnested:
+#        # make a list of matching gene pairs (orientation, chromosome, distance)
+#        PairPool = GenerateMatchingPoolPairs(pair, SisterRandomGenes, AllCoordinates[1], 2000)
+#        # draw a matching gene pair at random
+#        i = random.randint(0, len(PairPool) -1)
+#        SisterSpControlPairs.append(PairPool[i])
+#    # make a list of control un-nested pairs in human
+#    HumanControlPairs = []    
+#    for pair in HumanUnNested:
+#        # make a list of matching gene pairs (orientation, chromosome, distance)
+#        PairPool = GenerateMatchingPoolPairs(pair, HumanRandomGenes, AllCoordinates[0], 2000)
+#        # draw a matching gene pair at random
+#        i = random.randint(0, len(PairPool) -1)
+#        HumanControlPairs.append(PairPool[i])
 #
-#    # make sets of external and internal genes [ptrextold, ptrintold, ptrextyoung, ptrintyoung]
-#    ChimpExtIntGenes = []
-#    for i in range(len(ChimpInferredPairs)):
-#        external, internal = set(), set()
-#        for pair in ChimpInferredPairs[i]:
-#            external.add(pair[0])
-#            internal.add(pair[1])
+#    # compute expression divergence betwen human nested gene pairs
+#    HumanNestedDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
+#    # compute expression divergence betweennested gene pairs in sister species
+#    SisterSpNestedDiv = ComputeExpressionDivergenceGenePairs(SisterSpYoung, SisterSpExpression)
+#    # compute expression divergence between un-nested gene pairs in human
+#    HumanUnNestedDiv = ComputeExpressionDivergenceGenePairs(HumanUnNested, HumanExpression)
+#    # compute expression divergence between un-nested gene pairs in sister species    
+#    SisterSpUnNestedDiv = ComputeExpressionDivergenceGenePairs(SisterSpUnested, SisterSpExpression)
+#    # compute expression divergence between un-nested control pairs in human
+#    HumanControlDiv = ComputeExpressionDivergenceGenePairs(HumanControlPairs, HumanExpression)
+#    # compute expression divergence between un-nested control pairs in sister species    
+#    SisterSpControlDiv = ComputeExpressionDivergenceGenePairs(SisterSpControlPairs, SisterSpExpression)
+#
+#    # merge gene expression divergence for the nested genes in human and sister species
+#    ExpDivNested = []
+#    ExpDivNested.extend(HumanNestedDiv)
+#    ExpDivNested.extend(SisterSpNestedDiv)
+#    # merge gene expression divergence for the un-nested genes in human and sister species
+#    ExpDivUnNested = []
+#    ExpDivUnNested.extend(HumanUnNestedDiv)
+#    ExpDivUnNested.extend(SisterSpUnNestedDiv)
+#    # merge gene expression divergence fot the control pairs
+#    ExpDivControl = []
+#    ExpDivControl.extend(HumanControlDiv)
+#    ExpDivControl.extend(SisterSpControlDiv)
+#
+#    P = PermutationResampling(ExpDivNested, ExpDivUnNested, 10000, statistic = np.mean)
+#    print(len(ExpDivNested), len(ExpDivUnNested), np.mean(ExpDivNested), np.mean(ExpDivUnNested), P)
+#    P = PermutationResampling(ExpDivNested, ExpDivControl, 10000, statistic = np.mean)
+#    print(len(ExpDivNested), len(ExpDivControl), np.mean(ExpDivNested), np.mean(ExpDivControl), P)
+#    P = PermutationResampling(ExpDivUnNested, ExpDivControl, 10000, statistic = np.mean)
+#    print(len(ExpDivUnNested), len(ExpDivControl), np.mean(ExpDivUnNested), np.mean(ExpDivControl), P)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #        ChimpExtIntGenes.append(external)
 #        ChimpExtIntGenes.append(internal)
 #
