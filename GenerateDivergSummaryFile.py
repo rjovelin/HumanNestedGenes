@@ -39,19 +39,13 @@ newfile = open(SummaryFile, 'w')
 # write header
 newfile.write(header + '\n')
 
-
-
-#### continue here
-
-
-
 # loop over outputfiles
 for filename in outfiles:
-    infile = open('./HumanChimpCodeml/' + filename, 'r')
+    infile = open(Folder + filename, 'r')
     # get human gene name
     HumanGene = filename[:filename.index('_')]
-    # get chimp gene name
-    ChimpGene = filename[filename.index('_')+1: filename.index('.out')]
+    # get ortholog name
+    OrthoGene = filename[filename.index('_')+1: filename.index('.out')]
     # loop through file    
     for line in infile:
         if 'tree length for dN' in line:
@@ -69,10 +63,10 @@ for filename in outfiles:
     if omega == 'NA':
         if dN <= 1 and dS <= 1:
             # write results to file    
-            newfile.write('\t'.join([HumanGene, ChimpGene, str(dN), str(dS), str(omega)]) + '\n')
+            newfile.write('\t'.join([HumanGene, OrthoGene, str(dN), str(dS), str(omega)]) + '\n')
     else:
         if dN <= 1 and dS <= 1 and omega <= 10:
-            newfile.write('\t'.join([HumanGene, ChimpGene, str(dN), str(dS), str(omega)]) + '\n')
+            newfile.write('\t'.join([HumanGene, OrthoGene, str(dN), str(dS), str(omega)]) + '\n')
             
     # close outputfile
     infile.close()
