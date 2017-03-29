@@ -381,10 +381,7 @@ elif Analysis == 'orthos':
     print(len(SisterSpExtLike))
     print(len(SisterSpYoungInt))
     
-    print('ENSG00000181562' in HumanExpression)
-    print('ENSG00000181562' in OrthoPairs)
-    print(OrthoPairs['ENSG00000181562'] in SisterSpExpression)
-   
+ 
     # make list of gene pairs
     HumanControlExt = [[gene, OrthoPairs[gene]] for gene in HumanExtLike if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
     HumanControlInt = [[gene, OrthoPairs[gene]] for gene in HumanIntLike if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
