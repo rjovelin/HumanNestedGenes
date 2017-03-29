@@ -182,6 +182,36 @@ if Analysis == 'pairs':
     for pair in to_remove:
         SisterSpYoung.remove(pair)
 
+    # remove pairs if orthologs are nested in outgroup
+    to_remove = []
+    for pair in HumanYoung:
+        # check if ortholog is present in outgroup
+        if pair[0] in OrthoTrios:
+            # add pair to list of pairs to remove if pair not already added
+            if OrthoTrios[pair[0]][1] in NestedSets[2] and pair not in to_remove:
+                to_remove.append(pair)
+        if pair[1] in OrthoTrios:
+            if OrthoTrios[pair[1]][1] in NestedSets[2] and pair not in to_remove:
+                to_remove.append(pair)
+    print(len(to_remove))
+    if len(to_remove) != 0:
+        for pair in to_remove:
+            HumanYoung.remove(pair)
+    to_remove = []
+    for pair in SisterSpYoung:
+        # check if ortholog is present in outgroup
+        if pair[0] in SisterOrthoTrios:
+            # add pair to list of pairs to remove if pair not already added
+            if SisterOrthoTrios[pair[0]][1] in NestedSets[2] and pair not in to_remove:
+                to_remove.append(pair)
+        if pair[1] in SisterOrthoTrios:
+            if SisterOrthoTrios[pair[1]][1] in NestedSets[2] and pair not in to_remove:
+                to_remove.append(pair)
+    print(len(to_remove))
+    if len(to_remove) != 0:
+        for pair in to_remove:
+            SisterSpYoung.remove(pair)
+    
     # remove human pairs if genes are not expressed
     to_remove = [pair for pair in HumanYoung if pair[0] not in HumanExpression or pair[1] not in HumanExpression]
     for pair in to_remove:
@@ -304,15 +334,15 @@ elif Analysis == 'orthos':
     for gene in SisterSpOldInt:
         assert SisterOrthos[gene] in NestedSets[0]
     
+    # check that     
+    
+    
     # generate a dict to draw random genes in sister-species
     SisterRandomGenes = GenerateAllUnNestedGenes(NestedSets[1], AllOrdered[1], SisterSpExpression)
     # generate a dict to draw genes in human    
     HumanRandomGenes = GenerateAllUnNestedGenes(NestedSets[0], AllOrdered[0], HumanExpression)
 
-
-
-
-    ############## continue here
+    
     
     #### remove genes if ortho is nested in sister species and in outgroup?    
     
