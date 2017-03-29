@@ -1468,8 +1468,8 @@ def GenerateMatchingGenes(GeneList, GeneCoord, ToDrawGenesFrom, ExpressionSpecif
     ControlGenes = []
     # loop of list of genes of interest
     for gene in GeneList:
-        # get chromo and set boolean to be updated when matching gene is found
-        chromo, NotFound = GeneCoord[gene][0], True
+        # get chromo
+        chromo = GeneCoord[gene][0]
         # make a list of matching genes
         MatchingGenes = []
         for i in ToDrawGenesFrom[chromo]:
@@ -1481,14 +1481,10 @@ def GenerateMatchingGenes(GeneList, GeneCoord, ToDrawGenesFrom, ExpressionSpecif
                     if ExpressionSpecificity[gene] - 0.01 <= ExpressionSpecificity[ToDrawGenesFrom[chromo][i]] <= ExpressionSpecificity[gene] + 0.01:
                         MatchingGenes.append(ToDrawGenesFrom[chromo][i])       
         if len(MatchingGenes) != 0:
-            # pick a random gene until a matching gene is found
-            while NotFound:
-                i = random.randint(0, len(ToDrawGenesFrom[chromo]) -1)
-                if ExpressionSpecificity[gene] - 0.01 <= ExpressionSpecificity[ToDrawGenesFrom[chromo][i]] <= ExpressionSpecificity[gene] + 0.01:
-                    # update boolean, matching gene is found
-                    NotFound = False
-                    # add matching gene to list of control genes
-                    ControlGenes.append(ToDrawGenesFrom[chromo][i])
+            # pick a random gene in list of matching genes
+            i = random.randint(0, len(MatchingGenes) -1)
+            # add matching gene to list of control genes
+            ControlGenes.append(MatchingGenes[i])
     return ControlGenes
      
  
