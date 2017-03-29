@@ -398,7 +398,7 @@ elif Analysis == 'orthos':
     HumanControlIntDiv = ComputeExpressionDivergenceOrthologs(HumanControlInt, HumanExpression, SisterSpExpression)    
     YoungExtDiv = ComputeExpressionDivergenceOrthologs(YoungExtPairs, HumanExpression, SisterSpExpression)
     YoungIntDiv = ComputeExpressionDivergenceOrthologs(YoungIntPairs, HumanExpression, SisterSpExpression)
-    OldExtDiv = ComputeExpressionDivergenceOrthologs(OldExrPairs, HumanExpression, SisterSpExpression)
+    OldExtDiv = ComputeExpressionDivergenceOrthologs(OldExtPairs, HumanExpression, SisterSpExpression)
     oldIntPairs = ComputeExpressionDivergenceOrthologs(OldIntPairs, HumanExpression, SisterSpExpression)
 
     P = PermutationResampling(YoungExtDiv, HumanControlExtDiv, 1000, statistic = np.mean)
