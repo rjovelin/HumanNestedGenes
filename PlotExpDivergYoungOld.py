@@ -162,12 +162,12 @@ SisterSpExpression = RemoveGenesLackingExpression(SisterSpExpression)
 HumanExpression = TransformRelativeExpression(HumanExpression)
 SisterSpExpression = TransformRelativeExpression(SisterSpExpression)
 
+# compute expression specificity
+HumanSpecificity = ExpressionSpecificity(HumanExpression)
+SisterSpSpecificity = ExpressionSpecificity(SisterSpExpression)
+
 HumanInferredPairs = [HumanOld, HumanYoung]
 SisterSpInferredPairs = [SisterSpOld, SisterSpYoung]
-
-
-
-
 
 
 
@@ -282,11 +282,11 @@ if Analysis == 'pairs':
     ExpDivControl.extend(HumanControlDiv)
     ExpDivControl.extend(SisterSpControlDiv)
 
-    P = PermutationResampling(ExpDivNested, ExpDivUnNested, 10000, statistic = np.mean)
+    P = PermutationResampling(ExpDivNested, ExpDivUnNested, 1000, statistic = np.mean)
     print(len(ExpDivNested), len(ExpDivUnNested), np.mean(ExpDivNested), np.mean(ExpDivUnNested), P)
-    P = PermutationResampling(ExpDivNested, ExpDivControl, 10000, statistic = np.mean)
+    P = PermutationResampling(ExpDivNested, ExpDivControl, 1000, statistic = np.mean)
     print(len(ExpDivNested), len(ExpDivControl), np.mean(ExpDivNested), np.mean(ExpDivControl), P)
-    P = PermutationResampling(ExpDivUnNested, ExpDivControl, 10000, statistic = np.mean)
+    P = PermutationResampling(ExpDivUnNested, ExpDivControl, 1000, statistic = np.mean)
     print(len(ExpDivUnNested), len(ExpDivControl), np.mean(ExpDivUnNested), np.mean(ExpDivControl), P)
 
 
@@ -324,6 +324,34 @@ elif Analysis == 'orthos':
     for gene in to_remove:
         SisterSpYoungInt.remove(gene)
     
+    # remove young external and internal genes if their ortholog is nested in outgroup    
+    to_remove = [gene for gene in HumanYoungExt if gene in OrthoTrios and OrthoTrios[gene][1] in NestedSets[2]]
+    for gene in to_remove:
+        HumanYoungExt.remove(gene)
+    to_remove = [gene for gene in HumanYoungInt if gene in OrthoTrios and OrthoTrios[gene][1] in NestedSets[2]]
+    for gene in to_remove:
+        HumanYoungInt.remove(gene)
+    to_remove = [gene for gene in SisterSpYoungExt if gene in SisterOrthoTrios and SisterOrthoTrios[gene][1] in NestedSets[2]]
+    for gene in to_remove:
+        SisterSpYoungExt.remove(gene)
+    to_remove = [gene for gene in SisterSpYoungInt if gene in SisterOrthoTrios and SisterOrthoTrios[gene][1] in NestedSets[2]]
+    for gene in to_remove:
+        SisterSpYoungInt.remove(gene)
+    
+    # remove genes if their ortholog is not expressed
+    to_remove = [gene for gene in HumanYoungExt if OrthoPairs[gene] not in SisterSpExpression]    
+    for gene in to_remove:
+        HumanYoungExt.remove(gene)
+    to_remove = [gene for gene in HumanYoungInt if OrthoPairs[gene] not in SisterSpExpression]
+    for gene in to_remove:
+        HumanYoungInt.remove(gene)
+    to_remove = [gene for gene in SisterSpYoungExt if SisterOrthos[gene] not in HumanExpression]    
+    for gene in to_remove:
+        SisterSpYoungExt.remove(gene)
+    to_remove = [gene for gene in SisterSpYoungInt if SisterOrthos[gene] not in HumanExpression]
+    for gene in to_remove:
+        SisterSpYoungInt.remove(gene)
+    
     # check that orthologs of old external and internal genes are nested    
     for gene in HumanOldExt:
         assert OrthoPairs[gene] in NestedSets[1]
@@ -334,7 +362,11 @@ elif Analysis == 'orthos':
     for gene in SisterSpOldInt:
         assert SisterOrthos[gene] in NestedSets[0]
     
-    # check that     
+    print(len(HumanYoungExt))
+    print(len(HumanYoungInt))
+    print(len(SisterSpYoungExt))
+    print(len(SisterSpYoungInt))
+    print('-----')    
     
     
     # generate a dict to draw random genes in sister-species
@@ -342,155 +374,59 @@ elif Analysis == 'orthos':
     # generate a dict to draw genes in human    
     HumanRandomGenes = GenerateAllUnNestedGenes(NestedSets[0], AllOrdered[0], HumanExpression)
 
+    # make list of control genes, match genes by chromosome and tissue specificity
+    HumanExtLike = GenerateMatchingGenes(HumanYoungExt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity)
+    HumanIntLike = GenerateMatchingGenes(HumanYoungInt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity)
+    SisterSpExtLike = GenerateMatchingGenes(SisterSpYoungExt, AllCoordinates[1], SisterRandomGenes, SisterSpSpecificity)    
+    SisterSpYoungInt = GenerateMatchingGenes(SisterSpYoungInt, AllCoordinates[1], SisterRandomGenes, SisterSpSpecificity)
     
     
-    #### remove genes if ortho is nested in sister species and in outgroup?    
-    
-    
+    print(len(HumanYoungExt))
+    print(len(HumanYoungInt))
+    print(len(SisterSpYoungExt))
+    print(len(SisterSpYoungInt))
+    print('-----')    
+
    
-    # make a list of control genes 
-    
     # make list of gene pairs
+    HumanControlExt = [[gene, OrthoPairs[gene]] for gene in HumanExtLike if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
+    HumanControlInt = [[gene, OrthoPairs[gene]] for gene in HumanIntLike if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
+
+
+    YoungExtPairs = [[gene, OrthoPairs[gene]] for gene in HumanYoungExt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
+    YoungIntPairs = [[gene, OrthoPairs[gene]] for gene in HumanYoungInt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
+    OldExtPairs = [[gene, OrthoPairs[gene]] for gene in HumanOldExt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
+    OldIntPairs = [[gene, OrthoPairs[gene]] for gene in HumanOldInt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
+
+    HumanControlExtDiv = ComputeExpressionDivergenceOrthologs(HumanControlExt, HumanExpression, SisterSpExpression)
+    HumanControlIntDiv = ComputeExpressionDivergenceOrthologs(HumanControlInt, HumanExpression, SisterSpExpression)    
+    YoungExtDiv = ComputeExpressionDivergenceOrthologs(YoungExtPairs, HumanExpression, SisterSpExpression)
+    YoungIntDiv = ComputeExpressionDivergenceOrthologs(YoungIntPairs, HumanExpression, SisterSpExpression)
+    OldExtDiv = ComputeExpressionDivergenceOrthologs(OldExrPairs, HumanExpression, SisterSpExpression)
+    oldIntPairs = ComputeExpressionDivergenceOrthologs(OldIntPairs, HumanExpression, SisterSpExpression)
+
+    P = PermutationResampling(YoungExtDiv, HumanControlExtDiv, 1000, statistic = np.mean)
+    print(len(YoungExtDiv), len(HumanControlExtDiv), np.mean(YoungExtDiv), np.mean(HumanControlExtDiv), P)
+    P = PermutationResampling(OldExtDiv, HumanControlExtDiv, 1000, statistic = np.mean)    
+    print(len(OldExtDiv), len(HumanControlExtDiv), np.mean(OldExtDiv), np.mean(HumanControlExtDiv), P)
+    P = PermutationResampling(OldExtDiv, YoungExtDiv, 1000, statistic = np.mean)    
+    print(len(OldExtDiv), len(YoungExtDiv), np.mean(OldExtDiv), np.mean(YoungExtDiv), P)
     
     
-    # compute divergence
+    P = PermutationResampling(YoungIntDiv, HumanControlIntDiv, 1000, statistic = np.mean)
+    print(len(YoungIntDiv), len(HumanControlIntDiv), np.mean(YoungIntDiv), np.mean(HumanControlIntDiv), P)
+    P = PermutationResampling(OldIntDiv, HumanControlIntDiv, 1000, statistic = np.mean)    
+    print(len(OldIntDiv), len(HumanControlIntDiv), np.mean(OldIntDiv), np.mean(HumanControlIntDiv), P)
+    P = PermutationResampling(OldIntDiv, YoungIntDiv, 1000, statistic = np.mean)    
+    print(len(OldIntDiv), len(YoungIntDiv), np.mean(OldIntDiv), np.mean(YoungIntDiv), P)
     
+
+
+
+
+
+
     
-   
-    
-#    SisterSpControlPairs = []
-#    for pair in SisterSpUnested:
-#        # make a list of matching gene pairs (orientation, chromosome, distance)
-#        PairPool = GenerateMatchingPoolPairs(pair, SisterRandomGenes, AllCoordinates[1], 2000)
-#        # draw a matching gene pair at random
-#        i = random.randint(0, len(PairPool) -1)
-#        SisterSpControlPairs.append(PairPool[i])
-#    # make a list of control un-nested pairs in human
-#    HumanControlPairs = []    
-#    for pair in HumanUnNested:
-#        # make a list of matching gene pairs (orientation, chromosome, distance)
-#        PairPool = GenerateMatchingPoolPairs(pair, HumanRandomGenes, AllCoordinates[0], 2000)
-#        # draw a matching gene pair at random
-#        i = random.randint(0, len(PairPool) -1)
-#        HumanControlPairs.append(PairPool[i])
-#
-#    # compute expression divergence betwen human nested gene pairs
-#    HumanNestedDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
-#    # compute expression divergence betweennested gene pairs in sister species
-#    SisterSpNestedDiv = ComputeExpressionDivergenceGenePairs(SisterSpYoung, SisterSpExpression)
-#    # compute expression divergence between un-nested gene pairs in human
-#    HumanUnNestedDiv = ComputeExpressionDivergenceGenePairs(HumanUnNested, HumanExpression)
-#    # compute expression divergence between un-nested gene pairs in sister species    
-#    SisterSpUnNestedDiv = ComputeExpressionDivergenceGenePairs(SisterSpUnested, SisterSpExpression)
-#    # compute expression divergence between un-nested control pairs in human
-#    HumanControlDiv = ComputeExpressionDivergenceGenePairs(HumanControlPairs, HumanExpression)
-#    # compute expression divergence between un-nested control pairs in sister species    
-#    SisterSpControlDiv = ComputeExpressionDivergenceGenePairs(SisterSpControlPairs, SisterSpExpression)
-#
-#    # merge gene expression divergence for the nested genes in human and sister species
-#    ExpDivNested = []
-#    ExpDivNested.extend(HumanNestedDiv)
-#    ExpDivNested.extend(SisterSpNestedDiv)
-#    # merge gene expression divergence for the un-nested genes in human and sister species
-#    ExpDivUnNested = []
-#    ExpDivUnNested.extend(HumanUnNestedDiv)
-#    ExpDivUnNested.extend(SisterSpUnNestedDiv)
-#    # merge gene expression divergence fot the control pairs
-#    ExpDivControl = []
-#    ExpDivControl.extend(HumanControlDiv)
-#    ExpDivControl.extend(SisterSpControlDiv)
-#
-#    P = PermutationResampling(ExpDivNested, ExpDivUnNested, 10000, statistic = np.mean)
-#    print(len(ExpDivNested), len(ExpDivUnNested), np.mean(ExpDivNested), np.mean(ExpDivUnNested), P)
-#    P = PermutationResampling(ExpDivNested, ExpDivControl, 10000, statistic = np.mean)
-#    print(len(ExpDivNested), len(ExpDivControl), np.mean(ExpDivNested), np.mean(ExpDivControl), P)
-#    P = PermutationResampling(ExpDivUnNested, ExpDivControl, 10000, statistic = np.mean)
-#    print(len(ExpDivUnNested), len(ExpDivControl), np.mean(ExpDivUnNested), np.mean(ExpDivControl), P)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#        ChimpExtIntGenes.append(external)
-#        ChimpExtIntGenes.append(internal)
-#
-#    # for young external and internal, remove genes if ortholog is nested
-#    for i in range(2, len(HumanExtIntGenes)):
-#        to_remove = set()
-#        for gene in HumanExtIntGenes[i]:
-#            assert gene in OrthoPairs
-#            if OrthoPairs[gene] in NestedSets[1]:
-#                to_remove.add(gene)
-#            if gene in OrthoTrios:
-#                if OrthoTrios[gene][0] in NestedSets[1] or OrthoTrios[gene][1] in NestedSets[2]:
-#                    to_remove.add(gene)
-#        for gene in to_remove:
-#            HumanExtIntGenes[i].remove(gene)             
-#
-#    # for young external and internal, remove genes if ortholog is nested
-#    for i in range(2, len(ChimpExtIntGenes)):
-#        to_remove = set()
-#        for gene in ChimpExtIntGenes[i]:
-#            assert gene in ChimpOrthos
-#            if ChimpOrthos[gene] in NestedSets[0]:
-#                to_remove.add(gene)
-#            if gene in ChimpOrthoTrios:
-#                if ChimpOrthoTrios[gene][0] in NestedSets[0] or ChimpOrthoTrios[gene][1] in NestedSets[2]:
-#                    to_remove.add(gene)
-#        for gene in to_remove:
-#            ChimpExtIntGenes[i].remove(gene)             
-#
-#    to_remove = set()
-#    # remove non-overlapping genes if their ortholog are overlapping
-#    for gene in NonOverlappingSets[0]:
-#        # check if ortholog is overlapping in chimp or gorilla
-#        if gene in OrthoPairs and OrthoPairs[gene] in OverlapSets[1]:
-#            to_remove.add(gene)
-#        if gene in OrthoTrios:
-#            if OrthoTrios[gene][0] in OverlapSets[1] or OrthoTrios[gene][1] in OverlapSets[2]:
-#                to_remove.add(gene)
-#    for gene in to_remove:
-#        NonOverlappingSets[0].remove(gene)
-#
-#    # remove non-overlapping genes genes without orthologs in chimp
-#    to_remove = [gene for gene in NonOverlappingSets[0] if gene not in OrthoPairs]
-#    for gene in to_remove:
-#        NonOverlappingSets[0].remove(gene)
-#
-#    # remove non-overlapping genes without expression
-#    to_remove = [gene for gene in NonOverlappingSets[0] if gene not in HumanExpression]
-#    for gene in to_remove:
-#        NonOverlappingSets[0].remove(gene)
-#
-#    #HsaGenes = [NonOverlappingSets[0]]
-#    #HsaGenes.extend(ExtIntGenes)
-#
-#    # remove genes without expression
-#    for i in range(len(HumanExtIntGenes)):
-#        to_remove = [gene for gene in HumanExtIntGenes[i] if gene not in HumanExpression]
-#        for gene in to_remove:
-#            HumanExtIntGenes[i].remove(gene)
-#        HumanExtIntGenes[i] = set(HumanExtIntGenes[i])
-#    for i in range(len(ChimpExtIntGenes)):
-#        to_remove = [gene for gene in ChimpExtIntGenes[i] if gene not in ChimpExpression]
-#        for gene in to_remove:
-#            ChimpExtIntGenes[i].remove(gene)
-#        ChimpExtIntGenes[i] = set(ChimpExtIntGenes[i])
-#    
 #    # remove gene "duplicates" by removing chimp genes with ortologs already present in each group
 #    for i in range(len(ChimpExtIntGenes)):
 #        to_remove = []
@@ -499,42 +435,5 @@ elif Analysis == 'orthos':
 #                to_remove.append(gene)
 #        for gene in to_remove:
 #            ChimpExtIntGenes[i].remove(gene)
-#
-#    # add set of non-overlapping genes to list of external and internal genes
-#    HumanExtIntGenes.insert(0, NonOverlappingSets[0])
-#    # make lists with human and chimp orthologs
-#    HumanChimpPairs = []
-#    for i in range(len(HumanExtIntGenes)):
-#        pairs = [[gene, OrthoPairs[gene]] for gene in HumanExtIntGenes[i] if gene in HumanExpression and OrthoPairs[gene] in ChimpExpression]
-#        HumanChimpPairs.append(pairs)
-#    ChimpHumanPairs = []
-#    for i in range(len(ChimpExtIntGenes)):
-#        pairs = [[gene, ChimpOrthos[gene]] for gene in ChimpExtIntGenes[i] if gene in ChimpExpression and ChimpOrthos[gene] in HumanExpression]
-#        ChimpHumanPairs.append(pairs)
-#
-#    ExpDivergence = []
-#    for i in range(len(HumanChimpPairs)):
-#        D = ComputeExpressionDivergenceOrthologs(HumanChimpPairs[i], HumanExpression, ChimpExpression)
-#        ExpDivergence.append(D)
-#    
-#    ## add divergence for chimp-specific nesting events
-#    #ExpDivergence[-2].extend(ComputeExpressionDivergenceOrthologs(ChimpHumanPairs[-2], ChimpExpression, HumanExpression))
-#    #ExpDivergence[-1].extend(ComputeExpressionDivergenceOrthologs(ChimpHumanPairs[-1], ChimpExpression, HumanExpression))
-#    
-#    
-#    for i in range(1, len(ExpDivergence)):
-#        P = PermutationResampling(ExpDivergence[0], ExpDivergence[i], 10000, statistic = np.mean)
-#        print(i, len(ExpDivergence[i]), np.mean(ExpDivergence[0]), np.mean(ExpDivergence[i]), P)
-#
-#    print('merge young and old external and internal genes')
-#
-#    # merge external and internal for the same age group
-#    Old, Young = [i for i in ExpDivergence[1]], [i for i in ExpDivergence[3]]
-#    Old.extend(ExpDivergence[2])
-#    Young.extend(ExpDivergence[4])
-#
-#    ExpDiv = [ExpDivergence[0], Old, Young]
-#    for i in range(1, len(ExpDiv)):
-#        P = PermutationResampling(ExpDiv[0], ExpDiv[i], 10000, statistic = np.mean)
-#        print(i, len(ExpDiv[i]), np.mean(ExpDiv[0]), np.mean(ExpDiv[i]), P)
-    
+
+

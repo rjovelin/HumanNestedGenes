@@ -1454,25 +1454,24 @@ def GenerateMatchingPoolPairs(pair, ToDrawGenesFrom, GeneCoord, Distance):
     
  
 # use this function to generate a list of control genes with matching characteristics
-def GenerateMatchingGenes(GeneList, GeneCoord, ToDrawGenesFrom, ExpressionSpecificity):
+def GenerateMatchingGenes(GeneList, GeneCoord, ToDrawGenesFrom, ExpressionSpecificity, Orthologs, SecondSpExpression):
     '''
-    (list, dict, dict, dict) -> list
+    (list, dict, dict, dict, dict) -> list
     Take a list of genes of interest, the dictionary of gene coordinates,
     the dictionary of number: un-nested and expressed gene pairs, the dictionary of 
-    gene expression specificity and return a list of matching (chromosome and 
-    tissue specificity) un-nested genes
+    gene expression specificity and the dictionary of expression profiles for orthologs
+    in the sister-species and return a list of matching (chromosome and tissue specificity) un-nested genes
     Precondition: nested and non-expressed genes have been removed from the dict num: gene pairs
     '''
     
     # make a list of control genes with matching proporties    
     ControlGenes = []
-    to_remove = []    
     # loop of list of genes of interest
     for gene in GeneList:
         # get chromo and set boolean to be updated when matching gene is found
         chromo, NotFound = GeneCoord[gene][0], True
         # make a list of matching genes
-        MatchingGenes = [ToDrawGenesFrom[chromo][i] for i in ToDrawGenesFrom[chromo] if ExpressionSpecificity[gene] - 0.01 <= ExpressionSpecificity[ToDrawGenesFrom[chromo][i]] <= ExpressionSpecificity[gene] + 0.01]
+        MatchingGenes = [ToDrawGenesFrom[chromo][i] for i in ToDrawGenesFrom[chromo] if ExpressionSpecificity[gene] - 0.01 <= ExpressionSpecificity[ToDrawGenesFrom[chromo][i]] <= ExpressionSpecificity[gene] + 0.01 and ToDrawGenesFrom[chromo][i] in Orthologs and Orthologs[ToDrawGenesFrom[chromo][i]] in SecondSpExpression]
         if len(MatchingGenes) != 0:
             # pick a random gene until a matching gene is found
             while NotFound:
@@ -1482,13 +1481,6 @@ def GenerateMatchingGenes(GeneList, GeneCoord, ToDrawGenesFrom, ExpressionSpecif
                     NotFound = False
                     # add matching gene to list of control genes
                     ControlGenes.append(ToDrawGenesFrom[chromo][i])
-        else:
-            # remove gene if there is no matching gene
-            to_remove.append(gene)
-    # remove genes from gene list    
-    if len(to_remove) != 0:
-        for gene in to_remove:
-            GeneList.remove(gene)
     return ControlGenes
      
  
