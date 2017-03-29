@@ -362,11 +362,7 @@ elif Analysis == 'orthos':
     for gene in SisterSpOldInt:
         assert SisterOrthos[gene] in NestedSets[0]
     
-    print(len(HumanYoungExt))
-    print(len(HumanYoungInt))
-    print(len(SisterSpYoungExt))
-    print(len(SisterSpYoungInt))
-    print('-----')    
+
     
     
     # generate a dict to draw random genes in sister-species
@@ -375,22 +371,25 @@ elif Analysis == 'orthos':
     HumanRandomGenes = GenerateAllUnNestedGenes(NestedSets[0], AllOrdered[0], HumanExpression)
 
     # make list of control genes, match genes by chromosome and tissue specificity
-    HumanExtLike = GenerateMatchingGenes(HumanYoungExt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity)
-    HumanIntLike = GenerateMatchingGenes(HumanYoungInt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity)
-    SisterSpExtLike = GenerateMatchingGenes(SisterSpYoungExt, AllCoordinates[1], SisterRandomGenes, SisterSpSpecificity)    
-    SisterSpYoungInt = GenerateMatchingGenes(SisterSpYoungInt, AllCoordinates[1], SisterRandomGenes, SisterSpSpecificity)
+    HumanExtLike = GenerateMatchingGenes(HumanYoungExt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, OrthoPairs, SisterSpExpression)
+    HumanIntLike = GenerateMatchingGenes(HumanYoungInt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, OrthoPairs, SisterSpExpression)
+    SisterSpExtLike = GenerateMatchingGenes(SisterSpYoungExt, AllCoordinates[1], SisterRandomGenes, SisterSpSpecificity, SisterOrthos, HumanExpression)    
+    SisterSpYoungInt = GenerateMatchingGenes(SisterSpYoungInt, AllCoordinates[1], SisterRandomGenes, SisterSpSpecificity, SisterOrthos, HumanExpression)
     
-    
-    print(len(HumanYoungExt))
-    print(len(HumanYoungInt))
-    print(len(SisterSpYoungExt))
+    print(len(HumanExtLike))
+    print(len(HumanIntLike))
+    print(len(SisterSpExtLike))
     print(len(SisterSpYoungInt))
-    print('-----')    
-
+    
+    print('ENSG00000181562' in HumanExpression)
+    print('ENSG00000181562' in OrthoPairs)
+    print(OrthoPairs['ENSG00000181562'] in SisterSpExpression)
    
     # make list of gene pairs
     HumanControlExt = [[gene, OrthoPairs[gene]] for gene in HumanExtLike if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
     HumanControlInt = [[gene, OrthoPairs[gene]] for gene in HumanIntLike if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
+
+    
 
 
     YoungExtPairs = [[gene, OrthoPairs[gene]] for gene in HumanYoungExt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
