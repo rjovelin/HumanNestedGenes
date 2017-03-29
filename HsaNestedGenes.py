@@ -1471,7 +1471,15 @@ def GenerateMatchingGenes(GeneList, GeneCoord, ToDrawGenesFrom, ExpressionSpecif
         # get chromo and set boolean to be updated when matching gene is found
         chromo, NotFound = GeneCoord[gene][0], True
         # make a list of matching genes
-        MatchingGenes = [ToDrawGenesFrom[chromo][i] for i in ToDrawGenesFrom[chromo] if ExpressionSpecificity[gene] - 0.01 <= ExpressionSpecificity[ToDrawGenesFrom[chromo][i]] <= ExpressionSpecificity[gene] + 0.01 and ToDrawGenesFrom[chromo][i] in Orthologs and Orthologs[ToDrawGenesFrom[chromo][i]] in SecondSpExpression]
+        MatchingGenes = []
+        for i in ToDrawGenesFrom[chromo]:
+            # check that gene has ortholog
+            if ToDrawGenesFrom[chromo][i] in Orthologs:
+                # check that ortholog if expressed
+                if Orthologs[ToDrawGenesFrom[chromo][i]] in SecondSpExpression:
+                    # check that gene has matching expression specificity
+                    if ExpressionSpecificity[gene] - 0.01 <= ExpressionSpecificity[ToDrawGenesFrom[chromo][i]] <= ExpressionSpecificity[gene] + 0.01:
+                        MatchingGenes.append(ToDrawGenesFrom[chromo][i])       
         if len(MatchingGenes) != 0:
             # pick a random gene until a matching gene is found
             while NotFound:
