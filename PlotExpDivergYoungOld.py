@@ -401,20 +401,25 @@ elif Analysis == 'orthos':
     OldExtDiv = ComputeExpressionDivergenceOrthologs(OldExtPairs, HumanExpression, SisterSpExpression)
     OldIntDiv = ComputeExpressionDivergenceOrthologs(OldIntPairs, HumanExpression, SisterSpExpression)
 
-    P = PermutationResampling(YoungExtDiv, HumanControlExtDiv, 1000, statistic = np.mean)
-    print(len(YoungExtDiv), len(HumanControlExtDiv), np.mean(YoungExtDiv), np.mean(HumanControlExtDiv), P)
-    P = PermutationResampling(OldExtDiv, HumanControlExtDiv, 1000, statistic = np.mean)    
-    print(len(OldExtDiv), len(HumanControlExtDiv), np.mean(OldExtDiv), np.mean(HumanControlExtDiv), P)
-    P = PermutationResampling(OldExtDiv, YoungExtDiv, 1000, statistic = np.mean)    
-    print(len(OldExtDiv), len(YoungExtDiv), np.mean(OldExtDiv), np.mean(YoungExtDiv), P)
+
+##### check with median
+
+    
+
+    P = PermutationResampling(YoungExtDiv, HumanControlExtDiv, 1000, statistic = np.median)
+    print(len(YoungExtDiv), len(HumanControlExtDiv), np.median(YoungExtDiv), np.median(HumanControlExtDiv), P)
+    P = PermutationResampling(OldExtDiv, HumanControlExtDiv, 1000, statistic = np.median)    
+    print(len(OldExtDiv), len(HumanControlExtDiv), np.median(OldExtDiv), np.median(HumanControlExtDiv), P)
+    P = PermutationResampling(OldExtDiv, YoungExtDiv, 1000, statistic = np.median)    
+    print(len(OldExtDiv), len(YoungExtDiv), np.median(OldExtDiv), np.median(YoungExtDiv), P)
     
     
-    P = PermutationResampling(YoungIntDiv, HumanControlIntDiv, 1000, statistic = np.mean)
-    print(len(YoungIntDiv), len(HumanControlIntDiv), np.mean(YoungIntDiv), np.mean(HumanControlIntDiv), P)
-    P = PermutationResampling(OldIntDiv, HumanControlIntDiv, 1000, statistic = np.mean)    
-    print(len(OldIntDiv), len(HumanControlIntDiv), np.mean(OldIntDiv), np.mean(HumanControlIntDiv), P)
-    P = PermutationResampling(OldIntDiv, YoungIntDiv, 1000, statistic = np.mean)    
-    print(len(OldIntDiv), len(YoungIntDiv), np.mean(OldIntDiv), np.mean(YoungIntDiv), P)
+    P = PermutationResampling(YoungIntDiv, HumanControlIntDiv, 1000, statistic = np.median)
+    print(len(YoungIntDiv), len(HumanControlIntDiv), np.median(YoungIntDiv), np.median(HumanControlIntDiv), P)
+    P = PermutationResampling(OldIntDiv, HumanControlIntDiv, 1000, statistic = np.median)    
+    print(len(OldIntDiv), len(HumanControlIntDiv), np.median(OldIntDiv), np.median(HumanControlIntDiv), P)
+    P = PermutationResampling(OldIntDiv, YoungIntDiv, 1000, statistic = np.median)    
+    print(len(OldIntDiv), len(YoungIntDiv), np.median(OldIntDiv), np.median(YoungIntDiv), P)
     
 
 
