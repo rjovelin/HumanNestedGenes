@@ -8,14 +8,42 @@ Created on Mon Dec  5 14:43:46 2016
 # use this script to write summary of nucleotide divergence to file 
 
 import os
+import sys
+
+# usage GenerateDivergSummaryFile.py [options]
+# -['mouse'/'chimp']: use human-mouse or human-chimp divergence
+
+# get option from command
+Species = sys.argv[1]
+assert Species in ['chimp', 'mouse']
+
+# get folder with divergence files
+if Species == 'chimp':
+    Folder = './HumanChimpCodeml/'
+elif Species == 'mouse':
+    Folder = './HumanMouseCodeml/'
+
 
 # make a list of codeml output files in current directory
-outfiles = [i for i in os.listdir('./HumanChimpCodeml/') if '.out.txt' in i]
+outfiles = [i for i in os.listdir(Folder) if '.out.txt' in i]
 
 # save summary file in parent directory
-newfile = open('./HumanChimpSeqDiverg.txt', 'w')
+if Species == 'chimp':
+    SummaryFile = './HumanChimpSeqDiverg.txt'
+    header = '\t'.join(['Human_Gene', 'Chimp_Gene', 'dN', 'dS', 'dN/dS'])
+elif Species == 'mouse':
+    SummaryFile = './HumanMouseSeqDiverg.txt'
+    header = '\t'.join(['Human_Gene', 'Mouse_Gene', 'dN', 'dS', 'dN/dS'])
+
+newfile = open(SummaryFile, 'w')
 # write header
-newfile.write('\t'.join(['Human_Gene', 'Chimp_Gene', 'dN', 'dS', 'dN/dS']) + '\n')
+newfile.write(header + '\n')
+
+
+
+#### continue here
+
+
 
 # loop over outputfiles
 for filename in outfiles:
