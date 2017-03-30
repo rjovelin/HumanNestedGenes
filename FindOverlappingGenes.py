@@ -38,12 +38,11 @@ Species = ['Cow', 'Marmoset', 'Dog', 'Sloth', 'Armadillo', 'Horse', 'Hedgehog',
            
 # loop over GFF files
 for i in range(len(GFF)):
-    print(GFFs[i][:GFFs[i].index('.')], Species[i])
     # get the coordinates of human genes on each chromo
     # {chromo: {gene:[chromosome, start, end, sense]}}
-    SpGeneChromoCoord = ChromoGenesCoord(GFFs[i])
+    SpGeneChromoCoord = ChromoGenesCoord(GFF[i])
     # map each gene to its mRNA transcripts
-    SpMapGeneTranscript = GeneToTranscripts(GFFs[i])
+    SpMapGeneTranscript = GeneToTranscripts(GFF[i])
     # remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
     SpGeneChromoCoord = FilterOutGenesWithoutValidTranscript(SpGeneChromoCoord, SpMapGeneTranscript)
     # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
@@ -54,7 +53,7 @@ for i in range(len(GFF)):
     SpOverlappingGenes = FindOverlappingGenePairs(SpGeneChromoCoord, SpOrderedGenes)
     
     # save dictionaries as json file
-    print(GFFs[i][:GFFs[i].index('.')], Species[i], len(SpOverlappingGenes))    
+    print(GFF[i][:GFF[i].index('.')], Species[i], len(SpOverlappingGenes))    
     newfile = open(Species + 'OverlappingGenes.json', 'w')  
     # save dictionary to file        
     json.dump(SpOverlappingGenes, newfile, sort_keys = True, indent = 4)
