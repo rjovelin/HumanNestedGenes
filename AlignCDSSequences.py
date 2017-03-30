@@ -95,22 +95,12 @@ SpeciesCodingSeq = FilerOutCDSSequences(SpeciesCodingSeq)
 SpeciesCodingSeq = RemoveTerminalStop(SpeciesCodingSeq)
  
 
-############ continue here
-
-
-
-
-
-
-
-
-
-# get the 1:1 orthologs and destination folder
+# get human orthologs (1:1, one_to_many, many_to_many orthologs)
 if SisterSpecies == 'chimp':
-    Orthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
+    Orthos = MatchOrthologs('HumanChimpOrthologs.txt')
     Folder = './HumanChimpPairs/'
 elif SisterSpecies == 'mouse':
-    Orthos = MatchOrthologPairs('HumanMouseOrthologs.txt')
+    Orthos = MatchOrthologs('HumanMouseOrthologs.txt')
     Folder = './HumanMousePairs/'
 
 # create a directory named pairs
@@ -118,17 +108,22 @@ os.mkdir(Folder)
 
 # save orthologous sequences into separate files
 for gene in Orthos:
-    # check that both human and ortholog genes have valid coding sequences
-    if gene in HumanCodingSeq and Orthos[gene] in SpeciesCodingSeq:
-        # save human: ortholog sequences in separate fasta files
-        # use human and ortholog gene names in filename 
-        newfile = open(Folder + gene + '_' + Orthos[gene] + '.tfa', 'w')
-        # write human gene and its sequence
-        newfile.write('>' + gene + '\n')
-        newfile.write(HumanCodingSeq[gene] + '\n')
-        newfile.write('>' + Orthos[gene] + '\n')
-        newfile.write(SpeciesCodingSeq[Orthos[gene]] + '\n')
-        newfile.close()
+    # check that human gene has valid coding sequence
+    if gene in HumanCodingSeq:
+        # loop over orthologs
+        # record all pairs of orthologs in case of one_to_many or many_to_many
+        for ortholog in Orthos[gene]:
+            # check that ortholog has valid coding sequence
+            if ortholog in SpeciesCodingSeq:
+                # save human: ortholog sequences in separate fasta files
+                # use human and ortholog gene names in filename 
+                newfile = open(Folder + gene + '_' + ortholog + '.tfa', 'w')
+                # write human gene and its sequence
+                newfile.write('>' + gene + '\n')
+                newfile.write(HumanCodingSeq[gene] + '\n')
+                newfile.write('>' + ortholog + '\n')
+                newfile.write(SpeciesCodingSeq[ortholog] + '\n')
+                newfile.close()
         
         
 # run to-coffee command lines to align protein sequences and get codon-based DNA alignments
