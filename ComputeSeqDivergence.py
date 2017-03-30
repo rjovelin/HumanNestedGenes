@@ -6,7 +6,7 @@ Created on Tue Nov 29 23:30:44 2016
 """
 
 
-# use this script to compute nucleotide divergence between human-chimp orthologs
+# use this script to compute nucleotide divergence between human and chimp/mouse orthologs
 
 # usage python3 ComputeSeqDivergence.py [options] 
 # -[mouse/chimp]: use orthologs in mouse or chimp
