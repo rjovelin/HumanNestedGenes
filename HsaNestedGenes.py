@@ -701,12 +701,47 @@ def GetSameOppositeStrandProportions(GenePairs, GeneCoord):
   
   
   
+## use this function to match human genes with orrthologs in a single other species
+#def MatchOrthologPairs(OrthoFile):
+#    '''
+#    (file) -> dict
+#    Take a file with orthology assignment between 2 species and return a dictionary
+#    of 1:1 orthologs between the 2 species. 
+#    '''
+#    # the file colums foloww the format:
+#    # Sp1GeneID Sp1TranscriptID Sp2GeneID Sp2GeneName HomologyType OrthologyC
+#    
+#    # create a dict of orthologs
+#    Orthos = {}
+#    infile = open(OrthoFile)
+#    infile.readline()
+#    for line in infile:
+#        # consider only 1:1 orthologs
+#        if 'ortholog_one2one' in line:
+#            line = line.rstrip().split('\t')
+#            # get gene IDs of the 2 species
+#            gene1, gene2 = line[0], line[2]
+#            # check that genes are ensembl gene IDs
+#            for i in [gene1, gene2]:
+#                assert 'ENS' in i, 'gene id is not valid'
+#                assert 'ortholog' in line[4], 'ortholog should be in homology type'
+#            # orthologous gene names appear multiple times in file because of multiple transcripts
+#            if gene1 in Orthos:
+#                assert gene2 == Orthos[gene1], 'gene is already matched to a 1:1 ortholog'
+#            Orthos[gene1] = gene2
+#    infile.close()                      
+#    # check that all orthologs are 1;1 orthologs
+#    values = list(Orthos.values())
+#    for i in values:
+#        assert values.count(i) == 1
+#    return Orthos
+ 
 # use this function to match human genes with orrthologs in a single other species
-def MatchOrthologPairs(OrthoFile):
+def MatchOrthologs(OrthoFile):
     '''
     (file) -> dict
     Take a file with orthology assignment between 2 species and return a dictionary
-    of 1:1 orthologs between the 2 species. 
+    orthologs between the 2 species. 
     '''
     # the file colums foloww the format:
     # Sp1GeneID Sp1TranscriptID Sp2GeneID Sp2GeneName HomologyType OrthologyC
@@ -716,8 +751,8 @@ def MatchOrthologPairs(OrthoFile):
     infile = open(OrthoFile)
     infile.readline()
     for line in infile:
-        # consider only 1:1 orthologs
-        if 'ortholog_one2one' in line:
+        # consider all orthology types
+        if 'ortholog' in line:
             line = line.rstrip().split('\t')
             # get gene IDs of the 2 species
             gene1, gene2 = line[0], line[2]
@@ -727,16 +762,16 @@ def MatchOrthologPairs(OrthoFile):
                 assert 'ortholog' in line[4], 'ortholog should be in homology type'
             # orthologous gene names appear multiple times in file because of multiple transcripts
             if gene1 in Orthos:
-                assert gene2 == Orthos[gene1], 'gene is already matched to a 1:1 ortholog'
-            Orthos[gene1] = gene2
+                Orthos[gene1].add(gene2)
+            else:
+                Orthos[gene1] = set()
+                Orthos[gene1].add(gene2)
     infile.close()                      
-    # check that all orthologs are 1;1 orthologs
-    values = list(Orthos.values())
-    for i in values:
-        assert values.count(i) == 1
+    # convert set to lists
+    for gene in Orthos:
+        Orthos[gene] = list(Orthos[gene])
     return Orthos
-    
-  
+
 # Map humangenes to their orthologs in 2 other species  
 def MatchOrthologTrios(OrthoFile):
     '''
