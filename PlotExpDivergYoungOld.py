@@ -5,6 +5,29 @@ Created on Fri Nov 25 11:38:39 2016
 @author: RJovelin
 """
 
+#############
+
+# modify the function to infer young/old nesting events
+# include multiple outgroups
+# for human-chimp: outgroups = baboon, gorilla, macaque, marmoset, orangoutan, mouse etc
+# for human-mouse: outroups = dog, cat/cow, bat, shrews, hedgehog, marsupial, platypus
+# get pairwise orthologs
+# require presence of both genes in human and chimp or mouse and at least 1 outgroup
+# if gene pair not present in chimp/mouse and not present in all outgroup then young nesting event
+# how to deal with one_to_many and many_to_many orthologs?
+# include all orthology type, if 1_to_many or many_to_many, consider nested if any ortholog is nested (at least 1 ortho of external and 1 ortho of internal must be nested)
+
+# http://tolweb.org/Eutheria/15997
+# http://www.pnas.org/content/suppl/2007/12/14/0705658104.DC1
+# https://research.amnh.org/paleontology/perissodactyl/node/55
+# http://useast.ensembl.org/info/genome/compara/homology_method.html
+
+##############
+
+
+
+
+
 
 # use this script to plot expression divergence between host-nested pairs and
 # their un-nested orthologs and expression divergence between external genes and
