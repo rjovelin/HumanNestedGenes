@@ -1525,16 +1525,35 @@ def GenerateMatchingGenes(GeneList, GeneCoord, ToDrawGenesFrom, ExpressionSpecif
      
  
 # use this function to sort young and ancestral nesting events
-def InferYoungOldNestingEvents(OrthologPairs, OrthologTrios, SecondSpOverlapPairs, OutGroupOverlapPairs, FirstSpHostNestedPairs):
+def InferYoungOldNestingEvents(NestedGenes, SpeciesNestedPairs, OrthologPairs): 
     '''
-    (dict, dict, list, list, list) -> (list, list)
+    (list, list) -> (list, list)    
+    
+    
+    
     Take a dictionary with orthologs between 2 species, ortholog gene trios,
     the lists of overlapping gene pairs in the sister species and in the outgroup
     and the list of host:nested pairs in the focal species and return a tuple
     with list of host: nested pairs that are infered to be old and young
     (before the divergence of the 2 species or after)
     '''   
-    # create lists of sets of gene pairs to remove the order between genes
+ 
+    # include multiple outgroups
+    # for human-chimp: outgroups = baboon, gorilla, macaque, marmoset, orangoutan, mouse etc
+    # for human-mouse: outroups = dog, cat/cow, bat, shrews, hedgehog, marsupial, platypus
+    # get pairwise orthologs
+    # require presence of both genes in human and chimp or mouse and at least 1 outgroup
+    # if gene pair not present in chimp/mouse and not present in all outgroup then young nesting event
+    # how to deal with one_to_many and many_to_many orthologs?
+    # include all orthology type, if 1_to_many or many_to_many, consider nested if any ortholog is nested (at least 1 ortho of external and 1 ortho of internal must be nested)
+
+
+    # NestedGenes is the list of gene pairs in the species of interest (eg. human)
+    # siters_species = chimp or mouse if species of interest is human    
+    # SpeciesNestedPairs include list of nested gene pairs [sister_species, outgroups]
+    # OrthologPairs include dictionary of orthologs between human and other species [sister_species, outgroups]
+
+   # create lists of sets of gene pairs to remove the order between genes
     SecondOverlap, OutGroupOverlap = [], []
     for pair in SecondSpOverlapPairs:
         SecondOverlap.append(set(pair))
