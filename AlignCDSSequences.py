@@ -21,11 +21,11 @@ SisterSpecies = sys.argv[1]
 assert SisterSpecies in ['mouse', 'chimp']
 
 # get GFF file
-HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
+HsaGFF = 'Homo_sapiens.GRCh38.88.gff3'
 if SisterSpecies == 'chimp':
-    SpeciesGFF = 'Pan_troglodytes.CHIMP2.1.4.86.gff3'
+    SpeciesGFF = 'Pan_troglodytes.CHIMP2.1.4.88.gff3'
 elif SisterSpecies == 'mouse':
-    SpeciesGFF = 'Mus_musculus.GRCm38.86.gff3'
+    SpeciesGFF = 'Mus_musculus.GRCm38.88.gff3'
 
 
 # get the coordinates of genes on each chromo
@@ -94,6 +94,16 @@ SpeciesCodingSeq = FilerOutCDSSequences(SpeciesCodingSeq)
 # remove terminal stop codons
 SpeciesCodingSeq = RemoveTerminalStop(SpeciesCodingSeq)
  
+
+############ continue here
+
+
+
+
+
+
+
+
 
 # get the 1:1 orthologs and destination folder
 if SisterSpecies == 'chimp':
