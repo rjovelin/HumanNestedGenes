@@ -9,6 +9,7 @@ import numpy as np
 import math
 import os
 import random
+import json
 
 # use this function to record the gene coordinates on each separate chromosome    
 def ChromoGenesCoord(gff_file):
@@ -1972,3 +1973,22 @@ def ParseCosmicFile(Cosmic):
     return CancerGenes
     
     
+# use this function to save a list of overlapping genes as a dict in a json file
+def SaveOverlappingPairsToFile(OverlappingPairs, JsonFileName):
+    '''
+    (list, str) -> file
+    Take a list of overlapping gene pairs and save overlapping relationships to a json file 
+    '''
+
+    # create a dictionary of overlapping genes
+    OverlappingGenes = {}
+    # loop over gene pairs in list
+    for pair in OverlappingPairs:
+        # use first gene in pair as key
+        if pair[0] in OverlappingGenes:
+            OverlappingGenes[pair[0]].append(pair[1])
+        else:
+            OverlappingGenes[pair[0]] = [pair[1]]
+    newfile = open(JsonFileName + '.json', 'w')
+    json.dump(OverlappingGenes, newfile, sort_keys = True, indent = 4)
+    newfile.close()
