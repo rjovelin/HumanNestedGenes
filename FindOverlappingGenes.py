@@ -54,7 +54,7 @@ for i in range(len(GFF)):
     
     # save dictionaries as json file
     print(GFF[i][:GFF[i].index('.')], Species[i], len(SpOverlappingGenes))    
-    newfile = open(Species + 'OverlappingGenes.json', 'w')  
+    newfile = open(Species[i] + 'OverlappingGenes.json', 'w')  
     # save dictionary to file        
     json.dump(SpOverlappingGenes, newfile, sort_keys = True, indent = 4)
     newfile.close()
