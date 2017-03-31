@@ -1522,8 +1522,37 @@ def GenerateMatchingGenes(GeneList, GeneCoord, ToDrawGenesFrom, ExpressionSpecif
             # add matching gene to list of control genes
             ControlGenes.append(MatchingGenes[i])
     return ControlGenes
-     
  
+
+# use this function to dtermine if a single nested pair is conserved in a second species
+def IsNestedPairConserved(pair, Orthologs, OrthoNestedPairs):
+    '''
+    (list, dict, list) -> bool
+    Take a list of host, nested genes in a focal species, the dictionary of
+    gene orthologs between focal and second species, and the list of host, nested
+    lists in the second species
+    Precondition: genes in pair have both orthologs in second species
+    '''
+    # pair is a list of host, nested genes in focal species [host, nested]
+    # Orthologs is a dictionary of orthologs {gene: [ortho1, ortho2..]}    
+    # OrthoNestedPairs is a list of [host, nested] gene pairs in other species
+    
+    # generate a list with all combinations of orthologs of host:nested pairs
+    orthopairs = []
+    for ortho1 in Orthologs[pair[0]]:
+        for ortho2 in Orthologs[pair[1]]:
+            orthopairs.append([ortho1, ortho2])
+    # set boolean to be updated if nesting is conserved
+    ConservedNesting = False
+    # check if at least one ortholog pair is nested in sister species
+    for i in orthopairs:
+        if i in OrthoNestedPairs:
+            # nesting is conserved, update boolean and exit loop 
+            ConservedNesting = True
+            break
+    return ConservedNesting
+
+
 # use this function to sort young and ancestral nesting events
 def InferYoungOldNestingEvents(NestedGenes, SpeciesNestedPairs, OrthologPairs): 
     '''
@@ -1567,7 +1596,18 @@ def InferYoungOldNestingEvents(NestedGenes, SpeciesNestedPairs, OrthologPairs):
                 PresentInSpecies.append(i)
         # check that orthologs are present >= 1 outgroup and in sister species
         if len(PresentInSpecies) >= 2 and PresentInSpecies[0] == 0:
-            
+            # check if pair is present in sister species
+            # generate a list with all combinations of orthologs of host:nested pairs
+            orthopairs = []
+            for ortho1 in OrthologPairs[0][pair[0]]:
+                for ortho2 in OrthologPairs[0][pair[1]]:
+                    orthopairs.append([ortho1, ortho2])
+            # check if at least one ortholog pair is nested in sister species
+            for genepair in orthopairs:
+                if genepair in SpeciesNestedPairs[0]:
+                    # nesting is conserved in sister species
+                    if pair not in Old:
+                        Old.append(pair)
         
         ######### continue here
         
