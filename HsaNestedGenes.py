@@ -1556,27 +1556,18 @@ def IsNestedPairConserved(pair, Orthologs, OrthoNestedPairs):
 # use this function to sort young and ancestral nesting events
 def InferYoungOldNestingEvents(NestedGenes, SpeciesNestedPairs, OrthologPairs): 
     '''
-    (list, list) -> (list, list)    
-    
-    
-    
-    Take a dictionary with orthologs between 2 species, ortholog gene trios,
-    the lists of overlapping gene pairs in the sister species and in the outgroup
-    and the list of host:nested pairs in the focal species and return a tuple
-    with list of host: nested pairs that are infered to be old and young
+    (list, list, list) -> (list, list)    
+    Take a list of host, nested gene pair lists in the focal species, a list
+    of lists of host, nested pairs in sister species and outgroups, and 
+    a list of dictionaries of orthologs and return a tuple with list of
+    host: nested pairs that are infered to be old and young
     (before the divergence of the 2 species or after)
     '''   
  
-    # include multiple outgroups
-    # for human-chimp: outgroups = baboon, gorilla, macaque, marmoset, orangoutan, mouse etc
-    # for human-mouse: outroups = dog, cat/cow, bat, shrews, hedgehog, marsupial, platypus
-    # get pairwise orthologs
-    # require presence of both genes in human and chimp or mouse and at least 1 outgroup
-    # if gene pair not present in chimp/mouse and not present in all outgroup then young nesting event
-    # how to deal with one_to_many and many_to_many orthologs?
-    # include all orthology type, if 1_to_many or many_to_many, consider nested if any ortholog is nested (at least 1 ortho of external and 1 ortho of internal must be nested)
-
-
+    # require presence of both genes in human, sister-species and at least 1 outgroup
+    # young nesting if nesting not present any other species 
+    # old nesting if nesting present in sister species
+    
     # NestedGenes is the list of gene pairs in the species of interest (eg. human)
     # siters_species = chimp or mouse if species of interest is human    
     # SpeciesNestedPairs include list of nested gene pairs [sister_species, outgroups]
@@ -1597,49 +1588,20 @@ def InferYoungOldNestingEvents(NestedGenes, SpeciesNestedPairs, OrthologPairs):
         # check that orthologs are present >= 1 outgroup and in sister species
         if len(PresentInSpecies) >= 2 and PresentInSpecies[0] == 0:
             # check if pair is present in sister species
-            # generate a list with all combinations of orthologs of host:nested pairs
-            orthopairs = []
-            for ortho1 in OrthologPairs[0][pair[0]]:
-                for ortho2 in OrthologPairs[0][pair[1]]:
-                    orthopairs.append([ortho1, ortho2])
-            # check if at least one ortholog pair is nested in sister species
-            for genepair in orthopairs:
-                if genepair in SpeciesNestedPairs[0]:
-                    # nesting is conserved in sister species
-                    if pair not in Old:
-                        Old.append(pair)
-        
-        ######### continue here
-        
-    # create lists of sets of gene pairs to remove the order between genes
-    SecondOverlap, OutGroupOverlap = [], []
-    for pair in SecondSpOverlapPairs:
-        SecondOverlap.append(set(pair))
-    for pair in OutGroupOverlapPairs:
-        OutGroupOverlap.append(set(pair))
-    # create lists of host-nested gene pairs that are old (present in second
-    # species, or second species and outgroup) or young (not found in outgroup
-    # and not found in the second species, ie species-specific)    
-    old, young = [], []
-    # loop over the gene pairs    
-    for pair in FirstSpHostNestedPairs:
-        # check that both genes have orthologs in sister species
-        if pair[0] in OrthologPairs and pair[1] in OrthologPairs:
-            # check that gene is overlapping in sister-species
-            hostorthosp2, nestedorthosp2 = OrthologPairs[pair[0]], OrthologPairs[pair[1]]
-            if {hostorthosp2, nestedorthosp2} in SecondOverlap:
-                # gene pair is overlapping in 2nd species, sufficient to be called old nested pair
-                old.append(pair)
-            elif {hostorthosp2, nestedorthosp2} not in SecondOverlap:
-                # check is gene pair is overlapping in outgroup
-                if pair[0] in OrthologTrios and pair[1] in OrthologTrios:
-                    # get ortholog of host and nested in outgroup
-                    hostorthoout, nestedorthoout = OrthologTrios[pair[0]][1], OrthologTrios[pair[1]][1]
-                    # do nothing if nested in outgroup, nesting can result from convergence or to secondary loss in sister-species                    
-                    if {hostorthoout, nestedorthoout} not in OutGroupOverlap:
-                        # nested is specific-species
-                        young.append(pair)
-    return old, young
+            ConservedNesting = IsNestedPairConserved(pair, OrthologPairs[0], SpeciesNestedPairs[0])
+            if ConservedNesting == True:
+                Old.append(pair)
+            else:
+                # check if pair is absent from all species, including outgroups
+                # loop over species in which orthologs are present
+                ConservedInOutGroups = False
+                for i in PresentInSpecies:
+                    ConservedNesting = IsNestedPairConserved(pair, OrthologPairs[i], SpeciesNestedPairs[i])
+                    if ConservedNesting == True:
+                        ConservedInOutGroups = True
+                if ConservedInOutGroups == False:
+                    Young.append(pair)
+    return Old, Young
 
 
 # use this function to translate a coding sequence into a protein
