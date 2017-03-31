@@ -1553,7 +1553,25 @@ def InferYoungOldNestingEvents(NestedGenes, SpeciesNestedPairs, OrthologPairs):
     # SpeciesNestedPairs include list of nested gene pairs [sister_species, outgroups]
     # OrthologPairs include dictionary of orthologs between human and other species [sister_species, outgroups]
 
-   # create lists of sets of gene pairs to remove the order between genes
+    assert len(SpeciesNestedPairs) == len(OrthologPairs)
+
+    # create lists of young and old nested gene pairs in the focal species
+    Young, Old = [], []
+
+    # loop over gene pairs in species of interest
+    for pair in NestedGenes:
+        # record indices (species) in which orthologs of both genes are present
+        PresentInSpecies = []
+        for i in range(len(OrthologPairs)):
+            if pair[0] in OrthologPairs[i] and pair[1] in OrthologPairs[i]:
+                PresentInSpecies.append(i)
+        # check that orthologs are present >= 1 outgroup and in sister species
+        if len(PresentInSpecies) >= 2 and PresentInSpecies[0] == 0:
+            
+        
+        ######### continue here
+        
+    # create lists of sets of gene pairs to remove the order between genes
     SecondOverlap, OutGroupOverlap = [], []
     for pair in SecondSpOverlapPairs:
         SecondOverlap.append(set(pair))
