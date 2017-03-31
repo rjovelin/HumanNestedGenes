@@ -2114,3 +2114,19 @@ def MapEnsemblGenesToGOTerms(Annotations, GeneNames):
         # get assign the GO terms to gene
         GeneOntology[gene] = Annotations[name]
     return GeneOntology
+
+    
+# use this function to compute jacaard similarity index
+def JaccardIndex(A, B):
+    '''
+    (set, set) -> num
+    Take 2 sets of values and return the Jaccard index, mesuring the similarity
+    between the 2 sets
+    '''
+    # by default Jaccard index  = 1 when both sets are empty
+    if len(A) == 0 and len(B) == B:
+        return 1
+    else:
+        return len(A.intersection(B)) / len(A.union(B))    
+    
+    
