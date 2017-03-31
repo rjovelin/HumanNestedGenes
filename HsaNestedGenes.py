@@ -2092,4 +2092,25 @@ def ParseGOFile(GOFile):
     infile.close()
     return Annotations             
     
- 
+
+# use this function to map Ensembl gene ID to GO annotations
+def MapEnsemblGenesToGOTerms(Annotations, GeneNames):
+    '''
+    (dict, dict) -> dict
+    Take the dictionary of gene_names:GO_terms pairs, the dictionary of
+    gene_IDs:_gene_names pairs and return a dictionary of gene_IDs:GO_terms
+    '''
+    
+    # create a dictionary to map ensembl IDs to GO terms {gene: {GO1, GO2...}}
+    GeneOntology = {}
+    # reverse  the diction of gene name {name: ID}    
+    Names = {}
+    for gene in GeneNames:
+        Names[GeneNames[gene]] = gene
+    # loop over gene names with GO annotations
+    for name in Annotations:
+        # map name to gene
+        gene = Names[name]
+        # get assign the GO terms to gene
+        GeneOntology[gene] = Annotations[name]
+    return GeneOntology
