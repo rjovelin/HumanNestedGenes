@@ -2066,3 +2066,30 @@ def SaveOverlappingPairsToFile(OverlappingPairs, JsonFileName):
     newfile = open(JsonFileName + '.json', 'w')
     json.dump(OverlappingGenes, newfile, sort_keys = True, indent = 4)
     newfile.close()
+    
+    
+# use this file to parse the GO annotation file
+def ParseGOFile(GOFile):
+    '''
+    (file) -> dict
+    Take the file with GO annotations and return a dictionary of gene name: set of GO IDs
+    '''
+    # create a dictionary to map gene names to GO terms
+    Annotations = {}
+    infile = open(GOFile)
+    for line in infile:
+        if not line.startswith('!'):
+            if 'GO:' in line:
+                assert line.count('GO:') ==1
+                line = line.rstrip().split('\t')
+                # get gene and GO term ID
+                gene, GOid = line[1], line[3]
+                assert 'GO:' in line[3]
+                # check if gene is already recorded
+                if gene not in Annotations:
+                    Annotations[gene] = set()
+                Annotations[gene].add(GOid)
+    infile.close()
+    return Annotations             
+    
+ 
