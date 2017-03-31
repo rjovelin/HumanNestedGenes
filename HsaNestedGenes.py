@@ -755,7 +755,11 @@ def MatchOrthologs(OrthoFile):
         if 'ortholog' in line:
             line = line.rstrip().split('\t')
             # get gene IDs of the 2 species
-            gene1, gene2 = line[0], line[2]
+            # note that format of ortho file with Platypus isdifferent           
+            if 'Platypus'in OrthoFile:
+                gene1, gene2 = line[0], line[3]
+            else:
+                gene1, gene2 = line[0], line[2]
             # check that genes are ensembl gene IDs
             for i in [gene1, gene2]:
                 assert 'ENS' in i, 'gene id is not valid'
