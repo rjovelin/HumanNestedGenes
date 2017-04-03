@@ -2095,7 +2095,22 @@ def ParseGOFile(GOFile):
                     Annotations[gene].add(GO)
     infile.close()
     return Annotations             
-    
+
+
+# use this function to generate a set of valid GO IDs
+def FilterGOTerms(GOClass):
+    '''
+    (file) -> set
+    Take a file of GO IDs corresponding to a specific GIO class (biological processes,
+    molecular function) and return a set of IDs for this class
+    '''
+    GOids = set()
+    infile = open(GOClass)
+    for line in infile:
+        if line.startswith('GO:'):
+            line = line.rstrip().split('\t')
+            GOids.add(line[0])
+    return GOids
 
 # use this function to map Ensembl gene ID to GO annotations
 def MapEnsemblGenesToGOTerms(Annotations, GeneNames):
@@ -2129,7 +2144,7 @@ def JaccardIndex(A, B):
     between the 2 sets
     '''
     # by default Jaccard index  = 1 when both sets are empty
-    if len(A) == 0 and len(B) == B:
+    if len(A) == 0 and len(B) == 0:
         return 1
     else:
         return len(A.intersection(B)) / len(A.union(B))    
