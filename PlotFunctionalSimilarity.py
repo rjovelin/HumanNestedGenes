@@ -96,7 +96,8 @@ if GOClass != 'all':
 
 # create a list of lists with functional similarities between genes of the same pair
 FunctionalSimilarity = []
-for i in range(len(OverlappingPairs)):
+# include only the 4 overlapping types
+for i in range(1, len(OverlappingPairs)):
     # compute jaccard similarity index between each pair
     GOOverlap = []
     for pair in OverlappingPairs[i]:
@@ -124,21 +125,10 @@ while replicates != 0:
 # insert pairs of JI in list
 FunctionalSimilarity.insert(0, ControlPairs)
 
-DataSets = ['Control', 'Overlapping', 'Nested', 'PiggyBack', 'Convergent', 'Divergent']
+DataSets = ['Control', 'Nested', 'PiggyBack', 'Convergent', 'Divergent']
 
 for i in range(1, len(FunctionalSimilarity)):
     P = PermutationResampling(FunctionalSimilarity[0], FunctionalSimilarity[i], 1000, statistic = np.mean)
     print(DataSets[0], DataSets[i], len(FunctionalSimilarity[0]), len(FunctionalSimilarity[i]), np.mean(FunctionalSimilarity[0]), np.mean(FunctionalSimilarity[i]), P)
-
-
-
-
-
-
-
-
-
-
-
 
 
