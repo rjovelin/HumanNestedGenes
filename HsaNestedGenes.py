@@ -2086,7 +2086,7 @@ def ParseGOFile(GOFile):
             if 'GO:' in line:
                 line = line.rstrip().split('\t')
                 # get gene and GO term ID
-                gene  = line[1]
+                gene  = line[2]
                 GOid = [item for item in line if item.startswith('GO:')]
                 # check if gene is already recorded
                 if gene not in Annotations:
