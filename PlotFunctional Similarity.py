@@ -85,11 +85,29 @@ for i in range(len(OverlappingPairs)):
     # compute jaccard similarity index between each pair
     GOOverlap = []
     for pair in OverlappingPairs[i]:
-        JI = JaccardIndex(pair[0], pair[1])
+        JI = JaccardIndex(GeneOntology[pair[0]], GeneOntology[pair[1]])
         GOOverlap.append(JI)
     FunctionalSimilarity.append(GOOverlap)
         
         
+# generate random pairs of non-overlapping genes as a control
+# convert set of non-overlapping genes to list
+NonOverlappingGenes = list(NonOverlappingGenes)
+ControlPairs = []
+# draw 10000 random pairs
+for i in range(10000):
+    # pick 2 random genes
+    j = random.randint(0, len(NonOverlappingGenes) -1)
+    k = random.randint(0, len(NonOverlappingGenes) -1)
+    gene1, gene2 = NonOverlappingGenes[j], NonOverlappingGenes[k]
+    JI = JaccardIndex(GeneOntology[gene1], GeneOntology[gene2])
+    ControlPairs.append(JI)
+
+# insert pairs of JI in list
+FunctionalSimilarity.insert(0, ControlPairs)
+
+for i in range(len(FunctionalSimilarity)):
+    print(np.mean(FunctionalSimilarity[i]))
 
 
 
@@ -103,50 +121,6 @@ for i in range(len(OverlappingPairs)):
 
 
 
-
-
-
-
-
-
-
-
-
-
-#######################################
-
-
-
-
-
-# make sets of host and nested nested genes
-NestedSets = []
-for i in range(1, len(AllOverlap), 2):
-    nestedset = MakeFullPartialOverlapGeneSet(AllOverlap[i])
-    NestedSets.append(nestedset)
-
-# make sets of overlapping genes
-OverlapSets = []
-for i in range(0, len(AllOverlap), 2):
-    overlap = MakeFullPartialOverlapGeneSet(AllOverlap[i])
-    OverlapSets.append(overlap)
-
-
-
-
-
-
-
-if Analysis == 'pairs':
-    # compare expression divergence between human host and nested genes and their un-nested orthologs in sister-species   
-    # remove human pairs if orthologs are nested in sister-species
-    to_remove = [pair for pair in HumanYoung if OrthoPairs[pair[0]] in NestedSets[1] or OrthoPairs[pair[1]] in NestedSets[1]]
-    for pair in to_remove:
-        HumanYoung.remove(pair)
-    # remove sister species pairs if orthologs are nested in human
-    to_remove = [pair for pair in SisterSpYoung if SisterOrthos[pair[0]] in NestedSets[0] or SisterOrthos[pair[1]] in NestedSets[0]]
-    for pair in to_remove:
-        SisterSpYoung.remove(pair)
 
 
 
