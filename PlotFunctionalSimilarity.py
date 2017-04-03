@@ -35,7 +35,7 @@ from HsaNestedGenes import *
 
 # load dictionaries of overlapping genes
 JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',
-             'HumanPiggybackGenes.json', 'HumanConvergentGenes.json',
+             'HumanPiggyBackGenes.json', 'HumanConvergentGenes.json',
              'HumanDivergentGenes.json']
 # get GFF file
 GFF = 'Homo_sapiens.GRCh38.88.gff3'
