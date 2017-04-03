@@ -2084,15 +2084,15 @@ def ParseGOFile(GOFile):
     for line in infile:
         if not line.startswith('!'):
             if 'GO:' in line:
-                assert line.count('GO:') ==1
                 line = line.rstrip().split('\t')
                 # get gene and GO term ID
-                gene, GOid = line[1], line[3]
-                assert 'GO:' in line[3]
+                gene  = line[1]
+                GOid = [item for item in line if item.startswith('GO:')]
                 # check if gene is already recorded
                 if gene not in Annotations:
                     Annotations[gene] = set()
-                Annotations[gene].add(GOid)
+                for GO in GOid:
+                    Annotations[gene].add(GO)
     infile.close()
     return Annotations             
     
@@ -2114,9 +2114,10 @@ def MapEnsemblGenesToGOTerms(Annotations, GeneNames):
     # loop over gene names with GO annotations
     for name in Annotations:
         # map name to gene
-        gene = Names[name]
-        # get assign the GO terms to gene
-        GeneOntology[gene] = Annotations[name]
+        if name in Names:
+            gene = Names[name]
+            # get assign the GO terms to gene
+            GeneOntology[gene] = Annotations[name]
     return GeneOntology
 
     
