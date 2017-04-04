@@ -1581,7 +1581,7 @@ def InferYoungOldNestingEvents(NestedGenes, SpeciesNestedPairs, OrthologPairs):
 
     # create lists of young and old nested gene pairs in the focal species
     Young, Old = [], []
-
+    
     # loop over gene pairs in species of interest
     for pair in NestedGenes:
         # record indices (species) in which orthologs of both genes are present
