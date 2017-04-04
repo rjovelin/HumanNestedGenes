@@ -123,10 +123,6 @@ OldNested, YoungNested = InferYoungOldNestingEvents(HumanNestedPairs, SpeciesNes
 print(len(OldNested), len(YoungNested))
 
 
- 
-
-
-
 
 
 ############################################################
