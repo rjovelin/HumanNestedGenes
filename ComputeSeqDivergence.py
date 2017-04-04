@@ -38,27 +38,32 @@ files = os.listdir(SourceFolder)
 for filename in files:
     # check that file is the t-coffee DNA alignment file
     if filename[-8:] == '_aln.tfa':
-        # convert sequences to dictionnary
-        alignment = ConvertFasta(SourceFolder + filename)
-        # get the name of the file without '_aln.tfa'
-        name = filename[:-8]
-        # make a list with gene names as they appear in the file
-        seq_names = []
+        # check that file has approporaite format
         infile = open(SourceFolder + filename)
-        for line in infile:
-            if line.startswith('>'):
-                seq_names.append(line.rstrip()[1:])
+        content = infile.read()
         infile.close()
-        # open newfile for writing
-        newfile = open(DestinationFolder + name + '.txt', 'w')
-        # add the number of sequences and the length of the alignment in the first line
-        newfile.write(str(len(alignment)) + ' ' + str(len(alignment[seq_names[0]])) + '\n')
-        # add orthologous sequences in fasta format
-        newfile.write('>' + seq_names[0] + '\n')
-        newfile.write(alignment[seq_names[0]] + '\n')
-        newfile.write('>' + seq_names[1] + '\n')
-        newfile.write(alignment[seq_names[1]] + '\n')
-        newfile.close()
+        if content.count('>') == 2:
+            # convert sequences to dictionnary
+            alignment = ConvertFasta(SourceFolder + filename)
+            # get the name of the file without '_aln.tfa'
+            name = filename[:-8]
+            # make a list with gene names as they appear in the file
+            seq_names = []
+            infile = open(SourceFolder + filename)
+            for line in infile:
+                if line.startswith('>'):
+                    seq_names.append(line.rstrip()[1:])
+            infile.close()
+            # open newfile for writing
+            newfile = open(DestinationFolder + name + '.txt', 'w')
+            # add the number of sequences and the length of the alignment in the first line
+            newfile.write(str(len(alignment)) + ' ' + str(len(alignment[seq_names[0]])) + '\n')
+            # add orthologous sequences in fasta format
+            newfile.write('>' + seq_names[0] + '\n')
+            newfile.write(alignment[seq_names[0]] + '\n')
+            newfile.write('>' + seq_names[1] + '\n')
+            newfile.write(alignment[seq_names[1]] + '\n')
+            newfile.close()
 print('done convertir alignments to PAML format')
 
 # generate codeml control files
