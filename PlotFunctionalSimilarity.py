@@ -94,15 +94,11 @@ if GOClass != 'all':
     for gene in GeneOntology:
          GeneOntology[gene] = set(filter(lambda x: x in GOSubSet, GeneOntology[gene]))
 
-
-zeros = 0
-for gene in GeneOntology:
-    if GeneOntology[gene] == 0:
-        zeros += 1
-print(zeros)
-
-
-
+# remove genes if gene has no GO term
+to_remove = [gene for gene in GeneOntology if GeneOntology[gene] == 0]
+if len(to_remove) != 0:
+    for gene in to_remove:
+        del GeneOntology[gene]
 
 # create a list of lists with functional similarities between genes of the same pair
 FunctionalSimilarity = []
@@ -142,3 +138,55 @@ for i in range(1, len(FunctionalSimilarity)):
     print(DataSets[0], DataSets[i], len(FunctionalSimilarity[0]), len(FunctionalSimilarity[i]), np.mean(FunctionalSimilarity[0]), np.mean(FunctionalSimilarity[i]), P)
 
 
+###############################
+
+    
+
+# make sets of host and nested nested genes
+OverlapSets = MakeFullPartialOverlapGeneSet(Overlap[0])
+HumanExpression = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
+# remove genes without expression
+HumanExpression = RemoveGenesLackingExpression(HumanExpression)
+# get relative expression
+HumanExpression = TransformRelativeExpression(HumanExpression)
+# compute expression specificity
+HumanSpecificity = ExpressionSpecificity(HumanExpression)
+# generate a dict to draw genes in human    
+HumanRandomGenes = GenerateAllUnNestedGenes(OverlapSets, OrderedGenes, HumanExpression)
+    
+    
+NestedPairs = copy.deepcopy(OverlappingPairs[1])
+# remove human pairs if genes are not expressed
+to_remove = [pair for pair in NestedPairs if pair[0] not in HumanExpression or pair[1] not in HumanExpression]
+for pair in to_remove:
+    NestedPairs.remove(pair)
+print('expressed nested', len(NestedPairs), len(OverlappingPairs[1]))
+  
+
+
+
+  
+# make a list of control un-nested pairs in sister species
+HumanControlPairs = []    
+for pair in NestedPairs:
+    # make a list of matching gene pairs (orientation, chromosome, distance)
+    PairPool = GenerateMatchingPoolPairs(pair, HumanRandomGenes, GeneCoord, 2000)
+    # draw a matching gene pair at random
+    i = random.randint(0, len(PairPool) -1)
+    assert PairPool[i][0] not in OverlapSets and PairPool[i][1] not in OverlapSets
+    HumanControlPairs.append(PairPool[i])
+
+
+NestedJI = []
+for pair in NestedPairs:
+    if pair[0] in GeneOntology and pair[1] in GeneOntology:
+        JI = JaccardIndex(GeneOntology[pair[0]], GeneOntology[pair[1]])
+        NestedJI.append(JI)
+ControlJI = []
+for pair in HumanControlPairs:
+    if pair[0] in GeneOntology and pair[1] in GeneOntology:
+        JI = JaccardIndex(GeneOntology[pair[0]], GeneOntology[pair[1]])
+        ControlJI.append(JI)    
+
+P = PermutationResampling(NestedJI, ControlJI, 1000, statistic = np.mean)
+print(len(NestedJI), len(ControlJI), np.mean(NestedJI), np.mean(ControlJI), P)
