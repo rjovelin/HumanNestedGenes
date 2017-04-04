@@ -94,6 +94,16 @@ if GOClass != 'all':
     for gene in GeneOntology:
          GeneOntology[gene] = set(filter(lambda x: x in GOSubSet, GeneOntology[gene]))
 
+
+zeros = 0
+for gene in GeneOntology:
+    if GeneOntology[gene] == 0:
+        zeros += 1
+print(zeros)
+
+
+
+
 # create a list of lists with functional similarities between genes of the same pair
 FunctionalSimilarity = []
 # include only the 4 overlapping types
