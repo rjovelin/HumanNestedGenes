@@ -112,10 +112,10 @@ for i in range(1, len(OverlappingPairs)):
             GOOverlap.append(JI)
     FunctionalSimilarity.append(GOOverlap)
  
-# generate random pairs of non-overlapping genes as a control
+# generate random pairs of non-overlapping genes as a baseline random JI
 # make a list of non-overlapping genes convert set of non-overlapping genes to list
 NonOverlappingGenes = list(NonOverlappingGenes)
-ControlPairs = []
+BaseLine = []
 # draw 10000 random pairs
 replicates = 10000
 while replicates != 0:
@@ -125,11 +125,11 @@ while replicates != 0:
     gene1, gene2 = NonOverlappingGenes[j], NonOverlappingGenes[k]
     if gene1 in GeneOntology and gene2 in GeneOntology:
         JI = JaccardIndex(GeneOntology[gene1], GeneOntology[gene2])
-        ControlPairs.append(JI)
+        BaseLine.append(JI)
         replicates -= 1
   
 # insert pairs of JI in list
-FunctionalSimilarity.insert(0, ControlPairs)
+FunctionalSimilarity.insert(0, BaseLine)
 
 DataSets = ['Control', 'Nested', 'PiggyBack', 'Convergent', 'Divergent']
 
@@ -138,21 +138,67 @@ for i in range(1, len(FunctionalSimilarity)):
     print(DataSets[0], DataSets[i], len(FunctionalSimilarity[0]), len(FunctionalSimilarity[i]), np.mean(FunctionalSimilarity[0]), np.mean(FunctionalSimilarity[i]), P)
 
 
+
+######### continue here
+
+
+### use baseline as a random control for all overlapping
+### draw a line on figure
+### use matching pairs as control
+### match by chromosome, orientation and distance
+
+
+
+
+
+
 ###############################
 
     
 
 # make sets of host and nested nested genes
 OverlapSets = MakeFullPartialOverlapGeneSet(Overlap[0])
-HumanExpression = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
+Expression = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
 # remove genes without expression
-HumanExpression = RemoveGenesLackingExpression(HumanExpression)
+Expression = RemoveGenesLackingExpression(Expression)
 # get relative expression
-HumanExpression = TransformRelativeExpression(HumanExpression)
+Expression = TransformRelativeExpression(Expression)
 # compute expression specificity
-HumanSpecificity = ExpressionSpecificity(HumanExpression)
-# generate a dict to draw genes in human    
-HumanRandomGenes = GenerateAllUnNestedGenes(OverlapSets, OrderedGenes, HumanExpression)
+Specificity = ExpressionSpecificity(Expression)
+
+# generate a dict to draw genes {chromo: {num: gene}}    
+ToDrawGenesFrom = {}
+# loop over chromosomes
+for chromo in OrderedGenes:
+    # set up counter
+    k = 0
+    # add chromo as key and intialize inner dict
+    ToDrawGenesFrom[chromo] = {}
+    # loop over the list of ordered genes
+    for i in range(len(OrderedGenes[chromo])):
+        # check that gene does not overlap with any other gene
+        if OrderedGenes[chromo][i] not in OverlapSets:
+            # add gene pair and update counter
+            ToDrawGenesFrom[chromo][k] = OrderedGenes[chromo][i]
+            k += 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     
 NestedPairs = copy.deepcopy(OverlappingPairs[1])
