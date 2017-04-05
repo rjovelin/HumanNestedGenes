@@ -181,9 +181,77 @@ for i in range(len(FunctionalSimilarity)):
     print(OverlapTypes[i], len(SimilarityControls[i]), len(FunctionalSimilarity[i]), np.mean(SimilarityControls[i]), np.mean(FunctionalSimilarity[i]), P)
     PVals.append(P)
     
-    
-    
-    
-    
-    
-########################
+# create lists with means JI and SEM for each gene category and its control [[control_nested], [nested]...]
+MeanExpDiv, SEMExpDiv = [], []
+for i in range(len(FunctionalSimilarity)):
+    MeanExpDiv.append(np.mean(SimilarityControls[i]))
+    MeanExpDiv.append(np.mean(FunctionalSimilarity[i]))
+    SEMExpDiv.append(np.std(SimilarityControls[i]) / math.sqrt(len(SimilarityControls[i])))
+    SEMExpDiv.append(np.std(FunctionalSimilarity[i]) / math.sqrt(len(FunctionalSimilarity[i])))
+
+
+# create figure
+fig = plt.figure(1, figsize = (3, 2))
+# add a plot to figure (N row, N column, plot N)
+ax = fig.add_subplot(1, 1, 1)
+# set colors
+colorscheme = ['black','lightgrey'] * 4
+# plot functional similarity
+xpos = [0.05, 0.25, 0.65, 0.85, 1.25, 1.45, 1.65, 1.85]
+# plot nucleotide divergence
+ax.bar(xpos, MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
+       edgecolor = 'black', linewidth = 0.5, error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
+# set font for all text in figure
+FigFont = {'fontname':'Arial'}   
+# write y axis label
+ax.set_ylabel('Functional similarity', color = 'black',  size = 7, ha = 'center', **FigFont)
+# add ticks and lebels
+plt.xticks([0.25, 0.85, 1.45, 1.85], OverlapTypes, size = 7, color = 'black', ha = 'center', **FigFont)
+
+# add a range for the Y and X axes
+plt.ylim([0, 1])
+#plt.xlim([0, 2.45])
+
+# do not show lines around figure  
+ax.spines["top"].set_visible(False)    
+ax.spines["bottom"].set_visible(True)    
+ax.spines["right"].set_visible(False)
+ax.spines["left"].set_visible(True)  
+# edit tick parameters    
+plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                right = 'off', left = 'on', labelbottom='on',
+                colors = 'black', labelsize = 7, direction = 'out')  
+# Set the tick labels font name
+for label in ax.get_yticklabels():
+    label.set_fontname('Arial')   
+
+# plot the baseline
+plt.plot((0, 2.05), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = '--')
+      
+# convert p-values to star significance level
+Significance = []
+for pvalue in PVals:
+    if pvalue >= 0.05:
+        Significance.append('')
+    elif pvalue < 0.05 and pvalue >= 0.01:
+        Significance.append('*')
+    elif pvalue < 0.01 and pvalue >= 0.001:
+        Significance.append('**')
+    elif pvalue < 0.001:
+        Significance.append('***')
+
+# make a list of x, y axis positions for brackets
+XLinePos = list(map(lambda x: x + 0.1, xpos))
+YLinePos = [0.12, 0.50, 0.12, 0.12]
+# make a list of x, y axis positions for stars
+XStarPos = [0.25, 0.85, 1.45, 1.85]
+YStarPos = [0.14, 0.52, 0.14, 0.14]
+j = 0
+# annotate graph with significance
+for i in range(len(Significance)):
+    if Significance[i] != '':
+        AddSignificanceToBars(ax, Significance, XLinePos[j], XLinePos[j+1], YLinePos[i], XStarPos[i], YStarPos[i])        
+    j += 2        
+        
+# save figure
+fig.savefig('test.pdf', bbox_inches = 'tight')
