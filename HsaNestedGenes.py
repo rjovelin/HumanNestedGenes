@@ -2149,4 +2149,17 @@ def JaccardIndex(A, B):
     else:
         return len(A.intersection(B)) / len(A.union(B))    
     
-    
+
+# use this function to add significance of pairwise comparisons to a graph
+def AddSignificanceToBars(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
+    '''
+    (ax, str, num, num, num, num, num) -> ax
+    Take a matplotlib ax object, the significance level (as stars), the positions
+    of the bracket and star and return the ax with annotated significance level
+    '''
+    ax.annotate("", xy=(XLine1, YLine), xycoords='data', xytext=(XLine2, YLine), textcoords='data',
+                 arrowprops=dict(arrowstyle="-", ec='#aaaaaa', connectionstyle="bar,fraction=0.2", linewidth = 0.7))
+    # add stars for significance
+    ax.text(XText, YText, SignificanceLevel, horizontalalignment='center', verticalalignment='center',
+            color = 'grey', fontname = 'Arial', size = 7)
+    return ax   
