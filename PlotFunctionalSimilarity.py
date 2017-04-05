@@ -29,12 +29,9 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
-
 #get option from command
 GOClass = sys.argv[1]
 assert GOClass in ['all', 'molfunc', 'celcomp', 'biolproc']
-
-
 
 # load dictionaries of overlapping genes
 JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',
@@ -76,12 +73,10 @@ NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
 
 # map gene names with gene ID {gene ID: name}
 Names = MapNametoID(GFF)
-
 # parse file with GO annotations 
 GOAnnotations = ParseGOFile('goa_human.gaf')
 # map gene IDs to GO annotations            
 GeneOntology = MapEnsemblGenesToGOTerms(GOAnnotations, Names)
-
 # check option to see GO ids are filtered or not
 if GOClass == 'molfunc':
     GOSubSet = FilterGOTerms('GOMolecularFunction.txt')
@@ -93,7 +88,6 @@ elif GOClass == 'biolproc':
 if GOClass != 'all':
     for gene in GeneOntology:
          GeneOntology[gene] = set(filter(lambda x: x in GOSubSet, GeneOntology[gene]))
-
 # remove genes if gene has no GO term
 to_remove = [gene for gene in GeneOntology if GeneOntology[gene] == 0]
 if len(to_remove) != 0:
@@ -127,44 +121,14 @@ while replicates != 0:
         JI = JaccardIndex(GeneOntology[gene1], GeneOntology[gene2])
         BaseLine.append(JI)
         replicates -= 1
-  
-# insert pairs of JI in list
-FunctionalSimilarity.insert(0, BaseLine)
 
-DataSets = ['Control', 'Nested', 'PiggyBack', 'Convergent', 'Divergent']
+OverlapTypes = ['Nested', 'PiggyBack', 'Convergent', 'Divergent']
+for i in range(len(FunctionalSimilarity)):
+    P = PermutationResampling(BaseLine, FunctionalSimilarity[i], 1000, statistic = np.mean)
+    print('Baseline', OverlapTypes[i], len(BaseLine), len(FunctionalSimilarity[i]), np.mean(BaseLine), np.mean(FunctionalSimilarity[i]), P)
 
-for i in range(1, len(FunctionalSimilarity)):
-    P = PermutationResampling(FunctionalSimilarity[0], FunctionalSimilarity[i], 1000, statistic = np.mean)
-    print(DataSets[0], DataSets[i], len(FunctionalSimilarity[0]), len(FunctionalSimilarity[i]), np.mean(FunctionalSimilarity[0]), np.mean(FunctionalSimilarity[i]), P)
-
-
-
-######### continue here
-
-
-### use baseline as a random control for all overlapping
-### draw a line on figure
-### use matching pairs as control
-### match by chromosome, orientation and distance
-
-
-
-
-
-
-###############################
-
-    
-
-# make sets of host and nested nested genes
-OverlapSets = MakeFullPartialOverlapGeneSet(Overlap[0])
-Expression = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
-# remove genes without expression
-Expression = RemoveGenesLackingExpression(Expression)
-# get relative expression
-Expression = TransformRelativeExpression(Expression)
-# compute expression specificity
-Specificity = ExpressionSpecificity(Expression)
+# make a set of overlapping genes
+Overlapping = MakeFullPartialOverlapGeneSet(Overlap[0])
 
 # generate a dict to draw genes {chromo: {num: gene}}    
 ToDrawGenesFrom = {}
@@ -177,62 +141,49 @@ for chromo in OrderedGenes:
     # loop over the list of ordered genes
     for i in range(len(OrderedGenes[chromo])):
         # check that gene does not overlap with any other gene
-        if OrderedGenes[chromo][i] not in OverlapSets:
+        if OrderedGenes[chromo][i] not in Overlapping and OrderedGenes[chromo][i] in GeneOntology:
             # add gene pair and update counter
             ToDrawGenesFrom[chromo][k] = OrderedGenes[chromo][i]
             k += 1
 
+# generate matching control pairs for each type of overllaping class
+MatchingControl = []
+# loop over list of overlapping pairs
+for i in range(1, len(OverlappingPairs)):
+    control  = []
+    for pair in OverlappingPairs[i]:
+        # make a list of matching gene pairs (orientation, chromosome, distance)
+        PairPool = GenerateMatchingPoolPairs(pair, ToDrawGenesFrom, GeneCoord, 2000)
+        if len(PairPool) != 0:
+            # draw a matching gene pair at random
+            j = random.randint(0, len(PairPool) -1)
+            assert PairPool[j][0] not in Overlapping and PairPool[j][1] not in Overlapping
+            assert PairPool[j][0] in NonOverlappingGenes and PairPool[j][1] in NonOverlappingGenes
+            control.append(PairPool[j])
+    MatchingControl.append(control)
+# do some QC
+for item in MatchingControl:
+    assert len(item) != 0
 
+# compute the jaccard similarity index for each pair of each controls
+SimilarityControls = []
+for i in range(len(MatchingControl)):
+    controlJI = []
+    for pair in MatchingControl[i]:
+        JI = JaccardIndex(GeneOntology[pair[0]], GeneOntology[pair[1]])
+        controlJI.append(JI)
+    SimilarityControls.append(controlJI)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# make a list of P values of permutation test between each control and each ovverlapping type
+PVals = []
+for i in range(len(FunctionalSimilarity)):
+    P = PermutationResampling(SimilarityControls[i], FunctionalSimilarity[i], 1000, statistic = np.mean)
+    print(OverlapTypes[i], len(SimilarityControls[i]), len(FunctionalSimilarity[i]), np.mean(SimilarityControls[i]), np.mean(FunctionalSimilarity[i]), P)
+    PVals.append(P)
     
     
-NestedPairs = copy.deepcopy(OverlappingPairs[1])
-# remove human pairs if genes are not expressed
-to_remove = [pair for pair in NestedPairs if pair[0] not in HumanExpression or pair[1] not in HumanExpression]
-for pair in to_remove:
-    NestedPairs.remove(pair)
-print('expressed nested', len(NestedPairs), len(OverlappingPairs[1]))
-  
-
-
-
-  
-# make a list of control un-nested pairs in sister species
-HumanControlPairs = []    
-for pair in NestedPairs:
-    # make a list of matching gene pairs (orientation, chromosome, distance)
-    PairPool = GenerateMatchingPoolPairs(pair, HumanRandomGenes, GeneCoord, 2000)
-    # draw a matching gene pair at random
-    i = random.randint(0, len(PairPool) -1)
-    assert PairPool[i][0] not in OverlapSets and PairPool[i][1] not in OverlapSets
-    HumanControlPairs.append(PairPool[i])
-
-
-NestedJI = []
-for pair in NestedPairs:
-    if pair[0] in GeneOntology and pair[1] in GeneOntology:
-        JI = JaccardIndex(GeneOntology[pair[0]], GeneOntology[pair[1]])
-        NestedJI.append(JI)
-ControlJI = []
-for pair in HumanControlPairs:
-    if pair[0] in GeneOntology and pair[1] in GeneOntology:
-        JI = JaccardIndex(GeneOntology[pair[0]], GeneOntology[pair[1]])
-        ControlJI.append(JI)    
-
-P = PermutationResampling(NestedJI, ControlJI, 1000, statistic = np.mean)
-print(len(NestedJI), len(ControlJI), np.mean(NestedJI), np.mean(ControlJI), P)
+    
+    
+    
+    
+########################
