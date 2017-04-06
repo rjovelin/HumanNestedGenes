@@ -250,7 +250,7 @@ j = 0
 # annotate graph with significance
 for i in range(len(Significance)):
     if Significance[i] != '':
-        AddSignificanceToBars(ax, Significance, XLinePos[j], XLinePos[j+1], YLinePos[i], XStarPos[i], YStarPos[i])        
+        AddSignificanceToBars(ax, Significance[i], XLinePos[j], XLinePos[j+1], YLinePos[i], XStarPos[i], YStarPos[i])        
     j += 2        
         
 # save figure
