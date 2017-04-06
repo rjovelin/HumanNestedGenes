@@ -94,6 +94,12 @@ if len(to_remove) != 0:
     for gene in to_remove:
         del GeneOntology[gene]
 
+# remove pairs if genes do not have GO terms
+for i in range(len(OverlappingPairs)):
+    to_remove = [pair for pair in OverlappingPairs[i] if pair[0] not in GeneOntology or pair[1] not in GeneOntology]
+    for pair in to_remove:
+        OverlappingPairs[i].remove(pair)
+    
 # create a list of lists with functional similarities between genes of the same pair
 FunctionalSimilarity = []
 # include only the 4 overlapping types
