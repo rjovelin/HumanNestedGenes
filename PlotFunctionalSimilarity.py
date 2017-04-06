@@ -226,7 +226,7 @@ for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
 
 # plot the baseline
-plt.plot((0, 2.05), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = '--')
+plt.plot((0, 2.05), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = '--', linewidth = 0.5)
       
 # convert p-values to star significance level
 Significance = []
