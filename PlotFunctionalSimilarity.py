@@ -197,7 +197,7 @@ ax = fig.add_subplot(1, 1, 1)
 # set colors
 colorscheme = ['black','lightgrey'] * 4
 # plot functional similarity
-xpos = [0.05, 0.25, 0.65, 0.85, 1.25, 1.45, 1.65, 1.85]
+xpos = [0.05, 0.25, 0.65, 0.85, 1.25, 1.45, 1.85, 2.05]
 # plot nucleotide divergence
 ax.bar(xpos, MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
        edgecolor = 'black', linewidth = 0.5, error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
@@ -206,7 +206,7 @@ FigFont = {'fontname':'Arial'}
 # write y axis label
 ax.set_ylabel('Functional similarity', color = 'black',  size = 7, ha = 'center', **FigFont)
 # add ticks and lebels
-plt.xticks([0.25, 0.85, 1.45, 1.85], OverlapTypes, size = 7, color = 'black', ha = 'center', **FigFont)
+plt.xticks([0.25, 0.85, 1.45, 2.05], OverlapTypes, size = 7, color = 'black', ha = 'center', **FigFont)
 
 # add a range for the Y and X axes
 plt.ylim([0, 1])
