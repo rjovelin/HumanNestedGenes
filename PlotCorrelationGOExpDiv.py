@@ -7,6 +7,10 @@ Created on Tue Apr  4 14:51:38 2017
 
 # use this script to plot the correlation between expression divergence between gene pairs and functional similarity
 
+# usage python3 PlotCorrelationGOExpDiv.py [options]
+# #- [all/molfunc/celcomp/biolproc]: use all GO terms, molecular function, cellular compartments or biological processes
+
+
 # import modules
 # use Agg backend on server without X server
 import matplotlib as mpl
@@ -201,10 +205,11 @@ def CreateAx(Columns, Rows, Position, figure, Data, Colors, Title):
 # create figure
 fig = plt.figure(1, figsize = (5, 4))
 
-ax1 = CreateAx(1, 4, 1, fig, FunctionalSimilarity[0], ExpressionDivergence[0], 'black', 'nested')
-ax2 = CreateAx(1, 4, 2, fig, FunctionalSimilarity[1], ExpressionDivergence[1], 'black', 'piggyback')
-ax3 = CreateAx(1, 4, 3, fig, FunctionalSimilarity[2], ExpressionDivergence[2], 'black', 'convergent')
-ax4 = CreateAx(1, 4, 4, fig, FunctionalSimilarity[3], ExpressionDivergence[3], 'black', 'divergent')
+ax1 = CreateAx(1, 5, 1, fig, BaseLine, 'black', 'random')
+ax2 = CreateAx(1, 5, 2, fig, [FunctionalSimilarity[0], ExpressionDivergence[0]], 'black', 'nested')
+ax3 = CreateAx(1, 5, 3, fig, [FunctionalSimilarity[1], ExpressionDivergence[1]], 'black', 'piggyback')
+ax4 = CreateAx(1, 5, 4, fig, [FunctionalSimilarity[2], ExpressionDivergence[2]], 'black', 'convergent')
+ax5 = CreateAx(1, 5, 5, fig, [FunctionalSimilarity[3], ExpressionDivergence[3]], 'black', 'divergent')
 
 # make sure subplots do not overlap
 plt.tight_layout()
