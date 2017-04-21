@@ -125,29 +125,29 @@ for i in range(len(AllPairs)):
                 nucldiv.append(SeqDiv[pair[0]][pair[1]])
     Divergence.append(nucldiv)
     
- # create lists with means and SEM for dN/dS for each gene category
+ # create lists with means and SEM for divergence for each gene category
 MeanDiverg, SEMDiverg = [], []
 for i in range(len(Divergence)):
     MeanDiverg.append(np.mean(Divergence[i]))
     SEMDiverg.append(np.std(Divergence[i]) / math.sqrt(len(Divergence[i])))
 
-# perform statistical tests between gene categories using Kolmogorov-Smirnof test
+# perform statistical tests between gene categories using permutation tests
 # create list to store the p-values
 PValDiverg = []
 for i in range(1, len(Divergence)):
     # compare each gene category to non-overlapping genes
-    val, P = stats.ks_2samp(Omega[0], Omega[i])
-    PValOmega.append(P)
+    P = PermutationResampling(Divergence[0], Divergence[i], 1000, statistic = np.mean)
+    PValDiverg.append(P)
 # replace P values with significance
-for i in range(len(PValOmega)):
-    if PValOmega[i] >= 0.05:
-        PValOmega[i] = ''
-    elif PValOmega[i] < 0.05 and PValOmega[i] >= 0.01:
-        PValOmega[i] = '*'
-    elif PValOmega[i] < 0.01 and PValOmega[i] >= 0.001:
-        PValOmega[i] = '**'
-    elif PValOmega[i] < 0.001:
-        PValOmega[i] = '***'
+for i in range(len(PValDiverg)):
+    if PValDiverg[i] >= 0.05:
+        PValDiverg[i] = ''
+    elif PValDiverg[i] < 0.05 and PValDiverg[i] >= 0.01:
+        PValDiverg[i] = '*'
+    elif PValDiverg[i] < 0.01 and PValDiverg[i] >= 0.001:
+        PValDiverg[i] = '**'
+    elif PValDiverg[i] < 0.001:
+        PValDiverg[i] = '***'
 
 # create a set of human genes that have homologs
 # include 1:1 and 1 to many or many to many orthologs
