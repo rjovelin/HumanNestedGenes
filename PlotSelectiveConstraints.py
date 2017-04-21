@@ -6,6 +6,9 @@ Created on Sat Jan 14 11:58:03 2017
 """
 
 # use this script to plot dN/dS and between orthologs and proportion of genes with homologs
+# usage python3 PlotSelectiveConstraints.py [options]
+# -[chimp/mouse]: compute divergence between human and mouse or chimp orthologs
+
 
 
 # import modules
@@ -28,29 +31,25 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
-# load dictionary of overlapping gene pairs
-json_data = open('HumanOverlappingGenes.json')
-Overlapping = json.load(json_data)
-json_data.close()
-# load dictionary of nested gene pairs
-json_data = open('HumanNestedGenes.json')
-Nested = json.load(json_data)
-json_data.close()
-# load dictionary of pibbyback gene pairs
-json_data = open('HumanPiggyBackGenes.json')
-Piggyback = json.load(json_data)
-json_data.close()
-# load dictionary of convergent gene pairs
-json_data = open('HumanConvergentGenes.json')
-Convergent = json.load(json_data)
-json_data.close()
-# load dictionary of divergent gene pairs
-json_data = open('HumanDivergentGenes.json')
-Divergent = json.load(json_data)
-json_data.close()
+Species = sys.argv[1]
+assert Species in ['chimp', 'mouse']
+
+# load dictionaries of overlapping genes
+JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',
+             'HumanPiggyBackGenes.json', 'HumanConvergentGenes.json',
+             'HumanDivergentGenes.json']
+# make a list of dictionaries
+Overlap = []
+# loop over files
+for i in range(len(JsonFiles)):
+    # load dictionary of overlapping gene pairs
+    json_data = open(JsonFiles[i])
+    overlapping = json.load(json_data)
+    json_data.close()
+    Overlap.append(overlapping)
 
 # get GFF file
-GFF = 'Homo_sapiens.GRCh38.86.gff3'
+GFF = 'Homo_sapiens.GRCh38.88.gff3'
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 GeneChromoCoord = ChromoGenesCoord(GFF)
@@ -62,30 +61,31 @@ GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneT
 GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
 
 # generate gene sets
-NestedGenes  = MakeFullPartialOverlapGeneSet(Nested)
-OverlappingGenes = MakeFullPartialOverlapGeneSet(Overlapping)
-ConvergentGenes = MakeFullPartialOverlapGeneSet(Convergent)
-DivergentGenes = MakeFullPartialOverlapGeneSet(Divergent)
-PiggyBackGenes = MakeFullPartialOverlapGeneSet(Piggyback)
-
+OverlappingGeneSets = []
+for i in range(len(Overlap)):
+    OverlappingGeneSets.append(MakeFullPartialOverlapGeneSet(Overlap[i]))
 # make a set of non-overlapping genes
-NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
+NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
 
 # create sets of internal and external nested gene pairs
-NestedPairs = GetHostNestedPairs(Nested)
+NestedPairs = GetHostNestedPairs(Overlap[1])
 InternalGenes, ExternalGenes = set(), set()
 for pair in NestedPairs:
     ExternalGenes.add(pair[0])
     InternalGenes.add(pair[1])
-    
-# get 1:1 orthologs between human and chimp
-Orthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
 
-# create lists of orthologous pairs for each gene category 
+# get orthologs
+if Species == 'chimp':
+    Orthos = MatchOrthologs('HumanChimpOrthologs.txt')
+elif Species == 'mouse':
+    Orthos = MatchOrthologs('HumanMouseOrthologs.txt')
+
+# create a list of gene categories
 GeneCats = ['NoOv', 'Nst', 'Int', 'Ext', 'Pbk', 'Conv', 'Div']
+# create lists of orthologous pairs for each gene category 
 AllPairs = []
-AllGenes = [NonOverlappingGenes, NestedGenes, InternalGenes, ExternalGenes,
-            PiggyBackGenes, ConvergentGenes, DivergentGenes] 
+AllGenes = [NonOverlappingGenes, OverlappingGeneSets[1], InternalGenes, ExternalGenes,
+            OverlappingGeneSets[2], OverlappingGeneSets[3], OverlappingGeneSets[4]] 
 # loop over gene sets
 for i in range(len(AllGenes)):
     # create a list of gene pairs
@@ -94,40 +94,47 @@ for i in range(len(AllGenes)):
     for gene in AllGenes[i]:
         # check that gene has ortholog
         if gene in Orthos:
-            orthologs.append([gene, Orthos[gene]])
+            for homolog in Orthos[gene]:
+                orthologs.append([gene, homolog])
     AllPairs.append(orthologs)
 
     
-# create a dict with divergence values
+# create a dict with divergence values {human_gene: {ortholog: divergence}}
 SeqDiv = {}
-infile = open('HumanChimpSeqDiverg.txt')
+if Species == 'chimp':
+    infile = open('HumanChimpSeqDiverg.txt')
+elif Species == 'mouse':
+    infile = open('HumanMouseSeqDiverg.txt')
 infile.readline()
 for line in infile:
     if line.startswith('ENSG'):
         line = line.rstrip().split('\t')
         if line[-1] != 'NA':
-            SeqDiv[line[0]] = float(line[-1])
+            if line[0] not in SeqDiv:
+                SeqDiv[line[0]] = {}
+            SeqDiv[line[0]][line[1]] = float(line[-1])
 infile.close()            
     
-# make list of dN/dS for each gene category
-Omega = []
+# make list of divergence for each gene category
+Divergence = []
 for i in range(len(AllPairs)):
-    ratio = [] 
+    nucldiv = []
     for pair in AllPairs[i]:
         if pair[0] in SeqDiv:
-            ratio.append(SeqDiv[pair[0]])
-    Omega.append(ratio)
+            if pair[1] in SeqDiv[pair[0]]:
+                nucldiv.append(SeqDiv[pair[0]][pair[1]])
+    Divergence.append(nucldiv)
     
  # create lists with means and SEM for dN/dS for each gene category
-MeanOmega, SEMOmega = [], []
-for i in range(len(Omega)):
-    MeanOmega.append(np.mean(Omega[i]))
-    SEMOmega.append(np.std(Omega[i]) / math.sqrt(len(Omega[i])))
+MeanDiverg, SEMDiverg = [], []
+for i in range(len(Divergence)):
+    MeanDiverg.append(np.mean(Divergence[i]))
+    SEMDiverg.append(np.std(Divergence[i]) / math.sqrt(len(Divergence[i])))
 
 # perform statistical tests between gene categories using Kolmogorov-Smirnof test
 # create list to store the p-values
-PValOmega = []
-for i in range(1, len(Omega)):
+PValDiverg = []
+for i in range(1, len(Divergence)):
     # compare each gene category to non-overlapping genes
     val, P = stats.ks_2samp(Omega[0], Omega[i])
     PValOmega.append(P)
