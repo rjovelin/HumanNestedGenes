@@ -154,9 +154,6 @@ for i in range(len(FunctionalSimilarity)):
     assert len(FunctionalSimilarity[i]) == len(ExpressionDivergence[i])
 
 
-##############################
-
-
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Data, Colors, Title):
     '''
