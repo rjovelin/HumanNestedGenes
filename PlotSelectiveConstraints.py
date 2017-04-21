@@ -259,7 +259,7 @@ ax2 = CreateAx(2, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', '
 # significant comparisons were already determined, add letters to show significance
 ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
 xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
-for i in range(len(PValOmega)):
+for i in range(len(PValDiverg)):
     ax1.text(xpos[i], ypos[i], PValDiverg[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 for i in range(len(PProp)):
     ax2.text(xpos[i], 1.02, PProp[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
