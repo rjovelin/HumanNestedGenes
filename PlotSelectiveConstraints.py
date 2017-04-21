@@ -149,10 +149,12 @@ for i in range(len(PValDiverg)):
     elif PValDiverg[i] < 0.001:
         PValDiverg[i] = '***'
 
-# create a set of human genes that have homologs
-# include 1:1 and 1 to many or many to many orthologs
+# create a set of human genes that have any homologs
 Homologs = set()
-infile = open('HumanChimpOrthologs.txt')
+if Species == 'chimp':
+    infile = open('HumanChimpOrthologs.txt')
+elif Species == 'mouse':
+    infile = open('HumanMouseOrthologs.txt')
 infile.readline()
 for line in infile:
     if 'ortholog' in line:
@@ -206,7 +208,6 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
     '''
     Returns a ax instance in figure
     '''    
-
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
     # check type of graphic    
@@ -230,7 +231,6 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
     plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], XLabel, rotation = 30, size = 7, color = 'black', ha = 'right', **FigFont)
     # add a range for the Y and X axes
     plt.ylim([0, YMax])    
-    
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
@@ -243,20 +243,16 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')   
-      
     # add margins
     plt.margins(0.1)
-    
     return ax
 
 
-
-# make a figure with mean dN/dS and with proportion of gene with homologs
-
+# make a figure with mean divergence and with proportion of gene with homologs
 # create figure
 fig = plt.figure(1, figsize = (4.5, 2))
 # plot data
-ax1 = CreateAx(2, 1, 1, fig, [MeanOmega, SEMOmega], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', 0.50)
+ax1 = CreateAx(2, 1, 1, fig, [MeanDiverg, SEMDiverg], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', 0.50)
 ax2 = CreateAx(2, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', 'proportion', 1)
 
 # annotate figure to add significance
@@ -264,9 +260,9 @@ ax2 = CreateAx(2, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', '
 ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
 xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
 for i in range(len(PValOmega)):
-    ax1.text(xpos[i], ypos[i], PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+    ax1.text(xpos[i], ypos[i], PValDiverg[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 for i in range(len(PProp)):
-    ax2.text(xpos[i], 1.02, PValOmega[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+    ax2.text(xpos[i], 1.02, PProp[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 
 # add legend
 NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
