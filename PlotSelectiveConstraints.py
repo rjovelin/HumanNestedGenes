@@ -252,13 +252,20 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
 # create figure
 fig = plt.figure(1, figsize = (4.5, 2))
 # plot data
-ax1 = CreateAx(2, 1, 1, fig, [MeanDiverg, SEMDiverg], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', 0.50)
+if Species == 'chimp':
+    YMax = 0.5
+elif Species == 'mouse':
+    YMax = 0.3
+ax1 = CreateAx(2, 1, 1, fig, [MeanDiverg, SEMDiverg], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', YMax)
 ax2 = CreateAx(2, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', 'proportion', 1)
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
-ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
 xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
+if Species == 'chimp':
+    ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
+elif Species == 'mouse':
+    ypos = [0.23, 0.25, 0.23, 0.23, 0.22, 0.22]
 for i in range(len(PValDiverg)):
     ax1.text(xpos[i], ypos[i], PValDiverg[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 for i in range(len(PProp)):
