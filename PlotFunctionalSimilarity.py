@@ -200,6 +200,10 @@ for i in range(len(FunctionalSimilarity)):
 fig = plt.figure(1, figsize = (3, 2))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
+
+# plot the baseline
+plt.plot((0, 2.05), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = '--', linewidth = 0.5)
+
 # set colors
 colorscheme = ['black','lightgrey'] * 4
 # plot functional similarity
@@ -231,8 +235,6 @@ plt.tick_params(axis='both', which='both', bottom='on', top='off',
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
 
-# plot the baseline
-plt.plot((0, 2.05), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = '--', linewidth = 0.5)
       
 # convert p-values to star significance level
 Significance = []
