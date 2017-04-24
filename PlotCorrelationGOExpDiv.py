@@ -127,7 +127,7 @@ while replicates != 0:
     expdiv = EuclidianDistance(Expression[gene1], Expression[gene2])
     BaseLine[0].append(JI)
     BaseLine[1].append(expdiv)    
-    
+    replicates -= 1
      
 # remove pairs if genes do not have GO terms
 for i in range(len(OverlappingPairs)):
