@@ -60,14 +60,18 @@ GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneT
 GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
 
 # generate gene sets
-NestedGenes  = MakeFullPartialOverlapGeneSet(Nested)
-OverlappingGenes = MakeFullPartialOverlapGeneSet(Overlapping)
-ConvergentGenes = MakeFullPartialOverlapGeneSet(Convergent)
-DivergentGenes = MakeFullPartialOverlapGeneSet(Divergent)
-PiggyBackGenes = MakeFullPartialOverlapGeneSet(Piggyback)
-
+OverlappingGeneSets = []
+for i in range(len(Overlap)):
+    OverlappingGeneSets.append(MakeFullPartialOverlapGeneSet(Overlap[i]))
 # make a set of non-overlapping genes
-NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
+NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
+
+
+
+############# continue here
+
+
+
 
 # create sets of internal and external nested gene pairs
 NestedPairs = GetHostNestedPairs(Nested)
@@ -81,23 +85,24 @@ for pair in NestedPairs:
 
 
 
+if Species == 'chimp':
+    # get expression profile of human genes
+    HumanExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
+    # remove genes wuthout expression
+    HumanExpression = RemoveGenesLackingExpression(HumanExpression)
+    # get relative expression
+    HumanExpression = TransformRelativeExpression(HumanExpression)
+    # get expression profile of chimp genes
+    ChimpExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'chimp')
+    # remove genes wuthout expression
+    ChimpExpression = RemoveGenesLackingExpression(ChimpExpression)
+    # get relative expression
+    ChimpExpression = TransformRelativeExpression(ChimpExpression)
 
 
 
 
-    
-# get expression profile of human genes
-HumanExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
-# remove genes wuthout expression
-HumanExpression = RemoveGenesLackingExpression(HumanExpression)
-# get relative expression
-HumanExpression = TransformRelativeExpression(HumanExpression)
-# get expression profile of chimp genes
-ChimpExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'chimp')
-# remove genes wuthout expression
-ChimpExpression = RemoveGenesLackingExpression(ChimpExpression)
-# get relative expression
-ChimpExpression = TransformRelativeExpression(ChimpExpression)
+
 
 # get 1:1 orthologs between human and chimp
 Orthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
@@ -215,5 +220,4 @@ for i in range(len(Significance)):
     ax.text(xpos[i], ypos[i], Significance[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
 # save figure
-fig.savefig('ExpressionDivergOrthos.pdf', bbox_inches = 'tight')
-fig.savefig('ExpressionDivergOrthos.eps', bbox_inches = 'tight')
+fig.savefig('truc.pdf', bbox_inches = 'tight')
