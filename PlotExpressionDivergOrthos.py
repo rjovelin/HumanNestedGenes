@@ -7,6 +7,9 @@ Created on Wed Jan 11 20:59:27 2017
 
 # use this script to plot expression divergence between orthologs 
 
+# usage python3 PlotExpressionDivergOrthos.py [options]
+# -[chimp/mouse]: use human-chimp or human-mouse comparisons
+
 # import modules
 # use Agg backend on server without X server
 import matplotlib as mpl
@@ -26,27 +29,23 @@ import numpy as np
 from scipy import stats
 from HsaNestedGenes import *
 
+Species = sys.argv[1]
+assert Species in ['chimp', 'mouse']
 
-# load dictionary of overlapping gene pairs
-json_data = open('HumanOverlappingGenes.json')
-Overlapping = json.load(json_data)
-json_data.close()
-# load dictionary of nested gene pairs
-json_data = open('HumanNestedGenes.json')
-Nested = json.load(json_data)
-json_data.close()
-# load dictionary of pibbyback gene pairs
-json_data = open('HumanPiggyBackGenes.json')
-Piggyback = json.load(json_data)
-json_data.close()
-# load dictionary of convergent gene pairs
-json_data = open('HumanConvergentGenes.json')
-Convergent = json.load(json_data)
-json_data.close()
-# load dictionary of divergent gene pairs
-json_data = open('HumanDivergentGenes.json')
-Divergent = json.load(json_data)
-json_data.close()
+
+# load dictionaries of overlapping genes
+JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',
+             'HumanPiggyBackGenes.json', 'HumanConvergentGenes.json',
+             'HumanDivergentGenes.json']
+# make a list of dictionaries
+Overlap = []
+# loop over files
+for i in range(len(JsonFiles)):
+    # load dictionary of overlapping gene pairs
+    json_data = open(JsonFiles[i])
+    overlapping = json.load(json_data)
+    json_data.close()
+    Overlap.append(overlapping)
 
 # get GFF file
 GFF = 'Homo_sapiens.GRCh38.86.gff3'
@@ -76,6 +75,16 @@ InternalGenes, ExternalGenes = set(), set()
 for pair in NestedPairs:
     ExternalGenes.add(pair[0])
     InternalGenes.add(pair[1])
+
+
+
+
+
+
+
+
+
+
     
 # get expression profile of human genes
 HumanExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
