@@ -136,7 +136,7 @@ for i in range(len(OverlappingPairs)):
         OverlappingPairs[i].remove(pair)
 # filter gene pairs lacking expression
 for i in range(len(OverlappingPairs)):
-    OverlappingPairs[i] = FilterGenePairsWithoutExpression(OverlappingPairs[i], ExpressionProfile)
+    OverlappingPairs[i] = FilterGenePairsWithoutExpression(OverlappingPairs[i], Expression)
 
 # create parallel lists of functional similarity and expression divergence for each type of overalapping gene
 FunctionalSimilarity, ExpressionDivergence = [], []
