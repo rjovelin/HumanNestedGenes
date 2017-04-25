@@ -48,7 +48,7 @@ for i in range(len(JsonFiles)):
     Overlap.append(overlapping)
 
 # get GFF file
-GFF = 'Homo_sapiens.GRCh38.86.gff3'
+GFF = 'Homo_sapiens.GRCh38.88.gff3'
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 GeneChromoCoord = ChromoGenesCoord(GFF)
@@ -66,84 +66,160 @@ for i in range(len(Overlap)):
 # make a set of non-overlapping genes
 NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
 
-
-
-############# continue here
-
-
-
-
 # create sets of internal and external nested gene pairs
-NestedPairs = GetHostNestedPairs(Nested)
+NestedPairs = GetHostNestedPairs(Overlap[1])
 InternalGenes, ExternalGenes = set(), set()
 for pair in NestedPairs:
     ExternalGenes.add(pair[0])
     InternalGenes.add(pair[1])
 
-
-
-
-
-
+# get orthologs
 if Species == 'chimp':
-    # get expression profile of human genes
-    HumanExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
-    # remove genes wuthout expression
-    HumanExpression = RemoveGenesLackingExpression(HumanExpression)
-    # get relative expression
-    HumanExpression = TransformRelativeExpression(HumanExpression)
-    # get expression profile of chimp genes
-    ChimpExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'chimp')
-    # remove genes wuthout expression
-    ChimpExpression = RemoveGenesLackingExpression(ChimpExpression)
-    # get relative expression
-    ChimpExpression = TransformRelativeExpression(ChimpExpression)
+    Orthos = MatchOrthologs('HumanChimpOrthologs.txt')
+elif Species == 'mouse':
+    Orthos = MatchOrthologs('HumanMouseOrthologs.txt')
 
-
-
-
-
-
-# get 1:1 orthologs between human and chimp
-Orthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
- 
-# use this function to create lists of orthologs with both genes expressed
-def ExpressedOrthologousPairs(Sp1Expression, Sp2Expression, Genes, Orthologs):
-    '''
-    (dict, dict, set, dict) -> list
-    Take the dictionaries of expression profiles for species 1 and 2, the set
-    of genes of interest in species 1, and the dictionary of orthologs and return
-    a list of expressed orthologous pairs
-    '''
-    # create a list of gene pairs
-    ExpressedOrthos = []
-    # loop over gene set of interest
-    for gene in Genes:
-        # check that gene has ortholog
-        if gene in Orthologs:
-            # check that gene and its orthologs are expressed
-            if gene in Sp1Expression and Orthologs[gene] in Sp2Expression:
-                ExpressedOrthos.append([gene, Orthologs[gene]])
-    return ExpressedOrthos
-    
-# generate lists of ortholog pairs for each gene category
-NstOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, NestedGenes, Orthos)
-OvlOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, OverlappingGenes, Orthos)
-ConOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, ConvergentGenes, Orthos)
-DivOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, DivergentGenes, Orthos) 
-PbkOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, PiggyBackGenes, Orthos)  
-IntOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, InternalGenes, Orthos)
-ExtOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, ExternalGenes, Orthos)
-NoOvlOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, NonOverlappingGenes, Orthos) 
- 
-AllPairs = [NoOvlOrthos, NstOrthos, IntOrthos, ExtOrthos, PbkOrthos, ConOrthos, DivOrthos]
+# create a list of gene categories
 GeneCats = ['NoOv', 'Nst', 'Int', 'Ext', 'Pbk', 'Conv', 'Div']
 
+# create lists of orthologous pairs for each gene category 
+AllPairs = []
+AllGenes = [NonOverlappingGenes, OverlappingGeneSets[1], InternalGenes, ExternalGenes,
+            OverlappingGeneSets[2], OverlappingGeneSets[3], OverlappingGeneSets[4]] 
+# loop over gene sets
+for i in range(len(AllGenes)):
+    # create a list of gene pairs
+    orthologs = []
+    # loop over genes in given gene set
+    for gene in AllGenes[i]:
+        # check that gene has ortholog
+        if gene in Orthos:
+            for homolog in Orthos[gene]:
+                orthologs.append([gene, homolog])
+    AllPairs.append(orthologs)
+
+
+# 1) plot sequence divergence between orthologs for genes in each category
+
+# create a dict with divergence values {human_gene: {ortholog: divergence}}
+SeqDiv = {}
+if Species == 'chimp':
+    infile = open('HumanChimpSeqDiverg.txt')
+elif Species == 'mouse':
+    infile = open('HumanMouseSeqDiverg.txt')
+infile.readline()
+for line in infile:
+    if line.startswith('ENSG'):
+        line = line.rstrip().split('\t')
+        if line[-1] != 'NA':
+            if line[0] not in SeqDiv:
+                SeqDiv[line[0]] = {}
+            SeqDiv[line[0]][line[1]] = float(line[-1])
+infile.close()            
+    
+# make list of divergence for each gene category
+Divergence = []
+for i in range(len(AllPairs)):
+    nucldiv = []
+    for pair in AllPairs[i]:
+        if pair[0] in SeqDiv:
+            if pair[1] in SeqDiv[pair[0]]:
+                nucldiv.append(SeqDiv[pair[0]][pair[1]])
+    Divergence.append(nucldiv)
+    
+ # create lists with means and SEM for divergence for each gene category
+MeanDiverg, SEMDiverg = [], []
+for i in range(len(Divergence)):
+    MeanDiverg.append(np.mean(Divergence[i]))
+    SEMDiverg.append(np.std(Divergence[i]) / math.sqrt(len(Divergence[i])))
+
+# perform statistical tests between gene categories using permutation tests
+# create list to store the p-values
+PValDiverg = []
+for i in range(1, len(Divergence)):
+    # compare each gene category to non-overlapping genes
+    P = PermutationResampling(Divergence[0], Divergence[i], 1000, statistic = np.mean)
+    PValDiverg.append(P)
+# replace P values with significance
+PValDiverg = ConvertPToStars(PValDiverg)
+
+
+# 2) compare proportions of genes with homologs for each category
+
+# create a set of human genes that have any homologs
+Homologs = set()
+if Species == 'chimp':
+    infile = open('HumanChimpOrthologs.txt')
+elif Species == 'mouse':
+    infile = open('HumanMouseOrthologs.txt')
+infile.readline()
+for line in infile:
+    if 'ortholog' in line:
+        line = line.rstrip().split('\t')
+        assert 'ENS' in line[0], 'gene id is not valid'
+        assert 'ortholog' in line[4], 'ortholog should be in homology type'
+        Homologs.add(line[0])
+infile.close()            
+
+# count genes with and without homologs
+GeneCounts = []
+# loop over gene sets
+for i in range(len(AllGenes)):
+    # initialize counters
+    homo, nohomo = 0, 0
+    # loop over genes in given set
+    for gene in AllGenes[i]:
+        if gene in Homologs:
+            homo += 1
+        else:
+            nohomo += 1
+    GeneCounts.append([homo, nohomo])    
+
+# compare the proportions of gene with and without homologs
+# create a list to store the P-values
+PProp = []
+for i in range(1, len(GeneCounts)):
+    p = stats.fisher_exact([GeneCounts[0], GeneCounts[i]])[1]
+    PProp.append(p)
+# replace P values by significance
+PProp = ConvertPToStars(PProp)
+
+# get the proportions of genes with and without homologs
+WithHomolog, NoHomolog = [], []
+for i in range(len(GeneCounts)):
+    WithHomolog.append(GeneCounts[i][0] / sum(GeneCounts[i]))
+    NoHomolog.append(GeneCounts[i][1] / sum(GeneCounts[i]))
+    assert sum(GeneCounts[i]) == len(AllGenes[i])
+
+
+# 3) compare expression divergence between orthologs
+
+# get expression profile of human genes and genes of sister-species
+if Species == 'chimp':
+    HumanExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
+    SisterSpExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'chimp')
+elif Species == 'mouse':
+    HumanExpression = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
+    SisterSpExpression = ParseExpressionFile('Mouse_Median_Normalized_FPKM.txt')
+    # match expression profiles between mouse and human 
+    HumanExpression = MatchHumanToMouseExpressionProfiles(HumanExpression)
+# remove genes without expression
+HumanExpression = RemoveGenesLackingExpression(HumanExpression)
+SisterSpExpression = RemoveGenesLackingExpression(SisterSpExpression)
+# get relative expression
+HumanExpression = TransformRelativeExpression(HumanExpression)
+SisterSpExpression = TransformRelativeExpression(SisterSpExpression)
+
+# remove gene pairs if genes lack expression 
+for i in range(len(AllPairs)):
+    to_remove = [pair for pair in AllPairs[i] if pair[0] not in HumanExpression or pair[1] not in SisterSpExpression]
+    for pair in to_remove:
+        AllPairs[i].remove(pair)
 
 # compute expression divergence between orthologs for each gene category
 ExpressionDivergence = []
 for i in range(len(AllPairs)):
-    Div = ComputeExpressionDivergenceOrthologs(AllPairs[i], HumanExpression, ChimpExpression)
+    Div = ComputeExpressionDivergenceOrthologs(AllPairs[i], HumanExpression, SisterSpExpression)
     ExpressionDivergence.append(Div)
     
 # create lists with means and SEM for each gene category
@@ -153,71 +229,100 @@ for i in range(len(ExpressionDivergence)):
     MeanExpDiv.append(np.mean(ExpressionDivergence[i]))
     SEMExpDiv.append(np.std(ExpressionDivergence[i]) / math.sqrt(len(ExpressionDivergence[i])))
 
-    
-# create figure
-fig = plt.figure(1, figsize = (2.1, 2))
-
-# add a plot to figure (N row, N column, plot N)
-ax = fig.add_subplot(1, 1, 1)
-# set colors
-colorscheme = ['black','lightgrey','lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
-# plot nucleotide divergence
-ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
-       edgecolor = 'black', linewidth = 0.7,
-       error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
-# set font for all text in figure
-FigFont = {'fontname':'Arial'}   
-# write y axis label
-ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
-# add ticks and lebels
-plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
-# add a range for the Y and X axes
-plt.ylim([0, 0.305])
-plt.xlim([0, 2.10])
-
-# add margins
-plt.margins(0.1)
-
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(True)    
-ax.spines["right"].set_visible(False)
-ax.spines["left"].set_visible(True)  
-# edit tick parameters    
-plt.tick_params(axis='both', which='both', bottom='on', top='off',
-                right = 'off', left = 'on', labelbottom='on',
-                colors = 'black', labelsize = 7, direction = 'out')  
-# Set the tick labels font name
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')   
-      
-
-# perform statistical tests between gene categories using Kolmogorov-Smirnof test
-# create list to store the p-values
-PValues = []
+# perform statistical tests between gene categories using permutation test
+PValExpDiv = []
 for i in range(1, len(ExpressionDivergence)):
     # compare each gene category to non-overlapping genes
-    val, P = stats.ks_2samp(ExpressionDivergence[0], ExpressionDivergence[i])
-    PValues.append(P)
-
+    P = PermutationResampling(ExpressionDivergence[0], ExpressionDivergence[i], 1000, statistic = np.mean)
+    PValExpDiv.append(P)
 # convert p-values to star significance level
-Significance = []
-for pvalue in PValues:
-    if pvalue >= 0.05:
-        Significance.append('')
-    elif pvalue < 0.05 and pvalue >= 0.01:
-        Significance.append('*')
-    elif pvalue < 0.01 and pvalue >= 0.001:
-        Significance.append('**')
-    elif pvalue < 0.001:
-        Significance.append('***')
+PValExpDiv = ConvertPToStars(PValExpDiv)
+
+    
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YMax):
+    '''
+    Returns a ax instance in figure
+    '''    
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # check type of graphic    
+    if DataType == 'divergence':
+        # set colors
+        colorscheme = ['black','lightgrey','lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+        # plot nucleotide divergence
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], 0.2, yerr = Data[1], color = colorscheme,
+               edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
+    elif DataType == 'proportion':
+        ## Create a horizontal bar plot for proportions of genes with homologs
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'homolog', color= 'black', linewidth = 0.7)
+        # Create a horizontal bar plot for proportions of same strand pairs
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'no homolog', color= 'lightgrey', linewidth = 0.7)
+
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    # write y axis label
+    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+    # add ticks and lebels
+    plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], XLabel, rotation = 30, size = 7, color = 'black', ha = 'right', **FigFont)
+    # add a range for the Y and X axes
+    plt.ylim([0, YMax])    
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(True)    
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(True)  
+    # edit tick parameters    
+    plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                    right = 'off', left = 'on', labelbottom='on',
+                    colors = 'black', labelsize = 7, direction = 'out')  
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')   
+    # add margins
+    plt.margins(0.1)
+    return ax
+
+
+# plot sequence divergence, proportion of homologs, expression divergence in a single figure
+fig = plt.figure(1, figsize = (5.5, 2.5))
+# plot data
+if Species == 'chimp':
+    YMaxSeq, YMaxExp = 0.51, 0.41
+elif Species == 'mouse':
+    YMaxSeq, YMaxExp = 0.31, 0.51
+    
+ax1 = CreateAx(3, 1, 1, fig, [MeanDiverg, SEMDiverg], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', YMaxSeq)
+ax2 = CreateAx(3, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', 'proportion', 1)
+ax3 = CreateAx(3, 1, 3, fig, [MeanExpDiv, SEMExpDiv], GeneCats, 'Expression divergence', 'divergence', YMaxExp)
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
-ypos = [0.28] * 4 + [0.22] * 2
-xpos = [0.45, 0.75, 1.05, 1.35, 1.65, 1.95]
-for i in range(len(Significance)):
-    ax.text(xpos[i], ypos[i], Significance[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
+if Species == 'chimp':
+    ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
+elif Species == 'mouse':
+    ypos = [0.23, 0.25, 0.23, 0.23, 0.22, 0.22]
+for i in range(len(PValDiverg)):
+    ax1.text(xpos[i], ypos[i], PValDiverg[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+for i in range(len(PProp)):
+    ax2.text(xpos[i], 1.02, PProp[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+for i in range(len(PValExpDiv)):
+    ax3.text(xpos[i], ypos[i], PValExpDiv[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 
+# add legend
+NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
+WiH = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
+ax2.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
+
+# make sure subplots do not overlap
+plt.tight_layout()
+
+
+if Species == 'chimp':
+    FigName = 'truc'
+elif Species == 'mouse':
+    FigName = 'truc'
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig(FigName + '.pdf', bbox_inches = 'tight')
+
