@@ -249,7 +249,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
     # check type of graphic    
     if DataType == 'divergence':
         # set colors
-        colorscheme = ['lightgrey', '#f03b20', '#feb24c','#fd8d3c', '#43a2ca', '#fee391', '#74c476']
+        colorscheme = ['lightgrey', '#f03b20', '#fd8d3c', '#feb24c', '#43a2ca', '#fee391', '#74c476']
         # plot divergence
         ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], 0.2, yerr = Data[1], color = colorscheme,
                edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
@@ -315,8 +315,8 @@ for i in range(len(PValExpDiv)):
     ax3.text(xpos[i], yposExp[i], PValExpDiv[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 
 # add legend
-NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
-WiH = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
+NoH = mpatches.Patch(facecolor = '#d9f0a3' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
+WiH = mpatches.Patch(facecolor = '#dadaeb' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
 ax2.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
 
 # make sure subplots do not overlap
