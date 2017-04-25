@@ -115,6 +115,9 @@ for i in range(1, len(OverlappingPairs)):
 # generate random pairs of non-overlapping genes as a baseline random JI
 # make a list of non-overlapping genes convert set of non-overlapping genes to list
 NonOverlappingGenes = list(NonOverlappingGenes)
+# keep non-overlapping genes that have GO terms
+NonOverlappingGenes = [gene for gene in NonOverlappingGenes if gene in GeneOntology]
+
 BaseLine = []
 # draw 10000 random pairs
 replicates = 10000
@@ -123,10 +126,9 @@ while replicates != 0:
     j = random.randint(0, len(NonOverlappingGenes) -1)
     k = random.randint(0, len(NonOverlappingGenes) -1)
     gene1, gene2 = NonOverlappingGenes[j], NonOverlappingGenes[k]
-    if gene1 in GeneOntology and gene2 in GeneOntology:
-        JI = JaccardIndex(GeneOntology[gene1], GeneOntology[gene2])
-        BaseLine.append(JI)
-        replicates -= 1
+    JI = JaccardIndex(GeneOntology[gene1], GeneOntology[gene2])
+    BaseLine.append(JI)
+    replicates -= 1
 
 OverlapTypes = ['Nested', 'PiggyBack', 'Convergent', 'Divergent']
 for i in range(len(FunctionalSimilarity)):
@@ -152,7 +154,7 @@ for chromo in OrderedGenes:
             ToDrawGenesFrom[chromo][k] = OrderedGenes[chromo][i]
             k += 1
 
-# generate matching control pairs for each type of overllaping class
+# generate matching control pairs for each type of overlaping class
 MatchingControl = []
 # loop over list of overlapping pairs
 for i in range(1, len(OverlappingPairs)):
@@ -186,14 +188,14 @@ for i in range(len(FunctionalSimilarity)):
     P = PermutationResampling(SimilarityControls[i], FunctionalSimilarity[i], 1000, statistic = np.mean)
     print(OverlapTypes[i], len(SimilarityControls[i]), len(FunctionalSimilarity[i]), np.mean(SimilarityControls[i]), np.mean(FunctionalSimilarity[i]), P)
     PVals.append(P)
-    
+ 
 # create lists with means JI and SEM for each gene category and its control [[control_nested], [nested]...]
-MeanExpDiv, SEMExpDiv = [], []
+MeanFuncSim, SEMFuncSim = [], []
 for i in range(len(FunctionalSimilarity)):
-    MeanExpDiv.append(np.mean(SimilarityControls[i]))
-    MeanExpDiv.append(np.mean(FunctionalSimilarity[i]))
-    SEMExpDiv.append(np.std(SimilarityControls[i]) / math.sqrt(len(SimilarityControls[i])))
-    SEMExpDiv.append(np.std(FunctionalSimilarity[i]) / math.sqrt(len(FunctionalSimilarity[i])))
+    MeanFuncSim.append(np.mean(SimilarityControls[i]))
+    MeanFuncSim.append(np.mean(FunctionalSimilarity[i]))
+    SEMFuncSim.append(np.std(SimilarityControls[i]) / math.sqrt(len(SimilarityControls[i])))
+    SEMFuncSim.append(np.std(FunctionalSimilarity[i]) / math.sqrt(len(FunctionalSimilarity[i])))
 
 
 # create figure
@@ -209,7 +211,7 @@ colorscheme = ['black','lightgrey'] * 4
 # plot functional similarity
 xpos = [0.05, 0.25, 0.65, 0.85, 1.25, 1.45, 1.85, 2.05]
 # plot nucleotide divergence
-ax.bar(xpos, MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
+ax.bar(xpos, MeanFuncSim, 0.2, yerr = SEMFuncSim, color = colorscheme,
        edgecolor = 'black', linewidth = 0.5, error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
@@ -235,19 +237,9 @@ plt.tick_params(axis='both', which='both', bottom='on', top='off',
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
 
-      
 # convert p-values to star significance level
-Significance = []
-for pvalue in PVals:
-    if pvalue >= 0.05:
-        Significance.append('')
-    elif pvalue < 0.05 and pvalue >= 0.01:
-        Significance.append('*')
-    elif pvalue < 0.01 and pvalue >= 0.001:
-        Significance.append('**')
-    elif pvalue < 0.001:
-        Significance.append('***')
-
+Significance = ConvertPToStars(PVals)
+ 
 # make a list of x, y axis positions for brackets
 XLinePos = list(map(lambda x: x + 0.1, xpos))
 YLinePos = [0.12, 0.50, 0.12, 0.12]
