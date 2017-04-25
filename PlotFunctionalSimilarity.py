@@ -205,7 +205,8 @@ ax = fig.add_subplot(1, 1, 1)
 plt.plot((0, 2.05), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = ':', linewidth = 0.5)
 
 # set colors
-colorscheme = ['black','lightgrey'] * 4
+colorscheme = ['#bd0026', '#f03b20', '#0868ac', '#43a2ca', '#d95f0e', '#fee391', '#006d2c', '#74c476']
+
 # plot functional similarity
 xpos = [0.05, 0.25, 0.55, 0.75, 1.05, 1.25, 1.55, 1.75]
 # plot nucleotide divergence
@@ -217,7 +218,7 @@ FigFont = {'fontname':'Arial'}
 ax.set_ylabel('Functional similarity', color = 'black',  size = 7, ha = 'center', **FigFont)
 # add ticks and lebels
 GeneCats = ['Nst', 'Pbk', 'Conv', 'Div']
-plt.xticks([0.25, 0.55, 1.25, 1.75], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
+plt.xticks([0.25, 0.75, 1.25, 1.75], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
 
 # add a range for the Y and X axes
 plt.ylim([0, 1])
