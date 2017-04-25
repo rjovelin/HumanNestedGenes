@@ -2163,3 +2163,22 @@ def AddSignificanceToBars(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, Y
     ax.text(XText, YText, SignificanceLevel, horizontalalignment='center', verticalalignment='center',
             color = 'grey', fontname = 'Arial', size = 7)
     return ax   
+    
+    
+# use this function to convert p values to star significance
+def ConvertPToStars(PValues):
+    '''
+    (list) -> list
+    Take a list of P-values and return a list with star strings showing significance    
+    '''
+    Significance = []
+    for pvalue in PValues:
+        if pvalue >= 0.05:
+            Significance.append('')
+        elif pvalue < 0.05 and pvalue >= 0.01:
+            Significance.append('*')
+        elif pvalue < 0.01 and pvalue >= 0.001:
+            Significance.append('**')
+        elif pvalue < 0.001:
+            Significance.append('***')
+    return Significance
