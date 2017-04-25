@@ -207,7 +207,7 @@ plt.plot((0, 2.05), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', line
 # set colors
 colorscheme = ['black','lightgrey'] * 4
 # plot functional similarity
-xpos = [0.05, 0.25, 0.65, 0.85, 1.25, 1.45, 1.85, 2.05]
+xpos = [0.05, 0.25, 0.55, 0.75, 1.05, 1.25, 1.55, 1.75]
 # plot nucleotide divergence
 ax.bar(xpos, MeanFuncSim, 0.2, yerr = SEMFuncSim, color = colorscheme,
        edgecolor = 'black', linewidth = 0.5, error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
@@ -217,7 +217,7 @@ FigFont = {'fontname':'Arial'}
 ax.set_ylabel('Functional similarity', color = 'black',  size = 7, ha = 'center', **FigFont)
 # add ticks and lebels
 GeneCats = ['Nst', 'Pbk', 'Conv', 'Div']
-plt.xticks([0.25, 0.85, 1.45, 2.05], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
+plt.xticks([0.25, 0.55, 1.25, 1.75], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
 
 # add a range for the Y and X axes
 plt.ylim([0, 1])
@@ -243,7 +243,7 @@ Significance = ConvertPToStars(PVals)
 XLinePos = list(map(lambda x: x + 0.1, xpos))
 YLinePos = [0.12, 0.50, 0.12, 0.12]
 # make a list of x, y axis positions for stars
-XStarPos = [0.25, 0.85, 1.45, 1.85]
+XStarPos = [0.25, 0.55, 1.25, 1.75]
 YStarPos = [0.16, 0.54, 0.16, 0.16]
 j = 0
 # annotate graph with significance
