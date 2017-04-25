@@ -114,7 +114,7 @@ for GOClass in ['all', 'molfunc', 'celcomp', 'biolproc']:
         k = random.randint(0, len(NonOverlapping) -1)
         gene1, gene2 = NonOverlapping[j], NonOverlapping[k]
         # compute functional similarity index
-        JI = JaccardIndex(GeneOntology[gene1], GeneOntology[gene2])
+        JI = JaccardIndex(GeneGOTerms[gene1], GeneGOTerms[gene2])
         # compute expression divergence        
         expdiv = EuclidianDistance(Expression[gene1], Expression[gene2])
         BaseLine[0].append(JI)
@@ -128,7 +128,7 @@ for GOClass in ['all', 'molfunc', 'celcomp', 'biolproc']:
     # include only the 4 overlapping types    
     for i in range(1, len(OverlappingPairs)):
         # make a list of list of overlapping pairs that have GO terms and that are expressed
-        OvlPairs = [pair for pair in OverlappingPairs[i] if (pair[0] in GeneOntology and pair[1] in GeneOntology) and (pair[0] in Expression and pair[1] in Expression)]
+        OvlPairs = [pair for pair in OverlappingPairs[i] if (pair[0] in GeneGOTerms and pair[1] in GeneGOTerms) and (pair[0] in Expression and pair[1] in Expression)]
         # compute jaccard similarity index  and expression divergence between each pair    
         GOOverlap, ExpDiv = [], []
         for pair in OvlPairs:
@@ -151,7 +151,7 @@ GOTypes = ['all', 'molfunc', 'celcomp', 'biolproc']
 GONames = ['All', 'Molecular Function', 'Cellular Compartments', 'Biological Processes']
 for i in range(len(GOTypes)):
     line = [GONames[i]]
-    for correl in Correlation[GOTypes[i]]:
+    for correl in Correlations[GOTypes[i]]:
         line.append(str(correl[0]) + ' (' + str(correl[1]) + ')')
     line = '\t'.join(line)
     newfile.write(line + '\n')
