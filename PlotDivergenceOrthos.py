@@ -285,7 +285,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
 
 
 # plot sequence divergence, proportion of homologs, expression divergence in a single figure
-fig = plt.figure(1, figsize = (6, 2))
+fig = plt.figure(1, figsize = (6, 1.8))
 # plot data
 if Species == 'chimp':
     YMaxSeq, YMaxExp = 0.505, 0.405
