@@ -883,12 +883,12 @@ def ParsePrimateExpressionData(ExpressionFile, species):
     return expression
 
 
-# use this function to parse the GTEX median expression file
+# use this function to parse the GTEX or Encode median expression file
 def ParseExpressionFile(ExpressionFile):
     '''
     (file) -> dict
     Take the file with median gene expression in each tissue from GTEX in human
-    of from ModEncode in mouse and return a dictionary with gene: list of expression
+    of from Encode in mouse and return a dictionary with gene: list of expression
     in tissues key, value pairs
     '''
     # create a dict to store the expression (median tissue expression FPKM normalized by upper quartiles))
