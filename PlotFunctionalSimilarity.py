@@ -196,12 +196,12 @@ for i in range(len(FunctionalSimilarity)):
     SEMFuncSim.append(np.std(FunctionalSimilarity[i]) / math.sqrt(len(FunctionalSimilarity[i])))
 
 # create figure
-fig = plt.figure(1, figsize = (3, 2))
+fig = plt.figure(1, figsize = (2.8, 1.8))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 
 # plot the baseline, use zorder to bring the line to background
-plt.plot((0, 2), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = ':', linewidth = 0.5, zorder = -1)
+plt.plot((0, 2), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = '-', linewidth = 0.5, zorder = -1)
 
 # set colors
 colorscheme = ['#bd0026', '#f03b20', '#0868ac', '#43a2ca', '#d95f0e', '#fee391', '#006d2c', '#74c476']
