@@ -292,7 +292,7 @@ if Species == 'chimp':
 elif Species == 'mouse':
     YMaxSeq, YMaxExp = 0.305, 0.505
     
-ax1 = CreateAx(3, 1, 1, fig, [MeanDiverg, SEMDiverg], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', YMaxSeq)
+ax1 = CreateAx(3, 1, 1, fig, [MeanDiverg, SEMDiverg], GeneCats, 'dN/dS', 'divergence', YMaxSeq)
 ax2 = CreateAx(3, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', 'proportion', 1)
 ax3 = CreateAx(3, 1, 3, fig, [MeanExpDiv, SEMExpDiv], GeneCats, 'Expression divergence', 'divergence', YMaxExp)
 
