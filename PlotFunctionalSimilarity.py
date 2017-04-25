@@ -185,7 +185,6 @@ for i in range(len(MatchingControl)):
 PVals = []
 for i in range(len(FunctionalSimilarity)):
     P = PermutationResampling(SimilarityControls[i], FunctionalSimilarity[i], 1000, statistic = np.mean)
-    print(OverlapTypes[i], len(SimilarityControls[i]), len(FunctionalSimilarity[i]), np.mean(SimilarityControls[i]), np.mean(FunctionalSimilarity[i]), P)
     PVals.append(P)
  
 # create lists with means JI and SEM for each gene category and its control [[control_nested], [nested]...]
@@ -202,7 +201,7 @@ fig = plt.figure(1, figsize = (3, 2))
 ax = fig.add_subplot(1, 1, 1)
 
 # plot the baseline, use zorder to bring the line to background
-plt.plot((0, 2.05), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = ':', linewidth = 0.5, zorder = -1)
+plt.plot((0, 2), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = ':', linewidth = 0.5, zorder = -1)
 
 # set colors
 colorscheme = ['#bd0026', '#f03b20', '#0868ac', '#43a2ca', '#d95f0e', '#fee391', '#006d2c', '#74c476']
@@ -222,7 +221,7 @@ plt.xticks([0.25, 0.75, 1.25, 1.75], GeneCats, size = 7, color = 'black', ha = '
 
 # add a range for the Y and X axes
 plt.ylim([0, 1])
-#plt.xlim([0, 2.45])
+plt.xlim([0, 2])
 
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
@@ -244,7 +243,7 @@ Significance = ConvertPToStars(PVals)
 XLinePos = list(map(lambda x: x + 0.1, xpos))
 YLinePos = [0.12, 0.50, 0.12, 0.12]
 # make a list of x, y axis positions for stars
-XStarPos = [0.25, 0.55, 1.25, 1.75]
+XStarPos = [0.25, 0.75, 1.25, 1.75]
 YStarPos = [0.16, 0.54, 0.16, 0.16]
 j = 0
 # annotate graph with significance
