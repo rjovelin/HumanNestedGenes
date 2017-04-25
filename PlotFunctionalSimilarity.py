@@ -201,8 +201,8 @@ fig = plt.figure(1, figsize = (3, 2))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 
-# plot the baseline
-plt.plot((0, 2.05), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = ':', linewidth = 0.5)
+# plot the baseline, use zorder to bring the line to background
+plt.plot((0, 2.05), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = ':', linewidth = 0.5, zorder = -1)
 
 # set colors
 colorscheme = ['#bd0026', '#f03b20', '#0868ac', '#43a2ca', '#d95f0e', '#fee391', '#006d2c', '#74c476']
