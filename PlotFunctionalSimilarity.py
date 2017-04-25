@@ -244,7 +244,7 @@ XLinePos = list(map(lambda x: x + 0.1, xpos))
 YLinePos = [0.12, 0.50, 0.12, 0.12]
 # make a list of x, y axis positions for stars
 XStarPos = [0.25, 0.85, 1.45, 1.85]
-YStarPos = [0.14, 0.52, 0.14, 0.14]
+YStarPos = [0.16, 0.54, 0.16, 0.16]
 j = 0
 # annotate graph with significance
 for i in range(len(Significance)):
