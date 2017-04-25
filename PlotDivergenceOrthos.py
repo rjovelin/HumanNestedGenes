@@ -5,9 +5,9 @@ Created on Wed Jan 11 20:59:27 2017
 @author: Richard
 """
 
-# use this script to plot expression divergence between orthologs 
+# use this script to plot sequence and expression divergence between orthologs and proportion of genes with homologs 
 
-# usage python3 PlotExpressionDivergOrthos.py [options]
+# usage python3 PlotDivergenceOrthos.py [options]
 # -[chimp/mouse]: use human-chimp or human-mouse comparisons
 
 # import modules
@@ -285,12 +285,12 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
 
 
 # plot sequence divergence, proportion of homologs, expression divergence in a single figure
-fig = plt.figure(1, figsize = (5.5, 2.5))
+fig = plt.figure(1, figsize = (6, 2))
 # plot data
 if Species == 'chimp':
-    YMaxSeq, YMaxExp = 0.51, 0.41
+    YMaxSeq, YMaxExp = 0.505, 0.405
 elif Species == 'mouse':
-    YMaxSeq, YMaxExp = 0.31, 0.51
+    YMaxSeq, YMaxExp = 0.305, 0.505
     
 ax1 = CreateAx(3, 1, 1, fig, [MeanDiverg, SEMDiverg], GeneCats, 'Nucleotide divergence (dN/dS)', 'divergence', YMaxSeq)
 ax2 = CreateAx(3, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', 'proportion', 1)
