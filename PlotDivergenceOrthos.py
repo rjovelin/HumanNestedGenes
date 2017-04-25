@@ -249,15 +249,15 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
     # check type of graphic    
     if DataType == 'divergence':
         # set colors
-        colorscheme = ['black','lightgrey','lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
-        # plot nucleotide divergence
+        colorscheme = ['lightgrey', '#f03b20', '#feb24c','#fd8d3c', '#43a2ca', '#fee391', '#74c476']
+        # plot divergence
         ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], 0.2, yerr = Data[1], color = colorscheme,
                edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
     elif DataType == 'proportion':
         ## Create a horizontal bar plot for proportions of genes with homologs
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'homolog', color= 'black', linewidth = 0.7)
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'homolog', color= '#dadaeb', linewidth = 0.7)
         # Create a horizontal bar plot for proportions of same strand pairs
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'no homolog', color= 'lightgrey', linewidth = 0.7)
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'no homolog', color= '#d9f0a3', linewidth = 0.7)
 
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
@@ -288,7 +288,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YM
 fig = plt.figure(1, figsize = (6, 1.8))
 # plot data
 if Species == 'chimp':
-    YMaxSeq, YMaxExp = 0.505, 0.405
+    YMaxSeq, YMaxExp = 0.505, 0.305
 elif Species == 'mouse':
     YMaxSeq, YMaxExp = 0.305, 0.505
     
@@ -300,15 +300,19 @@ ax3 = CreateAx(3, 1, 3, fig, [MeanExpDiv, SEMExpDiv], GeneCats, 'Expression dive
 # significant comparisons were already determined, add letters to show significance
 xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
 if Species == 'chimp':
-    ypos = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
+    yposSeq = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
+    yposExp = [0.20, 0.20, 0.20, 0.20, 0.20, 0.20]
+
 elif Species == 'mouse':
-    ypos = [0.23, 0.25, 0.23, 0.23, 0.22, 0.22]
+    yposSeq = [0.23, 0.25, 0.23, 0.23, 0.22, 0.22]
+    yposExp = [0.20, 0.20, 0.20, 0.20, 0.20, 0.20]    
+    
 for i in range(len(PValDiverg)):
-    ax1.text(xpos[i], ypos[i], PValDiverg[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+    ax1.text(xpos[i], yposSeq[i], PValDiverg[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 for i in range(len(PProp)):
     ax2.text(xpos[i], 1.02, PProp[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 for i in range(len(PValExpDiv)):
-    ax3.text(xpos[i], ypos[i], PValExpDiv[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+    ax3.text(xpos[i], yposExp[i], PValExpDiv[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 
 # add legend
 NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
