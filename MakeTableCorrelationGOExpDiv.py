@@ -68,7 +68,7 @@ Names = MapNametoID(GFF)
 GOAnnotations = ParseGOFile('goa_human.gaf')
 # map gene IDs to GO annotations            
 GeneOntology = MapEnsemblGenesToGOTerms(GOAnnotations, Names)
-a = len(GeneOntology)
+L = len(GeneOntology)
 
 # get the expression profile of each gene
 Expression = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
@@ -90,7 +90,7 @@ for GOClass in ['all', 'molfunc', 'celcomp', 'biolproc']:
     # copy GeneOntology dict
     GeneGOTerms = copy.deepcopy(GeneOntology)
     assert GeneGOTerms == GeneOntology
-    assert a == len(GeneGOTerms)    
+    assert L == len(GeneGOTerms) 
     # keep only terms for specific GO class
     if GOClass != 'all':
         for gene in GeneGOTerms:
