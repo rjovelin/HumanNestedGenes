@@ -137,7 +137,6 @@ for i in range(len(FunctionalSimilarity)):
 
 # make a set of overlapping genes
 Overlapping = MakeFullPartialOverlapGeneSet(Overlap[0])
-
 # generate a dict to draw genes {chromo: {num: gene}}    
 ToDrawGenesFrom = {}
 # loop over chromosomes
@@ -197,14 +196,13 @@ for i in range(len(FunctionalSimilarity)):
     SEMFuncSim.append(np.std(SimilarityControls[i]) / math.sqrt(len(SimilarityControls[i])))
     SEMFuncSim.append(np.std(FunctionalSimilarity[i]) / math.sqrt(len(FunctionalSimilarity[i])))
 
-
 # create figure
 fig = plt.figure(1, figsize = (3, 2))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 
 # plot the baseline
-plt.plot((0, 2.05), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = '--', linewidth = 0.5)
+plt.plot((0, 2.05), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = ':', linewidth = 0.5)
 
 # set colors
 colorscheme = ['black','lightgrey'] * 4
@@ -218,7 +216,8 @@ FigFont = {'fontname':'Arial'}
 # write y axis label
 ax.set_ylabel('Functional similarity', color = 'black',  size = 7, ha = 'center', **FigFont)
 # add ticks and lebels
-plt.xticks([0.25, 0.85, 1.45, 2.05], OverlapTypes, size = 7, color = 'black', ha = 'center', **FigFont)
+GeneCats = ['Nst', 'Pbk', 'Conv', 'Div']
+plt.xticks([0.25, 0.85, 1.45, 2.05], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
 
 # add a range for the Y and X axes
 plt.ylim([0, 1])
