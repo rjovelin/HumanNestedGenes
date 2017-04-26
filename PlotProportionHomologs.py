@@ -163,7 +163,7 @@ FigFont = {'fontname':'Arial'}
 # write y axis label
 ax.set_ylabel('Proportion', color = 'black',  size = 7, ha = 'center', **FigFont)
 # add ticks and lebels
-plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], GeneCats, rotation = 30, size = 7, color = 'black', ha = 'right', **FigFont)
+plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], GeneCats, rotation = 0, size = 7, color = 'black', ha = 'right', **FigFont)
 # add a range for the Y and X axes
 plt.ylim([0, 1])    
 # do not show lines around figure  
