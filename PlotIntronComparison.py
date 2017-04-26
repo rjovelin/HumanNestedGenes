@@ -113,42 +113,25 @@ PValues['number'] = []
 # loop list of intron numbers
 for i in range(0, len(IntronNumbers) -1):
     for j in range(i+1, len(IntronNumbers)):
-        P = stats.ranksums(IntronNumbers[i], IntronNumbers[j])[1]
+        P = PermutationResampling(IntronNumbers[i], IntronNumbers[j], 1000, statistic = np.mean)
         PValues['number'].append(P)
 PValues['length'] = []
 # loop list of intron length
 for i in range(0, len(IntronLength) -1):
     for j in range(i+1, len(IntronLength)):
-        P = stats.ranksums(IntronLength[i], IntronLength[j])[1]
+        P = PermutationResampling(IntronLength[i], IntronLength[j], 1000, statistic = np.mean)
         PValues['length'].append(P)
 PValues['host'] = []
 # loop list of host intron length
 for i in range(0, len(HostIntrons) -1):
     for j in range(i+1, len(HostIntrons)):
-        P = stats.ranksums(HostIntrons[i], HostIntrons[j])[1]
+        P = PermutationResampling(HostIntrons[i], HostIntrons[j], 1000, statistic = np.mean)        
         PValues['host'].append(P)
 
-# print p values
+# convert p values to signififance level
 for i in PValues:
-    print(i, PValues[i])
+    PValues[i] = ConvertPToStars(PValues[i])
 
-
-# create a dict with significance level as stars
-Significance = {}
-for i in PValues:
-    # initialize dict with empty list
-    Significance[i] = [] 
-    # get the significance level
-    for pval in PValues[i]:
-        if pval >= 0.05:
-            Significance[i].append('')
-        elif pval < 0.05 and pval >= 0.01:
-            Significance[i].append('*')
-        elif pval < 0.01 and pval >= 0.001:
-            Significance[i].append('**')
-        elif pval < 0.001:
-            Significance[i].append('***')
-  
 
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Ticklabel, ColorScheme, YLabel, YMax):
@@ -197,22 +180,6 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Tickl
     # create a margin around the x axis
     plt.margins(0.1)
     return ax      
-
-
-
-# use this function to annotate the graph with significance levels
-def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
-    '''
-    (ax, str, num, num, num, num, num) -> ax
-    Take a matplotlib ax object, the significance level (as stars), the positions
-    of the bracket and star and return the ax with annotated significance level
-    '''
-    ax.annotate("", xy=(XLine1, YLine), xycoords='data', xytext=(XLine2, YLine), textcoords='data',
-                 arrowprops=dict(arrowstyle="-", ec='#aaaaaa', connectionstyle="bar,fraction=0.2", linewidth = 1))
-    # add stars for significance
-    ax.text(XText, YText, SignificanceLevel, horizontalalignment='center', verticalalignment='center',
-            color = 'grey', fontname = 'Arial', size = 6)
-    return ax
 
 
 # create figure
