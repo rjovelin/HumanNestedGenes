@@ -74,21 +74,20 @@ ExpressionProfile = TransformRelativeExpression(ExpressionProfile)
 # generate lists of gene pairs separated by distance 
 Proximal, Moderate, Intermediate, Distant = GenerateSetsGenePairsDistance(GeneCoord, OrderedGenes, ExpressionProfile)
 
-# filter gene pairs lacking expression
-AllPairs = [NestedPairs, PiggybackPairs, ConvergentPairs, DivergentPairs]
-for i in range(len(AllPairs)):
-    AllPairs[i] = FilterGenePairsWithoutExpression(AllPairs[i], ExpressionProfile)
-
-# add gene pairs to Allpairs list
-AllPairs.append(Proximal)
-AllPairs.append(Moderate)
-AllPairs.append(Intermediate)
-AllPairs.append(Distant)
+# make a list of lists of gene pairs with expression
+GenePairs = [copy.deepcopy(AllPairs[i]) for i in range(1, len(AllPairs))]
+for i in range(len(GenePairs)):
+    # remove pairs if any gene is lacking expression
+    GenePairs[i] = FilterGenePairsWithoutExpression(GenePairs[i], ExpressionProfile, 'strict')
+    
+# add gene pairs to Genepairs list
+for L in [Proximal, Moderate, Intermediate, Distant]:
+    AllPairs.append(L)
 
 # compute expression divergence between pairs of genes
 Divergence = []
-for i in range(len(AllPairs)):
-    Div = ComputeExpressionDivergenceGenePairs(AllPairs[i], ExpressionProfile)
+for i in range(len(GenePairs)):
+    Div = ComputeExpressionDivergenceGenePairs(GenePairs[i], ExpressionProfile)
     Divergence.append(Div)
 
 # make a list of gene category names parallel to the list of gene pairs
