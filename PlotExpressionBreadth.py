@@ -125,24 +125,12 @@ for i in range(len(AllGeneSets)):
     expbreadth = [Breadth[gene] for gene in AllGeneSets[i] if gene in Breadth]
     GeneBreadth.append(expbreadth)
                
+# create lists with means and SEM for each gene category
+MeanBreadth, SEMBreadth = [], []
+for i in range(len(GeneBreadth)):
+    MeanBreadth.append(np.mean(GeneBreadth[i]))
+    SEMBreadth.append(np.std(GeneBreadth[i]) / math.sqrt(len(GeneBreadth[i])))
 
-# create a function to get the mean and SEM of items in a list
-def GetMeanSEM(L):
-    '''
-    (list) -> (list, list)
-    Take a list of inner lists of numbers and return a list with mean values
-    and a parallel list with SEM values for each item of the outter list
-    '''
-    # create lists of mean and SEM
-    MeanVal, SEMVal = [], []
-    # loop over the outter ist
-    for i in range(len(L)):
-        MeanVal.append(np.mean(L[i]))
-        SEMVal.append(np.std(L[i]) / math.sqrt(len(L[i])))
-    return MeanVal, SEMVal
-
-# make a list of means and SEM for each gene category
-MeanBreadth, SEMBreadth = GetMeanSEM(GeneBreadth)
 
 # compare each overlapping gene category to the non-overlapping genes using Kolmogorov-Smirnof test
 # create list to store the p-values
@@ -150,20 +138,11 @@ PVal = []
 for i in range(1, len(GeneBreadth)):
     # compare each gene category to non-overlapping genes
     val, P = stats.ks_2samp(GeneBreadth[0], GeneBreadth[i])
+    P = PermutationResampling(GeneBreadth[0], GeneBreadth[i], 1000, statistic = np.mean)    
     PVal.append(P)
-
 # convert p-values to star significance level
-Significance = []
-for pvalue in PVal:
-    if pvalue >= 0.05:
-        Significance.append('')
-    elif pvalue < 0.05 and pvalue >= 0.01:
-        Significance.append('*')
-    elif pvalue < 0.01 and pvalue >= 0.001:
-        Significance.append('**')
-    elif pvalue < 0.001:
-        Significance.append('***')
-  
+PValExpDiv = ConvertPToStars(PValExpDiv)
+
 
 # create figure
 fig = plt.figure(1, figsize = (2.5, 1.5))
@@ -172,7 +151,11 @@ ax = fig.add_subplot(1, 1, 1)
 
 # plot variable 
 BarPos = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.20]
-Colors = ['black','lightgrey', 'lightgrey','lightgrey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+Colors = ['lightgrey', '#f03b20', 'lightgrey','lightgrey', 'lightgrey', 'lightgrey', '#43a2ca', '#fee391', '#74c476']
+
+
+
+
 ax.bar(BarPos, MeanBreadth, 0.1, yerr = SEMBreadth, color = Colors, edgecolor = 'black', linewidth = 0.7,
        error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
 # set font for all text in figure
