@@ -1113,11 +1113,12 @@ def GenerateSetsGenePairsDistance(GeneCoord, OrderedGenes, ExpressionProfile):
 
 
 # use this function to remove nested gene pairs without expression
-def FilterGenePairsWithoutExpression(HostNestedPairs, ExpressionProfile):
+def FilterGenePairsWithoutExpression(HostNestedPairs, ExpressionProfile, Stringency):
     '''
-    (list, dict) -> list
+    (list, dict, str) -> list
     Take the list of gene pairs and the dictionary of expression profile for
-    each gene and return a modified list of gene pairs in which pairs of gene
+    each gene, the level of stringency to remove gene pairs without expression
+    and return a modified list of gene pairs in which pairs of gene
     lacking expression are removed
     Precondition: genes without expression in the expression profile dictionary
     have been removed    
@@ -1126,14 +1127,18 @@ def FilterGenePairsWithoutExpression(HostNestedPairs, ExpressionProfile):
     # filter gene pairs based on expression
     to_remove = []
     for pair in HostNestedPairs:
-        # remove gene pair if both genes are not expressed
-        if pair[0] not in ExpressionProfile and pair[1] not in ExpressionProfile:
-            to_remove.append(pair)
+        if Stringency == 'loose':
+            # remove gene pair if both genes are not expressed
+            if pair[0] not in ExpressionProfile and pair[1] not in ExpressionProfile:
+                to_remove.append(pair)
+        elif Stringency == 'strict':
+            # remove gene pair if any gene is not expressed
+            if pair[0] not in ExpressionProfile or pair[1] not in ExpressionProfile:
+                to_remove.append(pair)
+    # remove pairs        
     for pair in to_remove:
         HostNestedPairs.remove(pair)
     return HostNestedPairs
-
-
 
 # use this function to make a set of genes with full or partial overlap
 def MakeFullPartialOverlapGeneSet(OverlapGenes):
