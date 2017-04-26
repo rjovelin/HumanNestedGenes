@@ -194,7 +194,7 @@ ax.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, n
 
 # build figure name with option
 FigName = 'ProportionsHomologs' + Species.title()
-
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig(FigName + '.pdf', bbox_inches = 'tight')
+fig.savefig(FigName + '.eps', bbox_inches = 'tight')
 
