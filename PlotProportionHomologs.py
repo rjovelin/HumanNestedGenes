@@ -151,7 +151,7 @@ for i in range(len(GeneCounts)):
 fig = plt.figure(1, figsize = (2.2, 1.8))
 
 # add a plot to figure (N row, N column, plot N)
-ax = figure.add_subplot(1, 1, 1)
+ax = fig.add_subplot(1, 1, 1)
 
 # Create a horizontal bar plot for proportions of genes with homologs
 ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], WithHomolog, width = 0.2, label = 'homolog', color= '#dadaeb', linewidth = 0.7)
