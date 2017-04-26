@@ -247,15 +247,19 @@ xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
 if Species == 'chimp':
     yposSeq = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
     yposExp = [0.20, 0.20, 0.20, 0.20, 0.20, 0.20]
-
 elif Species == 'mouse':
     yposSeq = [0.23, 0.25, 0.23, 0.23, 0.22, 0.22]
     yposExp = [0.36, 0.38, 0.36, 0.32, 0.30, 0.28]    
-    
 for i in range(len(PValDiverg)):
     ax1.text(xpos[i], yposSeq[i], PValDiverg[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 for i in range(len(PValExpDiv)):
     ax2.text(xpos[i], yposExp[i], PValExpDiv[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
+
+# add subplot labels
+ax1.text(-0.35, YMaxSeq + 0.025, 'A', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 7)
+ax1.text(0.8, YMaxSeq + 0.025, 'B', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 7)
 
 # make sure subplots do not overlap
 plt.tight_layout()
