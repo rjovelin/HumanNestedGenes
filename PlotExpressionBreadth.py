@@ -203,10 +203,6 @@ for i in range(len(Significance)):
 # add some space around x axis
 plt.margins(0.05)
 
-# check if specificity or breadth is computed
-if ExpBreadth == 'breadth':
-    outputfile = 'ExpressionBreadth'
-elif ExpBreadth == 'specificity':
-    outputfile = 'ExpressionSpecificity'
+outputfile = 'Expression' + ExpBreadth.title()
 fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
 fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
