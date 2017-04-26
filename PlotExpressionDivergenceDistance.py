@@ -30,10 +30,9 @@ from HsaNestedGenes import *
 
 
 
-# load dictionaries of overlapping genes
-JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',
-             'HumanPiggyBackGenes.json', 'HumanConvergentGenes.json',
-             'HumanDivergentGenes.json']
+# load dictionaries of the 4 types of overlapping genes
+JsonFiles = ['HumanNestedGenes.json', 'HumanPiggyBackGenes.json',
+             'HumanConvergentGenes.json', 'HumanDivergentGenes.json']
 # make a list of dictionaries
 Overlap = []
 # loop over files
@@ -48,7 +47,6 @@ for i in range(len(JsonFiles)):
 AllPairs = []
 for i in range(len(Overlap)):
     AllPairs.append(GetHostNestedPairs(Overlap[i]))
-
 
 # get GFF file
 GFF = 'Homo_sapiens.GRCh38.88.gff3'
@@ -74,21 +72,27 @@ ExpressionProfile = TransformRelativeExpression(ExpressionProfile)
 # generate lists of gene pairs separated by distance 
 Proximal, Moderate, Intermediate, Distant = GenerateSetsGenePairsDistance(GeneCoord, OrderedGenes, ExpressionProfile)
 
-# make a list of lists of gene pairs with expression
-GenePairs = [copy.deepcopy(AllPairs[i]) for i in range(1, len(AllPairs))]
-for i in range(len(GenePairs)):
-    # remove pairs if any gene is lacking expression
-    GenePairs[i] = FilterGenePairsWithoutExpression(GenePairs[i], ExpressionProfile, 'strict')
+# remove gene pairs if any gene in the pair lacks expression
+for i in range(len(AllPairs)):
+    AllPairs[i] = FilterGenePairsWithoutExpression(AllPairs[i], ExpressionProfile, 'strict')
     
 # add gene pairs to Genepairs list
 for L in [Proximal, Moderate, Intermediate, Distant]:
     AllPairs.append(L)
 
+
+print('made list of pairs')
+
+
+
+
 # compute expression divergence between pairs of genes
 Divergence = []
-for i in range(len(GenePairs)):
-    Div = ComputeExpressionDivergenceGenePairs(GenePairs[i], ExpressionProfile)
+for i in range(len(AllPairs)):
+    Div = ComputeExpressionDivergenceGenePairs(AllPairs[i], ExpressionProfile)
     Divergence.append(Div)
+
+print('computed divergence')
 
 # make a list of gene category names parallel to the list of gene pairs
 GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
@@ -134,31 +138,21 @@ plt.tick_params(axis='both', which='both', bottom='on', top='off',
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
       
-
 # perform statistical tests between gene categories
 # create list to store the p-values
 PValues = []
 # loop over inner list, compare gene categories
 for i in range(0, len(Divergence) -1):
     for j in range(i+1, len(Divergence)):
-        P = stats.ranksums(Divergence[i], Divergence[j])[1]
+        P = PermutationResampling(Divergence[i], Divergence[j], 1000, statistic = np.mean)
+        print(i, j, P)
         PValues.append(P)
 # print p values
 for p in PValues:
     print(p)
 
 # convert p-values to star significance level
-Significance = []
-for pvalue in PValues:
-    if pvalue >= 0.05:
-        Significance.append('')
-    elif pvalue < 0.05 and pvalue >= 0.01:
-        Significance.append('*')
-    elif pvalue < 0.01 and pvalue >= 0.001:
-        Significance.append('**')
-    elif pvalue < 0.001:
-        Significance.append('***')
-
+Significance = ConvertPToStars(PValues)
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
@@ -169,5 +163,6 @@ for i in range(len(Diff)):
     ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
     
 # save figure
-fig.savefig('ExpressionDivergenceDistance.pdf', bbox_inches = 'tight')
-fig.savefig('ExpressionDivergenceDistance.eps', bbox_inches = 'tight')
+fig.savefig('truc.pdf', bbox_inches = 'tight')
+#fig.savefig('ExpressionDivergenceDistance.pdf', bbox_inches = 'tight')
+#fig.savefig('ExpressionDivergenceDistance.eps', bbox_inches = 'tight')
