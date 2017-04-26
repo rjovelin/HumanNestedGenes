@@ -78,7 +78,7 @@ NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
 
 # create sets of internal and external nested genes 
 Internal, External = set(), set()
-for pair in Overlap[1]:
+for pair in GenePairs[1]:
     External.add(pair[0])
     Internal.add(pair[1])
 
@@ -101,12 +101,17 @@ elif ExpBreadth == 'specificity':
 AllGeneSets = [NonOverlappingGenes, GeneSets[1], Internal, External]
 for i in range(2, len(GeneSets)):
     AllGeneSets.append(GeneSets[i])
-    
+  
+for i in range(len(AllGeneSets)):
+    print(i, len(AllGeneSets[i]))
+
+  
 # make a parallel list of lists of gene breadth
 GeneBreadth = []
 for i in range(len(AllGeneSets)):
     # loop over the gene in the given gene set and record its expression breadth
     expbreadth = [Breadth[gene] for gene in AllGeneSets[i] if gene in Breadth]
+    print(len(expbreadth))
     GeneBreadth.append(expbreadth)
                
 # create lists with means and SEM for each gene category
@@ -161,7 +166,7 @@ plt.tick_params(axis='both', which='both', bottom='on', top='off', right='off',
 # add ticks on the x axis
 TickPos = [0.05, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95]
 Labels = ['Not', 'Nst', 'Int', 'Ext', 'Pbk', 'Con', 'Div']
-plt.xticks(TickPos, Labels, rotation = 30, ha = 'right')
+plt.xticks(TickPos, Labels, rotation = 0, ha = 'center')
 # Set the tick labels font name
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
@@ -173,8 +178,8 @@ elif ExpBreadth == 'specificity':
     YPos = [1] * 8
 
 # add stars for significance
-for i in range(len(Significance)):
-    ax.text(StarPos[i], YPos[i], Significance[i], horizontalalignment='center', verticalalignment='center',
+for i in range(len(PVal)):
+    ax.text(StarPos[i], YPos[i], PVal[i], horizontalalignment='center', verticalalignment='center',
             color = 'grey', fontname = 'Arial', size = 6)
 
 # add some space around x axis
