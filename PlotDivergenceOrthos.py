@@ -5,7 +5,7 @@ Created on Wed Jan 11 20:59:27 2017
 @author: Richard
 """
 
-# use this script to plot sequence and expression divergence between orthologs and proportion of genes with homologs 
+# use this script to plot sequence and expression divergence between orthologs 
 
 # usage python3 PlotDivergenceOrthos.py [options]
 # -[chimp/mouse]: use human-chimp or human-mouse comparisons
@@ -144,55 +144,7 @@ for i in range(1, len(Divergence)):
 PValDiverg = ConvertPToStars(PValDiverg)
 
 
-# 2) compare proportions of genes with homologs for each category
-
-# create a set of human genes that have any homologs
-Homologs = set()
-if Species == 'chimp':
-    infile = open('HumanChimpOrthologs.txt')
-elif Species == 'mouse':
-    infile = open('HumanMouseOrthologs.txt')
-infile.readline()
-for line in infile:
-    if 'ortholog' in line:
-        line = line.rstrip().split('\t')
-        assert 'ENS' in line[0], 'gene id is not valid'
-        assert 'ortholog' in line[4], 'ortholog should be in homology type'
-        Homologs.add(line[0])
-infile.close()            
-
-# count genes with and without homologs
-GeneCounts = []
-# loop over gene sets
-for i in range(len(AllGenes)):
-    # initialize counters
-    homo, nohomo = 0, 0
-    # loop over genes in given set
-    for gene in AllGenes[i]:
-        if gene in Homologs:
-            homo += 1
-        else:
-            nohomo += 1
-    GeneCounts.append([homo, nohomo])    
-
-# compare the proportions of gene with and without homologs
-# create a list to store the P-values
-PProp = []
-for i in range(1, len(GeneCounts)):
-    p = stats.fisher_exact([GeneCounts[0], GeneCounts[i]])[1]
-    PProp.append(p)
-# replace P values by significance
-PProp = ConvertPToStars(PProp)
-
-# get the proportions of genes with and without homologs
-WithHomolog, NoHomolog = [], []
-for i in range(len(GeneCounts)):
-    WithHomolog.append(GeneCounts[i][0] / sum(GeneCounts[i]))
-    NoHomolog.append(GeneCounts[i][1] / sum(GeneCounts[i]))
-    assert sum(GeneCounts[i]) == len(AllGenes[i])
-
-
-# 3) compare expression divergence between orthologs
+# 2) compare expression divergence between orthologs
 
 # get expression profile of human genes and genes of sister-species
 if Species == 'chimp':
@@ -240,25 +192,18 @@ PValExpDiv = ConvertPToStars(PValExpDiv)
 
     
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, DataType, YMax):
+def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, YMax):
     '''
     Returns a ax instance in figure
     '''    
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
-    # check type of graphic    
-    if DataType == 'divergence':
-        # set colors
-        colorscheme = ['lightgrey', '#f03b20', '#fd8d3c', '#feb24c', '#43a2ca', '#fee391', '#74c476']
-        # plot divergence
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], 0.2, yerr = Data[1], color = colorscheme,
-               edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
-    elif DataType == 'proportion':
-        ## Create a horizontal bar plot for proportions of genes with homologs
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'homolog', color= '#dadaeb', linewidth = 0.7)
-        # Create a horizontal bar plot for proportions of same strand pairs
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'no homolog', color= '#d9f0a3', linewidth = 0.7)
-
+    # set colors
+    colorscheme = ['lightgrey', '#f03b20', '#fd8d3c', '#feb24c', '#43a2ca', '#fee391', '#74c476']
+    # plot divergence
+    ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], 0.2, yerr = Data[1], color = colorscheme,
+           edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
+    
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write y axis label
@@ -293,8 +238,7 @@ elif Species == 'mouse':
     YMaxSeq, YMaxExp = 0.305, 0.505
     
 ax1 = CreateAx(3, 1, 1, fig, [MeanDiverg, SEMDiverg], GeneCats, 'dN/dS', 'divergence', YMaxSeq)
-ax2 = CreateAx(3, 1, 2, fig, [WithHomolog, NoHomolog], GeneCats, 'Proportion', 'proportion', 1)
-ax3 = CreateAx(3, 1, 3, fig, [MeanExpDiv, SEMExpDiv], GeneCats, 'Expression divergence', 'divergence', YMaxExp)
+ax2 = CreateAx(3, 1, 3, fig, [MeanExpDiv, SEMExpDiv], GeneCats, 'Expression divergence', 'divergence', YMaxExp)
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
@@ -309,15 +253,8 @@ elif Species == 'mouse':
     
 for i in range(len(PValDiverg)):
     ax1.text(xpos[i], yposSeq[i], PValDiverg[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-for i in range(len(PProp)):
-    ax2.text(xpos[i], 1.02, PProp[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 for i in range(len(PValExpDiv)):
-    ax3.text(xpos[i], yposExp[i], PValExpDiv[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-
-# add legend
-NoH = mpatches.Patch(facecolor = '#d9f0a3' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
-WiH = mpatches.Patch(facecolor = '#dadaeb' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
-ax2.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
+    ax2.text(xpos[i], yposExp[i], PValExpDiv[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 
 # make sure subplots do not overlap
 plt.tight_layout()
