@@ -123,7 +123,7 @@ for i in range(1, len(GeneBreadth)):
     P = PermutationResampling(GeneBreadth[0], GeneBreadth[i], 1000, statistic = np.mean)    
     PVal.append(P)
 # convert p-values to star significance level
-PValExpDiv = ConvertPToStars(PValExpDiv)
+PVal = ConvertPToStars(PVal)
 
 
 # create figure
