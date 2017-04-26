@@ -9,7 +9,6 @@ Created on Sat Nov 19 18:38:17 2016
 # of the distance between the 2 genes
 
 
-
 # import modules
 # use Agg backend on server without X server
 import matplotlib as mpl
@@ -30,34 +29,25 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
-# load dictionary of overlapping gene pairs
-json_data = open('HumanOverlappingGenes.json')
-Overlapping = json.load(json_data)
-json_data.close()
-# load dictionary of nested gene pairs
-json_data = open('HumanNestedGenes.json')
-Nested = json.load(json_data)
-json_data.close()
-# load dictionary of pibbyback gene pairs
-json_data = open('HumanPiggyBackGenes.json')
-Piggyback = json.load(json_data)
-json_data.close()
-# load dictionary of convergent gene pairs
-json_data = open('HumanConvergentGenes.json')
-Convergent = json.load(json_data)
-json_data.close()
-# load dictionary of divergent gene pairs
-json_data = open('HumanDivergentGenes.json')
-Divergent = json.load(json_data)
-json_data.close()
 
+# load dictionaries of overlapping genes
+JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',
+             'HumanPiggyBackGenes.json', 'HumanConvergentGenes.json',
+             'HumanDivergentGenes.json']
+# make a list of dictionaries
+Overlap = []
+# loop over files
+for i in range(len(JsonFiles)):
+    # load dictionary of overlapping gene pairs
+    json_data = open(JsonFiles[i])
+    overlapping = json.load(json_data)
+    json_data.close()
+    Overlap.append(overlapping)
 
-# create lists of gene pairs
-OverlappingPairs = GetHostNestedPairs(Overlapping)
-NestedPairs = GetHostNestedPairs(Nested)
-PiggybackPairs = GetHostNestedPairs(Piggyback)
-ConvergentPairs = GetHostNestedPairs(Convergent)
-DivergentPairs = GetHostNestedPairs(Divergent)
+# create a list of list of gene pairs
+AllPairs = []
+for i in range(len(Overlap)):
+    AllPairs.append(GetHostNestedPairs(Overlap[i]))
 
 
 # get GFF file
