@@ -259,11 +259,8 @@ for i in range(len(PValExpDiv)):
 # make sure subplots do not overlap
 plt.tight_layout()
 
-
-if Species == 'chimp':
-    FigName = 'truc'
-elif Species == 'mouse':
-    FigName = 'truc'
+# build figure name with option
+FigName = 'ProportionsHomologs' + Species.title()
 # save figure
-fig.savefig(FigName + '.pdf', bbox_inches = 'tight')
+fig.savefig('truc.pdf', bbox_inches = 'tight')
 
