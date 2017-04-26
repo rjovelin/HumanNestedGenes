@@ -90,28 +90,19 @@ IntronLength = [HostLength, NestedLength, OthersLength]
 HostIntrons = [WithGene, WithoutGene]
 
 
-
-# create a function to get the mean and SEM of items in a list
-def GetMeanSEM(L):
-    '''
-    (list) -> (list, list)
-    Take a list of inner lists of numbers and return a list with mean values
-    and a parallel list with SEM values for each item of the outter list
-    '''
-    # create lists of mean and SEM
-    MeanVal, SEMVal = [], []
-    # loop over the outter ist
-    for i in range(len(L)):
-        MeanVal.append(np.mean(L[i]))
-        SEMVal.append(np.std(L[i]) / math.sqrt(len(L[i])))
-    return MeanVal, SEMVal
-
-
-    
-# create lists with means and with SEM
-NumMeans, NumSEM = GetMeanSEM(IntronNumbers)
-LengthMeans, LengthSEM = GetMeanSEM(IntronLength)
-HostIntronMeans, HostIntronSEM = GetMeanSEM(HostIntrons)
+# create lists with means and SEM
+NumMeans, NumSEM = [], []
+for i in range(len(IntronNumbers)):
+    NumMeans.append(np.mean(IntronNumbers[i]))
+    NumSEM.append(np.std(IntronNumbers[i]) / math.sqrt(len(IntronNumbers[i])))
+LengthMeans, LengthSEM = [], []
+for i in range(len(IntronLength)):
+    LengthMeans.append(np.mean(IntronLength[i]))
+    LengthSEM.append(np.std(IntronLength[i]) / math.sqrt(len(IntronLength[i])))
+HostIntronMeans, HostIntronSEM = [], []
+for i in range(len(HostIntrons)):
+    HostIntronMeans.append(np.mean(HostIntrons[i]))
+    HostIntronSEM.append(np.std(HostIntrons[i]) / math.sqrt(len(HostIntrons[i])))
 
 # perform statistical tests between gene categories
 # create dict to store results
