@@ -156,7 +156,7 @@ ax = fig.add_subplot(1, 1, 1)
 # Create a horizontal bar plot for proportions of genes with homologs
 ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], WithHomolog, width = 0.2, label = 'homolog', color= '#dadaeb', linewidth = 0.7)
 # Create a horizontal bar plot for proportions of same strand pairs
-ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], NoHomolog, width = 0.2, bottom = Data[0], label = 'no homolog', color= '#d9f0a3', linewidth = 0.7)
+ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], NoHomolog, width = 0.2, bottom = WithHomolog, label = 'no homolog', color= '#d9f0a3', linewidth = 0.7)
 
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
