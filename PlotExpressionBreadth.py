@@ -52,9 +52,6 @@ for i in range(len(JsonFiles)):
 # get GFF file
 GFF = 'Homo_sapiens.GRCh38.88.gff3'
 
-
-
-
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 GeneChromoCoord = ChromoGenesCoord(GFF)
@@ -68,21 +65,18 @@ GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
 OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
 
 # create lists of gene pairs
-OverlappingPairs = GetHostNestedPairs(Overlapping)
-NestedPairs = GetHostNestedPairs(Nested)
-PiggybackPairs = GetHostNestedPairs(Piggyback)
-ConvergentPairs = GetHostNestedPairs(Convergent)
-DivergentPairs = GetHostNestedPairs(Divergent)
+GenePairs = []
+for i in range(len(Overlap)):
+    GenePairs.append(GetHostNestedPairs(Overlap[i]))
 
 # generate gene sets
-NestedGenes  = MakeFullPartialOverlapGeneSet(Nested)
-OverlappingGenes = MakeFullPartialOverlapGeneSet(Overlapping)
-ConvergentGenes = MakeFullPartialOverlapGeneSet(Convergent)
-DivergentGenes = MakeFullPartialOverlapGeneSet(Divergent)
-PiggyBackGenes = MakeFullPartialOverlapGeneSet(Piggyback)
-
+GeneSets = []
+for i in range(len(Overlap)):
+    GeneSets.append(MakeFullPartialOverlapGeneSet(Overlap[i]))
 # make a set of non-overlapping genes
-NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
+NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
+
+
 
 # create lists of nested gene pairs with same and opposite directions
 same, opposite = [], []
