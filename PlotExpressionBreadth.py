@@ -76,23 +76,11 @@ for i in range(len(Overlap)):
 # make a set of non-overlapping genes
 NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
 
-
-# create lists of nested gene pairs with same and opposite directions
-same, opposite = [], []
-for pair in GenePairs[1]:
-    orientation = GenePairOrientation(pair, GeneCoord)
-    if len(set(orientation)) == 2:
-        opposite.append(pair)
-    elif len(set(orientation)) == 1:
-        same.append(pair)
-# create sets of internal and external nested genes depending on orientation 
-InternalSameGenes, InternalOppositeGenes, ExternalSameGenes, ExternalOppositeGenes = set(), set(), set(), set()
-for pair in same:
-    ExternalSameGenes.add(pair[0])
-    InternalSameGenes.add(pair[1])
-for pair in opposite:
-    ExternalOppositeGenes.add(pair[0])
-    InternalOppositeGenes.add(pair[1])
+# create sets of internal and external nested genes 
+Internal, External = set(), set()
+for pair in Overlap[1]:
+    External.add(pair[0])
+    Internal.add(pair[1])
 
 # parse the GTEX expression summary file to obtain the expression profile of each gene
 ExpressionProfile = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
@@ -108,15 +96,11 @@ if ExpBreadth == 'breadth':
 elif ExpBreadth == 'specificity':
     Breadth = ExpressionSpecificity(ExpressionProfile)    
 
-
 # make a list of all gene sets
-# [Not, Nst, IntSame, IntOpp, ExtSame, ExtOpp, Pgk, Con, Div]
-a = [InternalSameGenes, InternalOppositeGenes, ExternalSameGenes, ExternalOppositeGenes]
-AllGeneSets = [NonOverlappingGenes]
-for i in range(1, len(GeneSets)):
+# [Not, Nst, Int, Ext, Pgk, Con, Div]
+AllGeneSets = [NonOverlappingGenes, GeneSets[1], Internal, External]
+for i in range(2, len(GeneSets)):
     AllGeneSets.append(GeneSets[i])
-for i in range(len(a)-1, -1, -1):
-    AllGeneSets.insert(2, a[i])
     
 # make a parallel list of lists of gene breadth
 GeneBreadth = []
@@ -131,13 +115,11 @@ for i in range(len(GeneBreadth)):
     MeanBreadth.append(np.mean(GeneBreadth[i]))
     SEMBreadth.append(np.std(GeneBreadth[i]) / math.sqrt(len(GeneBreadth[i])))
 
-
 # compare each overlapping gene category to the non-overlapping genes using Kolmogorov-Smirnof test
 # create list to store the p-values
 PVal = []
 for i in range(1, len(GeneBreadth)):
     # compare each gene category to non-overlapping genes
-    val, P = stats.ks_2samp(GeneBreadth[0], GeneBreadth[i])
     P = PermutationResampling(GeneBreadth[0], GeneBreadth[i], 1000, statistic = np.mean)    
     PVal.append(P)
 # convert p-values to star significance level
@@ -150,12 +132,8 @@ fig = plt.figure(1, figsize = (2.5, 1.5))
 ax = fig.add_subplot(1, 1, 1)
 
 # plot variable 
-BarPos = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9, 1.05, 1.20]
-Colors = ['lightgrey', '#f03b20', 'lightgrey','lightgrey', 'lightgrey', 'lightgrey', '#43a2ca', '#fee391', '#74c476']
-
-
-
-
+BarPos = [0, 0.15, 0.3, 0.45, 0.6, 0.75, 0.9]
+Colors = ['lightgrey', '#f03b20', '#fd8d3c', '#feb24c', '#43a2ca', '#fee391', '#74c476']
 ax.bar(BarPos, MeanBreadth, 0.1, yerr = SEMBreadth, color = Colors, edgecolor = 'black', linewidth = 0.7,
        error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
 # set font for all text in figure
@@ -165,7 +143,6 @@ if ExpBreadth == 'breadth':
     ax.set_ylabel('Expression breadth', color = 'black',  size = 7, ha = 'center', **FigFont)
 elif ExpBreadth == 'specificity':
     ax.set_ylabel('Expression specificity', color = 'black',  size = 7, ha = 'center', **FigFont)
-
 
 # add a range for the Y axis
 if ExpBreadth == 'breadth':
@@ -182,14 +159,14 @@ ax.spines["left"].set_visible(True)
 plt.tick_params(axis='both', which='both', bottom='on', top='off', right='off',
                 left='on', labelbottom='on', colors='black', labelsize=7, direction='out')  
 # add ticks on the x axis
-TickPos = [0.05, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10, 1.25]
-Labels = ['NoOv', 'Nst', 'CisInt', 'TransInt', 'CisExt', 'TransExt', 'Pbk', 'Conv', 'Div']
+TickPos = [0.05, 0.2, 0.35, 0.5, 0.65, 0.8, 0.95]
+Labels = ['Not', 'Nst', 'Int', 'Ext', 'Pbk', 'Con', 'Div']
 plt.xticks(TickPos, Labels, rotation = 30, ha = 'right')
 # Set the tick labels font name
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
 
-StarPos = [0.2, 0.35, 0.5, 0.65, 0.8, 0.95, 1.10, 1.25]
+StarPos = [0.2, 0.35, 0.5, 0.65, 0.8, 0.95]
 if ExpBreadth == 'breadth':
     YPos = [32] * 8
 elif ExpBreadth == 'specificity':
@@ -204,5 +181,7 @@ for i in range(len(Significance)):
 plt.margins(0.05)
 
 outputfile = 'Expression' + ExpBreadth.title()
-fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+fig.savefig('truc.pdf', bbox_inches = 'tight')
+
+#fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
+#fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
