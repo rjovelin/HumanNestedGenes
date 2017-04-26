@@ -173,9 +173,9 @@ for label in ax.get_yticklabels():
 
 StarPos = [0.2, 0.35, 0.5, 0.65, 0.8, 0.95]
 if ExpBreadth == 'breadth':
-    YPos = [32] * 8
+    YPos = [32] * 6
 elif ExpBreadth == 'specificity':
-    YPos = [1] * 8
+    YPos = [0.82, 0.9, 0.8, 0.8, 0.79, 0.78]
 
 # add stars for significance
 for i in range(len(PVal)):
