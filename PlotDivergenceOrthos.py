@@ -249,7 +249,7 @@ if Species == 'chimp':
 
 elif Species == 'mouse':
     yposSeq = [0.23, 0.25, 0.23, 0.23, 0.22, 0.22]
-    yposExp = [0.20, 0.20, 0.20, 0.20, 0.20, 0.20]    
+    yposExp = [0.36, 0.38, 0.36, 0.32, 0.30, 0.28]    
     
 for i in range(len(PValDiverg)):
     ax1.text(xpos[i], yposSeq[i], PValDiverg[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
