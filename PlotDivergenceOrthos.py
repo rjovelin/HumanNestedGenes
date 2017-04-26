@@ -256,9 +256,9 @@ for i in range(len(PValExpDiv)):
     ax2.text(xpos[i], yposExp[i], PValExpDiv[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
 
 # add subplot labels
-ax1.text(-0.5, YMaxSeq + 0.025, 'A', horizontalalignment='center', verticalalignment='center',
+ax1.text(-1, YMaxSeq + 0.025, 'A', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 7)
-ax1.text(2.5, YMaxSeq + 0.025, 'B', horizontalalignment='center', verticalalignment='center',
+ax1.text(2.52, YMaxSeq + 0.025, 'B', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 7)
 
 # make sure subplots do not overlap
