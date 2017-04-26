@@ -106,7 +106,8 @@ fig = plt.figure(1, figsize = (3, 2))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 # set colors
-colorscheme = ['grey','grey','grey','grey', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+
 # plot nucleotide divergence
 ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85, 2.15], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
        edgecolor = 'black', linewidth = 0.5,
