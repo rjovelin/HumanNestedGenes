@@ -77,10 +77,9 @@ for i in range(len(Overlap)):
 NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
 
 
-
 # create lists of nested gene pairs with same and opposite directions
 same, opposite = [], []
-for pair in NestedPairs:
+for pair in GenePairs[1]:
     orientation = GenePairOrientation(pair, GeneCoord)
     if len(set(orientation)) == 2:
         opposite.append(pair)
@@ -94,7 +93,6 @@ for pair in same:
 for pair in opposite:
     ExternalOppositeGenes.add(pair[0])
     InternalOppositeGenes.add(pair[1])
-
 
 # parse the GTEX expression summary file to obtain the expression profile of each gene
 ExpressionProfile = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
@@ -112,9 +110,14 @@ elif ExpBreadth == 'specificity':
 
 
 # make a list of all gene sets
-AllGeneSets = [NonOverlappingGenes, NestedGenes, InternalSameGenes, InternalOppositeGenes, ExternalSameGenes,
-               ExternalOppositeGenes, PiggyBackGenes, ConvergentGenes,
-               DivergentGenes]
+# [Not, Nst, IntSame, IntOpp, ExtSame, ExtOpp, Pgk, Con, Div]
+a = [InternalSameGenes, InternalOppositeGenes, ExternalSameGenes, ExternalOppositeGenes]
+AllGeneSets = [NonOverlappingGenes]
+for i in range(1, len(GeneSets)):
+    AllGeneSets.append(GeneSets[i])
+for i in range(len(a)-1, -1, -1):
+    AllGeneSets.insert(2, a[i])
+    
 # make a parallel list of lists of gene breadth
 GeneBreadth = []
 for i in range(len(AllGeneSets)):
