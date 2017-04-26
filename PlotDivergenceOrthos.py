@@ -204,7 +204,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, YMax):
     ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], 0.2, yerr = Data[1], color = colorscheme,
            edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
     # set label size for all labels
-    LabelSize = 6.7
+    LabelSize = 6.5
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write y axis label
