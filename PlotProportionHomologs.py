@@ -148,7 +148,7 @@ for i in range(len(GeneCounts)):
     assert sum(GeneCounts[i]) == len(AllGenes[i])
 
 # plot sequence divergence, proportion of homologs, expression divergence in a single figure
-fig = plt.figure(1, figsize = (6, 1.8))
+fig = plt.figure(1, figsize = (2.2, 1.8))
 
 # add a plot to figure (N row, N column, plot N)
 ax = figure.add_subplot(1, 1, 1)
