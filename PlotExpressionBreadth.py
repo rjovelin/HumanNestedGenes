@@ -102,16 +102,11 @@ AllGeneSets = [NonOverlappingGenes, GeneSets[1], Internal, External]
 for i in range(2, len(GeneSets)):
     AllGeneSets.append(GeneSets[i])
   
-for i in range(len(AllGeneSets)):
-    print(i, len(AllGeneSets[i]))
-
-  
 # make a parallel list of lists of gene breadth
 GeneBreadth = []
 for i in range(len(AllGeneSets)):
     # loop over the gene in the given gene set and record its expression breadth
     expbreadth = [Breadth[gene] for gene in AllGeneSets[i] if gene in Breadth]
-    print(len(expbreadth))
     GeneBreadth.append(expbreadth)
                
 # create lists with means and SEM for each gene category
@@ -132,7 +127,7 @@ PVal = ConvertPToStars(PVal)
 
 
 # create figure
-fig = plt.figure(1, figsize = (2.5, 1.5))
+fig = plt.figure(1, figsize = (2, 1.5))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 
@@ -173,9 +168,9 @@ for label in ax.get_yticklabels():
 
 StarPos = [0.2, 0.35, 0.5, 0.65, 0.8, 0.95]
 if ExpBreadth == 'breadth':
-    YPos = [32] * 6
+    YPos = [29, 28, 31, 30, 31, 31]
 elif ExpBreadth == 'specificity':
-    YPos = [0.82, 0.9, 0.8, 0.8, 0.79, 0.78]
+    YPos = [0.82, 0.9, 0.8, 0.79, 0.78, 0.77]
 
 # add stars for significance
 for i in range(len(PVal)):
@@ -186,7 +181,5 @@ for i in range(len(PVal)):
 plt.margins(0.05)
 
 outputfile = 'Expression' + ExpBreadth.title()
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-#fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
-#fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
