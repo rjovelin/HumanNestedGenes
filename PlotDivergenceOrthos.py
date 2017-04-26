@@ -203,13 +203,14 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, YMax):
     # plot divergence
     ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], 0.2, yerr = Data[1], color = colorscheme,
            edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
-    
+    # set label size for all labels
+    LabelSize = 6.7
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write y axis label
-    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+    ax.set_ylabel(YLabel, color = 'black',  size = LabelSize, ha = 'center', **FigFont)
     # add ticks and lebels
-    plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], XLabel, rotation = 0, size = 7, color = 'black', ha = 'center', **FigFont)
+    plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], XLabel, rotation = 0, size = LabelSize, color = 'black', ha = 'center', **FigFont)
     # add a range for the Y and X axes
     plt.ylim([0, YMax])    
     # do not show lines around figure  
@@ -220,7 +221,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, YMax):
     # edit tick parameters    
     plt.tick_params(axis='both', which='both', bottom='on', top='off',
                     right = 'off', left = 'on', labelbottom='on',
-                    colors = 'black', labelsize = 7, direction = 'out')  
+                    colors = 'black', labelsize = LabelSize, direction = 'out')  
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')   
