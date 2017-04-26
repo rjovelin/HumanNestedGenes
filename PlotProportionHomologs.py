@@ -190,7 +190,7 @@ for i in range(len(PProp)):
 # add legend
 NoH = mpatches.Patch(facecolor = '#d9f0a3' , edgecolor = 'black', linewidth = 0.7, label= 'no homolog')
 WiH = mpatches.Patch(facecolor = '#dadaeb' , edgecolor = 'black', linewidth = 0.7, label= 'homolog')
-ax2.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
+ax.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
 
 # build figure name with option
 FigName = 'ProportionsHomologs' + Species.title()
