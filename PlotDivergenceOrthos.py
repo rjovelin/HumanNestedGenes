@@ -237,8 +237,8 @@ if Species == 'chimp':
 elif Species == 'mouse':
     YMaxSeq, YMaxExp = 0.305, 0.505
     
-ax1 = CreateAx(3, 1, 1, fig, [MeanDiverg, SEMDiverg], GeneCats, 'dN/dS', 'divergence', YMaxSeq)
-ax2 = CreateAx(3, 1, 3, fig, [MeanExpDiv, SEMExpDiv], GeneCats, 'Expression divergence', 'divergence', YMaxExp)
+ax1 = CreateAx(3, 1, 1, fig, [MeanDiverg, SEMDiverg], GeneCats, 'dN/dS', YMaxSeq)
+ax2 = CreateAx(3, 1, 3, fig, [MeanExpDiv, SEMExpDiv], GeneCats, 'Expression divergence', YMaxExp)
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
