@@ -81,7 +81,7 @@ elif Species == 'mouse':
     Orthos = MatchOrthologs('HumanMouseOrthologs.txt')
 
 # create a list of gene categories
-GeneCats = ['NoOv', 'Nst', 'Int', 'Ext', 'Pbk', 'Conv', 'Div']
+GeneCats = ['Not', 'Nst', 'Int', 'Ext', 'Pbk', 'Con', 'Div']
 
 # create lists of orthologous pairs for each gene category 
 AllPairs = []
