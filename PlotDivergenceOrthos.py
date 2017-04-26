@@ -261,7 +261,8 @@ for i in range(len(PValExpDiv)):
 plt.tight_layout()
 
 # build figure name with option
-FigName = 'ProportionsHomologs' + Species.title()
+FigName = 'DivergenceOrthos' + Species.title()
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+fig.savefig(FigName + '.pdf', bbox_inches = 'tight')
+fig.savefig(FigName + '.eps', bbox_inches = 'tight')
 
