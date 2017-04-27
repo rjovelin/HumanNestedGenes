@@ -65,19 +65,21 @@ for gene in Longest:
     if Longest[gene] in CDS:
         ProtSeq[gene] = TranslateCDS(CDS[Longest[gene]])
         
-# make sets of genes
-OverlapGenes = MakeFullPartialOverlapGeneSet(Overlapping)
-NestedGenes = MakeFullPartialOverlapGeneSet(Nested)
-PiggybackGenes = MakeFullPartialOverlapGeneSet(Piggyback)
-ConvergentGenes = MakeFullPartialOverlapGeneSet(Convergent)
-DivergentGenes = MakeFullPartialOverlapGeneSet(Divergent)
-NonOverlapGenes = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
+# generate gene sets
+OverlappingGeneSets = []
+for i in range(len(Overlap)):
+    OverlappingGeneSets.append(MakeFullPartialOverlapGeneSet(Overlap[i]))
+# make a set of non-overlapping genes
+NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
+
 
 # create a list of gene sets
-AllGenes = [NonOverlapGenes, NestedGenes, PiggybackGenes, ConvergentGenes, DivergentGenes]
+AllGenes = [NonOverlapGenes]
+for i in range(1, len(OverlappingGeneSets)):
+    AllGenes.append(OverlappingGeneSets[i])
+
 # create a parallel list of protein length length
-ProtLength = []
-GeneLength = []
+ProtLength, GeneLength = [], []
 # loop over lists of genes for each overlapping group
 for i in range(len(AllGenes)):
     aaLength = [len(ProtSeq[gene]) for gene in AllGenes[i]]
@@ -91,31 +93,26 @@ for i in range(len(AllGenes)):
 for i in range(len(GeneLength)):
     GeneLength[i] = list(map(lambda x: x/1000, GeneLength[i]))
 
-# create a function to get the mean and SEM of items in a list
-def GetMeanSEM(L):
-    '''
-    (list) -> (list, list)
-    Take a list of inner lists of numbers and return a list with mean values
-    and a parallel list with SEM values for each item of the outter list
-    '''
-    # create lists of mean and SEM
-    MeanVal, SEMVal = [], []
-    # loop over the outter ist
-    for i in range(len(L)):
-        MeanVal.append(np.mean(L[i]))
-        SEMVal.append(np.std(L[i]) / math.sqrt(len(L[i])))
-    return MeanVal, SEMVal
-
 # create lists with means and with SEM
-ProtMeans, ProtSEM = GetMeanSEM(ProtLength)
-DnaMeans, DnaSEM = GetMeanSEM(GeneLength)
-
+ProtMeans, ProtSEM = [], []
+for i in range(len(ProtLength)):
+    ProtMeans.append(np.mean(ProtLength[i]))
+    ProtSEM.append(np.std(ProtLength[i]) / math.sqrt(len(ProtLength[i])))
+DnaMeans, DnaSEM = [], []
+for i in range(len(GeneLength)):
+    DnaMeans.append(np.mean(GeneLength[i]))
+    DnaSEM.append(np.std(GeneLength[i]) / math.sqrt(len(GeneLength[i])))
 
 # perform statistical tests between non-overlapping genes and each overlapping category
 #using Kolmogorov-Smirnof test
 # create list to store the P values
 ProtPValues = []
 for i in range(1, len(ProtLength)):
+    
+    
+    
+    
+    
     val, P = stats.ks_2samp(ProtLength[0], ProtLength[i])
     ProtPValues.append(P)
 DnaPValues = []
