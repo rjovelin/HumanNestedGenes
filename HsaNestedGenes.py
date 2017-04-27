@@ -2187,3 +2187,18 @@ def ConvertPToStars(PValues):
         elif pvalue < 0.001:
             Significance.append('***')
     return Significance
+    
+    
+# use this function to set values > cutoff equal to cutoff    
+def CombineHighValues(L, cutoff):
+    '''
+    (list, int) -> list
+    Take a list of overlap length and return a modified list with values higher
+    than cutoff equal to cutoff
+    '''
+    for i in range(len(L)):
+        if L[i] >= cutoff:
+            L[i] = cutoff
+    return L    
+    
+    
