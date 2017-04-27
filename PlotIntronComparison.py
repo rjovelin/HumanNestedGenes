@@ -196,15 +196,15 @@ XPosLength = [[0.1, 0.28, 16, 0.2, 16.7], [0.1, 0.5, 17, 0.3, 18.2], [0.32, 0.5,
 XPosHost = [[0.1, 0.28, 63, 0.2, 67]]
     
 # annotate figure to add significance
-for i in range(len(Significance['number'])):
-    if Significance['number'][i] != '':
-        ax1 = AddSignificance(ax1, Significance['number'][i], XPosNum[i][0], XPosNum[i][1], XPosNum[i][2], XPosNum[i][3], XPosNum[i][4])
-for i in range(len(Significance['length'])):
-    if Significance['length'][i]  != '':
-        ax2 = AddSignificance(ax2, Significance['length'][i], XPosLength[i][0], XPosLength[i][1], XPosLength[i][2], XPosLength[i][3], XPosLength[i][4])
-for i in range(len(Significance['host'])):
-    if Significance['host'][i] != '':
-        ax3 = AddSignificance(ax3, Significance['host'][i], XPosHost[i][0], XPosHost[i][1], XPosHost[i][2], XPosHost[i][3], XPosHost[i][4])
+for i in range(len(PValues['number'])):
+    if PValues['number'][i] != '':
+        ax1 = AddSignificance(ax1, PValues['number'][i], XPosNum[i][0], XPosNum[i][1], XPosNum[i][2], XPosNum[i][3], XPosNum[i][4])
+for i in range(len(PValues['length'])):
+    if PValues['length'][i]  != '':
+        ax2 = AddSignificance(ax2, PValues['length'][i], XPosLength[i][0], XPosLength[i][1], XPosLength[i][2], XPosLength[i][3], XPosLength[i][4])
+for i in range(len(PValues['host'])):
+    if PValues['host'][i] != '':
+        ax3 = AddSignificance(ax3, PValues['host'][i], XPosHost[i][0], XPosHost[i][1], XPosHost[i][2], XPosHost[i][3], XPosHost[i][4])
 
 
 # add subplot labels
@@ -226,5 +226,7 @@ plt.tight_layout()
 #gs.update(wspace=0.3, hspace=0) # set the spacing between axes. 
 
 # save figure
-fig.savefig('IntronDifferences.pdf', bbox_inches = 'tight')
-fig.savefig('IntronDifferences.eps', bbox_inches = 'tight')
+fig.savefig('truc.pdf', bbox_inches = 'tight')
+
+#fig.savefig('IntronDifferences.pdf', bbox_inches = 'tight')
+#fig.savefig('IntronDifferences.eps', bbox_inches = 'tight')
