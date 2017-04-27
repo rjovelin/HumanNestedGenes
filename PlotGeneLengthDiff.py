@@ -7,7 +7,7 @@ Created on Thu Dec 22 16:36:26 2016
 
 # use this script to compare amino acid and gene length between overlapping and non-overlapping genes
 
-# usage python3 CompareAAlength.py
+# usage python3 PlotGeneLengthDiff.py
 
 # import modules
 # use Agg backend on server without X server
@@ -28,31 +28,19 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
-# load dictionary of overlapping gene pairs
-json_data = open('HumanOverlappingGenes.json')
-Overlapping = json.load(json_data)
-json_data.close()
-
-# load dictionary of nested gene pairs
-json_data = open('HumanNestedGenes.json')
-Nested = json.load(json_data)
-json_data.close()
-
-# load dictionary of pibbyback gene pairs
-json_data = open('HumanPiggyBackGenes.json')
-Piggyback = json.load(json_data)
-json_data.close()
-
-# load dictionary of convergent gene pairs
-json_data = open('HumanConvergentGenes.json')
-Convergent = json.load(json_data)
-json_data.close()
-
-# load dictionary of divergent gene pairs
-json_data = open('HumanDivergentGenes.json')
-Divergent = json.load(json_data)
-json_data.close()
-
+# load dictionaries of overlapping genes
+JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',
+             'HumanPiggyBackGenes.json', 'HumanConvergentGenes.json',
+             'HumanDivergentGenes.json']
+# make a list of dictionaries
+Overlap = []
+# loop over files
+for i in range(len(JsonFiles)):
+    # load dictionary of overlapping gene pairs
+    json_data = open(JsonFiles[i])
+    overlapping = json.load(json_data)
+    json_data.close()
+    Overlap.append(overlapping)
 
 # get GFF file
 GFF = 'Homo_sapiens.GRCh38.86.gff3'
