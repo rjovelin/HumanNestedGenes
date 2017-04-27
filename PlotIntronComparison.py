@@ -186,8 +186,8 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Tickl
 fig = plt.figure(1, figsize = (4.5, 2))
 
 # plot data for intron numner
-ax1 = CreateAx(3, 1, 1, fig, NumMeans, NumSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Hst', 'Nst', 'Un'], ['grey','black','white'], 'Number of introns per gene', 20)
-ax2 = CreateAx(3, 1, 2, fig, LengthMeans, LengthSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Hst', 'Nst', 'Un'], ['grey','black','white'], 'Intron length (Kbp)', 20)
+ax1 = CreateAx(3, 1, 1, fig, NumMeans, NumSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Ext', 'Int', 'Not'], ['grey','black','white'], 'Number of introns per gene', 20)
+ax2 = CreateAx(3, 1, 2, fig, LengthMeans, LengthSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Ext', 'Int', 'Not'], ['grey','black','white'], 'Intron length (Kbp)', 20)
 ax3 = CreateAx(3, 1, 3, fig, HostIntronMeans, HostIntronSEM, [0, 0.2], [0.1, 0.3], ['With', 'None'], ['grey','black'], 'Intron length (Kbp)', 70)
 
 # make lists with bracket and star positions
