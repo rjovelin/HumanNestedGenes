@@ -34,9 +34,6 @@ from HsaNestedGenes import *
 JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',
              'HumanPiggyBackGenes.json', 'HumanConvergentGenes.json',
              'HumanDivergentGenes.json']
-# get GFF file
-GFF = 'Homo_sapiens.GRCh38.88.gff3'
-
 # make a list of dictionaries
 Overlap = []
 # loop over files
@@ -47,10 +44,9 @@ for i in range(len(JsonFiles)):
     json_data.close()
     Overlap.append(overlapping)
 
-
-
 # get GFF file
-GFF = 'Homo_sapiens.GRCh38.86.gff3'
+GFF = 'Homo_sapiens.GRCh38.88.gff3'
+
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 GeneChromoCoord = ChromoGenesCoord(GFF)
