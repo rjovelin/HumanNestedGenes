@@ -176,11 +176,11 @@ ProtYPos = [450, 550, 600, 550]
 DnaYPos = [105, 70, 70, 70]
 
 # add stars for significance
-for i in range(len(ProtSignif)):
-    ax1.text(StarPos[i], ProtYPos[i], ProtSignif[i], horizontalalignment='center', verticalalignment='center',
+for i in range(len(ProtPValues)):
+    ax1.text(StarPos[i], ProtYPos[i], ProtPValues[i], horizontalalignment='center', verticalalignment='center',
             color = 'grey', fontname = 'Arial', size = 6)
-for i in range(len(DnaSignif)):
-    ax2.text(StarPos[i], DnaYPos[i], DnaSignif[i], horizontalalignment='center', verticalalignment='center',
+for i in range(len(DnaPValues)):
+    ax2.text(StarPos[i], DnaYPos[i], DnaPValues[i], horizontalalignment='center', verticalalignment='center',
             color = 'grey', fontname = 'Arial', size = 6)
 
 # add subplot labels
