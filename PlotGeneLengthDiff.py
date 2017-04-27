@@ -151,7 +151,7 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, YLabel, YMax):
                     left='on', labelbottom='on', colors='black', labelsize=8, direction='out')  
     # add ticks on the x axis
     TickPos = [0.05, 0.2, 0.35, 0.5, 0.65]
-    Labels = ['NoOv', 'Nst', 'Pbk', 'Conv', 'Div']
+    Labels = ['Not', 'Nst', 'Pbk', 'Con', 'Div']
     plt.xticks(TickPos, Labels)
     # Set the tick labels font name
     for label in ax.get_yticklabels():
