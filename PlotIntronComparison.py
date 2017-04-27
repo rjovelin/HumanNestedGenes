@@ -183,7 +183,7 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Tickl
 
 
 # create figure
-fig = plt.figure(1, figsize = (4.5, 2))
+fig = plt.figure(1, figsize = (4.5, 2.2))
 
 # plot data for intron numner
 ax1 = CreateAx(3, 1, 1, fig, NumMeans, NumSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Ext', 'Int', 'Not'], ['grey','black','white'], 'Number of introns per gene', 20)
