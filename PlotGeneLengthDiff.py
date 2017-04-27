@@ -108,37 +108,15 @@ for i in range(len(GeneLength)):
 # create list to store the P values
 ProtPValues = []
 for i in range(1, len(ProtLength)):
-    
-    
-    
-    
-    
-    val, P = stats.ks_2samp(ProtLength[0], ProtLength[i])
+    P = PermutationResampling(ProtLength[0], ProtLength[i], 1000, statistic = np.mean)    
     ProtPValues.append(P)
 DnaPValues = []
 for i in range(1, len(GeneLength)):
-    val, P = stats.ks_2samp(GeneLength[0], GeneLength[i])
+    P = PermutationResampling(GeneLength[0], GeneLength[i], 1000, statistic = np.mean)    
     DnaPValues.append(P)
 
 
 
-# use this function to convert p-values to star significance level
-def PValToStar(L):
-    '''
-    (list) -> list
-    Take a list of p-values and return a list of sgnificance level as stars
-    '''
-    Signif = []
-    for i in L:
-        if i >= 0.05:
-            Signif.append('')
-        elif i < 0.05 and i >= 0.01:
-            Signif.append('*')
-        elif i < 0.01 and i >= 0.001:
-            Signif.append('**')
-        elif i < 0.001:
-            Signif.append('***')
-    return Signif
 
 
 # create a list with significance level as stars
