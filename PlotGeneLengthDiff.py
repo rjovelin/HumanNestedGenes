@@ -74,7 +74,7 @@ NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
 
 
 # create a list of gene sets
-AllGenes = [NonOverlapGenes]
+AllGenes = [NonOverlappingGenes]
 for i in range(1, len(OverlappingGeneSets)):
     AllGenes.append(OverlappingGeneSets[i])
 
