@@ -147,8 +147,8 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Tickl
     ax = figure.add_subplot(Rows, Columns, Position)
     # plot variable
     ax.bar(BarPos, Means, 0.2, yerr = SEM, color = ColorScheme,
-           edgecolor = 'black', linewidth = 1,
-           error_kw=dict(elinewidth=1, ecolor='black', markeredgewidth = 1))
+           edgecolor = 'black', linewidth = 0.5,
+           error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for y
@@ -161,17 +161,9 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Tickl
     ax.spines["right"].set_visible(False)    
     ax.spines["left"].set_visible(True)  
     # edit tick paramters
-    plt.tick_params(
-        axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-        which='both',      # both major and minor ticks are affected
-        bottom='on',      # ticks along the bottom edge are off
-        top='off',         # ticks along the top edge are off
-        right = 'off',
-        left = 'on',          
-        labelbottom='on', # labels along the bottom edge are on
-        colors = 'black',
-        labelsize = 8,
-        direction = 'out') # ticks are outside the frame when bottom = 'on'  
+    plt.tick_params(axis='both', which='both', bottom='on', top='off', 
+                    right = 'off', left = 'on', labelbottom='on', colors = 'black',
+                    labelsize = 8, direction = 'out')  
     # add ticks on the x axis
     plt.xticks(TickPos, Ticklabel)    
     # Set the tick labels font name
@@ -186,7 +178,7 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Tickl
 fig = plt.figure(1, figsize = (4.5, 2.2))
 
 # plot data for intron numner
-ax1 = CreateAx(3, 1, 1, fig, NumMeans, NumSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Ext', 'Int', 'Not'], ['grey','black','white'], 'Number of introns per gene', 20)
+ax1 = CreateAx(3, 1, 1, fig, NumMeans, NumSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Ext', 'Int', 'Not'], ['grey','black','white'], 'N introns / gene', 20)
 ax2 = CreateAx(3, 1, 2, fig, LengthMeans, LengthSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Ext', 'Int', 'Not'], ['grey','black','white'], 'Intron length (Kbp)', 20)
 ax3 = CreateAx(3, 1, 3, fig, HostIntronMeans, HostIntronSEM, [0, 0.2], [0.1, 0.3], ['With', 'None'], ['grey','black'], 'Intron length (Kbp)', 70)
 
