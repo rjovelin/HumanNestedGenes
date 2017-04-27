@@ -198,13 +198,13 @@ XPosHost = [[0.1, 0.28, 63, 0.2, 67]]
 # annotate figure to add significance
 for i in range(len(PValues['number'])):
     if PValues['number'][i] != '':
-        ax1 = AddSignificance(ax1, PValues['number'][i], XPosNum[i][0], XPosNum[i][1], XPosNum[i][2], XPosNum[i][3], XPosNum[i][4])
+        ax1 = AddSignificanceToBars(ax1, PValues['number'][i], XPosNum[i][0], XPosNum[i][1], XPosNum[i][2], XPosNum[i][3], XPosNum[i][4])
 for i in range(len(PValues['length'])):
     if PValues['length'][i]  != '':
-        ax2 = AddSignificance(ax2, PValues['length'][i], XPosLength[i][0], XPosLength[i][1], XPosLength[i][2], XPosLength[i][3], XPosLength[i][4])
+        ax2 = AddSignificanceToBars(ax2, PValues['length'][i], XPosLength[i][0], XPosLength[i][1], XPosLength[i][2], XPosLength[i][3], XPosLength[i][4])
 for i in range(len(PValues['host'])):
     if PValues['host'][i] != '':
-        ax3 = AddSignificance(ax3, PValues['host'][i], XPosHost[i][0], XPosHost[i][1], XPosHost[i][2], XPosHost[i][3], XPosHost[i][4])
+        ax3 = AddSignificanceToBars(ax3, PValues['host'][i], XPosHost[i][0], XPosHost[i][1], XPosHost[i][2], XPosHost[i][3], XPosHost[i][4])
 
 
 # add subplot labels
