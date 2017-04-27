@@ -115,13 +115,9 @@ for i in range(1, len(GeneLength)):
     P = PermutationResampling(GeneLength[0], GeneLength[i], 1000, statistic = np.mean)    
     DnaPValues.append(P)
 
-
-
-
-
-# create a list with significance level as stars
-ProtSignif = PValToStar(ProtPValues)
-DnaSignif = PValToStar(DnaPValues)
+# convert p values to star significance
+ProtPValues = ConvertPToStars(ProtPValues)
+DnaPValues = ConvertPToStars(DnaPValues)
 
  
 # create a function to format the subplots
