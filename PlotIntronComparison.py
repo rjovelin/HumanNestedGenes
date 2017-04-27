@@ -147,8 +147,8 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Tickl
     ax = figure.add_subplot(Rows, Columns, Position)
     # plot variable
     ax.bar(BarPos, Means, 0.2, yerr = SEM, color = ColorScheme,
-           edgecolor = 'black', linewidth = 0.5,
-           error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
+           edgecolor = 'black', linewidth = 0.7,
+           error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write label for y
@@ -183,7 +183,7 @@ ax2 = CreateAx(3, 1, 2, fig, LengthMeans, LengthSEM, [0, 0.2, 0.4], [0.1, 0.3, 0
 ax3 = CreateAx(3, 1, 3, fig, HostIntronMeans, HostIntronSEM, [0, 0.2], [0.1, 0.3], ['With', 'None'], ['grey','black'], 'Intron length (Kbp)', 70)
 
 # make lists with bracket and star positions
-XPosNum = [[0.1, 0.28, 16, 0.2, 16.7], [0.1, 0.5, 17, 0.3, 18.2], [0.32, 0.5, 16, 0.4, 16.7]]
+XPosNum = [[0.1, 0.28, 13, 0.2, 13.7], [0.1, 0.5, 14, 0.3, 15.2], [0.32, 0.5, 13, 0.4, 13.7]]
 XPosLength = [[0.1, 0.28, 16, 0.2, 16.7], [0.1, 0.5, 17, 0.3, 18.2], [0.32, 0.5, 16, 0.4, 16.7]]
 XPosHost = [[0.1, 0.28, 63, 0.2, 67]]
     
