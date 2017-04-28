@@ -226,14 +226,14 @@ def CreateAx(Columns, Rows, Position, figure, Data, Proba, Labels, YLabel, XLabe
 
 
 # create figure
-fig = plt.figure(1, figsize = (6, 4))
+fig = plt.figure(1, figsize = (6.5, 3.5))
 
 
 # make list of labels
-Label1 = ['Nested', 'Piggyback', 'Convergent', 'Divergent']
+Label1 = ['Nst', 'Pbk', 'Con', 'Div']
 
 # compare distributions based using Kolmogorov-Smirnov statistic on 2 samples.
-Label2 = ['Nested', 'Piggyback', 'Non-overlapping']
+Label2 = ['Nst', 'Pbk', 'Not']
 for i in range(0, len(SameStrdData) -1):
     val, P =  stats.ks_2samp(SameStrdData[i], SameStrdData[-1])
     if P >= 0.05:
@@ -245,7 +245,7 @@ for i in range(0, len(SameStrdData) -1):
     elif P < 0.001:
         Label2[i] = Label2[i] + ' ***'
 
-Label3 = ['Nested', 'Convergent', 'Divergent', 'Non-overlapping']
+Label3 = ['Nst', 'Con', 'Div', 'Not']
 for i in range(0, len(OppositeStrdData) -1):
     val, P =  stats.ks_2samp(OppositeStrdData[i], OppositeStrdData[-1])
     if P >= 0.05:
