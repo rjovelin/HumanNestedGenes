@@ -226,7 +226,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, Proba, Labels, YLabel, XLabe
 
 
 # create figure
-fig = plt.figure(1, figsize = (5, 3))
+fig = plt.figure(1, figsize = (5, 3.3))
 
 
 # make list of labels
@@ -264,11 +264,16 @@ ax3 = CreateAx(2, 2, 4, fig, OppositeStrdData, OppositeStrdProba, Label3, 'Proba
 
 
 # add subplot labels
-ax1.text(-20, 1.1, 'A', horizontalalignment='center', verticalalignment='center',
+#ax1.text(-20, 1.1, 'A', horizontalalignment='center', verticalalignment='center',
+#         color = 'black', fontname = 'Arial', size = 8)
+
+ax2.text(-100, 1.2, 'A', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 8)
-ax2.text(-20, 1.1, 'B', horizontalalignment='center', verticalalignment='center',
+
+
+ax2.text(-20, 1.2, 'B', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 8)
-ax3.text(-20, 1.1, 'C', horizontalalignment='center', verticalalignment='center',
+ax3.text(-20, 1.2, 'C', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 8)
          
 # make sure subplots do not overlap
