@@ -237,18 +237,6 @@ Label2 = ['Nested', 'Piggyback', 'Non-overlapping']
 for i in range(0, len(SameStrdData) -1):
     val, P =  stats.ks_2samp(SameStrdData[i], SameStrdData[-1])
     if P >= 0.05:
-        Label1[i] = Label1[i] + ' NS'
-    elif 0.01 <= P < 0.05:
-        Label1[i] = Label1[i] + ' *'
-    elif 0.001 <= P < 0.01:
-        Label1[i] = Label1[i] + ' **'
-    elif P < 0.001:
-        Label1[i] = Label1[i] + ' ***'
-
-Label3 = ['Nested', 'Convergent', 'Divergent', 'Non-overlapping']
-for i in range(0, len(OppositeStrdData) -1):
-    val, P =  stats.ks_2samp(OppositeStrdData[i], OppositeStrdData[-1])
-    if P >= 0.05:
         Label2[i] = Label2[i] + ' NS'
     elif 0.01 <= P < 0.05:
         Label2[i] = Label2[i] + ' *'
@@ -256,6 +244,18 @@ for i in range(0, len(OppositeStrdData) -1):
         Label2[i] = Label2[i] + ' **'
     elif P < 0.001:
         Label2[i] = Label2[i] + ' ***'
+
+Label3 = ['Nested', 'Convergent', 'Divergent', 'Non-overlapping']
+for i in range(0, len(OppositeStrdData) -1):
+    val, P =  stats.ks_2samp(OppositeStrdData[i], OppositeStrdData[-1])
+    if P >= 0.05:
+        Label3[i] = Label3[i] + ' NS'
+    elif 0.01 <= P < 0.05:
+        Label3[i] = Label3[i] + ' *'
+    elif 0.001 <= P < 0.01:
+        Label3[i] = Label3[i] + ' **'
+    elif P < 0.001:
+        Label3[i] = Label3[i] + ' ***'
 
 # create subplots    
 ax1 = CreateAx(2, 1, 1, fig, LengthData, ProbaLength, Label1, 'Probability', 'Overlap length (Kb)', [0, 50, 100, 150, 200], ['0', '50', '100', '150', r'$\geq 200$'], ['#f03b20', '#43a2ca', '#fee391', '#74c476'])
