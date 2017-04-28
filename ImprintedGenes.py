@@ -32,9 +32,9 @@ assert Species in ['human', 'mouse']
 
 # load dictionaries of overlapping genes
 if Species == 'human':
-    jsonFile, GFF = 'HumanNestedGenes.json', 'Homo_sapiens.GRCh38.86.gff3'
+    jsonFile, GFF = 'HumanNestedGenes.json', 'Homo_sapiens.GRCh38.88.gff3'
 elif Species == 'mouse':
-    jsonFile, GFF = 'MouseNestedGenes.json', 'Mus_musculus.GRCm38.86.gff3'
+    jsonFile, GFF = 'MouseNestedGenes.json', 'Mus_musculus.GRCm38.88.gff3'
     
 # load dictionary of nested gene pairs
 json_data = open(jsonFile)
