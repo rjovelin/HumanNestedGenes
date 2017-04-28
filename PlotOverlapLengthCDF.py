@@ -228,8 +228,12 @@ def CreateAx(Columns, Rows, Position, figure, Data, Proba, Labels, YLabel, XLabe
 # create figure
 fig = plt.figure(1, figsize = (5, 4))
 
+
+# make list of labels
+Label1 = ['Nested', 'Piggyback', 'Convergent', 'Divergent']
+
 # compare distributions based using Kolmogorov-Smirnov statistic on 2 samples.
-Label1 = ['Nested', 'Piggyback', 'Non-overlapping']
+Label2 = ['Nested', 'Piggyback', 'Non-overlapping']
 for i in range(0, len(SameStrdData) -1):
     val, P =  stats.ks_2samp(SameStrdData[i], SameStrdData[-1])
     if P >= 0.05:
@@ -241,7 +245,7 @@ for i in range(0, len(SameStrdData) -1):
     elif P < 0.001:
         Label1[i] = Label1[i] + ' ***'
 
-Label2 = ['Nested', 'Convergent', 'Divergent', 'Non-overlapping']
+Label3 = ['Nested', 'Convergent', 'Divergent', 'Non-overlapping']
 for i in range(0, len(OppositeStrdData) -1):
     val, P =  stats.ks_2samp(OppositeStrdData[i], OppositeStrdData[-1])
     if P >= 0.05:
@@ -254,9 +258,9 @@ for i in range(0, len(OppositeStrdData) -1):
         Label2[i] = Label2[i] + ' ***'
 
 # create subplots    
-ax1 = CreateAx(1, 2, 1, fig, LengthData, ProbaLength, ['Nested', 'Piggyback', 'Convergent', 'Divergent'], 'Probability', 'Overlap length (Kb)', [0, 50, 100, 150, 200], ['0', '50', '100', '150', r'$\geq 200$'], ['#f03b20', '#43a2ca', '#fee391', '#74c476'])
-ax2 = CreateAx(2, 2, 2, fig, SameStrdData, SameStrdProba, Label1, 'Probability', 'Length ratio (%)', [i for i in range(0, 110, 10)], [str(i) for i in range(0, 110, 10)], ['#f03b20', '#43a2ca', 'lightgrey'], True, 'Same strand')
-ax3 = CreateAx(2, 2, 4, fig, OppositeStrdData, OppositeStrdProba, Label2, 'Probability', 'Length ratio (%)', [i for i in range(0, 110, 10)], [str(i) for i in range(0, 110, 10)], ['#f03b20', '#fee391', '#74c476', 'lightgrey'], True, 'Opposite strand')
+ax1 = CreateAx(1, 2, 1, fig, LengthData, ProbaLength, Label1, 'Probability', 'Overlap length (Kb)', [0, 50, 100, 150, 200], ['0', '50', '100', '150', r'$\geq 200$'], ['#f03b20', '#43a2ca', '#fee391', '#74c476'])
+ax2 = CreateAx(2, 2, 2, fig, SameStrdData, SameStrdProba, Label2, 'Probability', 'Length ratio (%)', [i for i in range(0, 110, 10)], [str(i) for i in range(0, 110, 10)], ['#f03b20', '#43a2ca', 'lightgrey'], True, 'Same strand')
+ax3 = CreateAx(2, 2, 4, fig, OppositeStrdData, OppositeStrdProba, Label3, 'Probability', 'Length ratio (%)', [i for i in range(0, 110, 10)], [str(i) for i in range(0, 110, 10)], ['#f03b20', '#fee391', '#74c476', 'lightgrey'], True, 'Opposite strand')
 
 
 # add subplot labels
