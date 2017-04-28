@@ -264,10 +264,7 @@ ax3 = CreateAx(2, 2, 4, fig, OppositeStrdData, OppositeStrdProba, Label3, 'Proba
 
 
 # add subplot labels
-#ax1.text(-20, 1.1, 'A', horizontalalignment='center', verticalalignment='center',
-#         color = 'black', fontname = 'Arial', size = 8)
-
-ax2.text(-170, 1.2, 'A', horizontalalignment='center', verticalalignment='center',
+ax2.text(-160, 1.2, 'A', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 8)
 ax2.text(-20, 1.2, 'B', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 8)
@@ -277,5 +274,6 @@ ax3.text(-20, 1.2, 'C', horizontalalignment='center', verticalalignment='center'
 # make sure subplots do not overlap
 plt.tight_layout()
 
-    
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+# save figure file    
+fig.savefig('OverlapLength.pdf', bbox_inches = 'tight')
+fig.savefig('OverlapLength.eps', bbox_inches = 'tight')
