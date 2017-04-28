@@ -264,5 +264,9 @@ ax1.text(-10, 1.1, 'A', horizontalalignment='center', verticalalignment='center'
          color = 'black', fontname = 'Arial', size = 9)
 ax1.text(110, 1.1, 'B', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 9)
+
+# make sure subplots do not overlap
+plt.tight_layout()
+
     
 fig.savefig('truc.pdf', bbox_inches = 'tight')
