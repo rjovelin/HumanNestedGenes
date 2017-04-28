@@ -199,12 +199,12 @@ def CreateAx(Columns, Rows, Position, figure, Data, Proba, Labels, YLabel, XLabe
     # set title
     FigFont = {'fontname':'Arial'}   
     if AddTitle == True:
-        plt.title(Title, size = 8, color = 'black', ha = 'center', **FigFont )     
+        plt.title(Title, size = 7, color = 'black', ha = 'center', **FigFont )     
     
     # add label for the Y axis
-    ax.set_ylabel(YLabel, size = 8, ha = 'center', **FigFont)
+    ax.set_ylabel(YLabel, size = 7, ha = 'center', **FigFont)
     # set x axis label
-    ax.set_xlabel(XLabel, size = 8, ha = 'center', **FigFont)
+    ax.set_xlabel(XLabel, size = 7, ha = 'center', **FigFont)
     # set x axis ticks
     plt.xticks(TickPos, TickLabel)
     # do not show lines around figure, keep bottow line  
@@ -214,13 +214,13 @@ def CreateAx(Columns, Rows, Position, figure, Data, Proba, Labels, YLabel, XLabe
     ax.spines["left"].set_visible(True)      
     # edit tick parameters
     ax.tick_params(axis='both', which='both', bottom='on', top='off', right = 'off',
-        left = 'on', labelbottom='on', colors = 'black', labelsize = 8, direction = 'out')
+        left = 'on', labelbottom='on', colors = 'black', labelsize = 7, direction = 'out')
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')
     # get labels
     labs = Labels
     # plot legend
-    ax.legend(lns, labs, loc=4, fontsize = 8, frameon = False)
+    ax.legend(lns, labs, loc=4, fontsize = 7, frameon = False)
     return ax     
 
 
