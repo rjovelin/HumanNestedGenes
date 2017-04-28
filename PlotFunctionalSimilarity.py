@@ -196,7 +196,7 @@ for i in range(len(FunctionalSimilarity)):
     SEMFuncSim.append(np.std(FunctionalSimilarity[i]) / math.sqrt(len(FunctionalSimilarity[i])))
 
 # create figure
-fig = plt.figure(1, figsize = (2.8, 1.8))
+fig = plt.figure(1, figsize = (2.5, 1.8))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 
