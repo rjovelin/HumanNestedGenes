@@ -267,7 +267,7 @@ ax3 = CreateAx(2, 2, 4, fig, OppositeStrdData, OppositeStrdProba, Label3, 'Proba
 #ax1.text(-20, 1.1, 'A', horizontalalignment='center', verticalalignment='center',
 #         color = 'black', fontname = 'Arial', size = 8)
 
-ax2.text(-150, 1.2, 'A', horizontalalignment='center', verticalalignment='center',
+ax2.text(-170, 1.2, 'A', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 8)
 ax2.text(-20, 1.2, 'B', horizontalalignment='center', verticalalignment='center',
          color = 'black', fontname = 'Arial', size = 8)
