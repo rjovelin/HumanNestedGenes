@@ -264,11 +264,13 @@ ax3 = CreateAx(2, 2, 4, fig, OppositeStrdData, OppositeStrdProba, Label3, 'Proba
 
 
 # add subplot labels
-ax1.text(-10, 1.1, 'A', horizontalalignment='center', verticalalignment='center',
-         color = 'black', fontname = 'Arial', size = 9)
-ax1.text(110, 1.1, 'B', horizontalalignment='center', verticalalignment='center',
-         color = 'black', fontname = 'Arial', size = 9)
-
+ax1.text(-20, 1.1, 'A', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 8)
+ax2.text(-20, 1.1, 'B', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 8)
+ax3.text(-20, 1.1, 'C', horizontalalignment='center', verticalalignment='center',
+         color = 'black', fontname = 'Arial', size = 8)
+         
 # make sure subplots do not overlap
 plt.tight_layout()
 
