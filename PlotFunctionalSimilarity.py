@@ -220,7 +220,11 @@ GeneCats = ['Nst', 'Pbk', 'Conv', 'Div']
 plt.xticks([0.25, 0.75, 1.25, 1.75], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
 
 # add a range for the Y and X axes
-plt.ylim([0, 1])
+if GOClass == 'molfunc':
+    YMax = 0.8   
+else:
+    YMax = 1
+plt.ylim([0, YMax])
 plt.xlim([0, 2])
 
 # do not show lines around figure  
