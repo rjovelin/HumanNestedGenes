@@ -226,7 +226,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, Proba, Labels, YLabel, XLabe
 
 
 # create figure
-fig = plt.figure(1, figsize = (5.5, 3))
+fig = plt.figure(1, figsize = (5, 3))
 
 
 # make list of labels
