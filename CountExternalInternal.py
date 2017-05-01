@@ -5,14 +5,8 @@ Created on Wed Jan 25 17:39:11 2017
 @author: RJovelin
 """
 
-
-
-
-
-
 # use this script to plot expression divergence between host and nested genes 
 # separately for intron-containing and intronless nested genes 
-
 
 # import modules
 # use Agg backend on server without X server
