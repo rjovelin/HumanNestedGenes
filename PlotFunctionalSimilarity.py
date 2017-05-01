@@ -221,7 +221,7 @@ plt.xticks([0.25, 0.75, 1.25, 1.75], GeneCats, size = 7, color = 'black', ha = '
 
 # add a range for the Y and X axes
 if GOClass == 'molfunc':
-    YMax = 0.8   
+    YMax = 0.7   
 else:
     YMax = 1
 plt.ylim([0, YMax])
