@@ -255,4 +255,13 @@ for i in range(len(Significance)):
     j += 2        
         
 # save figure
-fig.savefig('test.pdf', bbox_inches = 'tight')
+if GOClass == 'all':
+    FigName = 'FunctionalSimilarityAll'
+elif GOClass == 'molfunc':
+    FigName = 'FunctionalSimilarityMolFunc'
+elif GOClass == 'celcomp':
+    FigName = 'FunctionalSimilarityCelComp'        
+elif GOClass == 'biolproc':
+    FigName = 'FunctionalSimilarityBiolProc'
+fig.savefig(FigName + '.pdf', bbox_inches = 'tight')
+fig.savefig(FigName + '.eps', bbox_inches = 'tight')
