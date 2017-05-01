@@ -201,7 +201,9 @@ fig = plt.figure(1, figsize = (2, 1.8))
 ax = fig.add_subplot(1, 1, 1)
 
 # plot the baseline, use zorder to bring the line to background
-plt.plot((0, 2), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = '-', linewidth = 0.5, zorder = -1)
+#plt.plot((0, 2), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = '-', linewidth = 0.5, zorder = -1)
+plt.plot((0, 2), (np.mean(BaseLine), np.mean(BaseLine)), color = 'grey', linestyle = '-', linewidth = 0.5, zorder = 1, alpha = 0.5)
+
 
 # set colors
 colorscheme = ['#bd0026', '#f03b20', '#0868ac', '#43a2ca', '#d95f0e', '#fee391', '#006d2c', '#74c476']
@@ -220,11 +222,7 @@ GeneCats = ['Nst', 'Pbk', 'Conv', 'Div']
 plt.xticks([0.25, 0.75, 1.25, 1.75], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
 
 # add a range for the Y and X axes
-if GOClass == 'molfunc':
-    YMax = 0.7   
-else:
-    YMax = 1
-plt.ylim([0, YMax])
+plt.ylim([0, 0.6])
 plt.xlim([0, 2])
 
 # do not show lines around figure  
