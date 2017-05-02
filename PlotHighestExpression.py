@@ -68,8 +68,12 @@ for i in range(len(JsonFiles)):
 # get GFF file
 if Species == 'human':
     GFF = 'Homo_sapiens.GRCh38.88.gff3'
+elif Species == 'chimp':
+    GFF = 'Pan_troglodytes.CHIMP2.1.4.88.gff3'
+elif Species == 'mouse':
+    GFF = 'Mus_musculus.GRCm38.88.gff3'
 
-#### continue here
+
 
 
 
