@@ -14,6 +14,9 @@ Created on Wed Nov 23 15:14:49 2016
 # -[overlapping/external/nested]: overlapping and non-overlapping genes/
 #                                 external genes and internal genes with internal genes intronless or with introns/
 #                                 external and internal genes on same or opposite strands
+# -[human, chimp, mouse]: use human, chimp or mouse expression and overlapping genes
+# if species is human, consider the breadth of tissues:
+# -[full, restricted, narrow]: analysis with all tissues, tissues in common with mouse, or chimp
 
 
 # import modules
@@ -40,11 +43,18 @@ from HsaNestedGenes import *
 GenesOfInterest = sys.argv[1]
 assert GenesOfInterest in ['overlapping', 'external', 'nested']
 
+# get the species from the command
+Species == sys.argv[2]
+assert Species in ['human', 'chimp', 'mouse']
+if Species == 'human':
+    # consider all tissues, only the tissues in common with mouse, or only the tissues in common with chimp
+    Breadth = sys.argv[3]
+    assert Breadth in ['full', 'restricted', 'narrow']
 
-# load dictionaries of overlapping genes
-JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',
-             'HumanPiggyBackGenes.json', 'HumanConvergentGenes.json',
-             'HumanDivergentGenes.json']
+# make a list of json files
+files = ['OverlappingGenes.json', 'NestedGenes.json', 'PiggyBackGenes.json', 'ConvergentGenes.json', 'DivergentGenes.json']
+JsonFiles = list(map(lambda x: x[0] + x[1], zip([Species.title()] * len(files) , files)))
+
 # make a list of dictionaries
 Overlap = []
 # loop over files
@@ -55,9 +65,18 @@ for i in range(len(JsonFiles)):
     json_data.close()
     Overlap.append(overlapping)
 
-
 # get GFF file
-GFF = 'Homo_sapiens.GRCh38.88.gff3'
+if Species == 'human':
+    GFF = 'Homo_sapiens.GRCh38.88.gff3'
+
+#### continue here
+
+
+
+
+
+
+
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 GeneChromoCoord = ChromoGenesCoord(GFF)
