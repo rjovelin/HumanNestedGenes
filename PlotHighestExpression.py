@@ -44,12 +44,15 @@ GenesOfInterest = sys.argv[1]
 assert GenesOfInterest in ['overlapping', 'external', 'nested']
 
 # get the species from the command
-Species == sys.argv[2]
+Species = sys.argv[2]
 assert Species in ['human', 'chimp', 'mouse']
 if Species == 'human':
     # consider all tissues, only the tissues in common with mouse, or only the tissues in common with chimp
     Breadth = sys.argv[3]
     assert Breadth in ['full', 'restricted', 'narrow']
+else:
+    Breadth = ''
+
 
 # make a list of json files
 files = ['OverlappingGenes.json', 'NestedGenes.json', 'PiggyBackGenes.json', 'ConvergentGenes.json', 'DivergentGenes.json']
@@ -72,14 +75,6 @@ elif Species == 'chimp':
     GFF = 'Pan_troglodytes.CHIMP2.1.4.88.gff3'
 elif Species == 'mouse':
     GFF = 'Mus_musculus.GRCm38.88.gff3'
-
-
-
-
-
-
-
-
 
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
@@ -104,9 +99,9 @@ TranscriptCoordinates = TranscriptsCoord(GFF)
 # map genes to their longest transcript {gene: longest_transcript}
 GeneLongestTranscript = LongestTranscript(TranscriptCoordinates, MapGeneTranscript)
 # match longest transcript of the nested genes to transcript of the host gene (longest transcript in priority)
-Matches = MatchHostTranscriptWithNestedTranscript(Nested, MapGeneTranscript, GeneLongestTranscript, TranscriptCoordinates, IntronCoord)
+Matches = MatchHostTranscriptWithNestedTranscript(Overlap[1], MapGeneTranscript, GeneLongestTranscript, TranscriptCoordinates, IntronCoord)
 # make a set of un-nested genes
-UnNestedGenes = MakeNonOverlappingGeneSet(Nested, GeneCoord)
+UnNestedGenes = MakeNonOverlappingGeneSet(Overlap[1], GeneCoord)
 
 
 # make a list of gene pairs
@@ -158,8 +153,25 @@ for pair in opposite:
     ExternalOppositeGenes.add(pair[0])
     InternalOppositeGenes.add(pair[1])
 
-# parse the GTEX expression summary file to obtain the expression profile of each gene
-ExpressionProfile = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
+
+# check options to select the expression file
+if Species == 'human':
+    if Breadth == 'full':
+        # parse the GTEX expression summary file to obtain the expression profile of each gene
+        ExpressionProfile = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
+    elif Breadth == 'restricted':
+        # parse the GTEX expression summary file to obtain the expression profile of each gene
+        ExpressionProfile = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
+        # match expression profiles between mouse and human 
+        ExpressionProfile = MatchHumanToMouseExpressionProfiles(ExpressionProfile)
+    elif Breadth == 'narrow':
+        # parse expression data in common between chimp and human
+        ExpressionProfile = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
+elif Species == 'chimp':
+    ExpressionProfile = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'chimp')
+elif Species == 'mouse':
+    ExpressionProfile = ParseExpressionFile('Mouse_Median_Normalized_FPKM.txt')
+
 # remove genes without any expression
 ExpressionProfile = RemoveGenesLackingExpression(ExpressionProfile)
 # transform absulte expression in relative expression
@@ -181,13 +193,33 @@ for i in range(len(AllGeneSets)):
         AllGeneSets[i].remove(gene)
 
 # make a list of tissues
-infile = open('GTEX_Median_Normalized_FPKM.txt')
-header = infile.readline().rstrip().split('\t')
-Tissues = header[1:]
+
+if Species == 'human':
+    if Breadth == 'full':
+        infile = open('GTEX_Median_Normalized_FPKM.txt')
+        header = infile.readline().rstrip().split('\t')
+        infile.close()
+        Tissues = header[1:]
+    elif Breadth == 'restricted':
+        # get the list of tissues in common between human and mouse
+        infile = open('Mouse_Median_Normalized_FPKM.txt')        
+        Tissues = infile.readline().rstrip().split('\t')
+        infile.close()        
+        Tissues = Tissues[1:]
+    elif Breadth == 'narrow':
+        Tissues = ['Brain', 'Cerebellum', 'Heart', 'Kidney', 'Liver', 'Testis']
+elif Species == 'chimp':
+    Tissues = ['Brain', 'Cerebellum', 'Heart', 'Kidney', 'Liver', 'Testis']
+elif Species == 'mouse':
+    infile = open('Mouse_Median_Normalized_FPKM.txt')        
+    Tissues = infile.readline().rstrip().split('\t')
+    infile.close()    
+    Tissues = Tissues[1:]
+ 
 # replace spaces in tissue names
 for i in range(len(Tissues)):
-    if ' ' in Tissues[i]:
-        Tissues[i] = Tissues[i].replace(' ', '_')
+     if ' ' in Tissues[i]:
+         Tissues[i] = Tissues[i].replace(' ', '_')
 
 # make a list of genes with expression
 Expressed = list(ExpressionProfile.keys())
@@ -294,13 +326,28 @@ j = 1
 # get y axis range and colors
 if GenesOfInterest == 'overlapping':
     YMax = 0.31
-    colorscheme = ['#fb9a99', '#a6cee3','#1f78b4','#b2df8a','#33a02c']
 elif GenesOfInterest == 'external':
     YMax = 0.61
-    colorscheme = ['#fb9a99', '#9ecae1','#3182bd', '#a1d99b','#31a354']
 elif GenesOfInterest == 'nested':
     YMax = 0.41
-    colorscheme = ['#fb9a99', '#9ecae1','#3182bd', '#a1d99b','#31a354']
+
+# create legend
+if Species == 'human':
+    if Breadth == 'narrow':
+        Position = 6
+        Xpos, Ypos = -5, 0.7
+    else:
+        Position = 10
+        Xpos, Ypos = -10, 0.6
+elif Species == 'chimp':
+    Position = 6
+    Xpos, Ypos = -5, 0.7
+elif Species == 'mouse':
+    Position = 10
+    Xpos, Ypos = -10, 0.6
+
+# set up colors
+colorscheme = ['#fb9a99', '#9ecae1','#3182bd', '#a1d99b','#31a354']
 
 for i in range(len(Tissues)):
     tissue = Tissues[i]
@@ -311,8 +358,7 @@ for i in range(len(Tissues)):
     ax = CreateAx(10, 3, j, fig, Proportions[tissue], colorscheme, tissue.lower().replace('_', '\n'), 0.61, YLabel)
     j += 1
 
-    # create legend
-    if j == 10:
+    if j == Position:
         if GenesOfInterest == 'external':
             Labels = [['#fb9a99', 'NoOv'], ['#9ecae1', 'IntN'], ['#3182bd', 'IntW'], ['#a1d99b', 'ExtN'], ['#31a354', 'ExtW']]
         elif GenesOfInterest == 'overlapping':
@@ -324,7 +370,7 @@ for i in range(len(Tissues)):
         c = mpatches.Patch(facecolor = Labels[2][0], edgecolor = 'black', linewidth = 0.5, label= Labels[2][1])
         d = mpatches.Patch(facecolor = Labels[3][0], edgecolor = 'black', linewidth = 0.5, label= Labels[3][1])
         e = mpatches.Patch(facecolor = Labels[4][0], edgecolor = 'black', linewidth = 0.5, label= Labels[4][1])
-        ax.legend(handles = [a, b, c, d, e], bbox_to_anchor=(-10, 0.6), loc = 3, fontsize = 6, frameon = False, ncol = 5)
+        ax.legend(handles = [a, b, c, d, e], bbox_to_anchor=(Xpos, Ypos), loc = 3, fontsize = 6, frameon = False, ncol = 5)
     
 # adjust padding between subplots
 # pad controls the padding around the figure border
