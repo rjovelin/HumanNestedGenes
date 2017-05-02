@@ -246,7 +246,7 @@ ax2 = CreateAx(2, 1, 2, fig, [MeanExpDiv, SEMExpDiv], GeneCats, 'Expression dive
 xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
 if Species == 'chimp':
     yposSeq = [0.47, 0.50, 0.47, 0.47, 0.45, 0.45]
-    yposExp = [0.20, 0.20, 0.20, 0.20, 0.20, 0.20]
+    yposExp = [0.25, 0.28, 0.25, 0.23, 0.22, 0.21]
 elif Species == 'mouse':
     yposSeq = [0.23, 0.25, 0.23, 0.23, 0.22, 0.22]
     yposExp = [0.36, 0.38, 0.36, 0.32, 0.30, 0.28]    
