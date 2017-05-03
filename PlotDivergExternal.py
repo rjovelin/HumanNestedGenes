@@ -37,7 +37,7 @@ with open('HumanNestedGenes.json') as human_json_data:
     Nested = json.load(human_json_data)
 
 # get GFF file
-GFF = 'Homo_sapiens.GRCh38.86.gff3'
+GFF = 'Homo_sapiens.GRCh38.88.gff3'
  
 # find nested and intronic-nested genes 
 # get the coordinates of genes on each chromo
