@@ -134,185 +134,96 @@ for i in range(len(OrientationPairs)):
     ExpDivergOrientation.append(Div)
 print('computed divergence')
 
-##### continue here
-
-
-
-
-
-
 # make a list of gene category names parallel to the list of gene pairs
-PairsCats = ['WithIntrons', 'Intronless']
+GeneCatIntrons = ['Introns', 'Intronless', 'Prox', 'Mod', 'Int', 'Dist']
+GeneCatOrientation = ['Same', 'Opposite', 'Prox', 'Mod', 'Int', 'Dist']
+
 # create lists with means and SEM for each gene category
-MeanExpDiv, SEMExpDiv = [], []
-# loop over lists in Divergence list
-for i in range(len(ExpressDivergence)):
-    MeanExpDiv.append(np.mean(ExpressDivergence[i]))
-    SEMExpDiv.append(np.std(ExpressDivergence[i]) / math.sqrt(len(ExpressDivergence[i])))
-
-# perform statistical tests between gene categories
-PExpressDiv= PermutationResampling(ExpressDivergence[0], ExpressDivergence[1], 10000, np.mean)
-# convert p-values to star significance level
-if PExpressDiv >= 0.05:
-    PExpressDiv = ''
-elif PExpressDiv < 0.05 and PExpressDiv >= 0.01:
-    PExpressDiv = '*'
-elif PExpressDiv < 0.01 and PExpressDiv >= 0.001:
-    PExpressDiv = '**'
-elif PExpressDiv < 0.001:
-    PExpressDiv = '***'
-
+MeanIntron, SEMIntron = [], []
+for i in range(len(ExpDivergIntron)):
+    MeanIntron.append(np.mean(ExpDivergIntron[i]))
+    SEMIntron.append(np.std(ExpDivergIntron[i]) / math.sqrt(len(ExpDivergIntron[i])))
+MeanOrientation, SEMOrientation = [], []
+for i in range(len(ExpDivergOrientation)):
+    MeanOrientation.append(np.mean(ExpDivergOrientation))
+    SEMOrientation.append(np.std(ExpDivergOrientation[i]) / math.sqrt(len(ExpDivergOrientation[i])))
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, XticksLabel, XticksPos, BarPos, YLabel, YRange, YMax, Colors):
+def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, YRange, YMax):
     '''
-    Returns a ax instance in figure
-    '''    
+    return an ax object part of figure
+    '''
+
     # add a plot to figure (N row, N column, plot N)
-    ax = figure.add_subplot(Rows, Columns, Position)
-    # plot data
-    ax.bar(BarPos, Data[0], 0.2, yerr = Data[1], color = Colors,
+    ax = fig.add_subplot(Rows, Columns, Position)
+    # set colors
+    colorscheme = ['#225ea8', '#e31a1c', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+    # plot nucleotide divergence
+    ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55], Data[0], 0.2, yerr = Data[1], color = colorscheme,
            edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write y axis label
-    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+    ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
     # add ticks and lebels
-    plt.xticks(XticksPos, XticksLabel, rotation = 0, size = 7, color = 'black', ha = 'center', **FigFont)
-    # edit y axis ticks
-    plt.yticks(YRange)   
+    plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
     # add a range for the Y and X axes
-    plt.ylim([0, YMax])    
+    plt.ylim([0, YMax])
+    plt.xlim([0, 1.8])
+    # edit y axis ticks
+    plt.yticks(YRange) 
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(True)  
     # edit tick parameters    
-    plt.tick_params(axis='both', which='both', bottom='off', top='off',
+    plt.tick_params(axis='both', which='both', bottom='on', top='off',
                     right = 'off', left = 'on', labelbottom='on',
                     colors = 'black', labelsize = 7, direction = 'out')  
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')   
-    # add margins
-    plt.margins(0.1)
-    return ax
+    return ax  
 
-
-
-# make a figure with expression and sequence divergence
-
-# create figure
-fig = plt.figure(1, figsize = (4.5, 2))
-# plot data
-ax1 = CreateAx(3, 1, 1, fig, [MeanExpDiv, SEMExpDiv], ['external'], [0.25], [0, 0.3], 'Expression divergence', np.arange(0, 0.9, 0.1), 0.8, ['black', 'lightgrey'])
-ax2 = CreateAx(3, 1, 2, fig, [MeanOmega, SEMOmega], ['external', 'internal'], [0.23, 0.97], [0, 0.3, 0.7, 1], 'Nucleotide divergence $\it{dN/dS}$', np.arange(0, 1.2, 0.2), 1, ['black', 'lightgrey', 'black', 'lightgrey'])
-ax3 = CreateAx(3, 1, 3, fig, [MeanOrthoExpDiv, SEMOrthoExpDiv], ['external', 'internal'], [0.23, 0.97], [0, 0.3, 0.7, 1], 'Expression divergence', np.arange(0, 0.50, 0.1), 0.4, ['black', 'lightgrey', 'black', 'lightgrey'])
-
-# annotate graphs with significance level
-if PExpressDiv != '':
-    ax1 = AddSignificance(ax1, PExpressDiv, 0.1, 0.4, 0.61, 0.25, 0.7)
-if POmega[0] != '':
-    ax2 = AddSignificance(ax2, POmega[0], 0.1, 0.4, 0.5, 0.25, 0.55)
-if POmega[1] != '':
-    ax2 = AddSignificance(ax2, POmega[1], 0.8, 1.1, 0.9, 0.95, 0.95)
-if POrthosExprx[0] != '':
-    ax3 = AddSignificance(ax3, POrthosExprx[0], 0.1, 0.4, 0.23, 0.25, 0.25)
-if POrthosExprx[1] != '':
-    ax3 = AddSignificance(ax3, POrthosExprx[1], 0.8, 1.1, 3.1, 0.95, 3.4)
-
-
-# add legend
-NoH = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'Intronless internal genes')
-WiH = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'Intron-containing internal genes')
-ax1.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 7, frameon = False, ncol = 2)
-
-# make sure subplots do not overlap
-plt.tight_layout()
-
-# save figure to file
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
-
-###########################
-$$$$$$$$$$$$$$$$$$$$$$$$$$$
-
-
-
-
-# make a list of gene category names parallel to the list of gene pairs
-GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
-
-# create lists with means and SEM for each gene category
-MeanExpDiv, SEMExpDiv = [], []
-# loop over lists in Divergence list
-for i in range(len(Divergence)):
-    MeanExpDiv.append(np.mean(Divergence[i]))
-    SEMExpDiv.append(np.std(Divergence[i]) / math.sqrt(len(Divergence[i])))
 
 # create figure
 fig = plt.figure(1, figsize = (3, 2))
 
-# add a plot to figure (N row, N column, plot N)
-ax = fig.add_subplot(1, 1, 1)
-# set colors
-colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+ax1 = CreateAx(1, 2, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, np.arange(0, 1.1, 0.1), 1)
+ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, np.arange(0, 1.1, 0.1), 1)
 
-# plot nucleotide divergence
-ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85, 2.15], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
-       edgecolor = 'black', linewidth = 0.5,
-       error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
-# set font for all text in figure
-FigFont = {'fontname':'Arial'}   
-# write y axis label
-ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
-# add ticks and lebels
-plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
-# add a range for the Y and X axes
-plt.ylim([0, 0.61])
-plt.xlim([0, 2.45])
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(True)    
-ax.spines["right"].set_visible(False)
-ax.spines["left"].set_visible(True)  
-# edit tick parameters    
-plt.tick_params(axis='both', which='both', bottom='on', top='off',
-                right = 'off', left = 'on', labelbottom='on',
-                colors = 'black', labelsize = 7, direction = 'out')  
-# Set the tick labels font name
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')   
-      
-# perform statistical tests between gene categories
-# create list to store the p-values
-PValues = []
-# loop over inner list, compare gene categories
-for i in range(0, len(Divergence) -1):
-    for j in range(i+1, len(Divergence)):
-        P = PermutationResampling(Divergence[i], Divergence[j], 1000, statistic = np.mean)
-        print(i, j, P)
-        PValues.append(P)
-# print p values
-for p in PValues:
-    print(p)
-
-# convert p-values to star significance level
-Significance = ConvertPToStars(PValues)
-
-# annotate figure to add significance
-# significant comparisons were already determined, add letters to show significance
-Diff = ['A', 'B', 'C', 'B', 'D', 'E', 'F', 'G']
-ypos = [0.55] * 8
-xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25]
-for i in range(len(Diff)):
-    ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+## perform statistical tests between gene categories
+#PValsIntron = []
+## loop over inner list, compare gene categories
+#for i in range(0, len(ExpDivergIntron) -1):
+#    for j in range(i+1, len(ExpDivergIntron)):
+#        P = PermutationResampling(ExpDivergIntron[i], ExpDivergIntron[j], 1000, statistic = np.mean)
+#        print('intron', i, j, P)
+#        PValsIntron.append(P)
+#PValsOrientation = []
+## loop over inner list, compare gene categories
+#for i in range(0, len(ExpDivergOrientation) -1):
+#    for j in range(i+1, len(ExpDivergOrientation)):
+#        P = PermutationResampling(ExpDivergOrientation[i], ExpDivergOrientation[j], 1000, statistic = np.mean)
+#        print('orientation', i, j, P)
+#        PValsOrientation.append(P)
+#
+## convert p-values to star significance level
+#Significance = ConvertPToStars(PValues)
+#
+## annotate figure to add significance
+## significant comparisons were already determined, add letters to show significance
+#Diff = ['A', 'B', 'C', 'B', 'D', 'E', 'F', 'G']
+#ypos = [0.55] * 6
+#xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65]
+#for i in range(len(Diff)):
+#     ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
     
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 #fig.savefig('ExpressionDivergenceDistance.pdf', bbox_inches = 'tight')
 #fig.savefig('ExpressionDivergenceDistance.eps', bbox_inches = 'tight')
+
 
