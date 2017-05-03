@@ -245,9 +245,9 @@ def CreateAx(Columns, Rows, Position, figure, Data, chromo, YMax, YLabel):
     ax = figure.add_subplot(Rows, Columns, Position)
     
     # plot all gene or non-overlapping gene density first
-    ax.plot(Data[0][chromo][1], Data[0][chromo][0], linewidth = 1, linestyle = '-', color = 'black', alpha = 0.7)
+    ax.plot(Data[0][chromo][1], Data[0][chromo][0], linewidth = 1, linestyle = '-', color = '#225ea8', alpha = 0.7)
     # plot overlapping genes second        
-    ax.plot(Data[1][chromo][1], Data[1][chromo][0], linewidth = 1, linestyle = '-', color = 'red', alpha = 0.7)
+    ax.plot(Data[1][chromo][1], Data[1][chromo][0], linewidth = 1, linestyle = '-', color = '#e31a1c', alpha = 0.7)
         
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
@@ -270,33 +270,14 @@ def CreateAx(Columns, Rows, Position, figure, Data, chromo, YMax, YLabel):
     
     if YLabel == True:
         # edit tick paramters
-        plt.tick_params(
-            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-            which='both',      # both major and minor ticks are affected
-            bottom='off',      # ticks along the bottom edge are off
-            top='off',         # ticks along the top edge are off
-            right = 'off',
-            left = 'on',          
-            labelbottom='off', # labels along the bottom edge are on
-            colors = 'black',
-            labelsize = 10,
-            direction = 'out') # ticks are outside the frame when bottom = 'on'  
-           
+        plt.tick_params(axis='both', which='both', bottom='off', top='off', 
+                        right = 'off', left = 'on', labelbottom='off', colors = 'black',
+                        labelsize = 10, direction = 'out')  
     elif YLabel == False:
         # edit tick paramters
-        plt.tick_params(
-            axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-            which='both',      # both major and minor ticks are affected
-            bottom='off',      # ticks along the bottom edge are off
-            top='off',         # ticks along the top edge are off
-            right = 'off',
-            left = 'off',          
-            labelbottom='off', # labels along the bottom edge are on
-            labelleft = 'off',            
-            colors = 'black',
-            labelsize = 8,
-            direction = 'out') # ticks are outside the frame when bottom = 'on'  
-           
+        plt.tick_params(axis='both', which='both', bottom='off', top='off',
+                        right = 'off', left = 'off', labelbottom='off', labelleft = 'off',
+                        colors = 'black', labelsize = 8, direction = 'out')  
     # set x axis ticks
     plt.xticks([], [])
     
@@ -304,7 +285,6 @@ def CreateAx(Columns, Rows, Position, figure, Data, chromo, YMax, YLabel):
         # Set the tick labels font name
         for label in ax.get_yticklabels():
             label.set_fontname('Arial')   
-    
     return ax      
 
 
@@ -330,8 +310,8 @@ for i in range(len(LG)):
             Label1 = 'All'
         elif BackGround == 'NoOverlap':
             Label1 = 'Non-overlapping'
-        black_line = mlines.Line2D([], [], color='black', marker='', linewidth = 1.2, label = Label1)
-        grey_line = mlines.Line2D([], [], color='red', marker='', linewidth = 1.2, label = 'Overlapping')
+        black_line = mlines.Line2D([], [], color='#225ea8', marker='', linewidth = 1.2, label = Label1)
+        grey_line = mlines.Line2D([], [], color='#e31a1c', marker='', linewidth = 1.2, label = 'Overlapping')
         plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(-12, 0.8), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
 
 
