@@ -125,14 +125,16 @@ Chromosomes.sort()
 OverlapStart = {}
 for gene in OverlapGenes:
     chromo = GeneCoord[gene][0]
-    if GeneCoord[gene][-1] == '+':
-        start = GeneCoord[gene][1]
-    elif GeneCoord[gene][-1] == '-':
-        start = GeneCoord[gene][2] - 1
-    if chromo in OverlapStart:
-        OverlapStart[chromo].append(start)
-    else:
-        OverlapStart[chromo] = [start]
+    # only consider chromosomes with enough overlapping genes
+    if chromo in Chromosomes:    
+        if GeneCoord[gene][-1] == '+':
+            start = GeneCoord[gene][1]
+        elif GeneCoord[gene][-1] == '-':
+            start = GeneCoord[gene][2] - 1
+        if chromo in OverlapStart:
+            OverlapStart[chromo].append(start)
+        else:
+            OverlapStart[chromo] = [start]
 # sort positions
 for chromo in OverlapStart:
     OverlapStart[chromo].sort()
@@ -141,14 +143,16 @@ for chromo in OverlapStart:
 NonOverlapStart = {}
 for gene in NonOverlapGenes:
     chromo = GeneCoord[gene][0]
-    if GeneCoord[gene][-1] == '+':
-        start = GeneCoord[gene][1]
-    elif GeneCoord[gene][-1] == '-':
-        start = GeneCoord[gene][2] - 1
-    if chromo in NonOverlapStart:
-        NonOverlapStart[chromo].append(start)
-    else:
-        NonOverlapStart[chromo] = [start]
+    # only consider chromosomes with enough overlapping genes
+    if chromo in Chromosomes:
+        if GeneCoord[gene][-1] == '+':
+            start = GeneCoord[gene][1]
+        elif GeneCoord[gene][-1] == '-':
+            start = GeneCoord[gene][2] - 1
+        if chromo in NonOverlapStart:
+            NonOverlapStart[chromo].append(start)
+        else:
+            NonOverlapStart[chromo] = [start]
 # sort positions
 for chromo in NonOverlapStart:
     NonOverlapStart[chromo].sort()
