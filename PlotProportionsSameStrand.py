@@ -87,7 +87,7 @@ Opposite.append(GetSameOppositeStrandProportions(HostNestedPairs, GeneCoord)[1])
 
 
 # create figure
-fig = plt.figure(1, figsize = (2, 2))
+fig = plt.figure(1, figsize = (1.5, 1.5))
 
 # create subplot in figure
 # add a plot to figure (N row, N column, plot N)
