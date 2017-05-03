@@ -93,9 +93,9 @@ fig = plt.figure(1, figsize = (1.5, 1.5))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 ## Create a horizontal bar plot for proportions of opposite strand pairs
-ax.bar([0, 0.5, 1], Opposite, width = 0.4, label = 'opposite strand', color= '#dadaeb', linewidth = 0.7)
+ax.bar([0, 0.4, 0.8], Opposite, width = 0.3, label = 'opposite strand', color= '#dadaeb', linewidth = 0.7)
 # Create a horizontal bar plot for proportions of same strand pairs
-ax.bar([0, 0.5, 1], Same, width = 0.4, bottom = Opposite, label = 'same strand', color= '#d9f0a3', linewidth = 0.7)
+ax.bar([0, 0.4, 0.8], Same, width = 0.3, bottom = Opposite, label = 'same strand', color= '#d9f0a3', linewidth = 0.7)
 
 LabelSize = 7
 
@@ -104,7 +104,7 @@ FigFont = {'fontname':'Arial'}
 # write label for y and x axis
 ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = LabelSize, ha = 'center', **FigFont)
 # write label for x axis
-plt.xticks([0.2, 0.7, 1.2], ['Not', 'Ovl', 'Nst'], ha = 'center', fontsize = LabelSize, **FigFont)
+plt.xticks([0.15, 0.55, 0.95], ['Not', 'Ovl', 'Nst'], ha = 'center', fontsize = LabelSize, **FigFont)
 
 # limit the y axis value range
 plt.ylim([0, 1])   
