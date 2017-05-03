@@ -102,7 +102,7 @@ FigFont = {'fontname':'Arial'}
 # write label for y and x axis
 ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = 8, ha = 'center', **FigFont)
 # write label for x axis
-plt.xticks([0.25, 0.85, 1.45], ['NoOvl', 'Ovl', 'Nst'], ha = 'center', fontsize = 8, **FigFont)
+plt.xticks([0.25, 0.85, 1.45], ['Not', 'Ovl', 'Nst'], ha = 'center', fontsize = 8, **FigFont)
 
 # limit the y axis value range
 plt.ylim([0, 1])   
