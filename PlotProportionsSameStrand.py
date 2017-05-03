@@ -93,9 +93,9 @@ fig = plt.figure(1, figsize = (2, 2))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 ## Create a horizontal bar plot for proportions of opposite strand pairs
-ax.bar([0, 0.6, 1.2], Opposite, width = 0.5, label = 'opposite strand', color= '#dadaeb', linewidth = 0.7)
+ax.bar([0, 0.6, 1.2], Opposite, width = 0.4, label = 'opposite strand', color= '#dadaeb', linewidth = 0.7)
 # Create a horizontal bar plot for proportions of same strand pairs
-ax.bar([0, 0.6, 1.2], Same, width = 0.5, bottom = Opposite, label = 'same strand', color= '#d9f0a3', linewidth = 0.7)
+ax.bar([0, 0.6, 1.2], Same, width = 0.4, bottom = Opposite, label = 'same strand', color= '#d9f0a3', linewidth = 0.7)
 
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
