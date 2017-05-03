@@ -245,16 +245,16 @@ def CreateAx(Columns, Rows, Position, figure, Data, chromo, YMax, YLabel):
     ax = figure.add_subplot(Rows, Columns, Position)
     
     # plot all gene or non-overlapping gene density first
-    ax.plot(Data[0][chromo][1], Data[0][chromo][0], linewidth = 1, linestyle = '-', color = '#225ea8', alpha = 0.7)
+    ax.plot(Data[0][chromo][1], Data[0][chromo][0], linewidth = 1, linestyle = '-', color = '#225ea8', alpha = 0.5)
     # plot overlapping genes second        
-    ax.plot(Data[1][chromo][1], Data[1][chromo][0], linewidth = 1, linestyle = '-', color = '#e31a1c', alpha = 0.7)
+    ax.plot(Data[1][chromo][1], Data[1][chromo][0], linewidth = 1, linestyle = '-', color = '#e31a1c', alpha = 0.5)
         
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # set axis labels
     if YLabel == True:
-        ax.set_ylabel('Gene density', size = 10, ha = 'center', **FigFont)
-    ax.set_xlabel(chromo, size = 10, color = 'black', ha = 'center', **FigFont )        
+        ax.set_ylabel('Gene density', size = 8, ha = 'center', **FigFont)
+    ax.set_xlabel(chromo, size = 8, color = 'black', ha = 'center', **FigFont )        
         
     # add a range for the Y axis
     plt.ylim([0, YMax])
@@ -272,7 +272,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, chromo, YMax, YLabel):
         # edit tick paramters
         plt.tick_params(axis='both', which='both', bottom='off', top='off', 
                         right = 'off', left = 'on', labelbottom='off', colors = 'black',
-                        labelsize = 10, direction = 'out')  
+                        labelsize = 8, direction = 'out')  
     elif YLabel == False:
         # edit tick paramters
         plt.tick_params(axis='both', which='both', bottom='off', top='off',
@@ -310,9 +310,9 @@ for i in range(len(LG)):
             Label1 = 'All'
         elif BackGround == 'NoOverlap':
             Label1 = 'Non-overlapping'
-        black_line = mlines.Line2D([], [], color='#225ea8', marker='', linewidth = 1.2, label = Label1)
-        grey_line = mlines.Line2D([], [], color='#e31a1c', marker='', linewidth = 1.2, label = 'Overlapping')
-        plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(-12, 0.8), loc = 3, ncol = 2, fontsize = 10, frameon = False, borderaxespad = 0.)
+        black_line = mlines.Line2D([], [], color='#225ea8', marker='', linewidth = 1, label = Label1)
+        grey_line = mlines.Line2D([], [], color='#e31a1c', marker='', linewidth = 1, label = 'Overlapping')
+        plt.legend(handles=[black_line, grey_line], bbox_to_anchor=(-12, 0.8), loc = 3, ncol = 2, fontsize = 8, frameon = False, borderaxespad = 0.)
 
 
 # make sure subplots do not overlap
