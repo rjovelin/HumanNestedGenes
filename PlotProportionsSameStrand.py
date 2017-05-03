@@ -125,8 +125,8 @@ for label in ax.get_yticklabels():
 plt.margins(0.1)
 
 # add legend
-S = mpatches.Patch(facecolor = '#d9f0a3' , edgecolor = 'black', linewidth = 1, label= 'same')
-O = mpatches.Patch(facecolor = '#dadaeb' , edgecolor = 'black', linewidth = 1, label= 'opposite')
+S = mpatches.Patch(facecolor = '#d9f0a3' , edgecolor = 'black', linewidth = 0.7, label= 'same')
+O = mpatches.Patch(facecolor = '#dadaeb' , edgecolor = 'black', linewidth = 0.7, label= 'opposite')
 ax.legend(handles = [S, O], loc = (-0.3, 1.05), fontsize = LabelSize, frameon = False, ncol = 2)
 
 # save figure
