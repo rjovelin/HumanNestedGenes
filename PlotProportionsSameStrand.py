@@ -93,9 +93,9 @@ fig = plt.figure(1, figsize = (2, 2))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 ## Create a horizontal bar plot for proportions of opposite strand pairs
-ax.bar([0, 0.6, 1.2], Opposite, width = 0.5, label = 'opposite strand', color= 'black', linewidth = 0.7)
+ax.bar([0, 0.6, 1.2], Opposite, width = 0.5, label = 'opposite strand', color= '#dadaeb', linewidth = 0.7)
 # Create a horizontal bar plot for proportions of same strand pairs
-ax.bar([0, 0.6, 1.2], Same, width = 0.5, bottom = Opposite, label = 'same strand', color= 'lightgrey', linewidth = 0.7)
+ax.bar([0, 0.6, 1.2], Same, width = 0.5, bottom = Opposite, label = 'same strand', color= '#d9f0a3', linewidth = 0.7)
 
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
@@ -113,17 +113,8 @@ ax.spines["right"].set_visible(False)
 ax.spines["left"].set_visible(True)  
  
 # do not show ticks
-plt.tick_params(
-    axis='both',       # changes apply to the x-axis and y-axis (other option : x, y)
-    which='both',      # both major and minor ticks are affected
-    bottom='on',      # ticks along the bottom edge are off
-    top='off',         # ticks along the top edge are off
-    right = 'off',
-    left = 'on',          
-    labelbottom='on', # labels along the bottom edge are on
-    colors = 'black',
-    labelsize = 8,
-    direction = 'out') # ticks are outside the frame when bottom = 'on'  
+plt.tick_params(axis='both', which='both', bottom='on', top='off', right = 'off',
+                left = 'on', labelbottom='on', colors = 'black', labelsize = 8, direction = 'out')  
   
 # Set the tick labels font name
 for label in ax.get_yticklabels():
@@ -132,13 +123,9 @@ for label in ax.get_yticklabels():
 plt.margins(0.1)
 
 # add legend
-S = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 1, label= 'same')
-O = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 1, label= 'opposite')
+S = mpatches.Patch(facecolor = '#d9f0a3' , edgecolor = 'black', linewidth = 1, label= 'same')
+O = mpatches.Patch(facecolor = '#dadaeb' , edgecolor = 'black', linewidth = 1, label= 'opposite')
 ax.legend(handles = [S, O], loc = (-0.3, 1.05), fontsize = 8, frameon = False, ncol = 2)
-
-
-# make sure subplots do not overlap
-plt.tight_layout()
 
 # save figure
 fig.savefig('ProportionSameOppositeStrands.pdf', bbox_inches = 'tight')
