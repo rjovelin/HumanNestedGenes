@@ -97,12 +97,14 @@ ax.bar([0, 0.6, 1.2], Opposite, width = 0.4, label = 'opposite strand', color= '
 # Create a horizontal bar plot for proportions of same strand pairs
 ax.bar([0, 0.6, 1.2], Same, width = 0.4, bottom = Opposite, label = 'same strand', color= '#d9f0a3', linewidth = 0.7)
 
+LabelSize = 7
+
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
 # write label for y and x axis
-ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = 8, ha = 'center', **FigFont)
+ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = LabelSize, ha = 'center', **FigFont)
 # write label for x axis
-plt.xticks([0.25, 0.85, 1.45], ['Not', 'Ovl', 'Nst'], ha = 'center', fontsize = 8, **FigFont)
+plt.xticks([0.25, 0.85, 1.45], ['Not', 'Ovl', 'Nst'], ha = 'center', fontsize = LabelSize, **FigFont)
 
 # limit the y axis value range
 plt.ylim([0, 1])   
@@ -114,7 +116,7 @@ ax.spines["left"].set_visible(True)
  
 # do not show ticks
 plt.tick_params(axis='both', which='both', bottom='on', top='off', right = 'off',
-                left = 'on', labelbottom='on', colors = 'black', labelsize = 8, direction = 'out')  
+                left = 'on', labelbottom='on', colors = 'black', labelsize = LabelSize, direction = 'out')  
   
 # Set the tick labels font name
 for label in ax.get_yticklabels():
@@ -125,7 +127,7 @@ plt.margins(0.1)
 # add legend
 S = mpatches.Patch(facecolor = '#d9f0a3' , edgecolor = 'black', linewidth = 1, label= 'same')
 O = mpatches.Patch(facecolor = '#dadaeb' , edgecolor = 'black', linewidth = 1, label= 'opposite')
-ax.legend(handles = [S, O], loc = (-0.3, 1.05), fontsize = 8, frameon = False, ncol = 2)
+ax.legend(handles = [S, O], loc = (-0.3, 1.05), fontsize = LabelSize, frameon = False, ncol = 2)
 
 # save figure
 fig.savefig('ProportionSameOppositeStrands.pdf', bbox_inches = 'tight')
