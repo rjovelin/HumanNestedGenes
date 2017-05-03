@@ -43,7 +43,7 @@ HostNestedPairs = GetHostNestedPairs(NestedGenes)
 OverlappingPairs = GetHostNestedPairs(OverlappingGenes)
 
 # get GFF file
-HsaGFF = 'Homo_sapiens.GRCh38.86.gff3'
+HsaGFF = 'Homo_sapiens.GRCh38.88.gff3'
     
 # get gene coordinates in each species
 # get gene coordinates on each chromo
