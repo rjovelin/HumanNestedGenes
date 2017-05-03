@@ -5,10 +5,8 @@ Created on Tue Jan 24 21:26:13 2017
 @author: Richard
 """
 
-
-
 # use this script to plot expression divergence between host and nested genes 
-# separately for intron-containing and intronless nested genes 
+# separately for intron-containing and intronless nested genes, and for nested genes of same and opposite orientation 
 
 
 # import modules
@@ -36,6 +34,7 @@ from HsaNestedGenes import *
 with open('HumanNestedGenes.json') as human_json_data:
     Nested = json.load(human_json_data)
 
+
 # get GFF file
 GFF = 'Homo_sapiens.GRCh38.88.gff3'
  
@@ -49,6 +48,8 @@ MapGeneTranscript = GeneToTranscripts(GFF)
 GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
 # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
 GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
+# Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
+OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
 # Map Transcript names to gene names {transcript: gene}
 MapTranscriptGene = TranscriptToGene(GFF)
 # get the coordinates of all exons    
@@ -59,30 +60,15 @@ IntronCoord = GeneIntronCoord(ExonCoord)
 IntronCoord = CleanGeneFeatureCoord(IntronCoord, MapTranscriptGene)
 # get the coordinates of each transcripts {transcript:[chromosome, start, end, sense]}
 TranscriptCoordinates = TranscriptsCoord(GFF)
-
-
-# 1) compare expression divergence between host and nested genes for intronless and intron-containing internal genes
-
 # map genes to their longest transcript {gene: longest_transcript}
 GeneLongestTranscript = LongestTranscript(TranscriptCoordinates, MapGeneTranscript)
 # match longest transcript of the nested genes to transcript of the host gene (longest transcript in priority)
 Matches = MatchHostTranscriptWithNestedTranscript(Nested, MapGeneTranscript, GeneLongestTranscript, TranscriptCoordinates, IntronCoord)
-# list all host, nested transcript pairs [[host, nested]]
-HostNestedPairs = GetHostNestedPairs(Matches)
 
-# make pairs of host-nested genes with intronless and intron-containing internal genes
-PairsWithIntrons, PairsNoIntrons = [], []
-# loop over host-nested transcript pairs
-for i in range(len(HostNestedPairs)):
-    # check that both transcripts have coordinates and have corresponding gene names    
-    assert HostNestedPairs[i][0] in MapTranscriptGene and HostNestedPairs[i][0] in TranscriptCoordinates    
-    assert HostNestedPairs[i][1] in MapTranscriptGene and HostNestedPairs[i][1] in TranscriptCoordinates    
-    if HostNestedPairs[i][1] in IntronCoord:
-        # internal gene has introns, add gene pairs to list 
-            PairsWithIntrons.append([MapTranscriptGene[HostNestedPairs[i][0]], MapTranscriptGene[HostNestedPairs[i][1]]])
-    else:
-        # internal gene is intronless, add gene pair to list
-        PairsNoIntrons.append([MapTranscriptGene[HostNestedPairs[i][0]], MapTranscriptGene[HostNestedPairs[i][1]]])
+# list all host, nested transcript pairs [[host, nested]]
+HostNestedTSPairs = GetHostNestedPairs(Matches)
+# make a a list of host, nested gene pairs
+Nestedpairs = GetHostNestedPairs(Nested)
 
 # parse the GTEX expression summary file to obtain the expression profile of each gene
 ExpressionProfile = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
@@ -91,16 +77,69 @@ ExpressionProfile = RemoveGenesLackingExpression(ExpressionProfile)
 # transform absulte expression in relative expression
 ExpressionProfile = TransformRelativeExpression(ExpressionProfile)
 
-# filter gene pairs lacking expression
-AllPairs = [PairsWithIntrons, PairsNoIntrons]
-for i in range(len(AllPairs)):
-    AllPairs[i] = FilterGenePairsWithoutExpression(AllPairs[i], ExpressionProfile)
+# generate lists of gene pairs separated by distance 
+Proximal, Moderate, Intermediate, Distant = GenerateSetsGenePairsDistance(GeneCoord, OrderedGenes, ExpressionProfile)
+print('made list of pairs')
+
+# generate gene pairs of external and internal genes for intronless and intron-containing internal genes
+PairsWithIntrons, PairsNoIntrons = [], []
+# loop over host-nested transcript pairs
+for i in range(len(HostNestedTSPairs)):
+    # check that both transcripts have coordinates and have corresponding gene names    
+    assert HostNestedTSPairs[i][0] in MapTranscriptGene and HostNestedTSPairs[i][0] in TranscriptCoordinates    
+    assert HostNestedTSPairs[i][1] in MapTranscriptGene and HostNestedTSPairs[i][1] in TranscriptCoordinates    
+    if HostNestedTSPairs[i][1] in IntronCoord:
+        # internal gene has introns, add gene pairs to list 
+            PairsWithIntrons.append([MapTranscriptGene[HostNestedTSPairs[i][0]], MapTranscriptGene[HostNestedTSPairs[i][1]]])
+    else:
+        # internal gene is intronless, add gene pair to list
+        PairsNoIntrons.append([MapTranscriptGene[HostNestedTSPairs[i][0]], MapTranscriptGene[HostNestedTSPairs[i][1]]])
+
+# make a list of lists of gene pairs
+IntronPairs = [PairsWithIntrons, PairsNoIntrons]
+# remove gene pairs if any gene in the pair lacks expression
+for i in range(len(IntronPairs)):
+    IntronPairs[i] = FilterGenePairsWithoutExpression(IntronPairs[i], ExpressionProfile, 'strict')
+# add gene pairs defined by distance to list
+for L in [Proximal, Moderate, Intermediate, Distant]:
+    IntronPairs.append(L)
+
+# generate gene pairs of external and internal genes with same and opposite orientation
+Same, Opposite = [], []
+for pair in NestedPairs:
+    orientation = GenePairOrientation(pair, GeneCoord)
+    if len(set(orientation)) == 2:
+        Opposite.append(pair)
+    elif len(set(orientation)) == 1:
+        Same.append(pair)
+
+# make a list of lists of gene pairs
+OrientationPairs = [Same, Opposite]
+# remove gene pairs if any gene in the pair lacls expression
+for i in range(len(OrientationPairs)):
+    OrientationPairs[i] = FilterGenePairsWithoutExpression(OrientationPairs[i], ExpressionProfile, 'strict')
+# add gene pairs defined by distance to list
+for L in [Proximal, Moderate, Intermediate, Distant]:
+    OrientationPairs.append(L)
+
 
 # compute expression divergence between pairs of genes
-ExpressDivergence = []
-for i in range(len(AllPairs)):
-    Div = ComputeExpressionDivergenceGenePairs(AllPairs[i], ExpressionProfile)
-    ExpressDivergence.append(Div)
+ExpDivergIntron = []
+for i in range(len(IntronPairs)):
+    Div = ComputeExpressionDivergenceGenePairs(IntronPairs[i], ExpressionProfile)
+    ExpDivergIntron.append(Div)
+ExpDivergOrientation = []
+for i in range(len(OrientationPairs)):
+    Div = ComputeExpressionDivergenceGenePairs(OrientationPairs[i], ExpressionProfile)
+    ExpDivergOrientation.append(Div)
+print('computed divergence')
+
+##### continue here
+
+
+
+
+
 
 # make a list of gene category names parallel to the list of gene pairs
 PairsCats = ['WithIntrons', 'Intronless']
@@ -122,150 +161,6 @@ elif PExpressDiv < 0.01 and PExpressDiv >= 0.001:
     PExpressDiv = '**'
 elif PExpressDiv < 0.001:
     PExpressDiv = '***'
-
-
-# 2) compare sequence divergence between internal genes with and witout introns
-# and between external genes for which internal genes have introns or not
-
-# make sets of host-nested genes with intronless and intron-containing internal genes
-ExtWithIntrons, ExtNoIntrons = set(), set()
-IntWithIntrons, IntNoIntrons = set(), set()
-# loop over host-nested transcript pairs
-for i in range(len(HostNestedPairs)):
-    # check that both transcripts have coordinates and have corresponding gene names    
-    assert HostNestedPairs[i][0] in MapTranscriptGene and HostNestedPairs[i][0] in TranscriptCoordinates    
-    assert HostNestedPairs[i][1] in MapTranscriptGene and HostNestedPairs[i][1] in TranscriptCoordinates    
-    if HostNestedPairs[i][1] in IntronCoord:
-        # internal gene has introns, add genes to sets 
-        ExtWithIntrons.add(MapTranscriptGene[HostNestedPairs[i][0]])
-        IntWithIntrons.add(MapTranscriptGene[HostNestedPairs[i][1]])
-    else:
-        # internal gene is intronless, add genes to sets
-        ExtNoIntrons.add(MapTranscriptGene[HostNestedPairs[i][0]])
-        IntNoIntrons.add(MapTranscriptGene[HostNestedPairs[i][1]])
-
-# get 1:1 orthologs between human and chimp
-Orthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
-
-# create lists of orthologous pairs for each gene category 
-GeneCats = ['ExtWith', 'ExtNo', 'IntWith', 'IntNo']
-AllGenes = [ExtWithIntrons, ExtNoIntrons , IntWithIntrons, IntNoIntrons]
-# create pairs of orthologs
-Orthologs = []
-# loop over gene sets
-for i in range(len(AllGenes)):
-    # create a list of gene pairs
-    orthologs = []
-    # loop over genes in given gene set
-    for gene in AllGenes[i]:
-        # check that gene has ortholog
-        if gene in Orthos:
-            orthologs.append([gene, Orthos[gene]])
-    Orthologs.append(orthologs)
-
-# create a dict with divergence values
-SeqDiv = {}
-infile = open('HumanChimpSeqDiverg.txt')
-infile.readline()
-for line in infile:
-    if line.startswith('ENSG'):
-        line = line.rstrip().split('\t')
-        if line[-1] != 'NA':
-            SeqDiv[line[0]] = float(line[-1])
-infile.close()            
-    
-# make list of dN/dS for each gene category
-Omega = []
-for i in range(len(Orthologs)):
-    ratio = [] 
-    for pair in Orthologs[i]:
-        if pair[0] in SeqDiv:
-            ratio.append(SeqDiv[pair[0]])
-    Omega.append(ratio)
-    
-# create lists with means and SEM for dN/dS for each gene category
-MeanOmega, SEMOmega = [], []
-for i in range(len(Omega)):
-    MeanOmega.append(np.mean(Omega[i]))
-    SEMOmega.append(np.std(Omega[i]) / math.sqrt(len(Omega[i])))
-
-# test differences between external genes and between internal genes
-POmega = []
-for i in range(0, len(Omega), 2):
-    P = PermutationResampling(Omega[i], Omega[i+1], 10000, np.mean)
-    POmega.append(P)
-# convert p-values to star significance level
-for i in range(len(POmega)):
-    if POmega[i] >= 0.05:
-        POmega[i] = ''
-    elif POmega[i] < 0.05 and POmega[i] >= 0.01:
-        POmega[i] = '*'
-    elif POmega[i] < 0.01 and POmega[i] >= 0.001:
-        POmega[i] = '**'
-    elif POmega[i] < 0.001:
-        POmega[i] = '***'
-
-
-# 3) Compare expression divergence between orthologs for internal genes
-# and for external genes 
-
-# create sets of internal and external nested gene pairs
-NestedPairs = GetHostNestedPairs(Nested)
-InternalGenes, ExternalGenes = set(), set()
-for pair in NestedPairs:
-    ExternalGenes.add(pair[0])
-    InternalGenes.add(pair[1])
-    
-# get expression profile of human genes
-HumanExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
-# remove genes wuthout expression
-HumanExpression = RemoveGenesLackingExpression(HumanExpression)
-# get relative expression
-HumanExpression = TransformRelativeExpression(HumanExpression)
-# get expression profile of chimp genes
-ChimpExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'chimp')
-# remove genes wuthout expression
-ChimpExpression = RemoveGenesLackingExpression(ChimpExpression)
-# get relative expression
-ChimpExpression = TransformRelativeExpression(ChimpExpression)
-
-# generate lists of ortholog pairs for each gene category
-ExtWithIntronsOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, ExtWithIntrons, Orthos)
-ExtNoIntronsOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, ExtNoIntrons, Orthos)
-IntWithIntronsOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, IntWithIntrons, Orthos)
-IntNoIntronsOrthos = ExpressedOrthologousPairs(HumanExpression, ChimpExpression, IntNoIntrons, Orthos) 
-
-# make a list of orthologous expressed gene pairs
-OrthoPairs = [ExtWithIntronsOrthos, ExtNoIntronsOrthos, IntWithIntronsOrthos, IntNoIntronsOrthos] 
-
-# compute expression divergence between orthologs for each gene category
-OrthoExprxDiverg = []
-for i in range(len(OrthoPairs)):
-    Div = ComputeExpressionDivergenceOrthologs(OrthoPairs[i], HumanExpression, ChimpExpression)
-    OrthoExprxDiverg.append(Div)
-    
-# create lists with means and SEM for each gene category
-MeanOrthoExpDiv, SEMOrthoExpDiv = [], []
-# loop over lists in Divergence list
-for i in range(len(OrthoExprxDiverg)):
-    MeanOrthoExpDiv.append(np.mean(OrthoExprxDiverg[i]))
-    SEMOrthoExpDiv.append(np.std(OrthoExprxDiverg[i]) / math.sqrt(len(OrthoExprxDiverg[i])))
-
-# test differences between external genes and between internal genes
-POrthosExprx = []
-for i in range(0, len(OrthoExprxDiverg), 2):
-    P = PermutationResampling(OrthoExprxDiverg[i], OrthoExprxDiverg[i+1], 10000, np.mean)
-    POrthosExprx.append(P)
-# convert p-values to star significance level
-for i in range(len(POrthosExprx)):
-    if POrthosExprx[i] >= 0.05:
-        POrthosExprx[i] = ''
-    elif POrthosExprx[i] < 0.05 and POrthosExprx[i] >= 0.01:
-        POrthosExprx[i] = '*'
-    elif POrthosExprx[i] < 0.01 and POrthosExprx[i] >= 0.001:
-        POrthosExprx[i] = '**'
-    elif pvalue < 0.001:
-        POrthosExprx[i] = '***'
 
 
 
@@ -307,21 +202,6 @@ def CreateAx(Columns, Rows, Position, figure, Data, XticksLabel, XticksPos, BarP
 
 
 
-# use this function to annotate the graph with significance levels
-def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
-    '''
-    (ax, str, num, num, num, num, num) -> ax
-    Take a matplotlib ax object, the significance level (as stars), the positions
-    of the bracket and star and return the ax with annotated significance level
-    '''
-    ax.annotate("", xy=(XLine1, YLine), xycoords='data', xytext=(XLine2, YLine), textcoords='data',
-                 arrowprops=dict(arrowstyle="-", ec='#aaaaaa', connectionstyle="bar,fraction=0.2", linewidth = 0.7))
-    # add stars for significance
-    ax.text(XText, YText, SignificanceLevel, horizontalalignment='center', verticalalignment='center',
-            color = 'grey', fontname = 'Arial', size = 7)
-    return ax
-
-
 # make a figure with expression and sequence divergence
 
 # create figure
@@ -353,5 +233,86 @@ ax1.legend(handles = [WiH, NoH], loc = (0, 1.1), fontsize = 7, frameon = False, 
 plt.tight_layout()
 
 # save figure to file
-fig.savefig('ExpSeqDivergenceExternal.pdf', bbox_inches = 'tight')
-fig.savefig('ExpSeqDivergenceExternal.eps', bbox_inches = 'tight')
+fig.savefig('truc.pdf', bbox_inches = 'tight')
+
+
+
+###########################
+$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+
+
+
+# make a list of gene category names parallel to the list of gene pairs
+GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
+
+# create lists with means and SEM for each gene category
+MeanExpDiv, SEMExpDiv = [], []
+# loop over lists in Divergence list
+for i in range(len(Divergence)):
+    MeanExpDiv.append(np.mean(Divergence[i]))
+    SEMExpDiv.append(np.std(Divergence[i]) / math.sqrt(len(Divergence[i])))
+
+# create figure
+fig = plt.figure(1, figsize = (3, 2))
+
+# add a plot to figure (N row, N column, plot N)
+ax = fig.add_subplot(1, 1, 1)
+# set colors
+colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+
+# plot nucleotide divergence
+ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85, 2.15], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
+       edgecolor = 'black', linewidth = 0.5,
+       error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
+# set font for all text in figure
+FigFont = {'fontname':'Arial'}   
+# write y axis label
+ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
+# add ticks and lebels
+plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
+# add a range for the Y and X axes
+plt.ylim([0, 0.61])
+plt.xlim([0, 2.45])
+# do not show lines around figure  
+ax.spines["top"].set_visible(False)    
+ax.spines["bottom"].set_visible(True)    
+ax.spines["right"].set_visible(False)
+ax.spines["left"].set_visible(True)  
+# edit tick parameters    
+plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                right = 'off', left = 'on', labelbottom='on',
+                colors = 'black', labelsize = 7, direction = 'out')  
+# Set the tick labels font name
+for label in ax.get_yticklabels():
+    label.set_fontname('Arial')   
+      
+# perform statistical tests between gene categories
+# create list to store the p-values
+PValues = []
+# loop over inner list, compare gene categories
+for i in range(0, len(Divergence) -1):
+    for j in range(i+1, len(Divergence)):
+        P = PermutationResampling(Divergence[i], Divergence[j], 1000, statistic = np.mean)
+        print(i, j, P)
+        PValues.append(P)
+# print p values
+for p in PValues:
+    print(p)
+
+# convert p-values to star significance level
+Significance = ConvertPToStars(PValues)
+
+# annotate figure to add significance
+# significant comparisons were already determined, add letters to show significance
+Diff = ['A', 'B', 'C', 'B', 'D', 'E', 'F', 'G']
+ypos = [0.55] * 8
+xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25]
+for i in range(len(Diff)):
+    ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+    
+# save figure
+fig.savefig('truc.pdf', bbox_inches = 'tight')
+#fig.savefig('ExpressionDivergenceDistance.pdf', bbox_inches = 'tight')
+#fig.savefig('ExpressionDivergenceDistance.eps', bbox_inches = 'tight')
+
