@@ -47,7 +47,7 @@ Overlapping = json.load(json_data)
 json_data.close()
 
 # get GFF file
-GFF = 'Homo_sapiens.GRCh38.86.gff3'
+GFF = 'Homo_sapiens.GRCh38.88.gff3'
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 GeneChromoCoord = ChromoGenesCoord(GFF)
