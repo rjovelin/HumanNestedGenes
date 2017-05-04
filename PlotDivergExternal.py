@@ -122,6 +122,101 @@ for i in range(len(OrientationPairs)):
 for L in [Proximal, Moderate, Intermediate, Distant]:
     OrientationPairs.append(L)
 
+###################### XXXXXXXXXXXXXXXXXXXXXXXX
+
+# generate gene pairs separated by distance that have the same or opposite orientation
+ProximalSame, ModerateSame, IntermediateSame, DistantSame = [], [], [], []
+ProximalOpposite, ModerateOpposite, IntermediateOpposite, DistantOpposite = [], [], [], []
+# loop over chromosomes
+for chromo in OrderedGenes:
+    # loop over the list of ordered genes
+    for i in range(len(OrderedGenes[chromo])):
+        # check that gene is not host or nested, has expression
+        if OrderedGenes[chromo][i] in ExpressionProfile:
+            # get the end position of gene 1
+            EndGene1 = GeneCoord[OrderedGenes[chromo][i]][2]                
+            # grab 2nd gene to form a pair                
+            for j in range(i+1, len(OrderedGenes[chromo])):
+                # check that gene is not host or nested and has expression
+                if OrderedGenes[chromo][j] in ExpressionProfile:
+                    # get the start position of gene 2
+                    StartGene2 = GeneCoord[OrderedGenes[chromo][j]][1]
+                    # check if distance is less that 500 bp
+                    D = StartGene2 - EndGene1
+                    # check orientation                    
+                    orientation = GenePairOrientation([OrderedGenes[chromo][i], OrderedGenes[chromo][j]], GeneCoord)                    
+                    if len(set(orientation)) == 2:
+                        # opposite orientation, check distance                        
+                        if D >= 0 and D < 1000:
+                            # add gene pair to Proximal
+                            ProximalOpposite.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
+                        elif D >= 1000 and D < 10000:
+                            # add gene pair to Intermediate
+                            ModerateOpposite.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
+                        elif D >= 10000 and D < 50000:
+                            # add gene pair to Intermediate
+                            IntermediateOpposite.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
+                        elif D >= 50000:
+                            # add gene pair to Distant
+                            DistantOpposite.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
+                    elif len(set(orientation)) == 1:
+                        # same orientation, check distance
+                        if D >= 0 and D < 1000:
+                            # add gene pair to Proximal
+                            ProximalSame.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
+                        elif D >= 1000 and D < 10000:
+                            # add gene pair to Intermediate
+                            ModerateSame.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
+                        elif D >= 10000 and D < 50000:
+                            # add gene pair to Intermediate
+                            IntermediateSame.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
+                        elif D >= 50000:
+                            # add gene pair to Distant
+                            DistantSame.append([OrderedGenes[chromo][i], OrderedGenes[chromo][j]])
+
+for i in range(len(IntronPairs)):
+    print(len(IntronPairs[i]))
+for i in range(len(OrientationPairs)):
+    print(len(OrientationPairs[i]))
+
+a = [ProximalSame, ModerateSame, IntermediateSame, DistantSame]
+b = [ProximalOpposite, ModerateOpposite, IntermediateOpposite, DistantOpposite]
+for i in range(len(a)):
+    print('same', len(a[i]))
+for i in range(len(b)):
+    print('opposite', len(b[i]))
+
+
+SamePairs = [Same, Opposite]
+for L in a:
+    SamePairs.append(L)
+OppositePairs = [Same, Opposite]
+for L in b:
+    OppositePairs.append(L)
+
+
+DivSame = []
+for i in range(len(SamePairs)):
+    div = ComputeExpressionDivergenceGenePairs(SamePairs[i], ExpressionProfile)
+    DivSame.append(div)
+DivOpposite = []
+for i in range(len(OppositePairs)):
+    div = ComputeExpressionDivergenceGenePairs(OppositePairs[i], ExpressionProfile)
+    DivOpposite.append(div)
+# create lists with means and SEM for each gene category
+MeanSame, SEMSame = [], []
+for i in range(len(DivSame)):
+    MeanSame.append(np.mean(DivSame[i]))
+    SEMSame.append(np.std(DivSame[i]) / math.sqrt(len(DivSame[i])))
+# create lists with means and SEM for each gene category
+MeanOpp, SEMOpp = [], []
+for i in range(len(DivOpposite)):
+    MeanOpp.append(np.mean(DivOpposite[i]))
+    SEMOpp.append(np.std(DivOpposite[i]) / math.sqrt(len(DivOpposite[i])))
+
+
+
+#################### XXXXXXXXXXXXXXXXXXXXXXXXXXX
 
 # compute expression divergence between pairs of genes
 ExpDivergIntron = []
@@ -135,8 +230,8 @@ for i in range(len(OrientationPairs)):
 print('computed divergence')
 
 # make a list of gene category names parallel to the list of gene pairs
-GeneCatIntrons = ['Introns', 'Intronless', 'Prox', 'Mod', 'Int', 'Dist']
-GeneCatOrientation = ['Same', 'Opposite', 'Prox', 'Mod', 'Int', 'Dist']
+GeneCatIntrons = ['I(+)', 'I(-)', 'Prox', 'Mod', 'Int', 'Dist']
+GeneCatOrientation = ['SDir', 'OpDir', 'Prox', 'Mod', 'Int', 'Dist']
 
 # create lists with means and SEM for each gene category
 MeanIntron, SEMIntron = [], []
@@ -191,10 +286,17 @@ def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, Title, YRange, YMa
 
 
 # create figure
-fig = plt.figure(1, figsize = (3, 2.5))
+fig = plt.figure(1, figsize = (2.5, 2.2))
 
-ax1 = CreateAx(1, 2, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, 'Effect of introns in internal genes', np.arange(0, 1.2, 0.2), 1)
-ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, 'Effect of gene orientation', np.arange(0, 1.2, 0.2), 1)
+#ax1 = CreateAx(1, 2, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, 'Effect of introns', np.arange(0, 1.2, 0.2), 1)
+#ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, 'Effect of gene orientation', np.arange(0, 1.2, 0.2), 1)
+
+
+ax1 = CreateAx(1, 2, 1, fig, [MeanSame, SEMSame], GeneCatIntrons, 'Effect of introns', np.arange(0, 1.2, 0.2), 1)
+ax2 = CreateAx(1, 2, 2, fig, [MeanOpp, SEMOpp], GeneCatOrientation, 'Effect of gene orientation', np.arange(0, 1.2, 0.2), 1)
+
+
+
 
 ## perform statistical tests between gene categories
 #PValsIntron = []
