@@ -191,8 +191,8 @@ def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, YRange, YMax):
 # create figure
 fig = plt.figure(1, figsize = (3, 2))
 
-ax1 = CreateAx(1, 2, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, np.arange(0, 1.1, 0.1), 1)
-ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, np.arange(0, 1.1, 0.1), 1)
+ax1 = CreateAx(1, 2, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, np.arange(0, 1.2, 0.2), 1)
+ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, np.arange(0, 1.2, 0.2), 1)
 
 ## perform statistical tests between gene categories
 #PValsIntron = []
