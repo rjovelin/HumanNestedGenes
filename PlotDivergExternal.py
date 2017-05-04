@@ -145,7 +145,7 @@ for i in range(len(ExpDivergIntron)):
     SEMIntron.append(np.std(ExpDivergIntron[i]) / math.sqrt(len(ExpDivergIntron[i])))
 MeanOrientation, SEMOrientation = [], []
 for i in range(len(ExpDivergOrientation)):
-    MeanOrientation.append(np.mean(ExpDivergOrientation))
+    MeanOrientation.append(np.mean(ExpDivergOrientation[i]))
     SEMOrientation.append(np.std(ExpDivergOrientation[i]) / math.sqrt(len(ExpDivergOrientation[i])))
 
 
