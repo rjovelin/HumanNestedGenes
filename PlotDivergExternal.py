@@ -68,7 +68,7 @@ Matches = MatchHostTranscriptWithNestedTranscript(Nested, MapGeneTranscript, Gen
 # list all host, nested transcript pairs [[host, nested]]
 HostNestedTSPairs = GetHostNestedPairs(Matches)
 # make a a list of host, nested gene pairs
-Nestedpairs = GetHostNestedPairs(Nested)
+NestedPairs = GetHostNestedPairs(Nested)
 
 # parse the GTEX expression summary file to obtain the expression profile of each gene
 ExpressionProfile = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
