@@ -165,7 +165,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, YRange, YMax):
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write y axis label
-    ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
+    ax.set_ylabel('Expression\ndivergence', color = 'black',  size = 7, ha = 'center', **FigFont)
     # add ticks and lebels
     plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
     # add a range for the Y and X axes
