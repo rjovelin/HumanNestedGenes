@@ -150,7 +150,7 @@ for i in range(len(ExpDivergOrientation)):
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, YRange, YMax):
+def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, Title, YRange, YMax):
     '''
     return an ax object part of figure
     '''
@@ -168,6 +168,8 @@ def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, YRange, YMax):
     ax.set_ylabel('Expression\ndivergence', color = 'black',  size = 7, ha = 'center', **FigFont)
     # add ticks and lebels
     plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
+    # add title
+    ax.set_title(Title, color = 'black', size = 7, ha = 'center', **FigFont)    
     # add a range for the Y and X axes
     plt.ylim([0, YMax])
     plt.xlim([0, 1.8])
@@ -189,10 +191,10 @@ def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, YRange, YMax):
 
 
 # create figure
-fig = plt.figure(1, figsize = (3, 2))
+fig = plt.figure(1, figsize = (3, 2.5))
 
-ax1 = CreateAx(1, 2, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, np.arange(0, 1.2, 0.2), 1)
-ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, np.arange(0, 1.2, 0.2), 1)
+ax1 = CreateAx(1, 2, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, 'Effect of introns in internal genes', np.arange(0, 1.2, 0.2), 1)
+ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, 'Effect of gene orientation', np.arange(0, 1.2, 0.2), 1)
 
 ## perform statistical tests between gene categories
 #PValsIntron = []
@@ -220,6 +222,9 @@ ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientati
 #xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65]
 #for i in range(len(Diff)):
 #     ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+    
+# make sure subplots do not overlap
+plt.tight_layout()    
     
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
