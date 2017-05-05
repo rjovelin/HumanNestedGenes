@@ -49,7 +49,7 @@ Divergent = json.load(json_data)
 json_data.close()
 
 # get GFF file
-GFF = 'Homo_sapiens.GRCh38.86.gff3'
+GFF = 'Homo_sapiens.GRCh38.88.gff3'
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 GeneChromoCoord = ChromoGenesCoord(GFF)
@@ -233,24 +233,3 @@ plt.tight_layout()
 
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
-
-
-
-
-
-#
-#
-#
-#
-###################################
-#
-#
-## convert bp to Kbp
-#ToKb = lambda x: x / 1000
-#OverlapLength = list(map(ToKb, OverlapLength))
-#NestedLength = list(map(ToKb, NestedLength))
-#PiggybackLength = list(map(ToKb, PiggybackLength))
-#ConvergentLength = list(map(ToKb, ConvergentLength))
-#DivergentLength = list(map(ToKb, DivergentLength))
