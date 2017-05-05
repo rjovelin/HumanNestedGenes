@@ -215,20 +215,22 @@ ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientati
 ## convert p-values to star significance level
 #PValsIntron = ConvertPToStars(PValsIntron)
 #PValsOrientation = ConvertPToStars(PValsOrientation)
-#
-## annotate figure to add significance
-## significant comparisons were already determined, add letters to show significance
-#Diff = ['A', 'B', 'C', 'B', 'D', 'E', 'F', 'G']
-#ypos = [0.55] * 6
-#xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65]
-#for i in range(len(Diff)):
-#     ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
- 
+
 # add subplot labels
 ax1.text(-0.55, 1.2, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 ax2.text(-0.55, 1.2, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
-   
+# annotate figure to add significance
+# significant comparisons were already determined, add letters to show significance
+DiffIntrons = ['A', 'B', 'C', 'D', 'E', 'A']
+DiffOrientation = ['A,E', 'A', 'B', 'C', 'D', 'E']
+ypos = [0.7] * 6
+xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65]
+for i in range(len(DiffIntrons)):
+     ax1.text(xpos[i], ypos[i], DiffIntrons[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+for i in range(len(DiffOrientation)):
+     ax2.text(xpos[i], ypos[i], DiffOrientation[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+
 # make sure subplots do not overlap
 plt.tight_layout()    
     
