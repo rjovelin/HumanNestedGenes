@@ -122,13 +122,6 @@ for i in range(len(OrientationPairs)):
 for L in [Proximal, Moderate, Intermediate, Distant]:
     OrientationPairs.append(L)
 
-
-for i in range(len(IntronPairs)):
-    print('intron', len(IntronPairs[i]))
-for i in range(len(OrientationPairs)):
-    print('orientation', len(OrientationPairs[i]))
-
-
 # compute expression divergence between pairs of genes
 ExpDivergIntron = []
 for i in range(len(IntronPairs)):
@@ -199,38 +192,43 @@ def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, Title, YRange, YMa
 # create figure
 fig = plt.figure(1, figsize = (2.5, 2.2))
 
-ax1 = CreateAx(1, 2, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, 'Effect of introns', np.arange(0, 1.2, 0.2), 1)
-ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, 'Effect of gene orientation', np.arange(0, 1.2, 0.2), 1)
+ax1 = CreateAx(1, 2, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, 'Introns in internal genes', np.arange(0, 1.2, 0.2), 1)
+ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, 'Strand orientation', np.arange(0, 1.2, 0.2), 1)
 
 
-# perform statistical tests between gene categories
-PValsIntron = []
-# loop over inner list, compare gene categories
-for i in range(0, len(ExpDivergIntron) -1):
-    for j in range(i+1, len(ExpDivergIntron)):
-        P = PermutationResampling(ExpDivergIntron[i], ExpDivergIntron[j], 1000, statistic = np.mean)
-        print('intron', i, j, P)
-        PValsIntron.append(P)
-PValsOrientation = []
-# loop over inner list, compare gene categories
-for i in range(0, len(ExpDivergOrientation) -1):
-    for j in range(i+1, len(ExpDivergOrientation)):
-        P = PermutationResampling(ExpDivergOrientation[i], ExpDivergOrientation[j], 1000, statistic = np.mean)
-        print('orientation', i, j, P)
-        PValsOrientation.append(P)
+## perform statistical tests between gene categories
+#PValsIntron = []
+## loop over inner list, compare gene categories
+#for i in range(0, len(ExpDivergIntron) -1):
+#    for j in range(i+1, len(ExpDivergIntron)):
+#        P = PermutationResampling(ExpDivergIntron[i], ExpDivergIntron[j], 1000, statistic = np.mean)
+#        print('intron', i, j, P)
+#        PValsIntron.append(P)
+#PValsOrientation = []
+## loop over inner list, compare gene categories
+#for i in range(0, len(ExpDivergOrientation) -1):
+#    for j in range(i+1, len(ExpDivergOrientation)):
+#        P = PermutationResampling(ExpDivergOrientation[i], ExpDivergOrientation[j], 1000, statistic = np.mean)
+#        print('orientation', i, j, P)
+#        PValsOrientation.append(P)
+#
+## convert p-values to star significance level
+#PValsIntron = ConvertPToStars(PValsIntron)
+#PValsOrientation = ConvertPToStars(PValsOrientation)
+#
+## annotate figure to add significance
+## significant comparisons were already determined, add letters to show significance
+#Diff = ['A', 'B', 'C', 'B', 'D', 'E', 'F', 'G']
+#ypos = [0.55] * 6
+#xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65]
+#for i in range(len(Diff)):
+#     ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ 
+# add subplot labels
+ax1.text(-0.55, 1.2, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax2.text(-0.55, 1.2, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
-# convert p-values to star significance level
-PValsIntron = ConvertPToStars(PValsIntron)
-PValsOrientation = ConvertPToStars(PValsOrientation)
-
-# annotate figure to add significance
-# significant comparisons were already determined, add letters to show significance
-Diff = ['A', 'B', 'C', 'B', 'D', 'E', 'F', 'G']
-ypos = [0.55] * 6
-xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65]
-for i in range(len(Diff)):
-     ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-    
+   
 # make sure subplots do not overlap
 plt.tight_layout()    
     
