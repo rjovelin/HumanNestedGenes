@@ -27,26 +27,23 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
-# load dictionary of overlapping gene pairs
-json_data = open('HumanOverlappingGenes.json')
-Overlapping = json.load(json_data)
-json_data.close()
-# load dictionary of nested gene pairs
-json_data = open('HumanNestedGenes.json')
-Nested = json.load(json_data)
-json_data.close()
-# load dictionary of pibbyback gene pairs
-json_data = open('HumanPiggyBackGenes.json')
-Piggyback = json.load(json_data)
-json_data.close()
-# load dictionary of convergent gene pairs
-json_data = open('HumanConvergentGenes.json')
-Convergent = json.load(json_data)
-json_data.close()
-# load dictionary of divergent gene pairs
-json_data = open('HumanDivergentGenes.json')
-Divergent = json.load(json_data)
-json_data.close()
+# load dictionaries of the 4 types of overlapping genes
+JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json', 'HumanPiggyBackGenes.json',
+             'HumanConvergentGenes.json', 'HumanDivergentGenes.json']
+# make a list of dictionaries
+Overlap = []
+# loop over files
+for i in range(len(JsonFiles)):
+    # load dictionary of overlapping gene pairs
+    json_data = open(JsonFiles[i])
+    overlapping = json.load(json_data)
+    json_data.close()
+    Overlap.append(overlapping)
+
+# create a list of list of gene pairs
+AllPairs = []
+for i in range(len(Overlap)):
+    AllPairs.append(GetHostNestedPairs(Overlap[i]))
 
 # get GFF file
 GFF = 'Homo_sapiens.GRCh38.88.gff3'
@@ -60,15 +57,6 @@ GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneT
 # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
 GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
 
-# create lists of gene pairs
-OverlappingPairs = GetHostNestedPairs(Overlapping)
-NestedPairs = GetHostNestedPairs(Nested)
-PiggybackPairs = GetHostNestedPairs(Piggyback)
-ConvergentPairs = GetHostNestedPairs(Convergent)
-DivergentPairs = GetHostNestedPairs(Divergent)
-
-# create a list of lists of gene pairs
-AllPairs = [OverlappingPairs, NestedPairs, PiggybackPairs, ConvergentPairs, DivergentPairs]
 # create a list of dicts with the overlap length for each pair {'gene1:gene2' : overlaplength}
 AllLength = []
 # loop over lists of gene pairs for each overlapping group
@@ -102,7 +90,7 @@ ExpressionProfile = TransformRelativeExpression(ExpressionProfile)
 
 # filter gene pairs lacking expression
 for i in range(len(AllPairs)):
-    AllPairs[i] = FilterGenePairsWithoutExpression(AllPairs[i], ExpressionProfile)
+    AllPairs[i] = FilterGenePairsWithoutExpression(AllPairs[i], ExpressionProfile, 'strict')
 
 # compute expression divergence between pairs of genes
 Divergence = []
@@ -171,8 +159,14 @@ ConvergentLengthDiv = GetExpxDigOverlap(ConvergentLength, ConvergentDivg)
 DivergentLengthDiv = GetExpxDigOverlap(DivergentLength, DivergentDivg)
 
 
+a = [OverlapLengthDiv, NestedLengthDiv, PiggybackLengthDiv, ConvergentLengthDiv, DivergentLengthDiv]
+for i in range(len(a)):
+    print(stats.spearmanr(a[i][0], a[i][1]))
+
+
+
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, Colors, Title):
+def CreateAx(Columns, Rows, Position, figure, DataX, DataY, Colors, Title):
     '''
     (int, int, int, figure_object, list, list, list, list, list, str, str, int)
     Take the number of a column, and rows in the figure object and the position of
@@ -184,7 +178,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, Colors, Title):
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
     # plot data
-    ax.scatter(Data[0], Data[1], marker = 'o', edgecolor = Colors, facecolor = Colors, lw = 0.5, s = 4, alpha = 0.5)
+    ax.scatter(DataX, DataY, marker = 'o', edgecolor = Colors, facecolor = Colors, lw = 0.5, s = 4, alpha = 0.5)
     
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
@@ -198,8 +192,8 @@ def CreateAx(Columns, Rows, Position, figure, Data, Colors, Title):
 #    plt.yticks(YRange, size = 6.5, color = 'black', ha = 'right', **FigFont)       
 
     # add a range for the Y and X axes
-    plt.ylim([0, 1.5])
-    plt.xlim([0, 500000])
+#    plt.ylim([0, 1.5])
+#    plt.xlim([0, 500000])
     # add title
     ax.set_title(Title, size = 7, ha = 'center', **FigFont)    
     # do not show lines around figure  
@@ -220,11 +214,11 @@ def CreateAx(Columns, Rows, Position, figure, Data, Colors, Title):
 # create figure
 fig = plt.figure(1, figsize = (5, 4))
 
-ax1 = CreateAx(3, 2, 1, fig, OverlapLengthDiv, 'black', 'all')
-ax2 = CreateAx(3, 2, 2, fig, NestedLengthDiv, 'black', 'nested')
-ax3 = CreateAx(3, 2, 3, fig, PiggybackLengthDiv, 'black', 'piggyback')
-ax4 = CreateAx(3, 2, 4, fig, ConvergentLengthDiv, 'black', 'convergent')
-ax5 = CreateAx(3, 2, 5, fig, DivergentLengthDiv,'black', 'divergent')
+ax1 = CreateAx(3, 2, 1, fig, OverlapLengthDiv[1], OverlapLengthDiv[0], 'black', 'all')
+ax2 = CreateAx(3, 2, 2, fig, NestedLengthDiv[1], NestedLengthDiv[0], 'black', 'nested')
+ax3 = CreateAx(3, 2, 3, fig, PiggybackLengthDiv[1], PiggybackLengthDiv[0], 'black', 'piggyback')
+ax4 = CreateAx(3, 2, 4, fig, ConvergentLengthDiv[1], ConvergentLengthDiv[0], 'black', 'convergent')
+ax5 = CreateAx(3, 2, 5, fig, DivergentLengthDiv[1], DivergentLengthDiv[0], 'black', 'divergent')
 
 
 
