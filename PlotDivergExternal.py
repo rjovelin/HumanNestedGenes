@@ -235,8 +235,7 @@ for i in range(len(DiffOrientation)):
 plt.tight_layout()    
     
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-#fig.savefig('ExpressionDivergenceDistance.pdf', bbox_inches = 'tight')
-#fig.savefig('ExpressionDivergenceDistance.eps', bbox_inches = 'tight')
+fig.savefig('ExternalExpDivDistance.pdf', bbox_inches = 'tight')
+fig.savefig('ExternalExpDivDistance.eps', bbox_inches = 'tight')
 
 
