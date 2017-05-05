@@ -129,18 +129,19 @@ plt.tick_params(axis='both', which='both', bottom='on', top='off',
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
       
-## perform statistical tests between gene categories
-## create list to store the p-values
-#PValues = []
-## loop over inner list, compare gene categories
-#for i in range(0, len(Divergence) -1):
-#    for j in range(i+1, len(Divergence)):
-#        P = PermutationResampling(Divergence[i], Divergence[j], 1000, statistic = np.mean)
-#        print(i, j, P)
-#        PValues.append(P)
-## print p values
-#for p in PValues:
-#    print(p)
+# perform statistical tests between gene categories
+# create list to store the p-values
+PValues = []
+# save P values to file
+newfile = open('ExpressionDivergDistancePVals.txt', 'w')
+newfile.write('\t'.join(['Genes1', 'Genes2', 'index1', 'index2', 'P']) + '\n')        
+# loop over inner list, compare gene categories
+for i in range(0, len(Divergence) -1):
+    for j in range(i+1, len(Divergence)):
+        P = PermutationResampling(Divergence[i], Divergence[j], 1000, statistic = np.mean)
+        print(GeneCats[i], GeneCats[j], i, j, P)
+        newfile.write('\t'.join([GeneCats[i], GeneCats[j], str(i), str(j), str(P)]) + '\n')        
+        PValues.append(P)
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
@@ -151,6 +152,5 @@ for i in range(len(Diff)):
     ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
     
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-#fig.savefig('ExpressionDivergenceDistance.pdf', bbox_inches = 'tight')
-#fig.savefig('ExpressionDivergenceDistance.eps', bbox_inches = 'tight')
+fig.savefig('ExpressionDivergenceDistance.pdf', bbox_inches = 'tight')
+fig.savefig('ExpressionDivergenceDistance.eps', bbox_inches = 'tight')
