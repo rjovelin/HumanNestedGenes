@@ -80,19 +80,11 @@ for i in range(len(AllPairs)):
 for L in [Proximal, Moderate, Intermediate, Distant]:
     AllPairs.append(L)
 
-
-print('made list of pairs')
-
-
-
-
 # compute expression divergence between pairs of genes
 Divergence = []
 for i in range(len(AllPairs)):
     Div = ComputeExpressionDivergenceGenePairs(AllPairs[i], ExpressionProfile)
     Divergence.append(Div)
-
-print('computed divergence')
 
 # make a list of gene category names parallel to the list of gene pairs
 GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
@@ -111,11 +103,10 @@ fig = plt.figure(1, figsize = (3, 2))
 ax = fig.add_subplot(1, 1, 1)
 # set colors
 colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
-
 # plot nucleotide divergence
 ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85, 2.15], MeanExpDiv, 0.2, yerr = SEMExpDiv, color = colorscheme,
-       edgecolor = 'black', linewidth = 0.5,
-       error_kw=dict(elinewidth=0.5, ecolor='black', markeredgewidth = 0.5))
+       edgecolor = 'black', linewidth = 0.7,
+       error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
 # write y axis label
@@ -138,21 +129,18 @@ plt.tick_params(axis='both', which='both', bottom='on', top='off',
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
       
-# perform statistical tests between gene categories
-# create list to store the p-values
-PValues = []
-# loop over inner list, compare gene categories
-for i in range(0, len(Divergence) -1):
-    for j in range(i+1, len(Divergence)):
-        P = PermutationResampling(Divergence[i], Divergence[j], 1000, statistic = np.mean)
-        print(i, j, P)
-        PValues.append(P)
-# print p values
-for p in PValues:
-    print(p)
-
-# convert p-values to star significance level
-Significance = ConvertPToStars(PValues)
+## perform statistical tests between gene categories
+## create list to store the p-values
+#PValues = []
+## loop over inner list, compare gene categories
+#for i in range(0, len(Divergence) -1):
+#    for j in range(i+1, len(Divergence)):
+#        P = PermutationResampling(Divergence[i], Divergence[j], 1000, statistic = np.mean)
+#        print(i, j, P)
+#        PValues.append(P)
+## print p values
+#for p in PValues:
+#    print(p)
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
