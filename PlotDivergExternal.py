@@ -196,25 +196,27 @@ ax1 = CreateAx(1, 2, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, 'Introns i
 ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, 'Strand orientation', np.arange(0, 1.2, 0.2), 1)
 
 
-## perform statistical tests between gene categories
-#PValsIntron = []
-## loop over inner list, compare gene categories
-#for i in range(0, len(ExpDivergIntron) -1):
-#    for j in range(i+1, len(ExpDivergIntron)):
-#        P = PermutationResampling(ExpDivergIntron[i], ExpDivergIntron[j], 1000, statistic = np.mean)
-#        print('intron', i, j, P)
-#        PValsIntron.append(P)
-#PValsOrientation = []
-## loop over inner list, compare gene categories
-#for i in range(0, len(ExpDivergOrientation) -1):
-#    for j in range(i+1, len(ExpDivergOrientation)):
-#        P = PermutationResampling(ExpDivergOrientation[i], ExpDivergOrientation[j], 1000, statistic = np.mean)
-#        print('orientation', i, j, P)
-#        PValsOrientation.append(P)
-#
-## convert p-values to star significance level
-#PValsIntron = ConvertPToStars(PValsIntron)
-#PValsOrientation = ConvertPToStars(PValsOrientation)
+# perform statistical tests between gene categories
+# save P values to file
+newfile = open('ExternalExpDivDistancePVals.txt', 'w')
+newfile.write('\t'.join(['Genes1', 'Genes2', 'index1', 'index2', 'P']) + '\n')        
+PValsIntron = []
+# loop over inner list, compare gene categories
+for i in range(0, len(ExpDivergIntron) -1):
+    for j in range(i+1, len(ExpDivergIntron)):
+        P = PermutationResampling(ExpDivergIntron[i], ExpDivergIntron[j], 1000, statistic = np.mean)
+        print('intron', i, j, P)
+        newfile.write('\t'.join([GeneCatIntrons[i], GeneCatIntrons[j], str(i), str(j), str(P)]) + '\n')        
+        PValsIntron.append(P)
+PValsOrientation = []
+# loop over inner list, compare gene categories
+for i in range(0, len(ExpDivergOrientation) -1):
+    for j in range(i+1, len(ExpDivergOrientation)):
+        P = PermutationResampling(ExpDivergOrientation[i], ExpDivergOrientation[j], 1000, statistic = np.mean)
+        print('orientation', i, j, P)
+        newfile.write('\t'.join([GeneCatOrientation[i], GeneCatOrientation[j], str(i), str(j), str(P)]) + '\n')
+        PValsOrientation.append(P)
+newfile.close()
 
 # add subplot labels
 ax1.text(-0.55, 1.2, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
@@ -237,5 +239,3 @@ plt.tight_layout()
 # save figure
 fig.savefig('ExternalExpDivDistance.pdf', bbox_inches = 'tight')
 fig.savefig('ExternalExpDivDistance.eps', bbox_inches = 'tight')
-
-
