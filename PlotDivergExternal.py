@@ -220,7 +220,8 @@ for i in range(0, len(ExpDivergOrientation) -1):
         PValsOrientation.append(P)
 
 # convert p-values to star significance level
-Significance = ConvertPToStars(PValues)
+PValsIntron = ConvertPToStars(PValsIntron)
+PValsOrientation = ConvertPToStars(PValsOrientation)
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
