@@ -50,7 +50,7 @@ Divergent = json.load(json_data)
 json_data.close()
 
 # get GFF file
-GFF = 'Homo_sapiens.GRCh38.86.gff3'
+GFF = 'Homo_sapiens.GRCh38.88.gff3'
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 GeneChromoCoord = ChromoGenesCoord(GFF)
@@ -95,7 +95,7 @@ for pair in opposite:
 
 # map ensembl gene IDs to gene names
 GeneNames = {}
-infile = open('Homo_sapiens.GRCh38.86.gff3')
+infile = open('Homo_sapiens.GRCh38.88.gff3')
 # consider only protein coding genes
 for line in infile:
     if 'gene' in line and not line.startswith('#'):
@@ -471,27 +471,30 @@ if Proportions == 'both':
 plt.tight_layout()
 
 # save figure to file
-fig.savefig('ProportionDiseaseGenes.pdf', bbox_inches = 'tight')
-fig.savefig('ProportionDiseaseGenes.eps', bbox_inches = 'tight')
+fig.savefig('truc.pdf', bbox_inches = 'tight')
 
 
-# make a table with counts of disease and non-disease genes
+#fig.savefig('ProportionDiseaseGenes.pdf', bbox_inches = 'tight')
+#fig.savefig('ProportionDiseaseGenes.eps', bbox_inches = 'tight')
 
 
-GeneCounts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
-Origins = ['GAD', 'GWAS', 'Drivers', 'OMIM', 'All']
-GeneCats = ['Non-overlapping', 'Nested', 'Internal', 'External', 'Piggyback', 'Convergent', 'Divergent'] 
-
-newfile = open('DiseaseEnrichementTable.txt', 'w')
-header = ['Disease genes', 'Gene category', 'N disease genes', 'N non-disease genes', 'Proportion disease genes', 'P']
-newfile.write('\t'.join(header) + '\n')
-for i in range(len(GeneCounts)):
-    # get the list of P values
-    Pvals = TestDiseaseEnrichement(GeneCounts[i])
-    # add empty  string for the non-overlapping genes
-    Pvals.insert(0, '')
-    for j in range(len(GeneCounts[i])):
-        line = [Origins[i], GeneCats[j], str(GeneCounts[i][j][0]), str(GeneCounts[i][j][1]), str(round(GeneCounts[i][j][0] / sum(GeneCounts[i][j]), 4) * 100), str(Pvals[j])]
-        newfile.write('\t'.join(line) + '\n')
-newfile.close()        
+## make a table with counts of disease and non-disease genes
+#
+#
+#GeneCounts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
+#Origins = ['GAD', 'GWAS', 'Drivers', 'OMIM', 'All']
+#GeneCats = ['Non-overlapping', 'Nested', 'Internal', 'External', 'Piggyback', 'Convergent', 'Divergent'] 
+#
+#newfile = open('DiseaseEnrichementTable.txt', 'w')
+#header = ['Disease genes', 'Gene category', 'N disease genes', 'N non-disease genes', 'Proportion disease genes', 'P']
+#newfile.write('\t'.join(header) + '\n')
+#for i in range(len(GeneCounts)):
+#    # get the list of P values
+#    Pvals = TestDiseaseEnrichement(GeneCounts[i])
+#    # add empty  string for the non-overlapping genes
+#    Pvals.insert(0, '')
+#    for j in range(len(GeneCounts[i])):
+#        line = [Origins[i], GeneCats[j], str(GeneCounts[i][j][0]), str(GeneCounts[i][j][1]), str(round(GeneCounts[i][j][0] / sum(GeneCounts[i][j]), 4) * 100), str(Pvals[j])]
+#        newfile.write('\t'.join(line) + '\n')
+#newfile.close()        
 

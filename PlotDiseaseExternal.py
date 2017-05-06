@@ -391,91 +391,94 @@ plt.tight_layout()
 
 outputfile = 'ProportionDiseaseExternal'
 # save figure to file
-fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+fig.savefig('truc.pdf', bbox_inches = 'tight')
 
 
-# compare proportion of disease genes among external genes with different orientation with their internal genes
-
-AllSame, AllOpposite = set(), set()
-IntronlessSame, IntronlessOpposite = set(), set()
-IntronSame, IntronOpposite =set(), set()
-
-# loop over host-nested transcript pairs
-for i in range(len(HostNestedPairs)):
-    # check that both transcripts have coordinates and have corresponding gene names    
-    assert HostNestedPairs[i][0] in MapTranscriptGene and HostNestedPairs[i][0] in TranscriptCoordinates    
-    assert HostNestedPairs[i][1] in MapTranscriptGene and HostNestedPairs[i][1] in TranscriptCoordinates    
-    # get the orientation of the external and internal transcripts
-    OrientationPair = GenePairOrientation(HostNestedPairs[i], TranscriptCoordinates)
-    # populate sets with external genes
-    if len(set(OrientationPair)) == 1:
-        assert set(OrientationPair) == {'-'} or set(OrientationPair) == {'+'}
-        AllSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
-        # check if the internal gene has introns
-        if HostNestedPairs[i][1] in IntronCoord:
-            IntronSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
-        else:
-            IntronlessSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
-    elif len(set(OrientationPair)) == 2:
-        assert set(OrientationPair) == {'-', '+'}
-        AllOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
-        # check if the internal gene has introns
-        if HostNestedPairs[i][1] in IntronCoord:
-            IntronOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
-        else:
-            IntronlessOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
-       
-# make a list of external genes
-ExternalGenes = [AllSame, AllOpposite, IntronSame, IntronOpposite, IntronlessSame, IntronlessOpposite]  
-
-# count disease and non-disease genes    
-GADCounts = CountDiseaseGenes(ExternalGenes, GAD)    
-GWASCounts = CountDiseaseGenes(ExternalGenes, GWAS)
-DriversCounts = CountDiseaseGenes(ExternalGenes, Drivers)
-OMIMCounts = CountDiseaseGenes(ExternalGenes, OMIM)
-AllCounts = CountDiseaseGenes(ExternalGenes, DiseaseGenes)
-
-# compare the proportion of disease genes for each set of disease gene
-PVals = []
-counts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
-for i in range(len(counts)):
-    pvalues = []
-    for j in range(0, len(counts[i]), 2):
-        p = stats.fisher_exact([counts[i][j], counts[i][j+1]])[1]
-        pvalues.append(p)
-    PVals.append(pvalues)    
-
-# create lists of proportions for disease and non-disease genes
-DisProp, NonDisProp = [], []
-for i in range(len(counts)):
-    disease, nondisease = GetProportions(counts[i])
-    DisProp.append(disease)
-    NonDisProp.append(nondisease)
-
-Origins = ['GAD', 'GWAS', 'Drivers', 'OMIM', 'All']
-GeneCats = ['External_Same', 'External_opposite', 'WithIntronSame', 'WithIntronOpposite', 'IntronlessSame', 'IntronlessOpposite']
+#fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
+#fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
 
 
-newfile = open('DiseaseEnrichExternal.txt', 'w')
-newfile.write('Proportion of disease genes among external genes depending on their orientation\n')
-newfile.write('with their intronless or intron-containing internal genes\n\n')
-header = ['Disease genes', 'Gene category', 'N disease genes', 'N non-disease genes', 'Proportion disease genes', 'P']
-newfile.write('\t'.join(header) + '\n')
-
-
-# loop over the gene counts for each disease origin
-for i in range(len(counts)):
-    # set up variable to get the index of the pvalue list (the list doesn't have same length)
-    m = 0
-    for j in range(len(counts[i])):
-        line = [Origins[i], GeneCats[j], str(counts[i][j][0]), str(counts[i][j][1]), str(round(DisProp[i][j] * 100, 2))]
-        # add p value on the line of the opposite orientation
-        if j % 2 != 0:
-            # update variable m
-            m += 1
-            # get index of the p value in list
-            k = j -m
-            line.append(str(PVals[i][k]))
-        newfile.write('\t'.join(line) + '\n')
-newfile.close()        
+## compare proportion of disease genes among external genes with different orientation with their internal genes
+#
+#AllSame, AllOpposite = set(), set()
+#IntronlessSame, IntronlessOpposite = set(), set()
+#IntronSame, IntronOpposite =set(), set()
+#
+## loop over host-nested transcript pairs
+#for i in range(len(HostNestedPairs)):
+#    # check that both transcripts have coordinates and have corresponding gene names    
+#    assert HostNestedPairs[i][0] in MapTranscriptGene and HostNestedPairs[i][0] in TranscriptCoordinates    
+#    assert HostNestedPairs[i][1] in MapTranscriptGene and HostNestedPairs[i][1] in TranscriptCoordinates    
+#    # get the orientation of the external and internal transcripts
+#    OrientationPair = GenePairOrientation(HostNestedPairs[i], TranscriptCoordinates)
+#    # populate sets with external genes
+#    if len(set(OrientationPair)) == 1:
+#        assert set(OrientationPair) == {'-'} or set(OrientationPair) == {'+'}
+#        AllSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
+#        # check if the internal gene has introns
+#        if HostNestedPairs[i][1] in IntronCoord:
+#            IntronSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
+#        else:
+#            IntronlessSame.add(MapTranscriptGene[HostNestedPairs[i][0]])
+#    elif len(set(OrientationPair)) == 2:
+#        assert set(OrientationPair) == {'-', '+'}
+#        AllOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
+#        # check if the internal gene has introns
+#        if HostNestedPairs[i][1] in IntronCoord:
+#            IntronOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
+#        else:
+#            IntronlessOpposite.add(MapTranscriptGene[HostNestedPairs[i][0]])
+#       
+## make a list of external genes
+#ExternalGenes = [AllSame, AllOpposite, IntronSame, IntronOpposite, IntronlessSame, IntronlessOpposite]  
+#
+## count disease and non-disease genes    
+#GADCounts = CountDiseaseGenes(ExternalGenes, GAD)    
+#GWASCounts = CountDiseaseGenes(ExternalGenes, GWAS)
+#DriversCounts = CountDiseaseGenes(ExternalGenes, Drivers)
+#OMIMCounts = CountDiseaseGenes(ExternalGenes, OMIM)
+#AllCounts = CountDiseaseGenes(ExternalGenes, DiseaseGenes)
+#
+## compare the proportion of disease genes for each set of disease gene
+#PVals = []
+#counts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
+#for i in range(len(counts)):
+#    pvalues = []
+#    for j in range(0, len(counts[i]), 2):
+#        p = stats.fisher_exact([counts[i][j], counts[i][j+1]])[1]
+#        pvalues.append(p)
+#    PVals.append(pvalues)    
+#
+## create lists of proportions for disease and non-disease genes
+#DisProp, NonDisProp = [], []
+#for i in range(len(counts)):
+#    disease, nondisease = GetProportions(counts[i])
+#    DisProp.append(disease)
+#    NonDisProp.append(nondisease)
+#
+#Origins = ['GAD', 'GWAS', 'Drivers', 'OMIM', 'All']
+#GeneCats = ['External_Same', 'External_opposite', 'WithIntronSame', 'WithIntronOpposite', 'IntronlessSame', 'IntronlessOpposite']
+#
+#
+#newfile = open('DiseaseEnrichExternal.txt', 'w')
+#newfile.write('Proportion of disease genes among external genes depending on their orientation\n')
+#newfile.write('with their intronless or intron-containing internal genes\n\n')
+#header = ['Disease genes', 'Gene category', 'N disease genes', 'N non-disease genes', 'Proportion disease genes', 'P']
+#newfile.write('\t'.join(header) + '\n')
+#
+#
+## loop over the gene counts for each disease origin
+#for i in range(len(counts)):
+#    # set up variable to get the index of the pvalue list (the list doesn't have same length)
+#    m = 0
+#    for j in range(len(counts[i])):
+#        line = [Origins[i], GeneCats[j], str(counts[i][j][0]), str(counts[i][j][1]), str(round(DisProp[i][j] * 100, 2))]
+#        # add p value on the line of the opposite orientation
+#        if j % 2 != 0:
+#            # update variable m
+#            m += 1
+#            # get index of the p value in list
+#            k = j -m
+#            line.append(str(PVals[i][k]))
+#        newfile.write('\t'.join(line) + '\n')
+#newfile.close()        
