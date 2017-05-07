@@ -2054,8 +2054,162 @@ def ParseCosmicFile(Cosmic):
             CancerGenes.add(line[0])
     infile.close()
     return CancerGenes
+ 
+# use this function to parse the file of Complex disease genes
+def ParseComplexDisease(ComplexDisease, GeneNames):
+    '''
+    (file, dict) -> set    
+    Take the file with associations between genes and complex diseases the 
+    dictionary of gene ID: gene name matches and return a set of genes associated
+    with diseases
+    '''
+    GAD = set()
+    infile = open(ComplexDisease)
+    infile.readline().rstrip().split('\t')
+    for line in infile:
+        if line.rstrip() != '':
+            line = line.rstrip().split('\t')
+            # get gene name
+            gene = line[5]
+            if '"' in gene:
+                assert gene.count('"') == 2 and gene[0] == '"' and gene[-1] == '"'
+                gene = gene[1:-1]
+            # remove space in gene
+            gene = gene.replace(' ', '')
+            # check if multiple genes are listed
+            if ',' in gene:
+                assert ':' not in gene and ';' not in gene
+                gene = gene.split(',')
+            elif ';' in gene:
+                assert ':' not in gene and ',' not in gene
+                gene = gene.split(';')
+            elif ':' in gene:
+                assert ';' not in gene and ',' not in gene
+                gene = gene.split(':')
+            # populate set with gene names       
+            if type(gene) == str:
+                if gene in GeneNames:
+                    GAD.add(GeneNames[gene])
+            elif type(gene) == list:
+                for item in gene:
+                    if item in GeneNames:
+                        GAD.add(GeneNames[item])
+            # get alternative gene names
+            alternative = line[1].split('|')
+            while '"' in alternative:
+                alternative.remove('"')
+            while '' in alternative:
+                alternative.remove('')
+            for name in alternative:
+                if name in GeneNames:
+                    GAD.add(GeneNames[name])
+    infile.close()
+    return GAD
+
+# use this function to parse the GWS file
+def ParseGWASDisease(GWASFile, TraitsToRemove, GeneNames):
+    '''
+    (file, file, dict) -> set
+    Take the file of GWAS associations between traits and genes, a file with
+    non-disease traits to remove, a dict with gene ID: gene name matches and 
+    return a set of genes associated with diseases
+    '''
+    # make a set of GWAS disease genes
+    GWAS = set()
+    # exclude non-disease traits
+    ExcludeTraits = set()
+    infile = open(TraitsToRemove)
+    for line in infile:
+        if line.rstrip() != '':
+            line = line.strip()
+            ExcludeTraits.add(line)
+    infile.close()
+    # open GWAS catalog
+    infile = open(GWASFile, encoding='utf8')
+    infile.readline()
+    for line in infile:
+        if line.rstrip() != '':
+            line = line.rstrip().split('\t')
+            # check that trait is disease only        
+            if line[7] not in ExcludeTraits:
+                genes = line[13].replace(' ', '')
+                # check if multiple genes are listed
+                if ', ' in genes:
+                    genes = genes.split(',')
+                if type(genes) == str:
+                    if genes in GeneNames:
+                        GWAS.add(GeneNames[genes])
+                elif type(genes) == list:
+                    for item in genes:
+                        if item in GeneNames:
+                            GWAS.add(GeneNames[item])       
+    infile.close()
+    return GWAS
+
+
+# use this function to parse the file of tumor driver genes
+def ParseTumorDrivers(DriverGenes):
+    '''
+    (file) -> set
+    Prse the file of cancer drivers to return a set of driver genes
+    '''
+    # make a set of cancer driver genes
+    Drivers = set()
+    infile = open(DriverGenes)
+    infile.readline()
+    for line in infile:
+        if line.rstrip() != '':
+            line = line.rstrip().split('\t')
+            Drivers.add(line[2][:line[2].index('.')])
+    infile.close()
+    return Drivers
+
+
+# use this function to parse the OMIM datafile
+def ParseOMIMDisease(TitleFile, OMIMFile, GeneNames):
+    '''
+    (file, file, dict) -> set
+    Take the file with phenotypes, the file with gene: phenotype associations,
+    a dictionary with gene ID: gene name matches and return a set of meadlean
+    disease genes
+    '''
     
-    
+    # make a set of mendelian disease genes
+    OMIM = set()
+    # get the mim IDs corresponding to associations between phenotypes and genes
+    mimIDs = set()
+    infile = open('mimTitles.txt')
+    for line in infile:
+        if (not line.startswith('#')) and line.rstrip() != '':
+            line = line.rstrip().split('\t')
+            if line[0] == 'Number Sign' or line[0] == 'Percent' or line[0] == 'Plus':
+                mimIDs.add(line[1])
+    infile.close()
+    # get the set of phenotype associated genes
+    infile = open('morbidmap.txt')
+    for line in infile:
+        if (not line.startswith('#')) and line.rstrip() != '':
+            line = line.rstrip().split('\t')
+            pheno = line[0].replace(' ', '')
+            pheno = pheno.split(',')
+            pheno = pheno[-1]
+            pheno = pheno[:pheno.index('(')]
+            if pheno in mimIDs:
+                # extract the genes
+                genes = line[-3].replace(' ', '')
+                # check if multiple genes are listed
+                if ',' in genes:
+                    genes = genes.split(',')
+                if type(genes) == str:
+                    if genes in GeneNames:
+                        OMIM.add(GeneNames[genes])
+                elif type(genes) == list:
+                    for item in genes:
+                        if item in GeneNames:
+                            OMIM.add(GeneNames[item])
+    infile.close()
+
+
 # use this function to save a list of overlapping genes as a dict in a json file
 def SaveOverlappingPairsToFile(OverlappingPairs, JsonFileName):
     '''
