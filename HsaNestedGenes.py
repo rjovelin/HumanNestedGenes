@@ -2208,7 +2208,7 @@ def ParseOMIMDisease(TitleFile, OMIMFile, GeneNames):
                         if item in GeneNames:
                             OMIM.add(GeneNames[item])
     infile.close()
-
+    return OMIM
 
 # use this function to save a list of overlapping genes as a dict in a json file
 def SaveOverlappingPairsToFile(OverlappingPairs, JsonFileName):
@@ -2355,4 +2355,5 @@ def CombineHighValues(L, cutoff):
             L[i] = cutoff
     return L    
     
-    
+
+
