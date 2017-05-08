@@ -78,12 +78,16 @@ OMIM = ParseOMIMDisease('mimTitles.txt', 'morbidmap.txt')
 DiseaseGenes = GAD.union(GWAS).union(Drivers).union(OMIM)
 
 
-# generate a figure comparing proportions of disease and non-disease genes among
-# external genes with internal genes that are intronless or intron-containing
+# compare proportions of disease and non-disease genes among external genes
+# for which with internal genes that are intronless or intron-containing
+
+# compare proportions of disease and non-disease genes among internal genes
+# that are intronless or intron-containing
 
 # make sets of external genes with intronless and intron-containing internal genes
-WithIntrons, NoIntrons = set(), set()
-
+# make sets of internal genes with intron or without intron
+ExtWithIntrons, ExtNoIntrons, IntWithIntrons, IntNoIntrons = set(), set(), set(), set()
+ 
 # loop over host-nested transcript pairs
 for i in range(len(HostNestedPairs)):
     # check that both transcripts have coordinates and have corresponding gene names    
@@ -91,13 +95,28 @@ for i in range(len(HostNestedPairs)):
     assert HostNestedPairs[i][1] in MapTranscriptGene and HostNestedPairs[i][1] in TranscriptCoordinates    
     if HostNestedPairs[i][1] in IntronCoord:
         # internal gene has introns, populate set with external gene name
-            WithIntrons.add(MapTranscriptGene[HostNestedPairs[i][0]])
+            ExtWithIntrons.add(MapTranscriptGene[HostNestedPairs[i][0]])
+            IntWithIntrons.add(MapTranscriptGene[HostNestedPairs[i][1]])
     else:
         # internal gene is intronless, populate set with external gene name
-        NoIntrons.add(MapTranscriptGene[HostNestedPairs[i][0]])
+        ExtNoIntrons.add(MapTranscriptGene[HostNestedPairs[i][0]])
+        IntNoIntrons.add(MapTranscriptGene[HostNestedPairs[i][1]])
     
 # make a list of external genes
-ExtGenes = [WithIntrons, NoIntrons]  
+ExtGenes = [ExtWithIntrons, ExtNoIntrons]  
+# make a list of external genes
+IntGenes = [IntWithIntrons, IntNoIntrons]  
+
+
+
+
+
+
+
+
+
+
+
 
 
 # use this function to count disease and non-disease genes for each gene class
@@ -114,25 +133,7 @@ def CountDiseaseGenes(L, DiseaseGenes):
         Counts.append([disease, nondisease])
     return Counts
 
-# use this function to assign significance level
-def AssignSignificance(L):
-    '''
-    (list) -> list
-    Take a list of p-values and return a modfied list with significance levels
-    represented by stars
-    '''
-    # replace P values by significance
-    for i in range(len(L)):
-        if L[i] >= 0.05:
-            L[i] = ''
-        elif L[i] < 0.05 and L[i] >= 0.01:
-            L[i] = '*'
-        elif L[i] < 0.01 and L[i] >= 0.001:
-            L[i] = '**'
-        elif L[i] < 0.001:
-            L[i] = '***'
-    return L
-    
+   
  
 # use this function to get gene proportions
 def GetProportions(Counts):
@@ -266,153 +267,6 @@ fig.savefig('truc.pdf', bbox_inches = 'tight')
 ############################## $$$$$$$$$$$$$$$$$$$$$$$$$
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-
-# make a set of complex disease genes
-GAD = set()
-infile = open('GADCDC_data.tsv')
-header = infile.readline().rstrip().split('\t')
-for line in infile:
-    if line.rstrip() != '':
-        line = line.rstrip().split('\t')
-        # get gene name
-        gene = line[5]
-        if '"' in gene:
-            assert gene.count('"') == 2 and gene[0] == '"' and gene[-1] == '"'
-            gene = gene[1:-1]
-        # remove space in gene
-        gene = gene.replace(' ', '')
-        # check if multiple genes are listed
-        if ',' in gene:
-            assert ':' not in gene and ';' not in gene
-            gene = gene.split(',')
-        elif ';' in gene:
-            assert ':' not in gene and ',' not in gene
-            gene = gene.split(';')
-        elif ':' in gene:
-            assert ';' not in gene and ',' not in gene
-            gene = gene.split(':')
-        if type(gene) == str:
-            if gene in GeneNames:
-                GAD.add(GeneNames[gene])
-        elif type(gene) == list:
-            for item in gene:
-                if item in GeneNames:
-                    GAD.add(item)
-        # get alternative gene names
-        alternative = line[1].split('|')
-        while '"' in alternative:
-            alternative.remove('"')
-        while '' in alternative:
-            alternative.remove('')
-        for name in alternative:
-            if name in GeneNames:
-                GAD.add(GeneNames[name])
-infile.close()
-
-# make a set of GWAS disease genes
-GWAS = set()
-# exclude non-disease traits
-ExcludeTraits = set()
-infile = open('TraitsToRemove.txt')
-for line in infile:
-    if line.rstrip() != '':
-        line = line.strip()
-        ExcludeTraits.add(line)
-infile.close()
-# open GWAS catalog
-infile = open('gwas_catalog_v1.0-associations_e87_r2017-01-09.tsv', encoding='utf8')
-infile.readline()
-for line in infile:
-    if line.rstrip() != '':
-        line = line.rstrip().split('\t')
-        # check that trait is disease only        
-        if line[7] not in ExcludeTraits:
-            genes = line[13].replace(' ', '')
-            # check if multiple genes are listed
-            if ', ' in genes:
-                genes = genes.split(',')
-            if type(genes) == str:
-                if genes in GeneNames:
-                    GWAS.add(GeneNames[genes])
-            elif type(genes) == list:
-                for item in genes:
-                    if item in GeneNames:
-                        GWAS.add(GeneNames[item])       
-infile.close()
-
-# make a set of cancer driver genes
-Drivers = set()
-infile = open('driver_genes_per_tumor_syn7314119.csv')
-infile.readline()
-for line in infile:
-    if line.rstrip() != '':
-        line = line.rstrip().split('\t')
-        Drivers.add(line[2][:line[2].index('.')])
-infile.close()
-
-# make a set of mendelian disease genes
-OMIM = set()
-discat = set()
-# get the mim IDs corresponding to associations between phenotypes and genes
-mimIDs = set()
-infile = open('mimTitles.txt')
-for line in infile:
-    if (not line.startswith('#')) and line.rstrip() != '':
-        line = line.rstrip().split('\t')
-        if line[0] == 'Number Sign' or line[0] == 'Percent' or line[0] == 'Plus':
-            mimIDs.add(line[1])
-infile.close()
-
-# get the set of phenotype associated genes
-infile = open('morbidmap.txt')
-for line in infile:
-    if (not line.startswith('#')) and line.rstrip() != '':
-        line = line.rstrip().split('\t')
-        pheno = line[0].replace(' ', '')
-        pheno = pheno.split(',')
-        pheno = pheno[-1]
-        pheno = pheno[:pheno.index('(')]
-        if pheno in mimIDs:
-            # extract the genes
-            genes = line[-3].replace(' ', '')
-            # check if multiple genes are listed
-            if ',' in genes:
-                genes = genes.split(',')
-            if type(genes) == str:
-                if genes in GeneNames:
-                    OMIM.add(GeneNames[genes])
-            elif type(genes) == list:
-                for item in genes:
-                    if item in GeneNames:
-                        OMIM.add(GeneNames[item])
-infile.close()
-
-# create a set with all disease genes
-DiseaseGenes = GAD.union(GWAS).union(Drivers).union(OMIM)
-
-
-# generate a figure comparing proportions of disease and non-disease genes among
-# internal genes that are intronless or intron-containing
-
-# make sets of internal genes with intron or without intron
-WithIntrons, NoIntrons = set(), set()
-
-# loop over host-nested transcript pairs
-for i in range(len(HostNestedPairs)):
-    # check that both transcripts have coordinates and have corresponding gene names    
-    assert HostNestedPairs[i][0] in MapTranscriptGene and HostNestedPairs[i][0] in TranscriptCoordinates    
-    assert HostNestedPairs[i][1] in MapTranscriptGene and HostNestedPairs[i][1] in TranscriptCoordinates    
-    if HostNestedPairs[i][1] in IntronCoord:
-        # internal gene has introns
-            WithIntrons.add(MapTranscriptGene[HostNestedPairs[i][1]])
-    else:
-        # internal gene is intronless
-        NoIntrons.add(MapTranscriptGene[HostNestedPairs[i][1]])
-    
-# make a list of external genes
-IntGenes = [WithIntrons, NoIntrons]  
-
-
 # use this function to count disease and non-disease genes for each gene class
 def CountDiseaseGenes(L, DiseaseGenes):
     '''
@@ -427,25 +281,7 @@ def CountDiseaseGenes(L, DiseaseGenes):
         Counts.append([disease, nondisease])
     return Counts
 
-# use this function to assign significance level
-def AssignSignificance(L):
-    '''
-    (list) -> list
-    Take a list of p-values and return a modfied list with significance levels
-    represented by stars
-    '''
-    # replace P values by significance
-    for i in range(len(L)):
-        if L[i] >= 0.05:
-            L[i] = ''
-        elif L[i] < 0.05 and L[i] >= 0.01:
-            L[i] = '*'
-        elif L[i] < 0.01 and L[i] >= 0.001:
-            L[i] = '**'
-        elif L[i] < 0.001:
-            L[i] = '***'
-    return L
-    
+  
  
 # use this function to get gene proportions
 def GetProportions(Counts):
