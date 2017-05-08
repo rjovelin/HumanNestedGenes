@@ -65,15 +65,20 @@ HostNestedPairs = GetHostNestedPairs(Matches)
 
 # map ensembl gene IDs to gene names {gene_ID: Name}
 GeneIDToNames = MapNametoID('Homo_sapiens.GRCh38.88.gff3')
+# reverse dictionary {name: ID}
+GeneNamesToID = {}
+for ID in GeneIDToNames:
+    GeneNamesToID[GeneIDToNames[ID]] = ID
 
 # make a set of complex disease genes
-GAD = ParseComplexDisease('GADCDC_data.tsv', GeneIDToNames)
+GAD = ParseComplexDisease('GADCDC_data.tsv', GeneNamesToID)
 # make a set of GWAS genes 
-GWAS = ParseGWASDisease('gwas_catalog_v1.0-associations_e87_r2017-01-09.tsv', 'TraitsToRemove.txt', GeneIDToNames)
+GWAS = ParseGWASDisease('gwas_catalog_v1.0-associations_e87_r2017-01-09.tsv', 'TraitsToRemove.txt', GeneNamesToID)
 # make a set of cancer driver genes
 Drivers = ParseTumorDrivers('driver_genes_per_tumor_syn7314119.csv')
 # mnake a set of mendelean disease genes
-OMIM = ParseOMIMDisease('mimTitles.txt', 'morbidmap.txt')
+OMIM = ParseOMIMDisease('mimTitles.txt', 'morbidmap.txt', GeneNamesToID)
+
 # create a set with all disease genes
 DiseaseGenes = GAD.union(GWAS).union(Drivers).union(OMIM)
 
@@ -108,33 +113,42 @@ ExtGenes = [ExtWithIntrons, ExtNoIntrons]
 IntGenes = [IntWithIntrons, IntNoIntrons]  
 
 
-
-
-
-
-
-
-
-
-
-
-
-# use this function to count disease and non-disease genes for each gene class
-def CountDiseaseGenes(L, DiseaseGenes):
-    '''
-    (list, set) -> list
-    Take a list of gene sets and a set of disease genes and return a parallel
-    list with lists of counts of diease and non disease genes for each gene set
-    '''
+# count disease and non-disease genes in external and internal genes [[disease, non_disease],... ]
+ExtCounts = []
+for DiseaseOrigin in [GAD, GWAS, Drivers, OMIM, DiseaseGenes]:
     Counts = []
-    for i in range(len(L)):
-        disease = len([j for j in L[i] if j in DiseaseGenes])
-        nondisease = len([j for j in L[i] if j not in DiseaseGenes])
+    for i in range(len(ExtGenes)):
+        disease = len([j for j in ExtGenes[i] if j in DiseaseOrigin])
+        nondisease = len([j for j in ExtGenes[i] if j not in DiseaseOrigin])
         Counts.append([disease, nondisease])
-    return Counts
+    ExtCounts.append(Counts)
+IntCounts = []
+for DiseaseOrigin in [GAD, GWAS, Drivers, OMIM, DiseaseGenes]:
+    Counts = []
+    for i in range(len(IntGenes)):
+        disease = len([j for j in IntGenes[i] if j in DiseaseOrigin])
+        nondisease = len([j for j in IntGenes[i] if j not in DiseaseOrigin])
+        Counts.append([disease, nondisease])
+    IntCounts.append(Counts)
 
-   
- 
+
+# compare the proportion of disease genes for each set of disease gene
+ExtPVals = []
+for i in range(len(ExtCounts)):
+    p = stats.fisher_exact([ExtCounts[i][0], ExtCounts[i][1]])[1]
+    ExtPVals.append(p)    
+IntPVals = []
+for i in range(len(IntCounts)):
+    p = stats.fisher_exact([IntCounts[i][0], IntCounts[i][1]])[1]
+    IntPVals.append(p)
+
+# convert P values to significance
+ExtPVals = ConvertPToStars(ExtPVals)
+IntPVals = ConvertPToStars(IntPVals)
+
+
+
+
 # use this function to get gene proportions
 def GetProportions(Counts):
     '''
@@ -147,23 +161,12 @@ def GetProportions(Counts):
         disease.append(Counts[i][0] / sum(Counts[i]))
         nondisease.append(Counts[i][1] / sum(Counts[i]))
     return disease, nondisease
-    
-# count disease and non-disease genes    
-GADCounts = CountDiseaseGenes(ExtGenes, GAD)    
-GWASCounts = CountDiseaseGenes(ExtGenes, GWAS)
-DriversCounts = CountDiseaseGenes(ExtGenes, Drivers)
-OMIMCounts = CountDiseaseGenes(ExtGenes, OMIM)
-AllCounts = CountDiseaseGenes(ExtGenes, DiseaseGenes)
 
-# compare the proportion of disease genes for each set of disease gene
-PVals = []
-counts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
-for i in range(len(counts)):
-    p = stats.fisher_exact([counts[i][0], counts[i][1]])[1]
-    PVals.append(p)    
+
+
+
     
-# transform p values in stars
-PVals = AssignSignificance(PVals)    
+ 
     
 # create lists of proportions for disease and non-disease genes
 DisProp, NonDisProp = [], []
@@ -267,22 +270,7 @@ fig.savefig('truc.pdf', bbox_inches = 'tight')
 ############################## $$$$$$$$$$$$$$$$$$$$$$$$$
 $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
-# use this function to count disease and non-disease genes for each gene class
-def CountDiseaseGenes(L, DiseaseGenes):
-    '''
-    (list, set) -> list
-    Take a list of gene sets and a set of disease genes and return a parallel
-    list with lists of counts of diease and non disease genes for each gene set
-    '''
-    Counts = []
-    for i in range(len(L)):
-        disease = len([j for j in L[i] if j in DiseaseGenes])
-        nondisease = len([j for j in L[i] if j not in DiseaseGenes])
-        Counts.append([disease, nondisease])
-    return Counts
 
-  
- 
 # use this function to get gene proportions
 def GetProportions(Counts):
     '''
@@ -368,20 +356,6 @@ ax2 = CreateAx(5, 1, 2, fig, DisProp[1], 'GWAS', np.arange(0, 0.30, 0.05), 0.25)
 ax3 = CreateAx(5, 1, 3, fig, DisProp[2], 'tumor drivers', np.arange(0, 0.1, 0.02), 0.08)
 ax4 = CreateAx(5, 1, 4, fig, DisProp[3], 'medelian diseases', np.arange(0, 0.40, 0.05), 0.351)
 ax5 = CreateAx(5, 1, 5, fig, DisProp[4], 'all diseases', np.arange(0, 1, 0.1), 0.8)
-
-# use this function to annotate the graph with significance levels
-def AddSignificance(ax, SignificanceLevel, XLine1, XLine2, YLine, XText, YText):
-    '''
-    (ax, str, num, num, num, num, num) -> ax
-    Take a matplotlib ax object, the significance level (as stars), the positions
-    of the bracket and star and return the ax with annotated significance level
-    '''
-    ax.annotate("", xy=(XLine1, YLine), xycoords='data', xytext=(XLine2, YLine), textcoords='data',
-                 arrowprops=dict(arrowstyle="-", ec='#aaaaaa', connectionstyle="bar,fraction=0.2", linewidth = 0.7))
-    # add stars for significance
-    ax.text(XText, YText, SignificanceLevel, horizontalalignment='center', verticalalignment='center',
-            color = 'grey', fontname = 'Arial', size = 7)
-    return ax
 
 
 # annotate figure to add significance
