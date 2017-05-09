@@ -2038,11 +2038,12 @@ def MapNametoID(GFF):
 
 
 # use this function to parse the Cosmic list of cancer genes
-def ParseCosmicFile(Cosmic):
+def ParseCosmicFile(Cosmic, GeneNames):
     '''
-    (file) -> set
-    Take the file of cancer gene census from the Cosmic database and return
-    a set of gene for which mutations have been causally implicated in cancer
+    (file, dict) -> set
+    Take the file of cancer gene census from the Cosmic database, the dictionary
+    of gene name: gene ID matches and return a set of gene for which mutations
+    have been causally implicated in cancer
     '''
     
     CancerGenes = set()
@@ -2051,7 +2052,8 @@ def ParseCosmicFile(Cosmic):
     for line in infile:
         if line.rstrip() != '':
             line = line.rstrip().split('\t')
-            CancerGenes.add(line[0])
+            if line[0] in GeneNames:
+                CancerGenes.add(GeneNames[line[0]])
     infile.close()
     return CancerGenes
  
@@ -2060,7 +2062,7 @@ def ParseComplexDisease(ComplexDisease, GeneNames):
     '''
     (file, dict) -> set    
     Take the file with associations between genes and complex diseases the 
-    dictionary of gene ID: gene name matches and return a set of genes associated
+    dictionary of gene name: gene ID matches and return a set of genes associated
     with diseases
     '''
     GAD = set()
@@ -2111,7 +2113,7 @@ def ParseGWASDisease(GWASFile, TraitsToRemove, GeneNames):
     '''
     (file, file, dict) -> set
     Take the file of GWAS associations between traits and genes, a file with
-    non-disease traits to remove, a dict with gene ID: gene name matches and 
+    non-disease traits to remove, a dict with gene name: gene ID matches and 
     return a set of genes associated with diseases
     '''
     # make a set of GWAS disease genes
@@ -2170,7 +2172,7 @@ def ParseOMIMDisease(TitleFile, OMIMFile, GeneNames):
     '''
     (file, file, dict) -> set
     Take the file with phenotypes, the file with gene: phenotype associations,
-    a dictionary with gene ID: gene name matches and return a set of meadlean
+    a dictionary with gene name: gene ID matches and return a set of meadlean
     disease genes
     '''
     

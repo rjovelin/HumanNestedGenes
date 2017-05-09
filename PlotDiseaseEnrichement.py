@@ -440,6 +440,11 @@ ax3 = CreateAx(1, 5, 3, fig, [DriversDis, DriversNonDis], 'tumor drivers', 'dise
 ax4 = CreateAx(1, 5, 4, fig, [OMIMDis, OMIMNonDis], 'medelian diseases', 'disease', np.arange(0, 0.26, 0.05), 0.25, False)
 ax5 = CreateAx(1, 5, 5, fig, [AllDis, AllNonDis], 'all diseases', 'disease', np.arange(0, 0.71, 0.1), 0.71, True)
 
+
+
+
+
+
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
 xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
