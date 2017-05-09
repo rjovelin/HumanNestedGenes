@@ -75,10 +75,7 @@ GAD = ParseComplexDisease('GADCDC_data.tsv', GeneNamesToID)
 # make a set of GWAS genes 
 GWAS = ParseGWASDisease('gwas_catalog_v1.0-associations_e87_r2017-01-09.tsv', 'TraitsToRemove.txt', GeneNamesToID)
 # make a set of cancer driver genes
-#Drivers = ParseTumorDrivers('driver_genes_per_tumor_syn7314119.csv')
-Drivers = cosmic = ParseCosmicFile('Census_allMon_Mar27_2017.tsv', GeneNamesToID)
-
-
+Drivers = ParseCosmicFile('Census_allMon_Mar27_2017.tsv', GeneNamesToID)
 # mnake a set of mendelean disease genes
 OMIM = ParseOMIMDisease('mimTitles.txt', 'morbidmap.txt', GeneNamesToID)
 
@@ -287,7 +284,7 @@ ax1.legend(handles = [DI, DN, NDI, NDN], loc = (0.05, 1.2), fontsize = 6, frameo
 # make sure subplots do not overlap
 plt.tight_layout()
 
-outputfile = 'ProportionDiseaseExternal'
+outputfile = 'ProportionDiseaseNested'
 # save figure to file
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-
+fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
