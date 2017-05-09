@@ -146,36 +146,23 @@ for i in range(len(IntCounts)):
 ExtPVals = ConvertPToStars(ExtPVals)
 IntPVals = ConvertPToStars(IntPVals)
 
-
-
-
-# use this function to get gene proportions
-def GetProportions(Counts):
-    '''
-    (list) -> list, list
-    Take the list of inner lists with counts of disease and non-disease
-    and return 2 lists with proportions of disease and non-disease genes respectively
-    '''
+# compute proportions of disease and non-disease
+ExtDisProp, ExtNonDisProp = [], []
+for i in range(len(ExtCounts)):
     disease, nondisease = [], []
-    for i in range(len(Counts)):
-        disease.append(Counts[i][0] / sum(Counts[i]))
-        nondisease.append(Counts[i][1] / sum(Counts[i]))
-    return disease, nondisease
-
-
-
-
-    
+    for j in range(len(ExtCounts[i])):
+        disease.append(ExtCounts[i][0] / sum(ExtCounts[i]))
+        nondisease.append(ExtCounts[i][1] / sum(ExtCounts[i]))
+    ExtDisProp.append(disease)    
+    ExtNonDisProp.apppend(nondisease)
+IntDisProp, IntNonDisProp = [], []
+for i in range(len(IntCounts)):
+    disease, nondisease = [], []
+    for j in range(len(IntCounts[i])):
+        disease.append(IntCounts[i][0] / sum(IntCounts[i]))
+        nondisease.append(IntCounts[i][1] / sum(IntCounts[i]))
  
     
-# create lists of proportions for disease and non-disease genes
-DisProp, NonDisProp = [], []
-for i in range(len(counts)):
-    disease, nondisease = GetProportions(counts[i])
-    DisProp.append(disease)
-    NonDisProp.append(nondisease)
-
-
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YRange, YMax):
     '''
