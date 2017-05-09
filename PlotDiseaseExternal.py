@@ -76,7 +76,7 @@ GAD = ParseComplexDisease('GADCDC_data.tsv', GeneNamesToID)
 GWAS = ParseGWASDisease('gwas_catalog_v1.0-associations_e87_r2017-01-09.tsv', 'TraitsToRemove.txt', GeneNamesToID)
 # make a set of cancer driver genes
 #Drivers = ParseTumorDrivers('driver_genes_per_tumor_syn7314119.csv')
-Drivers = cosmic = ParseCosmicFile('Census_allMon_Mar27_2017.tsv')
+Drivers = cosmic = ParseCosmicFile('Census_allMon_Mar27_2017.tsv', GeneNamesToID)
 
 
 # mnake a set of mendelean disease genes
