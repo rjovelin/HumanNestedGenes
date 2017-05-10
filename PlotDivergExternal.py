@@ -139,7 +139,7 @@ for i in range(len(ExpDivergOrientation)):
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, Title, YRange, YMax):
+def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, Title, YRange, YMax, isYLabel):
     '''
     return an ax object part of figure
     '''
@@ -161,7 +161,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, Title, YRange, YMa
     ax.set_title(Title, color = 'black', size = 7, ha = 'center', **FigFont)    
     # add a range for the Y and X axes
     plt.ylim([0, YMax])
-    plt.xlim([0, 1.8])
+    plt.xlim([0, 0.6])
     # edit y axis ticks
     plt.yticks(YRange) 
     # do not show lines around figure  
