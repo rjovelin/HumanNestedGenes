@@ -153,6 +153,9 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, isYLabel):
         ax.spines["left"].set_visible(True)
     else:
         ax.spines['left'].set_visible(False)
+    # offset the spines
+    for spine in ax.spines.values():
+        spine.set_position(('outward', 3))           
     # edit tick parameters    
     if isYLabel == True:
         plt.tick_params(axis='both', which='both', bottom='on', top='off',
