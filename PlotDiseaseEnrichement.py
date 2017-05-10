@@ -57,13 +57,12 @@ GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneT
 GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
 
 # generate gene sets
-NestedGenes  = MakeFullPartialOverlapGeneSet(Nested)
-OverlappingGenes = MakeFullPartialOverlapGeneSet(Overlapping)
-ConvergentGenes = MakeFullPartialOverlapGeneSet(Convergent)
-DivergentGenes = MakeFullPartialOverlapGeneSet(Divergent)
-PiggyBackGenes = MakeFullPartialOverlapGeneSet(Piggyback)
+GeneSets = []
+for i in range(len(Overlap)):
+    GeneSets.append(MakeFullPartialOverlapGeneSet(Overlap[i]))
 # make a set of non-overlapping genes
-NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlapping, GeneCoord)
+NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
+
 # create sets of internal and external nested gene pairs
 NestedPairs = GetHostNestedPairs(Nested)
 InternalGenes, ExternalGenes = set(), set()
@@ -88,153 +87,26 @@ for pair in opposite:
     ExternalOppositeGenes.add(pair[0])
     InternalOppositeGenes.add(pair[1])
 
-# map ensembl gene IDs to gene names
-GeneNames = {}
-infile = open('Homo_sapiens.GRCh38.88.gff3')
-# consider only protein coding genes
-for line in infile:
-    if 'gene' in line and not line.startswith('#'):
-        line = line.rstrip().split('\t')
-        if line[2] == 'gene':
-            biotype = line[8][line[8].index('biotype=')+8: line[8].index(';', line[8].index('biotype=')+8)]
-            if biotype == 'protein_coding':
-                # get gene ID
-                gene = line[8][line[8].index('ID=gene:')+8: line[8].index(';')]
-                # get gene name
-                name = line[8][line[8].index('Name=')+len('Name='): line[8].index(';biotype')]  
-                assert gene not in GeneNames
-                assert name not in GeneNames.values()
-                GeneNames[name] = gene
-infile.close()
-
+# map ensembl gene IDs to gene names {gene_ID: Name}
+GeneIDToNames = MapNametoID('Homo_sapiens.GRCh38.88.gff3')
+# reverse dictionary {name: ID}
+GeneNamesToID = {}
+for ID in GeneIDToNames:
+    GeneNamesToID[GeneIDToNames[ID]] = ID
 
 # make a set of complex disease genes
-GAD = set()
-infile = open('GADCDC_data.tsv')
-header = infile.readline().rstrip().split('\t')
-for line in infile:
-    if line.rstrip() != '':
-        line = line.rstrip().split('\t')
-        # get gene name
-        gene = line[5]
-        if '"' in gene:
-            assert gene.count('"') == 2 and gene[0] == '"' and gene[-1] == '"'
-            gene = gene[1:-1]
-        # remove space in gene
-        gene = gene.replace(' ', '')
-        # check if multiple genes are listed
-        if ',' in gene:
-            assert ':' not in gene and ';' not in gene
-            gene = gene.split(',')
-        elif ';' in gene:
-            assert ':' not in gene and ',' not in gene
-            gene = gene.split(';')
-        elif ':' in gene:
-            assert ';' not in gene and ',' not in gene
-            gene = gene.split(':')
-        if type(gene) == str:
-            if gene in GeneNames:
-                GAD.add(GeneNames[gene])
-        elif type(gene) == list:
-            for item in gene:
-                if item in GeneNames:
-                    GAD.add(item)
-        # get alternative gene names
-        alternative = line[1].split('|')
-        while '"' in alternative:
-            alternative.remove('"')
-        while '' in alternative:
-            alternative.remove('')
-        for name in alternative:
-            if name in GeneNames:
-                GAD.add(GeneNames[name])
-infile.close()
-
-
-# make a set of GWAS disease genes
-GWAS = set()
-# exclude non-disease traits
-ExcludeTraits = set()
-infile = open('TraitsToRemove.txt')
-for line in infile:
-    if line.rstrip() != '':
-        line = line.strip()
-        ExcludeTraits.add(line)
-infile.close()
-# open GWAS catalog
-infile = open('gwas_catalog_v1.0-associations_e87_r2017-01-09.tsv', encoding='utf8')
-infile.readline()
-for line in infile:
-    if line.rstrip() != '':
-        line = line.rstrip().split('\t')
-        # check that trait is disease only        
-        if line[7] not in ExcludeTraits:
-            genes = line[13].replace(' ', '')
-            # check if multiple genes are listed
-            if ', ' in genes:
-                genes = genes.split(',')
-            if type(genes) == str:
-                if genes in GeneNames:
-                    GWAS.add(GeneNames[genes])
-            elif type(genes) == list:
-                for item in genes:
-                    if item in GeneNames:
-                        GWAS.add(GeneNames[item])       
-infile.close()
-
-
+GAD = ParseComplexDisease('GADCDC_data.tsv', GeneNamesToID)
+# make a set of GWAS genes 
+GWAS = ParseGWASDisease('gwas_catalog_v1.0-associations_e87_r2017-01-09.tsv', 'TraitsToRemove.txt', GeneNamesToID)
 # make a set of cancer driver genes
-Drivers = set()
-infile = open('driver_genes_per_tumor_syn7314119.csv')
-infile.readline()
-for line in infile:
-    if line.rstrip() != '':
-        line = line.rstrip().split('\t')
-        Drivers.add(line[2][:line[2].index('.')])
-infile.close()
+Drivers = ParseCosmicFile('Census_allMon_Mar27_2017.tsv', GeneNamesToID)
+# mnake a set of mendelean disease genes
+OMIM = ParseOMIMDisease('mimTitles.txt', 'morbidmap.txt', GeneNamesToID)
+
+# create a set with all disease genes
+DiseaseGenes = GAD.union(GWAS).union(Drivers).union(OMIM)
 
 
-# make a set of mendelian disease genes
-OMIM = set()
-discat = set()
-# get the mim IDs corresponding to associations between phenotypes and genes
-mimIDs = set()
-infile = open('mimTitles.txt')
-for line in infile:
-    if (not line.startswith('#')) and line.rstrip() != '':
-        line = line.rstrip().split('\t')
-        if line[0] == 'Number Sign' or line[0] == 'Percent' or line[0] == 'Plus':
-            mimIDs.add(line[1])
-            
-infile.close()
-
-
-
-# get the set of phenotype associated genes
-infile = open('morbidmap.txt')
-for line in infile:
-    if (not line.startswith('#')) and line.rstrip() != '':
-        line = line.rstrip().split('\t')
-        pheno = line[0].replace(' ', '')
-        pheno = pheno.split(',')
-        pheno = pheno[-1]
-        pheno = pheno[:pheno.index('(')]
-        if pheno in mimIDs:
-            # extract the genes
-            genes = line[-3].replace(' ', '')
-            # check if multiple genes are listed
-            if ',' in genes:
-                genes = genes.split(',')
-            if type(genes) == str:
-                if genes in GeneNames:
-                    OMIM.add(GeneNames[genes])
-            elif type(genes) == list:
-                for item in genes:
-                    if item in GeneNames:
-                        OMIM.add(GeneNames[item])
-infile.close()
-
-   
 
 
 AllGenes = [NonOverlappingGenes, NestedGenes, InternalGenes, ExternalGenes,
