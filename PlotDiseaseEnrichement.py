@@ -149,7 +149,10 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, isYLabel):
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
     ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_visible(True)  
+    if isYLabel == True:
+        ax.spines["left"].set_visible(True)
+    else:
+        ax.spines['left'].set_visible(False)
     # edit tick parameters    
     if isYLabel == True:
         plt.tick_params(axis='both', which='both', bottom='on', top='off',
