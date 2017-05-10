@@ -127,9 +127,10 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, isYLabel):
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
     # Create a horizontal bar plot for proportions of disease genes
-    ax.bar([0, 0.2, 0.4, 0.6, 0.8], Data[0], width = 0.2, label = 'disease', color= 'black', linewidth = 0.7)
+    ax.bar([0, 0.2, 0.4, 0.6, 0.8], Data[0], width = 0.2, label = 'disease', color= ['#2b8cbe'] * len(Data[0]), edgecolor = 'white', linewidth = 0.7)
     # Create a horizontal bar plot for proportions of non-disease genes
-    ax.bar([0, 0.2, 0.4, 0.6, 0.8], Data[1], width = 0.2, bottom = Data[0], label = 'non-disease', color= 'lightgrey', linewidth = 0.7)
+    ax.bar([0, 0.2, 0.4, 0.6, 0.8], Data[1], width = 0.2, bottom = Data[0], label = 'non-disease', color= ['#88419d'] * len(Data[1]), edgecolor = 'white', linewidth = 0.7)
+
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write y axis label
@@ -141,7 +142,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, isYLabel):
     # add ticks and lebels
     plt.xticks([0.1, 0.3, 0.5, 0.7, 0.9], ['Not', 'Nst', 'Pgk', 'Con', 'Div'], rotation = 0, size = 7, color = 'black', ha = 'center', **FigFont)
     # add x label
-    ax.set_label(XLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+    ax.set_xlabel(XLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
     # add a range for the Y axis
     plt.ylim([0, 1])    
     # do not show lines around figure  
@@ -171,11 +172,11 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, isYLabel):
 # create figure
 fig = plt.figure(1, figsize = (6, 2))
 # plot data
-ax1 = CreateAx(1, 5, 1, fig, [DisProp[0], NonDisProp[0]], 'complex', True)
-ax2 = CreateAx(1, 5, 2, fig, [DisProp[1], NonDisProp[1]], 'GWAS', False)
-ax3 = CreateAx(1, 5, 3, fig, [DisProp[2], NonDisProp[2]], 'tumors', False)
-ax4 = CreateAx(1, 5, 4, fig, [DisProp[3], NonDisProp[3]], 'mendelian', False)
-ax5 = CreateAx(1, 5, 5, fig, [DisProp[4], NonDisProp[4]], 'all', False)
+ax1 = CreateAx(5, 1, 1, fig, [DisProp[0], NonDisProp[0]], 'complex', True)
+ax2 = CreateAx(5, 1, 2, fig, [DisProp[1], NonDisProp[1]], 'GWAS', False)
+ax3 = CreateAx(5, 1, 3, fig, [DisProp[2], NonDisProp[2]], 'tumors', False)
+ax4 = CreateAx(5, 1, 4, fig, [DisProp[3], NonDisProp[3]], 'mendelian', False)
+ax5 = CreateAx(5, 1, 5, fig, [DisProp[4], NonDisProp[4]], 'all', False)
 
 
 ## annotate figure to add significance
