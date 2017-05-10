@@ -173,7 +173,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, isYLabel):
 # make a figure with proportion of disease and non-disease genes
 
 # create figure
-fig = plt.figure(1, figsize = (6, 2))
+fig = plt.figure(1, figsize = (6.2, 1.8))
 # plot data
 ax1 = CreateAx(5, 1, 1, fig, [DisProp[0], NonDisProp[0]], 'complex', True)
 ax2 = CreateAx(5, 1, 2, fig, [DisProp[1], NonDisProp[1]], 'GWAS', False)
