@@ -140,7 +140,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, isYLabel):
         # edit y axis ticks
         plt.yticks(np.arange(0, 1.25, 0.25))    
     # add ticks and lebels
-    plt.xticks([0.1, 0.3, 0.5, 0.7, 0.9], ['Not', 'Nst', 'Pgk', 'Con', 'Div'], rotation = 0, size = 7, color = 'black', ha = 'center', **FigFont)
+    plt.xticks([0.1, 0.3, 0.5, 0.7, 0.9], ['Not', 'Nst', 'Pgk', 'Con', 'Div'], rotation = 0, size = 6.5, color = 'black', ha = 'center', **FigFont)
     # add x label
     ax.set_xlabel(XLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
     # add a range for the Y axis
