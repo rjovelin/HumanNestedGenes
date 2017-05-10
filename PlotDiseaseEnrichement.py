@@ -203,6 +203,12 @@ D = mpatches.Patch(facecolor = '#2b8cbe', edgecolor = 'white', linewidth = 0.7, 
 N = mpatches.Patch(facecolor = '#88419d', edgecolor = 'white', linewidth = 0.7, label= 'non-disease')
 ax1.legend(handles = [D, N], loc = (0.05, 1.2), fontsize = 6, frameon = False, ncol = 2)
 
+# add subplot labels
+ax1.text(-0.45, 1.1, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax2.text(0, 1.1, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax3.text(0, 1.1, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax4.text(0, 1.1, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+ax5.text(0, 1.1, 'E', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
 
 # make sure subplots do not overlap
