@@ -77,10 +77,6 @@ ExpressionProfile = RemoveGenesLackingExpression(ExpressionProfile)
 # transform absulte expression in relative expression
 ExpressionProfile = TransformRelativeExpression(ExpressionProfile)
 
-# generate lists of gene pairs separated by distance 
-Proximal, Moderate, Intermediate, Distant = GenerateSetsGenePairsDistance(GeneCoord, OrderedGenes, ExpressionProfile)
-print('made list of pairs')
-
 # generate gene pairs of external and internal genes for intronless and intron-containing internal genes
 PairsWithIntrons, PairsNoIntrons = [], []
 # loop over host-nested transcript pairs
@@ -100,9 +96,6 @@ IntronPairs = [PairsWithIntrons, PairsNoIntrons]
 # remove gene pairs if any gene in the pair lacks expression
 for i in range(len(IntronPairs)):
     IntronPairs[i] = FilterGenePairsWithoutExpression(IntronPairs[i], ExpressionProfile, 'strict')
-# add gene pairs defined by distance to list
-for L in [Proximal, Moderate, Intermediate, Distant]:
-    IntronPairs.append(L)
 
 # generate gene pairs of external and internal genes with same and opposite orientation
 Same, Opposite = [], []
@@ -118,9 +111,6 @@ OrientationPairs = [Same, Opposite]
 # remove gene pairs if any gene in the pair lacls expression
 for i in range(len(OrientationPairs)):
     OrientationPairs[i] = FilterGenePairsWithoutExpression(OrientationPairs[i], ExpressionProfile, 'strict')
-# add gene pairs defined by distance to list
-for L in [Proximal, Moderate, Intermediate, Distant]:
-    OrientationPairs.append(L)
 
 # compute expression divergence between pairs of genes
 ExpDivergIntron = []
@@ -134,8 +124,8 @@ for i in range(len(OrientationPairs)):
 print('computed divergence')
 
 # make a list of gene category names parallel to the list of gene pairs
-GeneCatIntrons = ['I(+)', 'I(-)', 'Prox', 'Mod', 'Int', 'Dist']
-GeneCatOrientation = ['SDir', 'OpDir', 'Prox', 'Mod', 'Int', 'Dist']
+GeneCatIntrons = ['I(+)', 'I(-)']
+GeneCatOrientation = ['SDir', 'OpDir']
 
 # create lists with means and SEM for each gene category
 MeanIntron, SEMIntron = [], []
@@ -159,14 +149,14 @@ def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, Title, YRange, YMa
     # set colors
     colorscheme = ['#225ea8', '#e31a1c', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
     # plot nucleotide divergence
-    ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55], Data[0], 0.2, yerr = Data[1], color = colorscheme,
+    ax.bar([0.05, 0.35], Data[0], 0.2, yerr = Data[1], color = colorscheme,
            edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write y axis label
     ax.set_ylabel('Expression\ndivergence', color = 'black',  size = 7, ha = 'center', **FigFont)
     # add ticks and lebels
-    plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
+    plt.xticks([0.15, 0.45], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
     # add title
     ax.set_title(Title, color = 'black', size = 7, ha = 'center', **FigFont)    
     # add a range for the Y and X axes
@@ -197,16 +187,12 @@ ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientati
 
 
 # perform statistical tests between gene categories
-# save P values to file
-newfile = open('ExternalExpDivDistancePVals.txt', 'w')
-newfile.write('\t'.join(['Genes1', 'Genes2', 'index1', 'index2', 'P']) + '\n')        
 PValsIntron = []
 # loop over inner list, compare gene categories
 for i in range(0, len(ExpDivergIntron) -1):
     for j in range(i+1, len(ExpDivergIntron)):
         P = PermutationResampling(ExpDivergIntron[i], ExpDivergIntron[j], 1000, statistic = np.mean)
         print('intron', i, j, P)
-        newfile.write('\t'.join([GeneCatIntrons[i], GeneCatIntrons[j], str(i), str(j), str(P)]) + '\n')        
         PValsIntron.append(P)
 PValsOrientation = []
 # loop over inner list, compare gene categories
@@ -214,9 +200,11 @@ for i in range(0, len(ExpDivergOrientation) -1):
     for j in range(i+1, len(ExpDivergOrientation)):
         P = PermutationResampling(ExpDivergOrientation[i], ExpDivergOrientation[j], 1000, statistic = np.mean)
         print('orientation', i, j, P)
-        newfile.write('\t'.join([GeneCatOrientation[i], GeneCatOrientation[j], str(i), str(j), str(P)]) + '\n')
         PValsOrientation.append(P)
-newfile.close()
+
+# convert P values to stars
+PValsIntron = ConvertPToStars(PValsIntron)
+PValsOrientation = ConvertPToStars(PValsOrientation)
 
 # add subplot labels
 ax1.text(-0.55, 1.2, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
@@ -224,18 +212,15 @@ ax2.text(-0.55, 1.2, 'B', ha='center', va='center', color = 'black', fontname = 
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
-DiffIntrons = ['A', 'B', 'C', 'D', 'E', 'A']
-DiffOrientation = ['A,E', 'A', 'B', 'C', 'D', 'E']
-ypos = [0.7] * 6
-xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65]
-for i in range(len(DiffIntrons)):
-     ax1.text(xpos[i], ypos[i], DiffIntrons[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-for i in range(len(DiffOrientation)):
-     ax2.text(xpos[i], ypos[i], DiffOrientation[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+
+if PValsIntron[0] != '':
+    ax1 = AddSignificanceToBars(ax1, PValsIntron[0], 0.15, 0.45, 0.68, 0.3, 0.7)
+if PValsOrientation[0] != '':
+    ax2 = AddSignificanceToBars(ax2, PValsOrientation[0], 0.15, 0.45, 0.68, 0.3, 0.7)
 
 # make sure subplots do not overlap
 plt.tight_layout()    
     
 # save figure
-fig.savefig('ExternalExpDivDistance.pdf', bbox_inches = 'tight')
-fig.savefig('ExternalExpDivDistance.eps', bbox_inches = 'tight')
+fig.savefig('ExpDivNestedIntron.pdf', bbox_inches = 'tight')
+fig.savefig('ExpDivNestedIntron.eps', bbox_inches = 'tight')
