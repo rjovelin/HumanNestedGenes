@@ -117,7 +117,6 @@ for i in range(len(GeneCounts)):
     DisProp.append(disease)    
     NonDisProp.append(nondisease)
 
-
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Data, XLabel, isYLabel):
     '''
@@ -136,11 +135,11 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, isYLabel):
     # write y axis label
     if isYLabel == True:
         YLabel = 'Proportions'
-        ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+        ax.set_ylabel(YLabel, color = 'black',  size = 6, ha = 'center', **FigFont)
         # edit y axis ticks
         plt.yticks(np.arange(0, 1.25, 0.25))    
     # add ticks and lebels
-    plt.xticks([0.1, 0.3, 0.5, 0.7, 0.9], ['Not', 'Nst', 'Pgk', 'Con', 'Div'], rotation = 0, size = 6.5, color = 'black', ha = 'center', **FigFont)
+    plt.xticks([0.1, 0.3, 0.5, 0.7, 0.9], ['Not', 'Nst', 'Pgk', 'Con', 'Div'], rotation = 0, size = 6, color = 'black', ha = 'center', **FigFont)
     # add x label
     ax.set_xlabel(XLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
     # add a range for the Y axis
@@ -160,14 +159,14 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, isYLabel):
     if isYLabel == True:
         plt.tick_params(axis='both', which='both', bottom='on', top='off',
                         right = 'off', left = 'on', labelbottom='on',
-                        colors = 'black', labelsize = 7, direction = 'out')  
+                        colors = 'black', labelsize = 6, direction = 'out')  
         # Set the tick labels font name
         for label in ax.get_yticklabels():
             label.set_fontname('Arial')
     else:
         plt.tick_params(axis='both', which='both', bottom='on', top='off',
                         right = 'off', left = 'off', labelbottom='on', labelleft = 'off',
-                        colors = 'black', labelsize = 7, direction = 'out')  
+                        colors = 'black', labelsize = 6, direction = 'out')  
     # add margins
     plt.margins(0.1)
     return ax
