@@ -125,7 +125,7 @@ print('computed divergence')
 
 # make a list of gene category names parallel to the list of gene pairs
 GeneCatIntrons = ['I(+)', 'I(-)']
-GeneCatOrientation = ['SDir', 'OpDir']
+GeneCatOrientation = ['Same', 'Opp']
 
 # create lists with means and SEM for each gene category
 MeanIntron, SEMIntron = [], []
@@ -139,7 +139,7 @@ for i in range(len(ExpDivergOrientation)):
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, Title, YRange, YMax, isYLabel):
+def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, XLabel, YRange, YMax, isYLabel):
     '''
     return an ax object part of figure
     '''
@@ -147,18 +147,19 @@ def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, Title, YRange, YMa
     # add a plot to figure (N row, N column, plot N)
     ax = fig.add_subplot(Rows, Columns, Position)
     # set colors
-    colorscheme = ['#225ea8', '#e31a1c', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+    colorscheme = ['#225ea8', '#e31a1c']
     # plot nucleotide divergence
     ax.bar([0.05, 0.35], Data[0], 0.2, yerr = Data[1], color = colorscheme,
            edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write y axis label
-    ax.set_ylabel('Expression\ndivergence', color = 'black',  size = 7, ha = 'center', **FigFont)
+    if isYLabel == True:
+        ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
     # add ticks and lebels
     plt.xticks([0.15, 0.45], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
     # add title
-    ax.set_title(Title, color = 'black', size = 7, ha = 'center', **FigFont)    
+    ax.set_xlabel(XLabel, color = 'black', size = 7, ha = 'center', **FigFont)    
     # add a range for the Y and X axes
     plt.ylim([0, YMax])
     plt.xlim([0, 0.6])
@@ -168,22 +169,31 @@ def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, Title, YRange, YMa
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(True)    
     ax.spines["right"].set_visible(False)
-    ax.spines["left"].set_visible(True)  
+    if isYLabel == True:
+        ax.spines["left"].set_visible(True)
+    else:
+        ax.spines["left"].set_visible(False)
     # edit tick parameters    
-    plt.tick_params(axis='both', which='both', bottom='on', top='off',
-                    right = 'off', left = 'on', labelbottom='on',
-                    colors = 'black', labelsize = 7, direction = 'out')  
-    # Set the tick labels font name
-    for label in ax.get_yticklabels():
-        label.set_fontname('Arial')   
+    if isYLabel == True:
+        plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                        right = 'off', left = 'on', labelbottom='on',
+                        colors = 'black', labelsize = 7, direction = 'out')  
+    
+        # Set the tick labels font name
+        for label in ax.get_yticklabels():
+            label.set_fontname('Arial')    
+    else:
+        plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                        right = 'off', left = 'off', labelbottom='on', labelleft = 'off',
+                        colors = 'black', labelsize = 7, direction = 'out')  
     return ax  
 
 
 # create figure
-fig = plt.figure(1, figsize = (2.5, 2.2))
+fig = plt.figure(1, figsize = (2, 2))
 
-ax1 = CreateAx(1, 2, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, 'Introns in internal genes', np.arange(0, 1.2, 0.2), 1)
-ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, 'Strand orientation', np.arange(0, 1.2, 0.2), 1)
+ax1 = CreateAx(2, 1, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, 'Introns', np.arange(0, 1, 0.2), 0.8, True)
+ax2 = CreateAx(2, 1, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, 'Orientation', np.arange(0, 1, 0.2), 0.8, False)
 
 
 # perform statistical tests between gene categories
@@ -206,17 +216,13 @@ for i in range(0, len(ExpDivergOrientation) -1):
 PValsIntron = ConvertPToStars(PValsIntron)
 PValsOrientation = ConvertPToStars(PValsOrientation)
 
-# add subplot labels
-ax1.text(-0.55, 1.2, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-ax2.text(-0.55, 1.2, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
 
 if PValsIntron[0] != '':
-    ax1 = AddSignificanceToBars(ax1, PValsIntron[0], 0.15, 0.45, 0.68, 0.3, 0.7)
+    ax1 = AddSignificanceToBars(ax1, PValsIntron[0], 0.15, 0.45, 0.68, 0.3, 0.72)
 if PValsOrientation[0] != '':
-    ax2 = AddSignificanceToBars(ax2, PValsOrientation[0], 0.15, 0.45, 0.68, 0.3, 0.7)
+    ax2 = AddSignificanceToBars(ax2, PValsOrientation[0], 0.15, 0.45, 0.68, 0.3, 0.72)
 
 # make sure subplots do not overlap
 plt.tight_layout()    
