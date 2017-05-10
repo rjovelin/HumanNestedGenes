@@ -63,30 +63,6 @@ for i in range(len(Overlap)):
 # make a set of non-overlapping genes
 NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
 
-# create sets of internal and external nested gene pairs
-NestedPairs = GetHostNestedPairs(Nested)
-InternalGenes, ExternalGenes = set(), set()
-for pair in NestedPairs:
-    ExternalGenes.add(pair[0])
-    InternalGenes.add(pair[1])
-
-# create lists of nested gene pairs with same and opposite directions
-same, opposite = [], []
-for pair in NestedPairs:
-    orientation = GenePairOrientation(pair, GeneCoord)
-    if len(set(orientation)) == 2:
-        opposite.append(pair)
-    elif len(set(orientation)) == 1:
-        same.append(pair)
-# create sets of internal and external nested genes depending on orientation 
-InternalSameGenes, InternalOppositeGenes, ExternalSameGenes, ExternalOppositeGenes = set(), set(), set(), set()
-for pair in same:
-    ExternalSameGenes.add(pair[0])
-    InternalSameGenes.add(pair[1])
-for pair in opposite:
-    ExternalOppositeGenes.add(pair[0])
-    InternalOppositeGenes.add(pair[1])
-
 # map ensembl gene IDs to gene names {gene_ID: Name}
 GeneIDToNames = MapNametoID('Homo_sapiens.GRCh38.88.gff3')
 # reverse dictionary {name: ID}
@@ -106,129 +82,44 @@ OMIM = ParseOMIMDisease('mimTitles.txt', 'morbidmap.txt', GeneNamesToID)
 # create a set with all disease genes
 DiseaseGenes = GAD.union(GWAS).union(Drivers).union(OMIM)
 
+# create a list of gene sets
+AllGenes = [NonOverlappingGenes]
+for i in range(1, len(GeneSets)):
+    AllGenes.append(GeneSets[i])
+# create a parallel list of gene categories
+GeneCats = ['NoOvl', 'Nst', 'Pgk', 'Con', 'Div'] 
+
+# make a list of counts for each disease and gene category[[[disease, non_disease],... ], ....]
+GeneCounts = CountDiseaseGenes(AllGenes, [GAD, GWAS, Drivers, OMIM, DiseaseGenes])
+
+# test significance by comparing each overlapping gene class to non-overlapping genes for each disease
+Significance = []
+for i in range(len(GeneCounts)):
+    # access disease type
+    PVals = []
+    for j in range(1, len(GeneCounts[i])):
+        # compare each gene class to non-overlapping genes for that disease class
+        P = stats.fisher_exact([GeneCounts[i][0], GeneCounts[i][j]])[1]
+        PVals.append(P)
+    # convert p values to star significance
+    Significance.append(ConvertPToStars(PVals))
 
 
-
-AllGenes = [NonOverlappingGenes, NestedGenes, InternalGenes, ExternalGenes,
-            PiggyBackGenes, ConvergentGenes, DivergentGenes] 
-
-GeneCats = ['NoOvl', 'Nst', 'Int', 'Ext', 'Pgk', 'Con', 'Div'] 
-
-
-
-
-
-# make a list of counts for each 
-
-
-# use this function to count disease and non-disease genes for each gene class
-def CountDiseaseGenes(L, DiseaseGenes):
-    '''
-    (list, set) -> list
-    Take a list of gene sets and a set of disease genes and return a parallel
-    list with lists of counts of diease and non disease genes for each gene set
-    '''
-    Counts = []
-    for i in range(len(L)):
-        disease = len([j for j in L[i] if j in DiseaseGenes])
-        nondisease = len([j for j in L[i] if j not in DiseaseGenes])
-        Counts.append([disease, nondisease])
-    return Counts
-
-# use this function to test for enrichement of disease genes among gene groups
-def TestDiseaseEnrichement(Counts):
-    '''
-    (list) -> list
-    Take the list of disease and non-disease gene counts for each gene group and 
-    returns a list of p-values from FET comparing each overlapping gene group to 
-    non-overlapping genes
-    Precondition: the non-overlapping gene counts are first in the list    
-    '''
-    PVals = []    
-    for i in range(1, len(Counts)):
-        p = stats.fisher_exact([Counts[0], Counts[i]])[1]
-        PVals.append(p)
-    return PVals
-
-# use this function to assign significance level
-def AssignSignificance(L):
-    '''
-    (list) -> list
-    Take a list of p-values and return a modfied list with significance levels
-    represented by stars
-    '''
-    # replace P values by significance
-    for i in range(len(L)):
-        if L[i] >= 0.05:
-            L[i] = ''
-        elif L[i] < 0.05 and L[i] >= 0.01:
-            L[i] = '*'
-        elif L[i] < 0.01 and L[i] >= 0.001:
-            L[i] = '**'
-        elif L[i] < 0.001:
-            L[i] = '***'
-    return L
-    
- 
-# use this function to get gene proportions
-def GetProportions(Counts):
-    '''
-    (list) -> list, list
-    Take the list of inner lists with counts of disease and non-disease
-    and return 2 lists with proportions of disease and non-disease genes respectively
-    '''
+# compute proportions of disease and non-disease for each class in each disease class
+DisProp, NonDisProp = [], []
+for i in range(len(GeneCounts)):
+    # access disease type
     disease, nondisease = [], []
-    for i in range(len(Counts)):
-        disease.append(Counts[i][0] / sum(Counts[i]))
-        nondisease.append(Counts[i][1] / sum(Counts[i]))
-    return disease, nondisease
-    
-# count disease and non-disease genes    
-GADCounts = CountDiseaseGenes(AllGenes, GAD)    
-GWASCounts = CountDiseaseGenes(AllGenes, GWAS)
-DriversCounts = CountDiseaseGenes(AllGenes, Drivers)
-OMIMCounts = CountDiseaseGenes(AllGenes, OMIM)
-
-# create a set with all disease genes
-DiseaseGenes = set()
-for i in Drivers:
-    DiseaseGenes.add(i)
-for i in GWAS:
-    DiseaseGenes.add(i)
-for i in GAD:
-    DiseaseGenes.add(i)
-for i in OMIM:
-    DiseaseGenes.add(i)
-
-AllCounts = CountDiseaseGenes(AllGenes, DiseaseGenes)
-
-
-# test for enrichement of disease genes between non-overlapping genes and overlapping genes
-PValGAD = TestDiseaseEnrichement(GADCounts)
-PValGWAS = TestDiseaseEnrichement(GWASCounts)
-PValDrivers = TestDiseaseEnrichement(DriversCounts)
-PValOMIM = TestDiseaseEnrichement(OMIMCounts)
-PValAll = TestDiseaseEnrichement(AllCounts)
-
-
-PValGAD = AssignSignificance(PValGAD)
-PValGWAS = AssignSignificance(PValGWAS)
-PValDrivers = AssignSignificance(PValDrivers)
-PValOMIM = AssignSignificance(PValOMIM)
-PValAll = AssignSignificance(PValAll)
-
-
-# get proportions
-GADDis, GADNonDis = GetProportions(GADCounts)    
-GWASDis, GWASNonDis = GetProportions(GWASCounts)
-DriversDis, DriversNonDis = GetProportions(DriversCounts)
-OMIMDis, OMIMNonDis = GetProportions(OMIMCounts)
-AllDis, AllNonDis = GetProportions(AllCounts)
-
+    for j in range(len(GeneCounts[i])):
+        # access disease and non-disease counts for given gene class in this disease class
+        disease.append(GeneCounts[i][j][0] / sum(GeneCounts[i][j]))
+        nondisease.append(GeneCounts[i][j][1] / sum(GeneCounts[i][j]))
+    DisProp.append(disease)    
+    NonDisProp.append(nondisease)
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, Title, Proportions, YRange, YMax, XLabel):
+def CreateAx(Columns, Rows, Position, figure, Data, Title, YRange, XLabel):
     '''
     Returns a ax instance in figure
     '''    
@@ -238,17 +129,10 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title, Proportions, YRange, 
     # check if plot only disease genes or proportions of disease and non-disease genes
     if Proportions == 'both':
         # Create a horizontal bar plot for proportions of disease genes
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'disease', color= 'black', linewidth = 0.7)
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2], Data[0], width = 0.2, label = 'disease', color= 'black', linewidth = 0.7)
         # Create a horizontal bar plot for proportions of non-disease genes
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, bottom = Data[0], label = 'non-disease', color= 'lightgrey', linewidth = 0.7)
-    elif Proportions == 'disease':
-        # plot proportions of disease genes only
-        # Create a horizontal bar plot for proportions of disease genes
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[0], width = 0.2, label = 'disease', color= ['black'] + ['lightgrey'] * 6, linewidth = 0.7)
-    elif Proportions == 'non-disease':
-        # plot proportions of non-disease genes only
-        # Create a horizontal bar plot for proportions of non-disease genes
-        ax.bar([0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8], Data[1], width = 0.2, label = 'disease', color= 'lightgrey', linewidth = 0.7)
+        ax.bar([0, 0.3, 0.6, 0.9, 1.2], Data[1], width = 0.2, bottom = Data[0], label = 'non-disease', color= 'lightgrey', linewidth = 0.7)
+    
 
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
@@ -263,9 +147,9 @@ def CreateAx(Columns, Rows, Position, figure, Data, Title, Proportions, YRange, 
         
     # add ticks and lebels
     if XLabel == True:
-        plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], ['NoOvl', 'Nst', 'Int', 'Ext', 'Pgk', 'Con', 'Div'], rotation = 30, size = 7, color = 'black', ha = 'right', **FigFont)
+        plt.xticks([0.1, 0.4, 0.7, 1, 1.3], ['NoOvl', 'Nst', 'Int', 'Ext', 'Pgk', 'Con', 'Div'], rotation = 30, size = 7, color = 'black', ha = 'right', **FigFont)
     elif XLabel == False:
-        plt.xticks([0.1, 0.4, 0.7, 1, 1.3, 1.6, 1.9], [''] * 7, size = 7, color = 'black', ha = 'right', **FigFont)
+        plt.xticks([0.1, 0.4, 0.7, 1, 1.3], [''] * 7, size = 7, color = 'black', ha = 'right', **FigFont)
     
     # edit y axis ticks
     plt.yticks(YRange)    
@@ -349,24 +233,4 @@ fig.savefig('truc.pdf', bbox_inches = 'tight')
 #fig.savefig('ProportionDiseaseGenes.pdf', bbox_inches = 'tight')
 #fig.savefig('ProportionDiseaseGenes.eps', bbox_inches = 'tight')
 
-
-## make a table with counts of disease and non-disease genes
-#
-#
-#GeneCounts = [GADCounts, GWASCounts, DriversCounts, OMIMCounts, AllCounts]
-#Origins = ['GAD', 'GWAS', 'Drivers', 'OMIM', 'All']
-#GeneCats = ['Non-overlapping', 'Nested', 'Internal', 'External', 'Piggyback', 'Convergent', 'Divergent'] 
-#
-#newfile = open('DiseaseEnrichementTable.txt', 'w')
-#header = ['Disease genes', 'Gene category', 'N disease genes', 'N non-disease genes', 'Proportion disease genes', 'P']
-#newfile.write('\t'.join(header) + '\n')
-#for i in range(len(GeneCounts)):
-#    # get the list of P values
-#    Pvals = TestDiseaseEnrichement(GeneCounts[i])
-#    # add empty  string for the non-overlapping genes
-#    Pvals.insert(0, '')
-#    for j in range(len(GeneCounts[i])):
-#        line = [Origins[i], GeneCats[j], str(GeneCounts[i][j][0]), str(GeneCounts[i][j][1]), str(round(GeneCounts[i][j][0] / sum(GeneCounts[i][j]), 4) * 100), str(Pvals[j])]
-#        newfile.write('\t'.join(line) + '\n')
-#newfile.close()        
 
