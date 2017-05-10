@@ -184,30 +184,26 @@ ax4 = CreateAx(5, 1, 4, fig, [DisProp[3], NonDisProp[3]], 'mendelian', False)
 ax5 = CreateAx(5, 1, 5, fig, [DisProp[4], NonDisProp[4]], 'all', False)
 
 
-## annotate figure to add significance
-## significant comparisons were already determined, add letters to show significance
-#xpos = [0.4, 0.7, 1, 1.3, 1.6, 1.9]
-#
-#ypos = [0.55, 0.50, 0.65, 0.55, 0.6, 0.6]
-#for i in range(len(PValGAD)):
-#    ax1.text(xpos[i], ypos[i], PValGAD[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#ypos = [0.12, 0.05, 0.16, 0.09, 0.10, 0.10]
-#for i in range(len(PValGWAS)):
-#    ax2.text(xpos[i], ypos[i], PValGWAS[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#ypos = [0.027, 0.017, 0.040, 0.015, 0.037, 0.030]
-#for i in range(len(PValDrivers)):
-#    ax3.text(xpos[i], ypos[i], PValDrivers[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#ypos = [0.17, 0.12, 0.25, 0.17, 0.22, 0.22]
-#for i in range(len(PValOMIM)):
-#    ax4.text(xpos[i], ypos[i], PValOMIM[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#ypos = [0.55, 0.45, 0.7, 0.55, 0.65, 0.65]
-#for i in range(len(PValAll)):
-#    ax5.text(xpos[i], ypos[i], PValAll[i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 7)
-#
-## add legend
-#N = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'non-disease')
-#D = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'disease')
-#ax1.legend(handles = [D, N], loc = (0, 1.1), fontsize = 6, frameon = False, ncol = 2)
+# annotate figure to add significance
+# significant comparisons were already determined, add letters to show significance
+xpos = [0.3, 0.5, 0.7, 0.9]
+for i in range(len(Significance[0])):
+    ax1.text(xpos[i], 1.05, Significance[0][i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 6)
+for i in range(len(Significance[1])):
+    ax2.text(xpos[i], 1.05, Significance[1][i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 6)
+for i in range(len(Significance[2])):
+    ax3.text(xpos[i], 1.05, Significance[2][i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 6)
+for i in range(len(Significance[3])):
+    ax4.text(xpos[i], 1.05, Significance[3][i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 6)
+for i in range(len(Significance[4])):
+    ax5.text(xpos[i], 1.05, Significance[4][i], ha='center', va='center', color = 'grey', fontname = 'Arial', size = 6)
+
+# add legend
+D = mpatches.Patch(facecolor = '#2b8cbe', edgecolor = 'white', linewidth = 0.7, label= 'disease')
+N = mpatches.Patch(facecolor = '#88419d', edgecolor = 'white', linewidth = 0.7, label= 'non-disease')
+ax1.legend(handles = [D, N], loc = (0.05, 1.2), fontsize = 6, frameon = False, ncol = 2)
+
+
 
 # make sure subplots do not overlap
 plt.tight_layout()
