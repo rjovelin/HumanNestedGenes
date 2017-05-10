@@ -2358,4 +2358,22 @@ def CombineHighValues(L, cutoff):
     return L    
     
 
-
+# use this function to count the number of disease and non-disease genes for 
+# each disease type and each gene category
+def CountDiseaseGenes(GeneList, DiseaseList):
+    '''
+    (list, list) -> list    
+    Take a list of gene sets and a list of sets of disease genes and return
+    a list with lists of disease and non-disease gene counts for each category
+    for each disease class
+    '''
+    
+    GeneCounts = []
+    for DiseaseType in DiseaseList:
+        counts = []
+        for i in range(len(GeneList)):
+            disease = len([gene for gene in GeneList[i] if gene in DiseaseType])
+            nondisease = len([gene for gene in GeneList[i] if gene not in DiseaseType])
+            counts.append([disease, nondisease])
+        GeneCounts.append(counts)
+    return GeneCounts
