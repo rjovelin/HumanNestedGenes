@@ -116,7 +116,7 @@ DiseaseToRemove, PairsToRemove = [], []
 for i in range(len(AllPairs)):
     # check each pair count for that disease
     for j in range(len(AllPairs[i])):
-        if len(AllPairs[i][j]) < 10:
+        if len(AllPairs[i][j]) < 20:
             if AllPairs[i] not in PairsToRemove:
                 PairsToRemove.append(AllPairs[i])
             if DiseaseClasses[i] not in DiseaseToRemove:
