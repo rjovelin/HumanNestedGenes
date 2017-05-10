@@ -23,6 +23,7 @@ import copy
 import sys
 import os
 import math
+import string
 import numpy as np
 from scipy import stats
 from HsaNestedGenes import *
@@ -131,55 +132,6 @@ for i in range(len(AllPairs)):
     for j in range(len(AllPairs[i])):
         assert len(AllPairs[i][j]) >= 20
    
-
-for i in range(len(AllPairs)):
-    print(i, list(map(lambda x: len(x), AllPairs[i])))
-
-    
-## generate gene pairs of external and internal genes for intronless and intron-containing internal genes
-#PairsWithIntrons, PairsNoIntrons = [], []
-## loop over host-nested transcript pairs
-#for i in range(len(HostNestedTSPairs)):
-#    # check that both transcripts have coordinates and have corresponding gene names    
-#    assert HostNestedTSPairs[i][0] in MapTranscriptGene and HostNestedTSPairs[i][0] in TranscriptCoordinates    
-#    assert HostNestedTSPairs[i][1] in MapTranscriptGene and HostNestedTSPairs[i][1] in TranscriptCoordinates    
-#    if HostNestedTSPairs[i][1] in IntronCoord:
-#        # internal gene has introns, add gene pairs to list 
-#            PairsWithIntrons.append([MapTranscriptGene[HostNestedTSPairs[i][0]], MapTranscriptGene[HostNestedTSPairs[i][1]]])
-#    else:
-#        # internal gene is intronless, add gene pair to list
-#        PairsNoIntrons.append([MapTranscriptGene[HostNestedTSPairs[i][0]], MapTranscriptGene[HostNestedTSPairs[i][1]]])
-#
-## make a list of lists of gene pairs
-#IntronPairs = [PairsWithIntrons, PairsNoIntrons]
-## remove gene pairs if any gene in the pair lacks expression
-#for i in range(len(IntronPairs)):
-#    IntronPairs[i] = FilterGenePairsWithoutExpression(IntronPairs[i], ExpressionProfile, 'strict')
-## add gene pairs defined by distance to list
-#for L in [Proximal, Moderate, Intermediate, Distant]:
-#    IntronPairs.append(L)
-
-## generate gene pairs of external and internal genes with same and opposite orientation
-#Same, Opposite = [], []
-#for pair in NestedPairs:
-#    orientation = GenePairOrientation(pair, GeneCoord)
-#    if len(set(orientation)) == 2:
-#        Opposite.append(pair)
-#    elif len(set(orientation)) == 1:
-#        Same.append(pair)
-#
-## make a list of lists of gene pairs
-#OrientationPairs = [Same, Opposite]
-## remove gene pairs if any gene in the pair lacls expression
-#for i in range(len(OrientationPairs)):
-#    OrientationPairs[i] = FilterGenePairsWithoutExpression(OrientationPairs[i], ExpressionProfile, 'strict')
-## add gene pairs defined by distance to list
-#for L in [Proximal, Moderate, Intermediate, Distant]:
-#    OrientationPairs.append(L)
-#
-
-
-
 # compute expression divergence between pairs of genes
 Divergence = []
 for i in range(len(AllPairs)):
@@ -190,9 +142,7 @@ for i in range(len(AllPairs)):
         D = ComputeExpressionDivergenceGenePairs(AllPairs[i][j], ExpressionProfile)
         Div.append(D)
     Divergence.append(Div)
-    
-# make a list of gene category names parallel to the list of gene pairs
-GeneCat = ['both', 'ext', 'int', 'none']
+
 
 # create lists with means and SEM for each gene category
 Means, SEMs = [], []
@@ -205,109 +155,96 @@ for i in range(len(Divergence)):
     Means.append(average)
     SEMs.append(error)        
 
-
 # perform statistical tests between gene categories
 PValues = []
 for i in range(len(Divergence)):
-    Pvals = []
-    # loop over inner lists    
-    for j in range(0, len(Divergence[i]) -1):
-        for k in range(j+1, len(Divergence[i])):
-            P = PermutationResampling(Divergence[i][j], Divergence[i][k], 1000, statistic = np.mean)
-            Pvals.append(P)
-    PValues.append(Pvals)
+    P = PermutationResampling(Divergence[i][0], Divergence[i][1], 1000, statistic = np.mean)
+    PValues.append(P)
+# convert P to stars
+PValues = ConvertPToStars(PValues)
+        
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, figure, Data, XTickLabel, YRange, YMax, isYLabel):
+    '''
+    return an ax object part of figure
+    '''
 
-for i in range(len(PValues)):
-    print(PValues[i])
+    # add a plot to figure (N row, N column, plot N)
+    ax = fig.add_subplot(Rows, Columns, Position)
+    # set colors
+    colorscheme = ['#225ea8', '#e31a1c']
+    # plot nucleotide divergence
+    ax.bar([0.05, 0.35], Data[0], 0.2, yerr = Data[1], color = colorscheme,
+           edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    # write y axis label
+    if isYLabel == True:
+        ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
+    # add ticks and lebels
+    plt.xticks([0.3], [XTickLabel], size = 7, color = 'black', ha = 'center', **FigFont)
+    # add title
+    #ax.set_title(Title, color = 'black', size = 7, ha = 'center', **FigFont)    
+    # add a range for the Y and X axes
+    plt.ylim([0, YMax])
+    plt.xlim([0, 0.6])
+    # edit y axis ticks
+    plt.yticks(YRange) 
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(True)    
+    ax.spines["right"].set_visible(False)
+    if isYLabel == True:
+        ax.spines["left"].set_visible(True)
+    else:
+        ax.spines["left"].set_visible(False)
+    # edit tick parameters
+    if isYLabel == True:
+        plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                        right = 'off', left = 'on', labelbottom='on',
+                        colors = 'black', labelsize = 7, direction = 'out')  
+    else:
+        plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                        right = 'off', left = 'off', labelbottom='on', labelleft='off',
+                        colors = 'black', labelsize = 7, direction = 'out')  
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')   
+    
+    # add margins
+    plt.margins(0.05)
+    return ax  
 
-print(Means)
-print(DiseaseClasses)
+# get highest divergence value
+Highest = 0
+for i in range(len(Divergence)):
+    for j in range(len(Divergence[i])):
+        if np.mean(Divergence[i][j]) > Highest:
+            Highest = np.mean(Divergence[i][j])
+Highest = round(Highest, 1)
 
-#
-#
-#
-#
-#
-#        
-## create a function to format the subplots
-#def CreateAx(Columns, Rows, Position, figure, Data, GeneCats, Title, YRange, YMax, isYLabel):
-#    '''
-#    return an ax object part of figure
-#    '''
-#
-#    # add a plot to figure (N row, N column, plot N)
-#    ax = fig.add_subplot(Rows, Columns, Position)
-#    # set colors
-#    colorscheme = ['#225ea8', '#e31a1c', 'lightgrey', 'lightgrey']
-#    # plot nucleotide divergence
-#    ax.bar([0.05, 0.35, 0.65, 0.95], Data[0], 0.2, yerr = Data[1], color = colorscheme,
-#           edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
-#    # set font for all text in figure
-#    FigFont = {'fontname':'Arial'}   
-#    # write y axis label
-#    if isYLabel == True:
-#        ax.set_ylabel('Expression\ndivergence', color = 'black',  size = 7, ha = 'center', **FigFont)
-#    # add ticks and lebels
-#    plt.xticks([0.15, 0.45, 0.75, 1.05], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
-#    # add title
-#    ax.set_title(Title, color = 'black', size = 7, ha = 'center', **FigFont)    
-#    # add a range for the Y and X axes
-#    plt.ylim([0, YMax])
-#    plt.xlim([0, 1.2])
-#    # edit y axis ticks
-#    plt.yticks(YRange) 
-#    # do not show lines around figure  
-#    ax.spines["top"].set_visible(False)    
-#    ax.spines["bottom"].set_visible(True)    
-#    ax.spines["right"].set_visible(False)
-#    if isYLabel == True:
-#        ax.spines["left"].set_visible(True)
-#    else:
-#        ax.spines["left"].set_visible(False)
-#    # edit tick parameters
-#    if isYLabel == True:
-#        plt.tick_params(axis='both', which='both', bottom='on', top='off',
-#                        right = 'off', left = 'on', labelbottom='on',
-#                        colors = 'black', labelsize = 7, direction = 'out')  
-#    else:
-#        plt.tick_params(axis='both', which='both', bottom='on', top='off',
-#                        right = 'off', left = 'off', labelbottom='on', labelleft='off',
-#                        colors = 'black', labelsize = 7, direction = 'out')  
-#    # Set the tick labels font name
-#    for label in ax.get_yticklabels():
-#        label.set_fontname('Arial')   
-#    return ax  
-#
-#
-## create figure
-#fig = plt.figure(1, figsize = (2.5, 2.2))
-#
-#ax1 = CreateAx(1, 2, 1, fig, [MeanIntron, SEMIntron], GeneCatIntrons, 'Introns in internal genes', np.arange(0, 1.2, 0.2), 1)
-#ax2 = CreateAx(1, 2, 2, fig, [MeanOrientation, SEMOrientation], GeneCatOrientation, 'Strand orientation', np.arange(0, 1.2, 0.2), 1)
-#
-#
-#
-## add subplot labels
-#ax1.text(-0.55, 1.2, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-#ax2.text(-0.55, 1.2, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-#
-## annotate figure to add significance
-## significant comparisons were already determined, add letters to show significance
-#DiffIntrons = ['A', 'B', 'C', 'D', 'E', 'A']
-#DiffOrientation = ['A,E', 'A', 'B', 'C', 'D', 'E']
-#ypos = [0.7] * 6
-#xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65]
-#for i in range(len(DiffIntrons)):
-#     ax1.text(xpos[i], ypos[i], DiffIntrons[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-#for i in range(len(DiffOrientation)):
-#     ax2.text(xpos[i], ypos[i], DiffOrientation[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-#
-## make sure subplots do not overlap
-#plt.tight_layout()    
-#    
-## save figure
-#fig.savefig('truc.pdf', bbox_inches = 'tight')
-#
-#
-#
-#
+# create figure
+fig = plt.figure(1, figsize = (3, 1.8))
+# plot data
+for i in range(len(Means)):
+    if i == 0:
+        AddScale = True
+    else:
+        AddScale = False
+    ax = CreateAx(4, 1, i+1, fig, [Means[i], SEMs[i]], DiseaseClasses[i], np.arange(0, 0.8, 0.2), 0.6, AddScale)
+    # add significance
+    if PValues[i] != '':
+        ax = AddSignificanceToBars(ax, PValues[i], 0.15, 0.45, 0.62, 0.3, 0.63)
+    # add legend
+    if i == 0:
+        D = mpatches.Patch(facecolor = '#225ea8', edgecolor = 'black', linewidth = 0.7, label= 'disease')
+        N = mpatches.Patch(facecolor = '#e31a1c', edgecolor = 'black', linewidth = 0.7, label= 'non-disease')
+        ax.legend(handles = [D, N], loc = (0.05, 1.15), fontsize = 6, frameon = False, ncol = 2)
+
+# make sure subplots do not overlap
+plt.tight_layout()    
+    
+# save figure
+outputfile = 'ExpDivergNestedDisease'
+fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
+fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
