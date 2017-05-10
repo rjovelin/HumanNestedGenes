@@ -192,7 +192,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YRange, isYLabel):
     FigFont = {'fontname':'Arial'}   
     # write axis labels    
     if isYLabel == True:
-        YLabel = 'Proportion of disease genes'
+        YLabel = 'Proportions'
         ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
     plt.xticks([0.2, 0.7], ['ext', 'int'], color = 'black',  size = 7, ha = 'center', **FigFont)
     # add x label    
