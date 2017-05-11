@@ -1605,8 +1605,8 @@ def InferYoungOldNestingEvents(NestedGenes, SpeciesNestedPairs, OrthologPairs):
                 # loop over species in which orthologs are present
                 ConservedInOutGroups = False
                 for i in PresentInSpecies:
-                    ConservedNesting = IsNestedPairConserved(pair, OrthologPairs[i], SpeciesNestedPairs[i])
-                    if ConservedNesting == True:
+                    NestedConserved = IsNestedPairConserved(pair, OrthologPairs[i], SpeciesNestedPairs[i])
+                    if NestedConserved == True:
                         ConservedInOutGroups = True
                 if ConservedInOutGroups == False:
                     Young.append(pair)
