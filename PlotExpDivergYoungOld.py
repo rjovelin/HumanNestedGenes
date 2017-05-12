@@ -164,65 +164,24 @@ SisterSpExpression = TransformRelativeExpression(SisterSpExpression)
 #SisterSpSpecificity = ExpressionSpecificity(SisterSpExpression)
 
 
-
-### make a list of gene coordinates       
-##AllCoordinates, AllOrdered = [], []
-### loop over GFF files
-##for i in range(len(GFF)):
-##    # get the coordinates of genes on each chromo
-##    # {chromo: {gene:[chromosome, start, end, sense]}}
-##    GeneChromoCoord = ChromoGenesCoord(GFF[i])
-##    # map each gene to its mRNA transcripts
-##    MapGeneTranscript = GeneToTranscripts(GFF[i])
-##    # remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
-##    GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
-##    # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
-##    GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
-##    # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
-##    OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
-##    AllCoordinates.append(GeneCoord)
-##    AllOrdered.append(OrderedGenes)
-##
-### make pairs of overlapping genes
-##AllPairs = []
-##for i in range(len(AllOverlap)):
-##    pairs = GetHostNestedPairs(AllOverlap[i])
-##    AllPairs.append(pairs)
-### make pairs of overlapping genes
-##HumanPairs = AllPairs[:2]
-##SisterPairs = AllPairs[2:4]
-##OutGroupPairs = AllPairs[4:]
-##
-### make list with sets of non-overlapping genes
-##NonOverlappingSets = []
-##for i in range(3):
-##    j = i * 2
-##    # make a set of non-overlapping gene
-##    nonoverlap = MakeNonOverlappingGeneSet(AllOverlap[j], AllCoordinates[i])
-##    NonOverlappingSets.append(nonoverlap)    
-##
-### make sets of host and nested nested genes
-##NestedSets = []
-##for i in range(1, len(AllOverlap), 2):
-##    nestedset = MakeFullPartialOverlapGeneSet(AllOverlap[i])
-##    NestedSets.append(nestedset)
-##
-### make sets of overlapping genes
-##OverlapSets = []
-##for i in range(0, len(AllOverlap), 2):
-##    overlap = MakeFullPartialOverlapGeneSet(AllOverlap[i])
-##    OverlapSets.append(overlap)
-##
-### do some QC   
-##a = [set([OrthoPairs[pair[0]], OrthoPairs[pair[1]]]) for pair in HumanOld]
-##b = [set(pair) for pair in SisterSpOld]
-##assert len(a) == len(b)
-##for i in a:
-##    assert i in b    
-##
-##
-##HumanInferredPairs = [HumanOld, HumanYoung]
-
+# make a list of gene coordinates in human, chimp and mouse      
+AllCoordinates, AllOrdered = [], []
+# loop over GFF files
+subGFF = ['Homo_sapiens.GRCh38.88.gff3', 'Pan_troglodytes.CHIMP2.1.4.88.gff3', 'Mus_musculus.GRCm38.88.gff3']
+for i in range(len(subGFF)):
+    # get the coordinates of genes on each chromo
+    # {chromo: {gene:[chromosome, start, end, sense]}}
+    GeneChromoCoord = ChromoGenesCoord(subGFF[i])
+    # map each gene to its mRNA transcripts
+    MapGeneTranscript = GeneToTranscripts(subGFF[i])
+    # remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
+    GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
+    # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+    GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
+    # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
+    OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
+    AllCoordinates.append(GeneCoord)
+    AllOrdered.append(OrderedGenes)
 
 
 if Analysis == 'pairs':
@@ -234,9 +193,6 @@ if Analysis == 'pairs':
     YoungNested = FilterGenePairsWithoutExpression(YoungNested, HumanExpression, 'strict')
     OldNested = FilterGenePairsWithoutExpression(OldNested, HumanExpression, 'strict')
     print(len(OldNested), len(YoungNested))
-    
-    # compute divergence in young human nested pairs
-    HumanYoungDiv = ComputeExpressionDivergenceGenePairs(YoungNested, HumanExpression)
     
     # generate gene pairs with orthologs of human young nested in sister species
     AncestralPairs = []
@@ -252,13 +208,15 @@ if Analysis == 'pairs':
     # generate a set of nested genes in sister species
     SisterSpNestedGenes = MakeFullPartialOverlapGeneSet(AllNestedGenes[1])
     print(len(SisterSpNestedGenes))
-    
     # remove pairs if any gene is nested    
     to_remove = [pair for pair in SisterSpAncestralPairs if pair[0] in SisterSpNestedGenes or pair[1] in SisterSpNestedGenes]
     for pair in to_remove:
         SisterSpAncestralPairs.remove(pair)
     print(len(SisterSpAncestralPairs))
     
+    
+    # compute divergence in young human nested pairs
+    HumanYoungDiv = ComputeExpressionDivergenceGenePairs(YoungNested, HumanExpression)    
     # compute divergence in ancestral un-nested pairs
     SisterSpAncestralDiv = ComputeExpressionDivergenceGenePairs(SisterSpAncestralPairs, SisterSpExpression)
     
@@ -274,56 +232,40 @@ if Analysis == 'pairs':
     
     
     
+    def GenerateAllUnNestedGenes(Overlap, OrderedGenes, ExpressionProfile):
+    '''
+    (set, dict, dict) -> dict
+    Take the set of host and nested genes, the dictionary of ordered genes
+    along each chromosome, the dictionary of gene: expression pairs and return
+    a dictionary of pairs of number: un-nested gene on each chromsome
+    '''
+    
+    # make a dictionary with chromsome as key and number: gene {chromo: {num: gene}}    
+    ToDrawGenesFrom = {}
+    # loop over chromosomes
+    for chromo in OrderedGenes:
+        # set up counter
+        k = 0
+        # add chromo as key and intialize inner dict
+        ToDrawGenesFrom[chromo] = {}
+        # loop over the list of ordered genes
+        for i in range(len(OrderedGenes[chromo])):
+            # check that gene does not overlap with any other gene and that gene is expressed
+            if OrderedGenes[chromo][i] not in Overlap and OrderedGenes[chromo][i] in ExpressionProfile:
+                # add gene pair and update counter
+                ToDrawGenesFrom[chromo][k] = OrderedGenes[chromo][i]
+                k += 1
+    return ToDrawGenesFrom
     
     
-    # compare expression divergence between human host and nested genes and their un-nested orthologs in sister-species   
-    # remove human pairs if orthologs are nested in sister-species
-    to_remove = [pair for pair in HumanYoung if OrthoPairs[pair[0]] in NestedSets[1] or OrthoPairs[pair[1]] in NestedSets[1]]
-    for pair in to_remove:
-        HumanYoung.remove(pair)
-    # remove pairs if orthologs are nested in outgroup
-    to_remove = []
-    for pair in HumanYoung:
-        # check if ortholog is present in outgroup
-        if pair[0] in OrthoTrios:
-            # add pair to list of pairs to remove if pair not already added
-            if OrthoTrios[pair[0]][1] in NestedSets[2] and pair not in to_remove:
-                to_remove.append(pair)
-        if pair[1] in OrthoTrios:
-            if OrthoTrios[pair[1]][1] in NestedSets[2] and pair not in to_remove:
-                to_remove.append(pair)
-    print(len(to_remove))
-    if len(to_remove) != 0:
-        for pair in to_remove:
-            HumanYoung.remove(pair)
-    to_remove = []
-    for pair in SisterSpYoung:
-        # check if ortholog is present in outgroup
-        if pair[0] in SisterOrthoTrios:
-            # add pair to list of pairs to remove if pair not already added
-            if SisterOrthoTrios[pair[0]][1] in NestedSets[2] and pair not in to_remove:
-                to_remove.append(pair)
-        if pair[1] in SisterOrthoTrios:
-            if SisterOrthoTrios[pair[1]][1] in NestedSets[2] and pair not in to_remove:
-                to_remove.append(pair)
-    print(len(to_remove))
-    if len(to_remove) != 0:
-        for pair in to_remove:
-            SisterSpYoung.remove(pair)
     
-    # get the sister-species un-nested orthologs
-    SisterSpUnested = []
-    for pair in HumanYoung:
-        # check if orthologs are expressed in sister species
-        if OrthoPairs[pair[0]] in SisterSpExpression and OrthoPairs[pair[1]] in SisterSpExpression:
-            SisterSpUnested.append([OrthoPairs[pair[0]], OrthoPairs[pair[1]]])
-    # get the human un-nested orthologs
-    HumanUnNested = []
-    for pair in SisterSpYoung:
-        # check that orthologs are expressed in human
-        if SisterOrthos[pair[0]] in HumanExpression and SisterOrthos[pair[1]] in HumanExpression:
-            HumanUnNested.append([SisterOrthos[pair[0]], SisterOrthos[pair[1]]])
     
+    
+    
+    
+    
+    
+        
     # generate a dict to draw random genes in sister-species
     SisterRandomGenes = GenerateAllUnNestedGenes(NestedSets[1], AllOrdered[1], SisterSpExpression)
     # generate a dict to draw genes in human    
