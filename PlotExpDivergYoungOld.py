@@ -167,13 +167,12 @@ SisterSpExpression = TransformRelativeExpression(SisterSpExpression)
 # make a list of gene coordinates in human, chimp and mouse      
 AllCoordinates, AllOrdered = [], []
 # loop over GFF files
-subGFF = ['Homo_sapiens.GRCh38.88.gff3', 'Pan_troglodytes.CHIMP2.1.4.88.gff3', 'Mus_musculus.GRCm38.88.gff3']
-for i in range(len(subGFF)):
+for i in range(len(GFF_Files)):
     # get the coordinates of genes on each chromo
     # {chromo: {gene:[chromosome, start, end, sense]}}
-    GeneChromoCoord = ChromoGenesCoord(subGFF[i])
+    GeneChromoCoord = ChromoGenesCoord(GFF_Files[i])
     # map each gene to its mRNA transcripts
-    MapGeneTranscript = GeneToTranscripts(subGFF[i])
+    MapGeneTranscript = GeneToTranscripts(GFF_Files[i])
     # remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
     GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
     # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
