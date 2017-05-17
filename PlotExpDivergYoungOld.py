@@ -183,6 +183,10 @@ for i in range(len(GFF_Files)):
     AllOrdered.append(OrderedGenes)
 
 
+for gene in ['ENSMUSG00000052217', 'ENSMUSG00000081859', 'ENSMUSG00000101904', 'ENSMUSG00000046404']:
+    print(gene, gene in AllCoordinates[1])
+
+
 if Analysis == 'pairs':
     
     # compare expression divergence between gene pairs for young nested pairs in
@@ -203,6 +207,10 @@ if Analysis == 'pairs':
     # remove pairs for which both members are not expressed in sister species            
     SisterSpAncestralPairs = FilterGenePairsWithoutExpression(AncestralPairs, SisterSpExpression, 'strict')
     print(len(SisterSpAncestralPairs))    
+    # remove pairs for which members are not valid genes (eg pseudogenes, etc)        
+    to_remove = [pair for pair in SisterSpAncestralPairs if pair[0] not in AllCoordinates[1] or pair[1] not in AllCoordinates[1]]
+    for pair in to_remove:
+        SisterSpAncestralPairs.remove(pair)        
         
     # generate a set of nested genes in sister species
     SisterSpNestedGenes = MakeFullPartialOverlapGeneSet(AllNestedGenes[1])
@@ -213,117 +221,31 @@ if Analysis == 'pairs':
         SisterSpAncestralPairs.remove(pair)
     print(len(SisterSpAncestralPairs))
     
-    
+    # generate a list of control un-nested pairs
+    SisterSpRandomGenes = GenerateAllUnNestedGenes(SisterSpNestedGenes, AllOrdered[1], SisterSpExpression)
+    # make a list of control un-nested pairs in sister species
+    SisterSpControlPairs = []
+    to_remove = []
+    for pair in SisterSpAncestralPairs:
+        # make a list of matching gene pairs (orientation, chromosome, distance)
+        PairPool = GenerateMatchingPoolPairs(pair, SisterSpRandomGenes, AllCoordinates[1], 2000)
+        # draw a matching gene pair at random
+        i = random.randint(0, len(PairPool) -1)
+        SisterSpControlPairs.append(PairPool[i])
+       
     # compute divergence in young human nested pairs
     HumanYoungDiv = ComputeExpressionDivergenceGenePairs(YoungNested, HumanExpression)    
     # compute divergence in ancestral un-nested pairs
     SisterSpAncestralDiv = ComputeExpressionDivergenceGenePairs(SisterSpAncestralPairs, SisterSpExpression)
-    
-    # generate a list of control un-nested pairs
-        
-    
-    print(np.mean(SisterSpAncestralDiv))
-    print(np.mean(HumanYoungDiv))
-    
-
-    assert 0 > 1
-
-    
-    
-    
-    def GenerateAllUnNestedGenes(Overlap, OrderedGenes, ExpressionProfile):
-    '''
-    (set, dict, dict) -> dict
-    Take the set of host and nested genes, the dictionary of ordered genes
-    along each chromosome, the dictionary of gene: expression pairs and return
-    a dictionary of pairs of number: un-nested gene on each chromsome
-    '''
-    
-    # make a dictionary with chromsome as key and number: gene {chromo: {num: gene}}    
-    ToDrawGenesFrom = {}
-    # loop over chromosomes
-    for chromo in OrderedGenes:
-        # set up counter
-        k = 0
-        # add chromo as key and intialize inner dict
-        ToDrawGenesFrom[chromo] = {}
-        # loop over the list of ordered genes
-        for i in range(len(OrderedGenes[chromo])):
-            # check that gene does not overlap with any other gene and that gene is expressed
-            if OrderedGenes[chromo][i] not in Overlap and OrderedGenes[chromo][i] in ExpressionProfile:
-                # add gene pair and update counter
-                ToDrawGenesFrom[chromo][k] = OrderedGenes[chromo][i]
-                k += 1
-    return ToDrawGenesFrom
-    
-    
-    
-    
-    
-    
-    
-    
-    
-        
-    # generate a dict to draw random genes in sister-species
-    SisterRandomGenes = GenerateAllUnNestedGenes(NestedSets[1], AllOrdered[1], SisterSpExpression)
-    # generate a dict to draw genes in human    
-    HumanRandomGenes = GenerateAllUnNestedGenes(NestedSets[0], AllOrdered[0], HumanExpression)
-    
-    # make a list of control un-nested pairs in sister species
-    SisterSpControlPairs = []
-    for pair in SisterSpUnested:
-        # make a list of matching gene pairs (orientation, chromosome, distance)
-        PairPool = GenerateMatchingPoolPairs(pair, SisterRandomGenes, AllCoordinates[1], 2000)
-        # draw a matching gene pair at random
-        i = random.randint(0, len(PairPool) -1)
-        SisterSpControlPairs.append(PairPool[i])
-    # make a list of control un-nested pairs in human
-    HumanControlPairs = []    
-    for pair in HumanUnNested:
-        # make a list of matching gene pairs (orientation, chromosome, distance)
-        PairPool = GenerateMatchingPoolPairs(pair, HumanRandomGenes, AllCoordinates[0], 2000)
-        # draw a matching gene pair at random
-        i = random.randint(0, len(PairPool) -1)
-        HumanControlPairs.append(PairPool[i])
-
-    # compute expression divergence betwen human nested gene pairs
-    HumanNestedDiv = ComputeExpressionDivergenceGenePairs(HumanYoung, HumanExpression)
-    # compute expression divergence betweennested gene pairs in sister species
-    SisterSpNestedDiv = ComputeExpressionDivergenceGenePairs(SisterSpYoung, SisterSpExpression)
-    # compute expression divergence between un-nested gene pairs in human
-    HumanUnNestedDiv = ComputeExpressionDivergenceGenePairs(HumanUnNested, HumanExpression)
-    # compute expression divergence between un-nested gene pairs in sister species    
-    SisterSpUnNestedDiv = ComputeExpressionDivergenceGenePairs(SisterSpUnested, SisterSpExpression)
-    # compute expression divergence between un-nested control pairs in human
-    HumanControlDiv = ComputeExpressionDivergenceGenePairs(HumanControlPairs, HumanExpression)
     # compute expression divergence between un-nested control pairs in sister species    
     SisterSpControlDiv = ComputeExpressionDivergenceGenePairs(SisterSpControlPairs, SisterSpExpression)
 
-    # merge gene expression divergence for the nested genes in human and sister species
-    ExpDivNested = []
-    ExpDivNested.extend(HumanNestedDiv)
-    ExpDivNested.extend(SisterSpNestedDiv)
-    # merge gene expression divergence for the un-nested genes in human and sister species
-    ExpDivUnNested = []
-    ExpDivUnNested.extend(HumanUnNestedDiv)
-    ExpDivUnNested.extend(SisterSpUnNestedDiv)
-    # merge gene expression divergence fot the control pairs
-    ExpDivControl = []
-    ExpDivControl.extend(HumanControlDiv)
-    ExpDivControl.extend(SisterSpControlDiv)
-
-    P = PermutationResampling(ExpDivNested, ExpDivUnNested, 1000, statistic = np.mean)
-    print(len(ExpDivNested), len(ExpDivUnNested), np.mean(ExpDivNested), np.mean(ExpDivUnNested), P)
-    P = PermutationResampling(ExpDivNested, ExpDivControl, 1000, statistic = np.mean)
-    print(len(ExpDivNested), len(ExpDivControl), np.mean(ExpDivNested), np.mean(ExpDivControl), P)
-    P = PermutationResampling(ExpDivUnNested, ExpDivControl, 1000, statistic = np.mean)
-    print(len(ExpDivUnNested), len(ExpDivControl), np.mean(ExpDivUnNested), np.mean(ExpDivControl), P)
-
-
-
-
-
+    # compute P values using permutation tests
+    P = PermutationResampling(HumanYoungDiv, SisterSpAncestralDiv, 1000, statistic = np.mean)
+    print(len(HumanYoungDiv), len(SisterSpAncestralDiv), np.mean(HumanYoungDiv), np.mean(SisterSpAncestralDiv), P)
+    P = PermutationResampling(SisterSpAncestralDiv, SisterSpControlDiv , 1000, statistic = np.mean)
+    print(len(SisterSpAncestralDiv), len(SisterSpControlDiv), np.mean(SisterSpAncestralDiv), np.mean(SisterSpControlDiv), P)
+    
 
 
 #
