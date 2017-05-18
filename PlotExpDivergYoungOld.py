@@ -159,9 +159,9 @@ SisterSpExpression = RemoveGenesLackingExpression(SisterSpExpression)
 # get relative expression
 HumanExpression = TransformRelativeExpression(HumanExpression)
 SisterSpExpression = TransformRelativeExpression(SisterSpExpression)
-## compute expression specificity
-#HumanSpecificity = ExpressionSpecificity(HumanExpression)
-#SisterSpSpecificity = ExpressionSpecificity(SisterSpExpression)
+# compute expression specificity
+HumanSpecificity = ExpressionSpecificity(HumanExpression)
+SisterSpSpecificity = ExpressionSpecificity(SisterSpExpression)
 
 
 # make a list of gene coordinates in human, chimp and mouse      
@@ -182,9 +182,10 @@ for i in range(len(GFF_Files)):
     AllCoordinates.append(GeneCoord)
     AllOrdered.append(OrderedGenes)
 
+# generate a set of nested genes in sister species
+SisterSpNestedGenes = MakeFullPartialOverlapGeneSet(AllNestedGenes[1])
+print(len(SisterSpNestedGenes))
 
-for gene in ['ENSMUSG00000052217', 'ENSMUSG00000081859', 'ENSMUSG00000101904', 'ENSMUSG00000046404']:
-    print(gene, gene in AllCoordinates[1])
 
 
 if Analysis == 'pairs':
@@ -212,9 +213,6 @@ if Analysis == 'pairs':
     for pair in to_remove:
         SisterSpAncestralPairs.remove(pair)        
         
-    # generate a set of nested genes in sister species
-    SisterSpNestedGenes = MakeFullPartialOverlapGeneSet(AllNestedGenes[1])
-    print(len(SisterSpNestedGenes))
     # remove pairs if any gene is nested    
     to_remove = [pair for pair in SisterSpAncestralPairs if pair[0] in SisterSpNestedGenes or pair[1] in SisterSpNestedGenes]
     for pair in to_remove:
@@ -247,153 +245,119 @@ if Analysis == 'pairs':
     print(len(SisterSpAncestralDiv), len(SisterSpControlDiv), np.mean(SisterSpAncestralDiv), np.mean(SisterSpControlDiv), P)
     
 
+elif Analysis == 'orthos':
+    # compare distances between expression profiles of internal/external-like genes and their orthologs
+    # young internal genes and their un-nested orthologs
+    # old internal genes and their nested orthologs
+    # young external genes and their un-nested orthologs
+    # old external genes and their nested orthologs
 
-#
-#elif Analysis == 'orthos':
-#    # compare distances between expression profiles of internal/external-like genes and their orthologs
-#    # young internal genes and their un-nested orthologs
-#    # old internal genes and their nested orthologs
-#    # young external genes and their un-nested orthologs
-#    # old external genes and their un-nested orthologs
-#
-#    # create a list of young external genes in human and sister species
-#    HumanYoungExt = list(set([pair[0] for pair in HumanYoung if pair[0] in HumanExpression]))
-#    SisterSpYoungExt = list(set([pair[0] for pair in SisterSpYoung if pair[0] in SisterSpExpression]))   
-#    # create a list of young internal genes in human and sister species    
-#    HumanYoungInt = list(set([pair[1] for pair in HumanYoung if pair[1] in HumanExpression]))
-#    SisterSpYoungInt = list(set([pair[1] for pair in SisterSpYoung if pair[1] in SisterSpExpression]))    
-#    # create a list of old external genes in human and sister species
-#    HumanOldExt = list(set([pair[0] for pair in HumanOld if pair[0] in HumanExpression]))
-#    SisterSpOldExt = list(set([pair[0] for pair in SisterSpOld if pair[0] in SisterSpExpression]))
-#    # create a list of old internal genes in human and sister species
-#    HumanOldInt = list(set([pair[1] for pair in HumanOld if pair[1] in HumanExpression]))
-#    SisterSpOldInt = list(set([pair[1] for pair in SisterSpOld if pair[1] in SisterSpExpression]))
-#
-#    # remove young external and internal genes if their ortholog is nested
-#    to_remove = [gene for gene in HumanYoungExt if OrthoPairs[gene] in NestedSets[1]]
-#    for gene in to_remove:
-#        HumanYoungExt.remove(gene)
-#    to_remove = [gene for gene in HumanYoungInt if OrthoPairs[gene] in NestedSets[1]]
-#    for gene in to_remove:
-#        HumanYoungInt.remove(gene)
-#    to_remove = [gene for gene in SisterSpYoungExt if SisterOrthos[gene] in NestedSets[0]]    
-#    for gene in to_remove:
-#        SisterSpYoungExt.remove(gene)
-#    to_remove = [gene for gene in SisterSpYoungInt if SisterOrthos[gene] in NestedSets[0]]
-#    for gene in to_remove:
-#        SisterSpYoungInt.remove(gene)
-#    
-#    # remove young external and internal genes if their ortholog is nested in outgroup    
-#    to_remove = [gene for gene in HumanYoungExt if gene in OrthoTrios and OrthoTrios[gene][1] in NestedSets[2]]
-#    for gene in to_remove:
-#        HumanYoungExt.remove(gene)
-#    to_remove = [gene for gene in HumanYoungInt if gene in OrthoTrios and OrthoTrios[gene][1] in NestedSets[2]]
-#    for gene in to_remove:
-#        HumanYoungInt.remove(gene)
-#    to_remove = [gene for gene in SisterSpYoungExt if gene in SisterOrthoTrios and SisterOrthoTrios[gene][1] in NestedSets[2]]
-#    for gene in to_remove:
-#        SisterSpYoungExt.remove(gene)
-#    to_remove = [gene for gene in SisterSpYoungInt if gene in SisterOrthoTrios and SisterOrthoTrios[gene][1] in NestedSets[2]]
-#    for gene in to_remove:
-#        SisterSpYoungInt.remove(gene)
-#    
-#    # remove genes if their ortholog is not expressed
-#    to_remove = [gene for gene in HumanYoungExt if OrthoPairs[gene] not in SisterSpExpression]    
-#    for gene in to_remove:
-#        HumanYoungExt.remove(gene)
-#    to_remove = [gene for gene in HumanYoungInt if OrthoPairs[gene] not in SisterSpExpression]
-#    for gene in to_remove:
-#        HumanYoungInt.remove(gene)
-#    to_remove = [gene for gene in SisterSpYoungExt if SisterOrthos[gene] not in HumanExpression]    
-#    for gene in to_remove:
-#        SisterSpYoungExt.remove(gene)
-#    to_remove = [gene for gene in SisterSpYoungInt if SisterOrthos[gene] not in HumanExpression]
-#    for gene in to_remove:
-#        SisterSpYoungInt.remove(gene)
-#    
-#    # check that orthologs of old external and internal genes are nested    
-#    for gene in HumanOldExt:
-#        assert OrthoPairs[gene] in NestedSets[1]
-#    for gene in HumanOldInt:
-#        assert OrthoPairs[gene] in NestedSets[1]
-#    for gene in SisterSpOldExt:
-#        assert SisterOrthos[gene] in NestedSets[0]
-#    for gene in SisterSpOldInt:
-#        assert SisterOrthos[gene] in NestedSets[0]
-#    
-#
-#    
-#    
-#    # generate a dict to draw random genes in sister-species
-#    SisterRandomGenes = GenerateAllUnNestedGenes(NestedSets[1], AllOrdered[1], SisterSpExpression)
-#    # generate a dict to draw genes in human    
-#    HumanRandomGenes = GenerateAllUnNestedGenes(NestedSets[0], AllOrdered[0], HumanExpression)
-#
-#    # make list of control genes, match genes by chromosome and tissue specificity
-#    HumanExtLike = GenerateMatchingGenes(HumanYoungExt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, OrthoPairs, SisterSpExpression)
-#    HumanIntLike = GenerateMatchingGenes(HumanYoungInt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, OrthoPairs, SisterSpExpression)
-#    SisterSpExtLike = GenerateMatchingGenes(SisterSpYoungExt, AllCoordinates[1], SisterRandomGenes, SisterSpSpecificity, SisterOrthos, HumanExpression)    
-#    SisterSpYoungInt = GenerateMatchingGenes(SisterSpYoungInt, AllCoordinates[1], SisterRandomGenes, SisterSpSpecificity, SisterOrthos, HumanExpression)
-#    
-#    print(len(HumanExtLike))
-#    print(len(HumanIntLike))
-#    print(len(SisterSpExtLike))
-#    print(len(SisterSpYoungInt))
-#    
-# 
-#    # make list of gene pairs
-#    HumanControlExt = [[gene, OrthoPairs[gene]] for gene in HumanExtLike if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
-#    HumanControlInt = [[gene, OrthoPairs[gene]] for gene in HumanIntLike if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
-#
-#    
-#
-#
-#    YoungExtPairs = [[gene, OrthoPairs[gene]] for gene in HumanYoungExt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
-#    YoungIntPairs = [[gene, OrthoPairs[gene]] for gene in HumanYoungInt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
-#    OldExtPairs = [[gene, OrthoPairs[gene]] for gene in HumanOldExt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
-#    OldIntPairs = [[gene, OrthoPairs[gene]] for gene in HumanOldInt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
-#
-#    HumanControlExtDiv = ComputeExpressionDivergenceOrthologs(HumanControlExt, HumanExpression, SisterSpExpression)
-#    HumanControlIntDiv = ComputeExpressionDivergenceOrthologs(HumanControlInt, HumanExpression, SisterSpExpression)    
-#    YoungExtDiv = ComputeExpressionDivergenceOrthologs(YoungExtPairs, HumanExpression, SisterSpExpression)
-#    YoungIntDiv = ComputeExpressionDivergenceOrthologs(YoungIntPairs, HumanExpression, SisterSpExpression)
-#    OldExtDiv = ComputeExpressionDivergenceOrthologs(OldExtPairs, HumanExpression, SisterSpExpression)
-#    OldIntDiv = ComputeExpressionDivergenceOrthologs(OldIntPairs, HumanExpression, SisterSpExpression)
-#
-#
-###### check with median
-#
-#    
-#
-#    P = PermutationResampling(YoungExtDiv, HumanControlExtDiv, 1000, statistic = np.median)
-#    print(len(YoungExtDiv), len(HumanControlExtDiv), np.median(YoungExtDiv), np.median(HumanControlExtDiv), P)
-#    P = PermutationResampling(OldExtDiv, HumanControlExtDiv, 1000, statistic = np.median)    
-#    print(len(OldExtDiv), len(HumanControlExtDiv), np.median(OldExtDiv), np.median(HumanControlExtDiv), P)
-#    P = PermutationResampling(OldExtDiv, YoungExtDiv, 1000, statistic = np.median)    
-#    print(len(OldExtDiv), len(YoungExtDiv), np.median(OldExtDiv), np.median(YoungExtDiv), P)
-#    
-#    
-#    P = PermutationResampling(YoungIntDiv, HumanControlIntDiv, 1000, statistic = np.median)
-#    print(len(YoungIntDiv), len(HumanControlIntDiv), np.median(YoungIntDiv), np.median(HumanControlIntDiv), P)
-#    P = PermutationResampling(OldIntDiv, HumanControlIntDiv, 1000, statistic = np.median)    
-#    print(len(OldIntDiv), len(HumanControlIntDiv), np.median(OldIntDiv), np.median(HumanControlIntDiv), P)
-#    P = PermutationResampling(OldIntDiv, YoungIntDiv, 1000, statistic = np.median)    
-#    print(len(OldIntDiv), len(YoungIntDiv), np.median(OldIntDiv), np.median(YoungIntDiv), P)
-#    
-#
-#
-#
-#
-#
-#
-#    
-##    # remove gene "duplicates" by removing chimp genes with ortologs already present in each group
-##    for i in range(len(ChimpExtIntGenes)):
-##        to_remove = []
-##        for gene in ChimpExtIntGenes[i]:
-##            if ChimpOrthos[gene] in HumanExtIntGenes[i]:
-##                to_remove.append(gene)
-##        for gene in to_remove:
-##            ChimpExtIntGenes[i].remove(gene)
-#
-#
+
+    # create a list of young external genes in human and sister species
+    HumanYoungExt = list(set([pair[0] for pair in YoungNested if pair[0] in HumanExpression]))
+    # create a list of young internal genes in human and sister species    
+    HumanYoungInt = list(set([pair[1] for pair in YoungNested if pair[1] in HumanExpression]))
+    # create a list of old external genes in human and sister species
+    HumanOldExt = list(set([pair[0] for pair in OldNested if pair[0] in HumanExpression]))
+    # create a list of old internal genes in human and sister species
+    HumanOldInt = list(set([pair[1] for pair in OldNested if pair[1] in HumanExpression]))
+    
+
+    # make pairs of orthologs
+    YoungExtPairs, YoungIntPairs, OldExtPairs, OldIntPairs = [], [], [], []
+    for gene in HumanYoungExt:
+        for ortho in AllOrthologs[0][gene]:
+            # check that ortholog is expressed, is valid and is not nested
+            if ortho in SisterSpExpression and ortho in AllCoordinates[1] and ortho not in SisterSpNestedGenes:
+                YoungExtPairs.append([gene, ortho])
+    for gene in HumanYoungInt:
+        for ortho in AllOrthologs[0][gene]:
+            # check that ortholog is expressed, is valid and is not nested
+            if ortho in SisterSpExpression and ortho in AllCoordinates[1] and ortho not in SisterSpNestedGenes:
+                YoungIntPairs.append([gene, ortho])
+    for gene in HumanOldExt:
+        for ortho in AllOrthologs[0][gene]:
+            # check that ortholog is expressed, is valid and is nested
+            if ortho in SisterSpExpression and ortho in AllCoordinates[1] and ortho in SisterSpNestedGenes:
+                OldExtPairs.append([gene, ortho])
+    for gene in HumanOldInt:
+        for ortho in AllOrthologs[0][gene]:
+            # check that ortholog is expressed, is valid and is nested
+            if ortho in SisterSpExpression and ortho in AllCoordinates[1] and ortho in SisterSpNestedGenes:
+                OldIntPairs.append([gene, ortho])
+        
+    
+
+    
+    
+    # generate a dict to draw genes in human    
+    HumanRandomGenes = GenerateAllUnNestedGenes(NestedSets[0], AllOrdered[0], HumanExpression)
+
+    # make list of control genes, match genes by chromosome and tissue specificity
+    HumanExtLike = GenerateMatchingGenes(HumanYoungExt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, OrthoPairs, SisterSpExpression)
+    HumanIntLike = GenerateMatchingGenes(HumanYoungInt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, OrthoPairs, SisterSpExpression)
+    SisterSpExtLike = GenerateMatchingGenes(SisterSpYoungExt, AllCoordinates[1], SisterRandomGenes, SisterSpSpecificity, SisterOrthos, HumanExpression)    
+    SisterSpYoungInt = GenerateMatchingGenes(SisterSpYoungInt, AllCoordinates[1], SisterRandomGenes, SisterSpSpecificity, SisterOrthos, HumanExpression)
+    
+    print(len(HumanExtLike))
+    print(len(HumanIntLike))
+    print(len(SisterSpExtLike))
+    print(len(SisterSpYoungInt))
+    
+ 
+    # make list of gene pairs
+    HumanControlExt = [[gene, OrthoPairs[gene]] for gene in HumanExtLike if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
+    HumanControlInt = [[gene, OrthoPairs[gene]] for gene in HumanIntLike if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
+
+    
+
+
+    YoungExtPairs = [[gene, OrthoPairs[gene]] for gene in HumanYoungExt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
+    YoungIntPairs = [[gene, OrthoPairs[gene]] for gene in HumanYoungInt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
+    OldExtPairs = [[gene, OrthoPairs[gene]] for gene in HumanOldExt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
+    OldIntPairs = [[gene, OrthoPairs[gene]] for gene in HumanOldInt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
+
+    HumanControlExtDiv = ComputeExpressionDivergenceOrthologs(HumanControlExt, HumanExpression, SisterSpExpression)
+    HumanControlIntDiv = ComputeExpressionDivergenceOrthologs(HumanControlInt, HumanExpression, SisterSpExpression)    
+    YoungExtDiv = ComputeExpressionDivergenceOrthologs(YoungExtPairs, HumanExpression, SisterSpExpression)
+    YoungIntDiv = ComputeExpressionDivergenceOrthologs(YoungIntPairs, HumanExpression, SisterSpExpression)
+    OldExtDiv = ComputeExpressionDivergenceOrthologs(OldExtPairs, HumanExpression, SisterSpExpression)
+    OldIntDiv = ComputeExpressionDivergenceOrthologs(OldIntPairs, HumanExpression, SisterSpExpression)
+
+
+##### check with median
+
+    
+
+    P = PermutationResampling(YoungExtDiv, HumanControlExtDiv, 1000, statistic = np.median)
+    print(len(YoungExtDiv), len(HumanControlExtDiv), np.median(YoungExtDiv), np.median(HumanControlExtDiv), P)
+    P = PermutationResampling(OldExtDiv, HumanControlExtDiv, 1000, statistic = np.median)    
+    print(len(OldExtDiv), len(HumanControlExtDiv), np.median(OldExtDiv), np.median(HumanControlExtDiv), P)
+    P = PermutationResampling(OldExtDiv, YoungExtDiv, 1000, statistic = np.median)    
+    print(len(OldExtDiv), len(YoungExtDiv), np.median(OldExtDiv), np.median(YoungExtDiv), P)
+    
+    
+    P = PermutationResampling(YoungIntDiv, HumanControlIntDiv, 1000, statistic = np.median)
+    print(len(YoungIntDiv), len(HumanControlIntDiv), np.median(YoungIntDiv), np.median(HumanControlIntDiv), P)
+    P = PermutationResampling(OldIntDiv, HumanControlIntDiv, 1000, statistic = np.median)    
+    print(len(OldIntDiv), len(HumanControlIntDiv), np.median(OldIntDiv), np.median(HumanControlIntDiv), P)
+    P = PermutationResampling(OldIntDiv, YoungIntDiv, 1000, statistic = np.median)    
+    print(len(OldIntDiv), len(YoungIntDiv), np.median(OldIntDiv), np.median(YoungIntDiv), P)
+    
+
+
+
+
+
+
+    
+#    # remove gene "duplicates" by removing chimp genes with ortologs already present in each group
+#    for i in range(len(ChimpExtIntGenes)):
+#        to_remove = []
+#        for gene in ChimpExtIntGenes[i]:
+#            if ChimpOrthos[gene] in HumanExtIntGenes[i]:
+#                to_remove.append(gene)
+#        for gene in to_remove:
+#            ChimpExtIntGenes[i].remove(gene)
+
+
