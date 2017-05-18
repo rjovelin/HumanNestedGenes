@@ -182,9 +182,10 @@ for i in range(len(GFF_Files)):
     AllCoordinates.append(GeneCoord)
     AllOrdered.append(OrderedGenes)
 
-# generate a set of nested genes in sister species
+# generate a set of nested genes in human and in sister species
+HumanNestedGenes = MakeFullPartialOverlapGeneSet(AllNestedGenes[0])
 SisterSpNestedGenes = MakeFullPartialOverlapGeneSet(AllNestedGenes[1])
-print(len(SisterSpNestedGenes))
+print(len(HumanNestedGenes), len(SisterSpNestedGenes))
 
 
 
@@ -262,7 +263,6 @@ elif Analysis == 'orthos':
     # create a list of old internal genes in human and sister species
     HumanOldInt = list(set([pair[1] for pair in OldNested if pair[1] in HumanExpression]))
     
-
     # make pairs of orthologs
     YoungExtPairs, YoungIntPairs, OldExtPairs, OldIntPairs = [], [], [], []
     for gene in HumanYoungExt:
@@ -286,12 +286,29 @@ elif Analysis == 'orthos':
             if ortho in SisterSpExpression and ortho in AllCoordinates[1] and ortho in SisterSpNestedGenes:
                 OldIntPairs.append([gene, ortho])
         
-    
-
-    
-    
     # generate a dict to draw genes in human    
-    HumanRandomGenes = GenerateAllUnNestedGenes(NestedSets[0], AllOrdered[0], HumanExpression)
+    HumanRandomGenes = GenerateAllUnNestedGenes(HumanNestedGenes[0], AllOrdered[0], HumanExpression)
+
+    # make lists of human genes
+
+
+
+
+
+
+
+ HumanYoungExt = list(set([pair[0] for pair in YoungNested if pair[0] in HumanExpression]))
+    # create a list of young internal genes in human and sister species    
+    HumanYoungInt = list(set([pair[1] for pair in YoungNested if pair[1] in HumanExpression]))
+    # create a list of old external genes in human and sister species
+    HumanOldExt = list(set([pair[0] for pair in OldNested if pair[0] in HumanExpression]))
+    # create a list of old internal genes in human and sister species
+    HumanOldInt = list(set([pair[1] for pair in OldNested if pair[1] in HumanExpression]))
+
+
+
+
+
 
     # make list of control genes, match genes by chromosome and tissue specificity
     HumanExtLike = GenerateMatchingGenes(HumanYoungExt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, OrthoPairs, SisterSpExpression)
