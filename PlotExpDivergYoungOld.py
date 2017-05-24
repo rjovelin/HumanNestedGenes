@@ -295,7 +295,8 @@ elif Analysis == 'orthos':
     HumanOldExt = list(set([pair[0] for pair in OldExtPairs]))
     HumanOldInt = list(set([pair[0] for pair in OldIntPairs]))
 
-
+    # generate lists of control genes
+    
 
 
 
