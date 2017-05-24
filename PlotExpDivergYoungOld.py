@@ -290,20 +290,11 @@ elif Analysis == 'orthos':
     HumanRandomGenes = GenerateAllUnNestedGenes(HumanNestedGenes[0], AllOrdered[0], HumanExpression)
 
     # make lists of human genes
+    HumanYoungExt = list(set([pair[0] for pair in YoungExtPairs]))
+    HumanYoungInt = list(set([pair[0] for pair in YoungIntPairs]))
+    HumanOldExt = list(set([pair[0] for pair in OldExtPairs]))
+    HumanOldInt = list(set([pair[0] for pair in OldIntPairs]))
 
-
-
-
-
-
-
- HumanYoungExt = list(set([pair[0] for pair in YoungNested if pair[0] in HumanExpression]))
-    # create a list of young internal genes in human and sister species    
-    HumanYoungInt = list(set([pair[1] for pair in YoungNested if pair[1] in HumanExpression]))
-    # create a list of old external genes in human and sister species
-    HumanOldExt = list(set([pair[0] for pair in OldNested if pair[0] in HumanExpression]))
-    # create a list of old internal genes in human and sister species
-    HumanOldInt = list(set([pair[1] for pair in OldNested if pair[1] in HumanExpression]))
 
 
 
