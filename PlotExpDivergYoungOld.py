@@ -287,86 +287,66 @@ elif Analysis == 'orthos':
                 OldIntPairs.append([gene, ortho])
         
     # generate a dict to draw genes in human    
-    HumanRandomGenes = GenerateAllUnNestedGenes(HumanNestedGenes[0], AllOrdered[0], HumanExpression)
+    HumanRandomGenes = GenerateAllUnNestedGenes(HumanNestedGenes, AllOrdered[0], HumanExpression)
 
     # make lists of human genes
-    HumanYoungExt = list(set([pair[0] for pair in YoungExtPairs]))
-    HumanYoungInt = list(set([pair[0] for pair in YoungIntPairs]))
-    HumanOldExt = list(set([pair[0] for pair in OldExtPairs]))
-    HumanOldInt = list(set([pair[0] for pair in OldIntPairs]))
-
-    # generate lists of control genes
+    HumanExternal = list(set([pair[0] for pair in YoungExtPairs]))
+    HumanInternal = list(set([pair[0] for pair in YoungIntPairs]))
     
-
-
-
-
-
-    # make list of control genes, match genes by chromosome and tissue specificity
-    HumanExtLike = GenerateMatchingGenes(HumanYoungExt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, OrthoPairs, SisterSpExpression)
-    HumanIntLike = GenerateMatchingGenes(HumanYoungInt, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, OrthoPairs, SisterSpExpression)
-    SisterSpExtLike = GenerateMatchingGenes(SisterSpYoungExt, AllCoordinates[1], SisterRandomGenes, SisterSpSpecificity, SisterOrthos, HumanExpression)    
-    SisterSpYoungInt = GenerateMatchingGenes(SisterSpYoungInt, AllCoordinates[1], SisterRandomGenes, SisterSpSpecificity, SisterOrthos, HumanExpression)
+    # generate lists of control genes, match genes by chromosome and tissue specificity
+    HumanExtLike = GenerateMatchingGenes(HumanExternal, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, AllOrthologs[0], SisterSpExpression)
+    HumanIntLike = GenerateMatchingGenes(HumanInternal, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, AllOrthologs[0], SisterSpExpression)
     
     print(len(HumanExtLike))
     print(len(HumanIntLike))
-    print(len(SisterSpExtLike))
-    print(len(SisterSpYoungInt))
     
- 
     # make list of gene pairs
-    HumanControlExt = [[gene, OrthoPairs[gene]] for gene in HumanExtLike if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
-    HumanControlInt = [[gene, OrthoPairs[gene]] for gene in HumanIntLike if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
-
-    
-
-
-    YoungExtPairs = [[gene, OrthoPairs[gene]] for gene in HumanYoungExt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
-    YoungIntPairs = [[gene, OrthoPairs[gene]] for gene in HumanYoungInt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
-    OldExtPairs = [[gene, OrthoPairs[gene]] for gene in HumanOldExt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression] 
-    OldIntPairs = [[gene, OrthoPairs[gene]] for gene in HumanOldInt if gene in HumanExpression and OrthoPairs[gene] in SisterSpExpression]
-
+    HumanControlExt = []
+    for gene in HumanExtLike:
+        assert gene in HumanExpression
+        assert gene in AllOrthologs[0]
+        for ortho in AllOrthologs[0][gene]:
+            if ortho in SisterSpExpression:
+                HumanControlExt.append([gene, ortho])
+    HumanControlInt = []
+    for gene in HumanIntLike:
+        assert gene in HumanExpression
+        assert gene in AllOrthologs[0]
+        for ortho in AllOrthologs[0][gene]:
+            if ortho in SisterSpExpression:
+                HumanControlInt.append([gene, ortho])
+       
+    # compute expression divergence between orthologs
     HumanControlExtDiv = ComputeExpressionDivergenceOrthologs(HumanControlExt, HumanExpression, SisterSpExpression)
     HumanControlIntDiv = ComputeExpressionDivergenceOrthologs(HumanControlInt, HumanExpression, SisterSpExpression)    
     YoungExtDiv = ComputeExpressionDivergenceOrthologs(YoungExtPairs, HumanExpression, SisterSpExpression)
     YoungIntDiv = ComputeExpressionDivergenceOrthologs(YoungIntPairs, HumanExpression, SisterSpExpression)
     OldExtDiv = ComputeExpressionDivergenceOrthologs(OldExtPairs, HumanExpression, SisterSpExpression)
     OldIntDiv = ComputeExpressionDivergenceOrthologs(OldIntPairs, HumanExpression, SisterSpExpression)
+    
+    # compare expression divergence among genes
+    P = PermutationResampling(YoungExtDiv, HumanControlExtDiv, 1000, statistic = np.mean)
+    print(len(YoungExtDiv), len(HumanControlExtDiv), np.mean(YoungExtDiv), np.mean(HumanControlExtDiv), P)
+    P = PermutationResampling(YoungIntDiv, HumanControlIntDiv, 1000, statistic = np.mean)
+    print(len(YoungIntDiv), len(HumanControlIntDiv), np.mean(YoungIntDiv), np.mean(HumanControlIntDiv), P)
+    P = PermutationResampling(YoungExtDiv, YoungIntDiv, 1000, statistic = np.mean)
+    print(len(YoungExtDiv), len(YoungIntDiv), np.mean(YoungExtDiv), np.mean(YoungIntDiv), P)
 
-
-##### check with median
-
+#    P = PermutationResampling(OldExtDiv, HumanControlExtDiv, 1000, statistic = np.median)    
+#    print(len(OldExtDiv), len(HumanControlExtDiv), np.median(OldExtDiv), np.median(HumanControlExtDiv), P)
+#    P = PermutationResampling(OldExtDiv, YoungExtDiv, 1000, statistic = np.median)    
+#    print(len(OldExtDiv), len(YoungExtDiv), np.median(OldExtDiv), np.median(YoungExtDiv), P)
+#    
+#    
+#    P = PermutationResampling(OldIntDiv, HumanControlIntDiv, 1000, statistic = np.median)    
+#    print(len(OldIntDiv), len(HumanControlIntDiv), np.median(OldIntDiv), np.median(HumanControlIntDiv), P)
+#    P = PermutationResampling(OldIntDiv, YoungIntDiv, 1000, statistic = np.median)    
+#    print(len(OldIntDiv), len(YoungIntDiv), np.median(OldIntDiv), np.median(YoungIntDiv), P)
     
 
-    P = PermutationResampling(YoungExtDiv, HumanControlExtDiv, 1000, statistic = np.median)
-    print(len(YoungExtDiv), len(HumanControlExtDiv), np.median(YoungExtDiv), np.median(HumanControlExtDiv), P)
-    P = PermutationResampling(OldExtDiv, HumanControlExtDiv, 1000, statistic = np.median)    
-    print(len(OldExtDiv), len(HumanControlExtDiv), np.median(OldExtDiv), np.median(HumanControlExtDiv), P)
-    P = PermutationResampling(OldExtDiv, YoungExtDiv, 1000, statistic = np.median)    
-    print(len(OldExtDiv), len(YoungExtDiv), np.median(OldExtDiv), np.median(YoungExtDiv), P)
-    
-    
-    P = PermutationResampling(YoungIntDiv, HumanControlIntDiv, 1000, statistic = np.median)
-    print(len(YoungIntDiv), len(HumanControlIntDiv), np.median(YoungIntDiv), np.median(HumanControlIntDiv), P)
-    P = PermutationResampling(OldIntDiv, HumanControlIntDiv, 1000, statistic = np.median)    
-    print(len(OldIntDiv), len(HumanControlIntDiv), np.median(OldIntDiv), np.median(HumanControlIntDiv), P)
-    P = PermutationResampling(OldIntDiv, YoungIntDiv, 1000, statistic = np.median)    
-    print(len(OldIntDiv), len(YoungIntDiv), np.median(OldIntDiv), np.median(YoungIntDiv), P)
-    
-
 
 
 
 
 
     
-#    # remove gene "duplicates" by removing chimp genes with ortologs already present in each group
-#    for i in range(len(ChimpExtIntGenes)):
-#        to_remove = []
-#        for gene in ChimpExtIntGenes[i]:
-#            if ChimpOrthos[gene] in HumanExtIntGenes[i]:
-#                to_remove.append(gene)
-#        for gene in to_remove:
-#            ChimpExtIntGenes[i].remove(gene)
-
-
