@@ -1498,6 +1498,22 @@ def GenerateMatchingPoolPairs(pair, ToDrawGenesFrom, GeneCoord, Distance):
     return PairPool   
     
  
+ 
+# use this function to determine if at least 1 ortholog is expressed
+def IsOrthoExpressed(gene, Orthologs, SecondSpExpression):
+    '''
+    (str, dict) -> bool
+    Take a gene of interest, the dictionary of gene: orthologs and the dictionary
+    of expression profile of the orthologs in a second species and return a boolean
+    True if at least one ortholog is expressed and False if no orthologs are expresed
+    '''
+    OrthoExpressed = False   
+    for ortho in Orthologs[gene]:
+        if ortho in SecondSpExpression:
+            OrthoExpressed = True
+    return OrthoExpressed
+    
+
 # use this function to generate a list of control genes with matching characteristics
 def GenerateMatchingGenes(GeneList, GeneCoord, ToDrawGenesFrom, ExpressionSpecificity, Orthologs, SecondSpExpression):
     '''
@@ -1520,8 +1536,8 @@ def GenerateMatchingGenes(GeneList, GeneCoord, ToDrawGenesFrom, ExpressionSpecif
         for i in ToDrawGenesFrom[chromo]:
             # check that gene has ortholog
             if ToDrawGenesFrom[chromo][i] in Orthologs:
-                # check that ortholog if expressed
-                if Orthologs[ToDrawGenesFrom[chromo][i]] in SecondSpExpression:
+                # check if at least one ortholog is expressed
+                if IsOrthoExpressed(ToDrawGenesFrom[chromo][i], Orthologs, SecondSpExpression) == True:
                     # check that gene has matching expression specificity
                     if ExpressionSpecificity[gene] - 0.01 <= ExpressionSpecificity[ToDrawGenesFrom[chromo][i]] <= ExpressionSpecificity[gene] + 0.01:
                         MatchingGenes.append(ToDrawGenesFrom[chromo][i])       
