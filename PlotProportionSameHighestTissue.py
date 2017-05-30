@@ -164,80 +164,33 @@ for pair in NestedPairs:
 # 3) plot the proportions of gene pairs for which external and internal genes
 # have highest expression in same tissue 
 
-
-
-
-
-
-
-
-
-
-
-
-# make a list of tissues
-
-
-
-
-
-
-
-
-
-
-
-# replace spaces in tissue names
-for i in range(len(Tissues)):
-     if ' ' in Tissues[i]:
-         Tissues[i] = Tissues[i].replace(' ', '_')
-
-# make a list of genes with expression
-Expressed = list(ExpressionProfile.keys())
-# check that all genes have the same number of tissues
-for gene in Expressed:
-    assert len(ExpressionProfile[gene]) == len(Tissues)
-
-
-
-
-
-
-
-
-
-
-# make a list of gene category names parallel to the list of gene sets
-if GenesOfInterest == 'overlapping':
-    GeneCats = ['NoOv', 'Nst', 'Pbk', 'Conv', 'Div']
-elif GenesOfInterest == 'external':
-    GeneCats = ['NoOv', 'IntN', 'IntW', 'ExtN', 'ExtW']
-elif GenesOfInterest == 'nested':
-    # make a list of gene category names parallel to the list of gene sets
-    GeneCats = ['NoOv', 'CisInt', 'TransInt', 'CisExt', 'TransExt']
-
-# create a dict to count the number of genes in each category with highest expression in each tissue
-HighestExpression = {}
-# inititialize dict with list of 0s
-for i in GeneCats:
-    HighestExpression[i] = [0] * len(Tissues)
-
-# loop over the gene sets
-for i in range(len(AllGeneSets)):
-    # loop over each gene in given set
-    for gene in AllGeneSets[i]:
-        # check if gene has expression profile
-        assert gene in ExpressionProfile
-        # get the index of the maximum expression value
-        pos = ExpressionProfile[gene].index(max(ExpressionProfile[gene]))
-        # check that there is a single maximum expression value
-        assert ExpressionProfile[gene].count(max(ExpressionProfile[gene])) == 1, '> 1 max value'
-        # update counter at pos index
-        HighestExpression[GeneCats[i]][pos] += 1
-
+# make a list of list with proportions for each gene category
+# [non-overlapping, all nested, same strand, opposite strand, internal with intron, intronless internal]
+HighestProportions = []
+for i in range(6):
+    HighestProportions.append([0,0])
+AllGenes = [Neighbors, NestedPairs, SamePairs, OppositePairs, WithIntronPairs, IntronlessPairs]
+# loop over gene categories
+for i in range(len(AllGenes)):
+    # loop over gene pairs in the current gene category
+    for pair in AllGenes[i]:
+        # get index of tissue with maximum expression for each gene
+        pos1 = ExpressionProfile[pair[0]].index(max(ExpressionProfile[pair[0]]))
+        pos2 = ExpressionProfile[pair[1]].index(max(ExpressionProfile[pair[1]]))
+        if pos1 == pos2:
+            HighestProportions[i][0] += 1
+        else:
+            HighestProportions[i][1] += 1
 
 # divide by the total number of genes in each category to get proportions
-for i in range(len(GeneCats)):
+for i in range(len(HighestProportions)):
+    HighestProportions[i][0] = HighestProportions[i][0] / sum(HighestProportions[i])     
+    
+    
+    
+    
+    
+    
     for j in range(len(HighestExpression[GeneCats[i]])):
         HighestExpression[GeneCats[i]][j] = round(HighestExpression[GeneCats[i]][j] / len(AllGeneSets[i]), 4)
 
@@ -247,6 +200,49 @@ for i in range(len(Tissues)):
     Proportions[Tissues[i]] = []
     for j in range(len(GeneCats)):
         Proportions[Tissues[i]].append(HighestExpression[GeneCats[j]][i])
+
+
+
+
+
+
+# 4) plot the proportion of gene pairs for which external and internal genes
+# have highest expression respectively in brain and in testis
+
+# make a list with proportions of gene pairs for which the external gene has
+# maximum expression in brain and internal gene has minimum expression in testis
+RepulsiveProportions = []
+for i in range(6):
+    RepulsiveProportions.append([0,0,0,0])
+# get indices of brain and testis tissues
+infile = open('GTEX_Median_Normalized_FPKM.txt')
+header = infile.readline().rstrip().split('\t')
+BrainPos, TestisPos = header.index('Brain'), header.index('Testis')
+infile.close()
+# loop over gene categories
+for i in range(len(AllGenes)):
+    # loop over gene pairs in the current gene category
+    for pair in AllGenes[i]:
+        # get index of tissue with maximum expression for each gene
+        pos1 = ExpressionProfile[pair[0]].index(max(ExpressionProfile[pair[0]]))
+        pos2 = ExpressionProfile[pair[1]].index(max(ExpressionProfile[pair[1]]))
+        # check if expression is maximum in brain for external gene
+        if pos1 == BrainPos:
+            # check if expression is maximum in testis for internal gene
+            if pos2 == TestisPos:
+                RepulsiveProportions[i][0] += 1
+            else:
+                RepulsiveProportions[i][1] += 1
+        else:
+            if pos2 == TestisPos:
+                RepulsiveProportions[i][2] += 1
+            else:
+                RepulsiveProportions[i][3] += 1
+
+
+
+
+
 
 
 # create a function to format the subplots
