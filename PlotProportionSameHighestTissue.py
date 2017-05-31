@@ -56,6 +56,8 @@ MapGeneTranscript = GeneToTranscripts(GFF)
 GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
 # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
 GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
+# Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
+OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
 # Map Transcript names to gene names {transcript: gene}
 MapTranscriptGene = TranscriptToGene(GFF)
 # get the coordinates of all exons    
@@ -100,9 +102,9 @@ for i in range(len(HostNestedTSPairs)):
     external, internal = HostNestedTSPairs[i][0], HostNestedTSPairs[i][1]
     # check if internal transcript has intron
     if internal in IntronCoord:
-        WithIntronPairs.add([MapTranscriptGene[external], MapTranscriptGene[internal]])
+        WithIntronPairs.append([MapTranscriptGene[external], MapTranscriptGene[internal]])
     else:
-        IntronlessPairs.add([MapTranscriptGene[external], MapTranscriptGene[internal]])
+        IntronlessPairs.append([MapTranscriptGene[external], MapTranscriptGene[internal]])
 
 # make lists of nested gene pairs for genes in the same or opposite direction
 SamePairs, OppositePairs = [], []
@@ -131,23 +133,7 @@ SamePairs = FilterGenePairsWithoutExpression(SamePairs, ExpressionProfile, 'stri
 OppositePairs = FilterGenePairsWithoutExpression(OppositePairs, ExpressionProfile, 'strict')
 
 
-# 1) plot scatter plot of number of tissues expressing external and internal genes
-
-# make parallel lists of with number of expressed tissues in external and internal genes
-ExternalTissueCounts, InternalTissueCounts = [], []
-for pair in NestedPairs:
-    # count number of expressed tissues for external and internal genes
-    extnum, intnum = 0, 0
-    for val in ExpressionProfile[pair][0]:
-        if val != 0:
-            extnum += 1
-    for val in ExpressionProfile[pair][1]:
-        if val != 0:
-            intnum += 1
-    ExternalTissueCounts.append(extnum)        
-    InternalTissueCounts.append(intnum)
-
-# 2) plot the distribution of tissue expression overlap between external and internal genes
+# 1) plot the distribution of tissue expression overlap between external and internal genes
 
 # make a list to store the overlap
 TissueOverlap = []
@@ -160,16 +146,19 @@ for pair in NestedPairs:
         if ExpressionProfile[pair[0]][i] != 0 and ExpressionProfile[pair[1]][i] != 0:
             Overlap += 1
     TissueOverlap.append(Overlap)
+TissueOverlap.sort()
+print(TissueOverlap)
 
-# 3) plot the proportions of gene pairs for which external and internal genes
+# 2) plot the proportions of gene pairs for which external and internal genes
 # have highest expression in same tissue 
 
 # make a list of list with proportions for each gene category
 # [non-overlapping, all nested, same strand, opposite strand, internal with intron, intronless internal]
 HighestProportions = []
-for i in range(6):
-    HighestProportions.append([0,0])
 AllGenes = [Neighbors, NestedPairs, SamePairs, OppositePairs, WithIntronPairs, IntronlessPairs]
+for i in range(len(AllGenes)):
+    HighestProportions.append([0,0])
+assert len(AllGenes) == len(HighestProportions)
 # loop over gene categories
 for i in range(len(AllGenes)):
     # loop over gene pairs in the current gene category
@@ -181,39 +170,22 @@ for i in range(len(AllGenes)):
             HighestProportions[i][0] += 1
         else:
             HighestProportions[i][1] += 1
+    assert sum(HighestProportions[i]) == len(AllGenes[i])
 
 # divide by the total number of genes in each category to get proportions
 for i in range(len(HighestProportions)):
-    HighestProportions[i][0] = HighestProportions[i][0] / sum(HighestProportions[i])     
-    
-    
-    
-    
-    
-    
-    for j in range(len(HighestExpression[GeneCats[i]])):
-        HighestExpression[GeneCats[i]][j] = round(HighestExpression[GeneCats[i]][j] / len(AllGeneSets[i]), 4)
-
-# create a dictionary with tissue as key and a list of gene proportions for each gene category as value
-Proportions = {}
-for i in range(len(Tissues)):
-    Proportions[Tissues[i]] = []
-    for j in range(len(GeneCats)):
-        Proportions[Tissues[i]].append(HighestExpression[GeneCats[j]][i])
-
-
-
-
-
-
-# 4) plot the proportion of gene pairs for which external and internal genes
+    total = sum(HighestProportions[i])
+    for j in range(len(HighestProportions[i])):
+        HighestProportions[i][j] = HighestProportions[i][j] / total     
+    assert sum(HighestProportions[i]) == 1
+# 3) plot the proportion of gene pairs for which external and internal genes
 # have highest expression respectively in brain and in testis
 
 # make a list with proportions of gene pairs for which the external gene has
 # maximum expression in brain and internal gene has minimum expression in testis
 RepulsiveProportions = []
 for i in range(6):
-    RepulsiveProportions.append([0,0,0,0])
+    RepulsiveProportions.append([0,0])
 # get indices of brain and testis tissues
 infile = open('GTEX_Median_Normalized_FPKM.txt')
 header = infile.readline().rstrip().split('\t')
@@ -227,26 +199,19 @@ for i in range(len(AllGenes)):
         pos1 = ExpressionProfile[pair[0]].index(max(ExpressionProfile[pair[0]]))
         pos2 = ExpressionProfile[pair[1]].index(max(ExpressionProfile[pair[1]]))
         # check if expression is maximum in brain for external gene
-        if pos1 == BrainPos:
-            # check if expression is maximum in testis for internal gene
-            if pos2 == TestisPos:
+        if pos1 == BrainPos and pos2 == TestisPos:
                 RepulsiveProportions[i][0] += 1
-            else:
-                RepulsiveProportions[i][1] += 1
         else:
-            if pos2 == TestisPos:
-                RepulsiveProportions[i][2] += 1
-            else:
-                RepulsiveProportions[i][3] += 1
-
-
-
-
-
-
+            RepulsiveProportions[i][1] += 1
+        
+# divide by the total number of genes in each category to get proportions
+for i in range(len(RepulsiveProportions)):
+    total = sum(RepulsiveProportions[i])    
+    for j in range(len(RepulsiveProportions[i])):
+        RepulsiveProportions[i][j] = RepulsiveProportions[i][j] / total     
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, colorscheme, XLabel, YMax, YLabel):
+def CreateAx(Columns, Rows, Position, figure, Data, YLabel, XLabel, YMax, GraphType):
     '''
     (int, int, int, list, figure_object, str, int, list, list)
     Take the number of a column, and rows in the figure object and the position of
@@ -256,16 +221,22 @@ def CreateAx(Columns, Rows, Position, figure, Data, colorscheme, XLabel, YMax, Y
     '''    
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
-    # plot nucleotide divergence
-    ax.bar([0, 0.2, 0.4, 0.6, 0.8], Data, 0.2, color = colorscheme,
-           edgecolor = 'black', linewidth = 0.5)
+    # check graph type
+    if GraphType == 'histo':
+        # create a histogram
+        ax.hist(Data, bins = range(0, len(Data), 2), linewidth = 0.7, histtype = 'bar', fill = False, facecolor = '#253494', edgecolor = 'black', alpha = 1)
+    elif GraphType == 'highest':
+        # Create a bar plot for proportions of gene pairs having highest expression in same tissue
+        ax.bar([0, 0.2, 0.4, 0.6, 0.8, 1], Data[0], width = 0.2, label = 'same tissues', color= '#253494', linewidth = 0.7)
+        # Create a bar plot for proportions of gene pairs having highest expression in different tissues
+        ax.bar([0, 0.2, 0.4, 0.6, 0.8, 1], Data[1], width = 0.2, bottom = Data[0], label = 'different tissues', color= '#e31a1c', linewidth = 0.7)
+    
+
     # set font for all text in figure
     FigFont = {'fontname':'Arial'}   
     # write y axis label
-    if YLabel == True:
-        ax.set_ylabel('Proportion', color = 'black',  size = 7, ha = 'center', **FigFont)
+    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
     ax.set_xlabel(XLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
-    
     # add a range for the Y axis
     plt.ylim([0, YMax])
     
@@ -273,20 +244,12 @@ def CreateAx(Columns, Rows, Position, figure, Data, colorscheme, XLabel, YMax, Y
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(False)    
     ax.spines["right"].set_visible(False)
-    if YLabel == True:
-        ax.spines["left"].set_visible(True)  
-    elif YLabel == False:
-        ax.spines['left'].set_visible(False)
-    
+    ax.spines["left"].set_visible(True)  
+       
     # edit tick parameters    
-    if YLabel == True:
-        plt.tick_params(axis='both', which='both', bottom='off', top='off',
-                        right = 'off', left = 'on', labelbottom='off', 
-                        colors = 'black', labelsize = 7, direction = 'out')  
-    elif YLabel == False:
-        plt.tick_params(axis='both', which='both', bottom='off', top='off',
-                        right = 'off', left = 'off', labelleft='off', labelbottom='off', 
-                        colors = 'black', labelsize = 7, direction = 'out')  
+    plt.tick_params(axis='both', which='both', bottom='off', top='off',
+                    right = 'off', left = 'on', labelbottom='off', 
+                    colors = 'black', labelsize = 7, direction = 'out')  
     # Set the tick labels font name
     for label in ax.get_yticklabels():
         label.set_fontname('Arial')   
@@ -295,58 +258,11 @@ def CreateAx(Columns, Rows, Position, figure, Data, colorscheme, XLabel, YMax, Y
 
 # create figure
 fig = plt.figure(1, figsize = (5, 3))
-
 # plot data
-j = 1
-# get y axis range and colors
-if GenesOfInterest == 'overlapping':
-    YMax = 0.31
-elif GenesOfInterest == 'external':
-    YMax = 0.61
-elif GenesOfInterest == 'nested':
-    YMax = 0.41
+ax1 = CreateAx(3, 1, 1, fig, TissueOverlap, 'Pair counts', 'Tissue overlap', 300, 'histo')
+ax2 = CreateAx(3, 1, 2, fig, [[i[0] for i in HighestProportions], [i[1] for i in HighestProportions]], 'Proportions', 'Tissue overlap', 1, 'highest')
+ax3 = CreateAx(3, 1, 3, fig, [[i[0] for i in RepulsiveProportions], [i[1] for i in RepulsiveProportions]], 'Proportions', 'Tissue overlap', 1, 'highest')
 
-# create legend
-if Species == 'human':
-    if Breadth == 'narrow':
-        Position = 6
-        Xpos, Ypos = -5, 0.7
-    else:
-        Position = 10
-        Xpos, Ypos = -10, 0.6
-elif Species == 'chimp':
-    Position = 6
-    Xpos, Ypos = -5, 0.7
-elif Species == 'mouse':
-    Position = 10
-    Xpos, Ypos = -10, 0.6
-
-# set up colors
-colorscheme = ['#fb9a99', '#9ecae1','#3182bd', '#a1d99b','#31a354']
-
-for i in range(len(Tissues)):
-    tissue = Tissues[i]
-    if j == 1 or j == 11 or j == 21:
-        YLabel = True
-    else:
-        YLabel = False
-    ax = CreateAx(10, 3, j, fig, Proportions[tissue], colorscheme, tissue.lower().replace('_', '\n'), 0.61, YLabel)
-    j += 1
-
-    if j == Position:
-        if GenesOfInterest == 'external':
-            Labels = [['#fb9a99', 'NoOv'], ['#9ecae1', 'IntN'], ['#3182bd', 'IntW'], ['#a1d99b', 'ExtN'], ['#31a354', 'ExtW']]
-        elif GenesOfInterest == 'overlapping':
-            Labels = [['#fb9a99', 'NoOv'], ['#a6cee3', 'Nst'], ['#1f78b4', 'Pbk'], ['#b2df8a', 'Con'], ['#33a02c', 'Div']] 
-        elif GenesOfInterest == 'nested':
-            Labels = [['#fb9a99', 'NoOv'], ['#9ecae1', 'CisInt'], ['#3182bd', 'TransInt'], ['#a1d99b', 'CisExt'], ['#31a354', 'TransExt']]
-        a = mpatches.Patch(facecolor = Labels[0][0], edgecolor = 'black', linewidth = 0.5, label= Labels[0][1])
-        b = mpatches.Patch(facecolor = Labels[1][0], edgecolor = 'black', linewidth = 0.5, label= Labels[1][1])
-        c = mpatches.Patch(facecolor = Labels[2][0], edgecolor = 'black', linewidth = 0.5, label= Labels[2][1])
-        d = mpatches.Patch(facecolor = Labels[3][0], edgecolor = 'black', linewidth = 0.5, label= Labels[3][1])
-        e = mpatches.Patch(facecolor = Labels[4][0], edgecolor = 'black', linewidth = 0.5, label= Labels[4][1])
-        ax.legend(handles = [a, b, c, d, e], bbox_to_anchor=(Xpos, Ypos), loc = 3, fontsize = 6, frameon = False, ncol = 5)
-    
 # adjust padding between subplots
 # pad controls the padding around the figure border
 # hpad and wpad control the padding between subplots
