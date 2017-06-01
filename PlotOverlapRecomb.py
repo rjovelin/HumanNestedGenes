@@ -28,33 +28,58 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
+# load dictionaries of overlapping genes
+JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',
+             'HumanPiggyBackGenes.json', 'HumanConvergentGenes.json',
+             'HumanDivergentGenes.json']
+# make a list of dictionaries
+Overlap = []
+# loop over files
+for i in range(len(JsonFiles)):
+    # load dictionary of overlapping gene pairs
+    json_data = open(JsonFiles[i])
+    overlapping = json.load(json_data)
+    json_data.close()
+    Overlap.append(overlapping)
+
+# get GFF file
+GFF = 'Homo_sapiens.GRCh38.88.gff3'
+# get the coordinates of genes on each chromo
+# {chromo: {gene:[chromosome, start, end, sense]}}
+GeneChromoCoord = ChromoGenesCoord(GFF)
+# map each gene to its mRNA transcripts
+MapGeneTranscript = GeneToTranscripts(GFF)
+# remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
+GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
+# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
+
+# generate gene sets
+GeneSets = []
+for i in range(len(Overlap)):
+    GeneSets.append(MakeFullPartialOverlapGeneSet(Overlap[i]))
+# make a set of non-overlapping genes
+NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
 
 
+# get the coordinates of recombination hot and cold spots on each chromo
+RecombSpots = GetColdHotRecomSport('CS_HRR_autosomes_final.bed')
 
+# assign overlapping genes to hot and cold spots
+OverlappingHotColdSpots = []
+for i in range(len(GeneSets)):
+    OverlappingHotColdSpots.append(AssignGenesToRecombSpots(GeneSets[i], RecombSpots, GeneCoord))
+# assign non-overlapping genes to hot and cold spots
+NonOverlappingHotColdSpots = AssignGenesToRecombSpots(NonOverlappingGenes, RecombSpots, GeneCoord)
 
+# make lists of hot and cold spots [[overlap hot, non-overlap hot], [overlap cold, non-overlap cold]]
+GetL = lambda x: len(x)
+AllHotColdSpots = list(zip(map(GetL, OverlappingHotColdSpots[0]), map(GetL, NonOverlappingHotColdSpots))) 
+NestedHotColdSpots = list(zip(map(GetL, OverlappingHotColdSpots[1]), map(GetL, NonOverlappingHotColdSpots)))
+PbkHotColdSpots = list(zip(map(GetL, OverlappingHotColdSpots[2]), map(GetL, NonOverlappingHotColdSpots)))
+ConHotColdSpots = list(zip(map(GetL, OverlappingHotColdSpots[3]), map(GetL, NonOverlappingHotColdSpots)))
+DivHotColdSpots = list(zip(map(GetL, OverlappingHotColdSpots[4]), map(GetL, NonOverlappingHotColdSpots)))
 
+for L in [AllHotColdSpots, NestedHotColdSpots, PbkHotColdSpots, ConHotColdSpots, DivHotColdSpots]:
+    print(stats.fisher_exact(L)[1])
 
-
-
-chr     start   end     name
-chr1    1696659 1821625 CS_chr1_1
-chr1    2491060 2709164 CS_chr1_2
-chr1    3709412 3781096 CS_chr1_3
-chr1    5940650 6048126 CS_chr1_4
-chr1    6358604 6481842 CS_chr1_5
-chr1    6705356 6783967 CS_chr1_6
-chr1    6832235 6956195 CS_chr1_7
-chr1    7256943 7310351 CS_chr1_8
-chr1    7986759 8168564 CS_chr1_9
-chr1    8429598 8495519 CS_chr1_10
-chr1    8522553 8878809 CS_chr1_11
-chr1    9594670 9651279 CS_chr1_12
-chr1    10006172        10229158        CS_chr1_13
-chr1    10282166        10479678        CS_chr1_14
-chr1    10491209        10561282        CS_chr1_15
-chr1    10570721        10636459        CS_chr1_16
-chr1    11128654        11319587        CS_chr1_17
-chr1    12302072        12564127        CS_chr1_18
-chr1    14005069        14109114        CS_chr1_19
-chr1    15814186        15907908        CS_chr1_20
-chr1    15922371        15988900        CS_chr1_21
