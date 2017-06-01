@@ -2393,3 +2393,37 @@ def CountDiseaseGenes(GeneList, DiseaseList):
             counts.append([disease, nondisease])
         GeneCounts.append(counts)
     return GeneCounts
+
+
+# use this function to parse the file with cold and hot recombination regions
+def GetColdHotRecomSport(RecombFile):
+    '''
+    (file) -> dict
+    Take the file withcoordinates of recombination cold and hot spots
+    and return a dictionary with coordinates of these regions per region type
+    and per chromosome
+    '''
+    
+    
+    infile = open(RecombFile)
+    infile.readline()
+    # use dict to store the recomb cold and host spot coordinates per chromsome
+    # {chromo: {spots: [(start, end)]}}
+    RecombSpots = {}
+    for line in infile:
+        line = line.rstrip()
+        if line != '':
+            line = line.split('\t')
+            chromo, start, end = line[0], int(line[1]) -1, int(line[2])
+            region = line[-1][:line[-1].index('_')]
+            # check if chromo already recorded
+            if chromo not in RecombSpots:
+                RecombSpots[chromo] = {}
+            # check if region already recorded
+            if region not in RecombSpots[chromo]:
+                RecombSpots[chromo][region] = []
+            # populate list with coordinates
+            RecombSpots[chromo][region].append([start, region])
+    infile.close()
+    return RecombSpots
+    
