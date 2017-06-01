@@ -2414,7 +2414,8 @@ def GetColdHotRecomSport(RecombFile):
         line = line.rstrip()
         if line != '':
             line = line.split('\t')
-            chromo, start, end = line[0], int(line[1]) -1, int(line[2])
+            # remove 'chr' from chromo name
+            chromo, start, end = line[0].replace('chr', ''), int(line[1]) -1, int(line[2])
             region = line[-1][:line[-1].index('_')]
             # check if chromo already recorded
             if chromo not in RecombSpots:
@@ -2423,7 +2424,52 @@ def GetColdHotRecomSport(RecombFile):
             if region not in RecombSpots[chromo]:
                 RecombSpots[chromo][region] = []
             # populate list with coordinates
-            RecombSpots[chromo][region].append([start, region])
+            RecombSpots[chromo][region].append([start, end])
     infile.close()
     return RecombSpots
+
+
+# use this function to assign genes to recombination hot and cold spots 
+def AssignGenesToRecombSpots(Overlapping, RecombSpots, GeneCoord):
+    '''
+    (set, dict, dict) -> list
+    Take a set of gene of interest, the dictionary of recombination spots
+    coordinates, the dictionary of gene coordinates and return a list of gene
+    sets that are respectively in hot and cold spots
+    '''
     
+    # make sets of genes in hot and cold spots
+    HotSpots, ColdSpots = set(), set()
+    # loop over overlapping genes
+    for gene in Overlapping:
+        # get gene coordinates
+        chromo, start, end = GeneCoord[gene][0], GeneCoord[gene][1], GeneCoord[gene][2]
+        if chromo in RecombSpots:
+            # check if gene overlap with recombination regions
+            for region in RecombSpots[chromo]:
+                for spot in RecombSpots[chromo][region]:
+                    # set boolean
+                    GeneInSpot = False
+                    # check if gene overlap
+                    if start <= spot[0]:
+                        if spot[0] < end:
+                            # verify that gene overlap with spot
+                            assert len(set(range(spot[0], spot[1])).intersection(set(range(start, end)))) != 0
+                            GeneInSpot = True
+                    elif spot[0] <= start:
+                        if start < spot[1]:
+                            # verify that gene overlap with spot
+                            assert len(set(range(spot[0], spot[1])).intersection(set(range(start, end)))) != 0
+                            GeneInSpot = True
+                    if GeneInSpot == True:
+                        if region == 'CS':
+                            ColdSpots.add(gene)
+                        elif region == 'HRR':
+                            HotSpots.add(gene)
+    # remove genes that are overlapping both hot and cold spots
+    to_remove = [gene for gene in HotSpots.intersection(ColdSpots) if len(HotSpots.intersection(ColdSpots)) != 0]
+    for gene in to_remove:
+        HotSpots.remove(gene)
+        ColdSpots.remove(gene)
+    return [HotSpots, ColdSpots]
+   
