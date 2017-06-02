@@ -138,6 +138,9 @@ colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476']
             
 ax.errorbar([0.1, 0.2, 0.3, 0.4, 0.5], OddsRatios, yerr = [LowerConf, UpperConf], fmt = 'o',
             linewidth = 0.7, elinewidth = 0.7)
+# set Y axis limits
+ax.ylim([0, 1.2])
+
 
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
@@ -187,6 +190,6 @@ figure.savefig('truc.pdf', bbox_inches = 'tight')
 #    
 
 
-https://stackoverflow.com/questions/33282368/plotting-a-2d-heatmap-with-matplotlib
-http://seaborn.pydata.org/generated/seaborn.heatmap.html
-https://matplotlib.org/examples/pylab_examples/pcolor_small.html
+#https://stackoverflow.com/questions/33282368/plotting-a-2d-heatmap-with-matplotlib
+#http://seaborn.pydata.org/generated/seaborn.heatmap.html
+#https://matplotlib.org/examples/pylab_examples/pcolor_small.html
