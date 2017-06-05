@@ -44,7 +44,7 @@ AllOverlapGenes  = []
 # loop over files
 for i in range(len(JsonFiles)):
     # load dictionary from json file
-    json_data = open(AllFiles[i][j])
+    json_data = open(JsonFiles[i])
     AllOverlapGenes.append(json.load(json_data))
     json_data.close()
 
