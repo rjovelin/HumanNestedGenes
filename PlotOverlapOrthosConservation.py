@@ -84,7 +84,7 @@ for i in range(len(OrthoFiles)):
 
 # compute proportions of overlapping genes with orthologs in each species
 # make a list of sets of genes of interest [nonovl, nst, ext, int, pbk, con, div]
-GenesInterest = [NonOverlappingGenes, AllGenes[1], External, Internal, AllGenes[2]. AllGenes[3], AllGenes[4]]
+GenesInterest = [NonOverlappingGenes, AllGenes[1], External, Internal, AllGenes[2], AllGenes[3], AllGenes[4]]
 Conserved = []
 for i in range(len(GenesInterest)):
     # make a list to store proportions of given overlapping gene conserved across each species
