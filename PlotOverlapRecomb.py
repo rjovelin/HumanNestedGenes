@@ -95,16 +95,8 @@ for L in [AllHotColdSpots, NestedHotColdSpots, PbkHotColdSpots, ConHotColdSpots,
 LowerConf, UpperConf = [], []
 for i in range(len(OddsRatios)):
     # store distance between odds ratio and 95% CI
-    LowerConf.append(OddsRatios[i] - math.exp(math.log(OddsRatios[i]) - (1.96 * SEOdds[i])))
-    UpperConf.append(math.exp(math.log(OddsRatios[i]) + (1.96 * SEOdds[i])) - OddsRatios[i])
-
-    
-## example error bar values that vary with x-position
-#error = 0.1 + 0.2 * x
-## error bar values w/ different -/+ errors
-#lower_error = 0.4 * error
-#upper_error = error
-#asymmetric_error = [lower_error, upper_error]
+    LowerConf.append(math.exp(math.log(OddsRatios[i]) - (1.96 * SEOdds[i])))
+    UpperConf.append(math.exp(math.log(OddsRatios[i]) + (1.96 * SEOdds[i])))
 
 
 # create figure
@@ -113,7 +105,7 @@ figure = plt.figure(1, figsize = (0.7, 1.5))
 ax = figure.add_subplot(1, 1, 1)
 
 # set colors
-colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476']
+colorscheme = ['#8856a7', '#f03b20', '#43a2ca', '#fee391', '#74c476']
 
 # plot odds ratio and confidence intervals
 #ax.errorbar([0.1, 0.2, 0.3, 0.4, 0.5], OddsRatios, yerr = [LowerConf, UpperConf], fmt = 'o',
@@ -124,7 +116,7 @@ colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476']
 XPos = [0.1, 0.2, 0.3, 0.4, 0.5]
 for i in range(len(OddsRatios)):
     ax.errorbar(XPos[i], OddsRatios[i], yerr = [LowerConf[i], UpperConf[i]], fmt = 'o',
-            linewidth = 0.7, elinewidth = 0.7, ecolor = colorscheme[i])
+                elinewidth = 0.7)
 # set Y axis limits
 ax.ylim([0, 1.2])
 # draw a vertical line y = 1
