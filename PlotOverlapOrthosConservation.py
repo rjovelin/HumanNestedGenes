@@ -40,12 +40,12 @@ JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json', 'HumanPiggyB
 OrthoFiles = ['Human' + i + 'Orthologs.txt' for i in Species[1:]]
 
 # make lists of dictionaries for each type of overlapping gene
-AllOverlapGenes  = []
+Overlap  = []
 # loop over files
 for i in range(len(JsonFiles)):
     # load dictionary from json file
     json_data = open(JsonFiles[i])
-    AllOverlapGenes.append(json.load(json_data))
+    Overlap.append(json.load(json_data))
     json_data.close()
 
 # make a list of gene sets
