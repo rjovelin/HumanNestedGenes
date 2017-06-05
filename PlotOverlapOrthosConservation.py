@@ -98,7 +98,7 @@ for i in range(len(GenesInterest)):
                 ConservedAccrossSpecies[j] += 1
     # divide by number of genes to get proportion of human genes
     for j in range(len(ConservedAccrossSpecies)):
-        ConservedAccrossSpecies[j] / len(GenesInterest[i])
+        ConservedAccrossSpecies[j] = ConservedAccrossSpecies[j] / len(GenesInterest[i])
     # add list for given gene category
     Conserved.append(ConservedAccrossSpecies)
 
