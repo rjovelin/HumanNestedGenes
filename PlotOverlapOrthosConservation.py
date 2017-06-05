@@ -91,7 +91,7 @@ for i in range(len(GenesInterest)):
     ConservedAccrossSpecies = [0] * len(AllOrthologs)
     for gene in GenesInterest[i]:
         # loop over dicts of orthologous genes
-        for i in range(len(AllOrthologs)):
+        for j in range(len(AllOrthologs)):
             # check if gene as orthologs
             if gene in AllOrthologs[j]:
                 # update counter for given species
