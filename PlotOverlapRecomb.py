@@ -99,22 +99,6 @@ for i in range(len(OddsRatios)):
     UpperConf.append(math.exp(math.log(OddsRatios[i]) + (1.96 * SEOdds[i])) - OddsRatios[i])
 
     
-#names=data$method
-#x = 1:13*2-1
-#CI.up = as.numeric(data$mean)+as.numeric(data$ci)
-#CI.dn = as.numeric(data$mean)-as.numeric(data$ci)
-#plot(data$mean~x, cex=1.5,xaxt='n',ylim=c(0.3,0.40), xlab='',ylab='lalala!', main='blahblahblah',col='blue',pch=16)
-#axis(1, at=x, labels=names)
-#arrows(x,CI.dn,x,CI.up,code=3,length=0.2,angle=90,col='red')
-#legend("bottomleft",paste(names,": S.E=",data$se),ncol=6,text.width=1)
-
-
-#x = np.array([1, 2, 3, 4, 5])
-#y = np.power(x, 2) # Effectively y = x**2
-#e = np.array([1.5, 2.6, 3.7, 4.6, 5.5])
-#plt.errorbar(x, y, e, linestyle='None', marker='^')
-
-
 ## example error bar values that vary with x-position
 #error = 0.1 + 0.2 * x
 ## error bar values w/ different -/+ errors
@@ -169,19 +153,6 @@ plt.margins(0.1)
 
 # save figure
 figure.savefig('truc.pdf', bbox_inches = 'tight')
-
-
-
-#fig, (ax0, ax1) = plt.subplots(nrows=2, sharex=True)
-#ax0.errorbar(x, y, yerr=error, fmt='-o')
-#ax0.set_title('variable, symmetric error')
-#
-#ax1.errorbar(x, y, xerr=asymmetric_error, fmt='o')
-#ax1.set_title('variable, asymmetric error')
-#ax1.set_yscale('log')
-#plt.show()
-#    
-
 
 #https://stackoverflow.com/questions/33282368/plotting-a-2d-heatmap-with-matplotlib
 #http://seaborn.pydata.org/generated/seaborn.heatmap.html
