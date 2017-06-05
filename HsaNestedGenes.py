@@ -701,41 +701,6 @@ def GetSameOppositeStrandProportions(GenePairs, GeneCoord):
   
   
   
-## use this function to match human genes with orrthologs in a single other species
-#def MatchOrthologPairs(OrthoFile):
-#    '''
-#    (file) -> dict
-#    Take a file with orthology assignment between 2 species and return a dictionary
-#    of 1:1 orthologs between the 2 species. 
-#    '''
-#    # the file colums foloww the format:
-#    # Sp1GeneID Sp1TranscriptID Sp2GeneID Sp2GeneName HomologyType OrthologyC
-#    
-#    # create a dict of orthologs
-#    Orthos = {}
-#    infile = open(OrthoFile)
-#    infile.readline()
-#    for line in infile:
-#        # consider only 1:1 orthologs
-#        if 'ortholog_one2one' in line:
-#            line = line.rstrip().split('\t')
-#            # get gene IDs of the 2 species
-#            gene1, gene2 = line[0], line[2]
-#            # check that genes are ensembl gene IDs
-#            for i in [gene1, gene2]:
-#                assert 'ENS' in i, 'gene id is not valid'
-#                assert 'ortholog' in line[4], 'ortholog should be in homology type'
-#            # orthologous gene names appear multiple times in file because of multiple transcripts
-#            if gene1 in Orthos:
-#                assert gene2 == Orthos[gene1], 'gene is already matched to a 1:1 ortholog'
-#            Orthos[gene1] = gene2
-#    infile.close()                      
-#    # check that all orthologs are 1;1 orthologs
-#    values = list(Orthos.values())
-#    for i in values:
-#        assert values.count(i) == 1
-#    return Orthos
- 
 # use this function to match human genes with orrthologs in a single other species
 def MatchOrthologs(OrthoFile):
     '''
@@ -775,57 +740,6 @@ def MatchOrthologs(OrthoFile):
     for gene in Orthos:
         Orthos[gene] = list(Orthos[gene])
     return Orthos
-
-# Map humangenes to their orthologs in 2 other species  
-def MatchOrthologTrios(OrthoFile):
-    '''
-    (file) -> dict
-    Take a file with orthology assignment between 3 species and return a dictionary
-    of orthologs between the 3 species. Consider only 1:1 orthologs, use gene ID
-    of 1st species as key
-    '''
-    
-    # create a dict of orthologs
-    Orthos, Orthologs = {}, {}
-    
-    infile = open(OrthoFile)
-    infile.readline()
-    for line in infile:
-        line = line.rstrip()
-        if line != '':
-            # check that there is a ortholog in both species
-            if 'ortholog' in line:
-                if line.count('ortholog') == 2:
-                    line = line.split('\t')
-                    assert len(line) == 10
-                    # get gene IDs of the 3 species
-                    gene1, gene2, gene3 = line[0], line[2], line[6]
-                    # check that genes are ensembl gene IDs
-                    for i in [gene1, gene2, gene3]:
-                        assert 'ENS' in i, 'gene id is not valid'
-                    assert 'ortholog' in line[4] and 'ortholog' in line[8], 'ortholog should be in homology type'
-                    # record 1:1 orthologs
-                    if line[4] == 'ortholog_one2one' and line[8] == 'ortholog_one2one':
-                        if gene1 not in Orthos:
-                            Orthos[gene1] = [set(), set()]
-                            Orthos[gene1][0].add(gene2)
-                            Orthos[gene1][1].add(gene3)
-                        else:
-                            Orthos[gene1][0].add(gene2)
-                            Orthos[gene1][1].add(gene3)
-    infile.close()                      
- 
-    # check that all orthologs are 1;1 orthologs
-    # make a dict {gene1: [gene2, gene3]}
-    for gene in Orthos:
-        assert len(Orthos[gene][0]) == len(Orthos[gene][1]) == 1, 'there is more than 1 ortholog'
-        Orthos[gene][0] = list(Orthos[gene][0])
-        Orthos[gene][1] = list(Orthos[gene][1])        
-        Orthologs[gene] = [Orthos[gene][0][0], Orthos[gene][1][0]]
-    print(len(Orthos), len(Orthologs))
-    #return Orthologs  
-    return Orthologs
-
 
 
 # use this function to parse the primate expression data file
