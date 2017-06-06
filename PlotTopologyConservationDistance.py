@@ -109,45 +109,77 @@ for i in range(1, len(HsaAllOverlap)):
 # count gene pairs conserved in mouse    
 ConservedPairs = {}
 for GeneType in HumanAdjacentgenePairs:
+    # initialize counters
+    ConservedPairs[GeneType] = 0
     if GeneType in ['Proximal', 'Moderate', 'Intermediate', 'Distant']:
         # check distance between orthologs in mouse
         for pair in HumanAdjacentgenePairs[GeneType]:
+            pair = list(pair)
             # make a list of orthologs in mouse
             L = []
             for ortho1 in Orthos[pair[0]]:
                 for ortho2 in Orthos[pair[1]]:
                     L.append([ortho1, ortho2])
+            # compute divergence between genes in mouse
+            for genes in L:
+                gene1, gene2 = genes[0], genes[1]
+                # check if genes are valid mouse genes
+                if gene1 in MouseCoord and gene2 in MouseCoord:
+                    # check if genes are on the same chromo and that genes are different
+                    if (MouseCoord[gene1][0] == MouseCoord[gene2][0]) and (gene1 != gene2):
+                        # get indices of gene1 and gene2
+                        I1, I2 = MouseOrdered[MouseCoord[gene1][0]].index(gene1), MouseOrdered[MouseCoord[gene2][0]].index(gene2)
+                        assert I1 != I2                        
+                        if I1 < I2:
+                            start1, end1 = MouseCoord[gene1][1], MouseCoord[gene1][2]
+                            start2, end2 = MouseCoord[gene2][1], MouseCoord[gene2][2]
+                        elif I1 > I2:
+                            start1, end1 = MouseCoord[gene2][1], MouseCoord[gene2][2]
+                            start2, end2 = MouseCoord[gene1][1], MouseCoord[gene1][2]
+                        D = start2 - end1
+                        if D >= 0 and D < 1000 and GeneType == 'Proximal':
+                            ConservedPairs[GeneType] += 1
+                        elif D >= 1000 and D < 10000 and GeneType == 'Moderate':
+                            ConservedPairs[GeneType] += 1
+                        elif D >= 10000 and D < 50000 and GeneType == 'Intermediate':
+                            ConservedPairs[GeneType] += 1             
+                        elif D >= 50000 and GeneType == 'Distant':
+                            ConservedPairs[GeneType] += 1
+                        # record only 1 pair of orthologs if multiple co-ortholiogs exit, exit loop 
+                        break
+                
+                
+for i in ConservedPairs:
+    print(i, ConservedPairs[i] / len(HumanAdjacentgenePairs[i]))                
+                
         
         
-#### see below for checking conservation
-
-
-
-# loop over human overlapping gene classes
-for i in range(len(AllPairs)):
-    # create a list with pair counts [both gene conserved, 1 conserved, non conserved]
-    counts = [0, 0, 0]
-    # make a set of orthologous overlapping gene
-    orthosovlp = set()
-    for pair in PairsOrthos[i]:
-        pair = list(pair)
-        for item in pair:
-            orthosovlp.add(item)
-    # loop over human gene pairs
-    for pair in AllPairs[i][0]:
-        if set(pair) in PairsOrthos[i]:
-            counts[0] += 1
-        else:
-            if pair[0] in orthosovlp or pair[1] in orthosovlp:
-                counts[1] += 1
-            elif pair[0] not in orthosovlp and pair[1] not in orthosovlp:
-                counts[2] += 1
-    # divide by number of gene pairs to get proportions    
-    assert sum(counts) == len(AllPairs[i][0])
-    for j in range(len(counts)):
-        counts[j] = counts[j] / len(AllPairs[i][0])
-    PairCounts.append(counts)
-    assert sum(counts) == 1
+##### see below for checking conservation
+## loop over human overlapping gene classes
+#for i in range(len(AllPairs)):
+#    # create a list with pair counts [both gene conserved, 1 conserved, non conserved]
+#    counts = [0, 0, 0]
+#    # make a set of orthologous overlapping gene
+#    orthosovlp = set()
+#    for pair in PairsOrthos[i]:
+#        pair = list(pair)
+#        for item in pair:
+#            orthosovlp.add(item)
+#    # loop over human gene pairs
+#    for pair in AllPairs[i][0]:
+#        if set(pair) in PairsOrthos[i]:
+#            counts[0] += 1
+#        else:
+#            if pair[0] in orthosovlp or pair[1] in orthosovlp:
+#                counts[1] += 1
+#            elif pair[0] not in orthosovlp and pair[1] not in orthosovlp:
+#                counts[2] += 1
+#    # divide by number of gene pairs to get proportions    
+#    assert sum(counts) == len(AllPairs[i][0])
+#    for j in range(len(counts)):
+#        counts[j] = counts[j] / len(AllPairs[i][0])
+#    PairCounts.append(counts)
+#    assert sum(counts) == 1
 
 
 
