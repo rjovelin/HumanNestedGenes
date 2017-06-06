@@ -5,7 +5,7 @@ Created on Wed Feb  8 14:46:17 2017
 @author: RJovelin
 """
 
-# use this script to plot the % of orthologous gene pairs with same topology between human and chimp
+# use this script to plot the % of orthologous gene pairs with same topology between human and mouse
 
 # import modules
 # use Agg backend on server without X server
@@ -28,25 +28,24 @@ from HsaNestedGenes import *
 
 
 # load dictionaries of overlapping genes
-jsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json', 'HumanPiggyBackGenes.json',
-             'HumanConvergentGenes.json', 'HumanDivergentGenes.json', 
-             'ChimpOverlappingGenes.json', 'ChimpNestedGenes.json', 'ChimpPiggyBackGenes.json',
-             'ChimpConvergentGenes.json', 'ChimpDivergentGenes.json',
-             'MouseOverlappingGenes.json', 'MouseNestedGenes.json', 'MousePiggyBackGenes.json',
-             'MouseConvergentGenes.json', 'MouseDivergentGenes.json']
+JsonFiles = ['Overlapping', 'Nested', 'PiggyBack', 'Convergent', 'Divergent]
 
 # make a list of dictionaries
-AllOverlap = []
+HsaAllOverlap, MmuAllOverlap = [], []
 # loop over files
-for i in range(len(jsonFiles)):
+for i in range(len(JsonFiles)):
     # load dictionary of overlapping gene pairs
-    json_data = open(jsonFiles[i])
+    json_data = open('Human' + jsonFiles[i] + 'Genes.json')
     overlapping = json.load(json_data)
     json_data.close()
-    AllOverlap.append(overlapping)
+    HsaAllOverlap.append(overlapping)
+    json_data = open('Mouse' + jsonFiles[i] + 'Genes.json')
+    overlapping = json.load(json_data)
+    json_data.close()
+    MmuAllOverlap.append(overlapping)
 
 # get GFF file
-GFF = ['Homo_sapiens.GRCh38.86.gff3', 'Pan_troglodytes.CHIMP2.1.4.86.gff3', 'Mus_musculus.GRCm38.86.gff3']
+GFF = ['Homo_sapiens.GRCh38.88.gff3', 'Mus_musculus.GRCm38.88.gff3']
 
 # make a list of gene coordinates       
 AllCoordinates, AllOrdered = [], []
@@ -65,15 +64,20 @@ for i in range(len(GFF)):
     OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
     AllCoordinates.append(GeneCoord)
     AllOrdered.append(OrderedGenes)
-HumanOrdered, ChimpOrdered, MouseOrdered = AllOrdered[0], AllOrdered[1], AllOrdered[2]
-HumanCoord, ChimpCoord, MouseCoord = AllCoordinates[0], AllCoordinates[1], AllCoordinates[2]
+HumanOrdered, MouseOrdered = AllOrdered[0], AllOrdered[1]
+HumanCoord, MouseCoord = AllCoordinates[0], AllCoordinates[1]
 
-# get 1:1 orthologs between human and chimp
-HsaPtrOrthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
-HsaMmuOrthos = MatchOrthologPairs('HumanMouseOrthologs.txt')
+# get 1:1 orthologs between human and mouse
+Orthos = MatchOrthologPairs('HumanMouseOrthologs.txt')
 
-# make a list of dictionaries with orthologs
-Orthos = [HsaPtrOrthos, HsaMmuOrthos]
+
+
+
+
+
+
+
+
 
 # make pairs of overlapping genes
 AllPairs = []
