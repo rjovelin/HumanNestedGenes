@@ -171,8 +171,21 @@ for i in range(1, len(JsonFiles)):
 for i in ConservedPairs:
     print(i, ConservedPairs[i] / len(HumanAdjacentgenePairs[i]))                
 
-
-
+# test differences among gene categories
+# write P values to file
+newfile = open('TopologyConservationPvalues.txt', 'w')
+GeneTypes = JsonFiles[1:] + ['Proximal', 'Moderate', 'Intermediate', 'Distant']
+Header = '\t'.join(['\t']+GeneTypes)
+newfile.write(Header + '\n')
+for i in range(len(GeneTypes)):
+    # create a list with pvalues for each line
+    Line = [GeneTypes[i]]
+    for j in range(len(GeneTypes)):
+        # add p values for each pairwise comparison
+        Line.append(str(stats.fisher_exact([[ConservedPairs[GeneTypes[i]], len(HumanAdjacentgenePairs[GeneTypes[i]])-ConservedPairs[GeneTypes[i]]], [ConservedPairs[GeneTypes[j]], len(HumanAdjacentgenePairs[GeneTypes[j]])-ConservedPairs[GeneTypes[j]]]])[1]))
+    newfile.write('\t'.join(Line) + '\n')
+newfile.close()
+    
 
 
 
