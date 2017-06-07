@@ -385,7 +385,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
 
-    if GrahpType == 'heatmap':
+    if GraphType == 'heatmap':
         # plot heatmap (use vmin and vmax to get the full range of values)
         heatmap = ax.imshow(Data, interpolation = 'nearest', cmap = 'YlGn')
         # add heatmap scale 
