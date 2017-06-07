@@ -105,14 +105,13 @@ for i in range(1, len(HsaAllOverlap)):
         pairs.remove(L)
     HumanAdjacentgenePairs[JsonFiles[i]] = pairs    
     
-        
 # count gene pairs conserved in mouse    
 ConservedPairs = {}
 for GeneType in HumanAdjacentgenePairs:
     # initialize counters
     ConservedPairs[GeneType] = 0
     if GeneType in ['Proximal', 'Moderate', 'Intermediate', 'Distant']:
-        # check distance between orthologs in mouse
+        # check if mouse orthologs are adjacent
         for pair in HumanAdjacentgenePairs[GeneType]:
             pair = list(pair)
             # make a list of orthologs in mouse
@@ -120,7 +119,6 @@ for GeneType in HumanAdjacentgenePairs:
             for ortho1 in Orthos[pair[0]]:
                 for ortho2 in Orthos[pair[1]]:
                     L.append([ortho1, ortho2])
-            # compute divergence between genes in mouse
             for genes in L:
                 gene1, gene2 = genes[0], genes[1]
                 # check if genes are valid mouse genes
@@ -130,20 +128,8 @@ for GeneType in HumanAdjacentgenePairs:
                         # get indices of gene1 and gene2
                         I1, I2 = MouseOrdered[MouseCoord[gene1][0]].index(gene1), MouseOrdered[MouseCoord[gene2][0]].index(gene2)
                         assert I1 != I2                        
-                        if I1 < I2:
-                            start1, end1 = MouseCoord[gene1][1], MouseCoord[gene1][2]
-                            start2, end2 = MouseCoord[gene2][1], MouseCoord[gene2][2]
-                        elif I1 > I2:
-                            start1, end1 = MouseCoord[gene2][1], MouseCoord[gene2][2]
-                            start2, end2 = MouseCoord[gene1][1], MouseCoord[gene1][2]
-                        D = start2 - end1
-                        if D >= 0 and D < 1000 and GeneType == 'Proximal':
-                            ConservedPairs[GeneType] += 1
-                        elif D >= 1000 and D < 10000 and GeneType == 'Moderate':
-                            ConservedPairs[GeneType] += 1
-                        elif D >= 10000 and D < 50000 and GeneType == 'Intermediate':
-                            ConservedPairs[GeneType] += 1             
-                        elif D >= 50000 and GeneType == 'Distant':
+                        # check if genes are adjacent
+                        if I1 == I2 + 1 or I2 == I1 + 1:
                             ConservedPairs[GeneType] += 1
                         # record only 1 pair of orthologs if multiple co-ortholiogs exit, exit loop 
                         break
