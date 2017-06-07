@@ -626,8 +626,10 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
 
 # create figure
 figure = plt.figure(1, figsize = (5, 5))
-ax1 = CreateAx(1, 2, 1, figure, Conserved, 'heatmap')
-ax2 = CreateAx(2, 1, 2, figure, PairCounts, 'pairs')
-ax3 = CreateAx(2, 2, 3, figure, ConservedPairs, 'distance')
+ax1 = CreateAx(2, 1, 1, figure, Conserved, 'heatmap')
+ax2 = CreateAx(2, 2, 2, figure, PairCounts, 'pairs')
+ax3 = CreateAx(2, 2, 4, figure, ConservedPairs, 'distance')
+# make sure subplots do not overlap
+plt.tight_layout()
 # save figure
 figure.savefig('truc.pdf', bbox_inches = 'tight')
