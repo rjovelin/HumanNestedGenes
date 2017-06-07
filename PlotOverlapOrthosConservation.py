@@ -102,19 +102,10 @@ for i in range(len(GenesInterest)):
     # add list for given gene category
     Conserved.append(ConservedAccrossSpecies)
 
-
-truc = copy.deepcopy(Conserved)
-truc = np.array(truc)
-truc = np.transpose(truc)
-
-for L in truc:
-    print(L)
-
-print('\n\n')
-for L in Conserved:
-    print(L)
-
-
+# convert list to numpy array
+Conserved = np.array(Conserved)
+# transpose array to get gene categories as columns and species as rows
+Conserved = np.transpose(Conserved)
 
 # create figure
 figure = plt.figure(1, figsize = (5, 5))
