@@ -120,6 +120,9 @@ cbar = plt.colorbar(heatmap)
 cbar.ax.tick_params(labelsize=7)
 cbar.ax.tick_params(direction = 'out')
 
+# edit xticks
+plt.xticks([0,1,2,3,4,5,6], ['Not', 'Nst', 'Ext', 'Int', 'Pbk', 'Con', 'Div'])
+
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
 ax.spines["bottom"].set_visible(False)    
@@ -133,17 +136,8 @@ plt.tick_params(axis='both', which='both', bottom='on', top='off',
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
    
-## add margins
-#plt.margins(0.1)
-
 # save figure
 figure.savefig('truc.pdf', bbox_inches = 'tight')
-
-
-
-
-
-
 
 #http://huboqiang.cn/2016/02/13/PyHeatMapHcl
 #https://stackoverflow.com/questions/33282368/plotting-a-2d-heatmap-with-matplotlib
