@@ -630,4 +630,4 @@ ax1 = CreateAx(1, 2, 1, figure, Conserved, 'heatmap')
 ax2 = CreateAx(2, 1, 2, figure, PairCounts, 'pairs')
 ax3 = CreateAx(2, 2, 3, figure, ConservedPairs, 'distance')
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
+figure.savefig('truc.pdf', bbox_inches = 'tight')
