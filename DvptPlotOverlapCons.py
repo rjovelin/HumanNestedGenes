@@ -625,7 +625,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
 
 
 # create figure
-figure = plt.figure(1, figsize = (5, 5))
+figure = plt.figure(1, figsize = (8, 5))
 ax1 = CreateAx(2, 1, 1, figure, Conserved, 'heatmap')
 ax2 = CreateAx(2, 2, 2, figure, PairCounts, 'pairs')
 ax3 = CreateAx(2, 2, 4, figure, ConservedPairs, 'distance')
