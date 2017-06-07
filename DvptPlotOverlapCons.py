@@ -5,18 +5,15 @@ Created on Wed Jun  7 18:25:55 2017
 @author: RJovelin
 """
 
+# use this script to plot conservation of overlapping genes
 
 
+#https://pythonhosted.org/DendroPy/primer/trees.html
+#http://huboqiang.cn/2016/02/13/PyHeatMapHcl
+#https://stackoverflow.com/questions/33282368/plotting-a-2d-heatmap-with-matplotlib
+#http://seaborn.pydata.org/generated/seaborn.heatmap.html
+#https://matplotlib.org/examples/pylab_examples/pcolor_small.html
 
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jun  5 17:39:43 2017
-
-@author: RJovelin
-"""
-
-# use this script to plot the proportion of gene in each overlapping gene category
-# that has orthologs in each other species
 
 
 # import modules
@@ -37,6 +34,9 @@ import math
 import numpy as np
 from scipy import stats
 from HsaNestedGenes import *
+
+
+# 1) plot the proportion of gene in each overlapping gene category that has orthologs in other species
 
 # make a parallel list of Species names
 Species = ['Human', 'Chimp', 'Gorilla', 'Macaque', 'Orangutan', 'Marmoset',
@@ -91,7 +91,6 @@ for i in range(len(OrthoFiles)):
     orthologs = MatchOrthologs(OrthoFiles[i])
     AllOrthologs.append(orthologs)
     
-
 # compute proportions of overlapping genes with orthologs in each species
 # make a list of sets of genes of interest [nonovl, nst, ext, int, pbk, con, div]
 GenesInterest = [NonOverlappingGenes, AllGenes[1], External, Internal, AllGenes[2], AllGenes[3], AllGenes[4]]
@@ -117,83 +116,11 @@ Conserved = np.array(Conserved)
 # transpose array to get gene categories as columns and species as rows
 Conserved = np.transpose(Conserved)
 
-# create figure
-figure = plt.figure(1, figsize = (5, 5))
-# add a plot to figure (N row, N column, plot N)
-ax = figure.add_subplot(1, 1, 1)
-
-# plot heatmap (use vmin and vmax to get the full range of values)
-heatmap = ax.imshow(Conserved, interpolation = 'nearest', cmap = 'YlGn')
-# add heatmap scale 
-cbar = plt.colorbar(heatmap)
-# edit tcik parameters of the heatmap scale
-cbar.ax.tick_params(labelsize=7)
-cbar.ax.tick_params(direction = 'out')
-
-# edit xticks
-plt.xticks([0,1,2,3,4,5,6], ['Not', 'Nst', 'Ext', 'Int', 'Pbk', 'Con', 'Div'])
-plt.yticks([i for i in range(16)], ['Chimp', 'Gorilla', 'Orangutan', 'Macaque',
-           'Marmoset', 'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse',
-           'Sloth', 'Armadillo','Opossum', 'Platypus'])
 
 
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(False)    
-ax.spines["right"].set_visible(False)
-ax.spines["left"].set_visible(False)  
-# edit tick parameters    
-plt.tick_params(axis='both', which='both', bottom='on', top='off',
-                right = 'off', left = 'on', labelbottom='on', labelleft = 'on',
-                colors = 'black', labelsize = 7, direction = 'out')  
-# Set the tick labels font name
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')   
-   
-# save figure
-figure.savefig('truc.pdf', bbox_inches = 'tight')
+##########################
 
-
-#https://pythonhosted.org/DendroPy/primer/trees.html
-#http://huboqiang.cn/2016/02/13/PyHeatMapHcl
-#https://stackoverflow.com/questions/33282368/plotting-a-2d-heatmap-with-matplotlib
-#http://seaborn.pydata.org/generated/seaborn.heatmap.html
-#https://matplotlib.org/examples/pylab_examples/pcolor_small.html
-
-
-
-#################################
-
-
-
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jun  5 16:39:25 2017
-
-@author: RJovelin
-"""
-
-# use this script to plot conservation of overlapping genes
-
-
-# import modules
-# use Agg backend on server without X server
-import matplotlib as mpl
-mpl.use('Agg')
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from matplotlib import rc
-import matplotlib.gridspec as gridspec
-rc('mathtext', default='regular')
-import json
-import random
-import copy
-import sys
-import os
-import math
-import numpy as np
-from scipy import stats
-from HsaNestedGenes import *
+# 2) plot conservation of gene pairs, full, partial or none between human and mouse
 
 # make parallel lists of json files with each overlapping classes [human, mouse]
 NestedFiles = [i + 'NestedGenes.json' for i in ['Human', 'Mouse']]
@@ -216,12 +143,8 @@ for i in range(len(AllFiles)):
 for i in range(len(AllOverlapGenes)):
     assert len(AllOverlapGenes[i]) == 2
     
-
-# 1) determine the proportion of gene pairs that are conserved in mouse
-
 # for each overlapping gene class, count the proportion of gene pairs with both genes
 # in the same configuration, 1 gene only or none
-
 HumanMouseConservation = []
 
 # get nested pairs 
@@ -256,7 +179,6 @@ for L in [NstPairs, PbkPairs, ConPairs, DivPairs]:
                     GenePairs.append(set([ortho1, ortho2]))
     PairsOrthos.append(GenePairs)
 
-
 # make a list with pair counts for each overlapping gene type
 PairCounts = []
 AllPairs = [NstPairs, PbkPairs, ConPairs, DivPairs]
@@ -288,96 +210,15 @@ for i in range(len(AllPairs)):
     assert sum(counts) == 1
 
 
-fig = plt.figure(1, figsize = (1.3, 1.3))
-
-# create subplot in figure
-# add a plot to figure (N row, N column, plot N)
-ax = fig.add_subplot(1, 1, 1)
-a, b, c = [i[0] for i in PairCounts], [i[1] for i in PairCounts], [i[2] for i in PairCounts]
-# make a list for added values for a and b
-d = [a[i] + b[i] for i in range(len(a))]
-
-## Create a bar plot for proportions of conserved gene pairs
-ax.bar([0, 0.4, 0.8, 1.2], a, width = 0.3, label = '2 conserved', color= '#9e9ac8', linewidth = 0.7)
-ax.bar([0, 0.4, 0.8, 1.2], b, width = 0.3, bottom = a, label = '1 conserved', color= '#fd8d3c', linewidth = 0.7)
-ax.bar([0, 0.4, 0.8, 1.2], c, width = 0.3, bottom = d, label = '0 conserved', color= '#78c679', linewidth = 0.7)
-
-
-LabelSize = 7
-
-# set font for all text in figure
-FigFont = {'fontname':'Arial'}   
-# write label for y and x axis
-ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = LabelSize, ha = 'center', **FigFont)
-# write label for x axis
-plt.xticks([0.15, 0.55, 0.95, 1.35], ['Nst', 'Pbk', 'Con', 'Div'], ha = 'center', fontsize = LabelSize, **FigFont)
-
-# limit the y axis value range
-plt.ylim([0, 1])   
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(True)    
-ax.spines["right"].set_visible(False)    
-ax.spines["left"].set_visible(True)  
-
-# do not show ticks
-plt.tick_params(axis='both', which='both', bottom='on', top='off', right = 'off',
-                left = 'on', labelbottom='on', colors = 'black', labelsize = LabelSize, direction = 'out')  
-  
-# Set the tick labels font name
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')   
-# create a margin around the x axis
-plt.margins(0.1)
-
-# add legend
-Two = mpatches.Patch(facecolor = '#9e9ac8' , edgecolor = 'black', linewidth = 0.7, label= '2')
-One = mpatches.Patch(facecolor = '#fd8d3c' , edgecolor = 'black', linewidth = 0.7, label= '1')
-Zero = mpatches.Patch(facecolor = '#78c679' , edgecolor = 'black', linewidth = 0.7, label= '0')
-ax.legend(handles = [Two, One, Zero], loc = (-0.3, 1.05), fontsize = LabelSize, frameon = False, ncol = 3)
-
-# save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
 
 
 ##############################
 
 
-
-
-
-# -*- coding: utf-8 -*-
-"""
-Created on Wed Feb  8 14:46:17 2017
-
-@author: RJovelin
-"""
-
-# use this script to plot the % of orthologous gene pairs with same topology between human and mouse
-
-# import modules
-# use Agg backend on server without X server
-import matplotlib as mpl
-mpl.use('Agg')
-import matplotlib.pyplot as plt
-import matplotlib.patches as mpatches
-from matplotlib import rc
-import matplotlib.gridspec as gridspec
-rc('mathtext', default='regular')
-import json
-import random
-import copy
-import sys
-import os
-import math
-import numpy as np
-from scipy import stats
-from HsaNestedGenes import *
-
+# 3) plot the % of orthologous gene pairs with same topology between human and mouse
 
 # load dictionaries of overlapping genes
 JsonFiles = ['Overlapping', 'Nested', 'PiggyBack', 'Convergent', 'Divergent']
-
 # make a list of dictionaries
 HsaAllOverlap, MmuAllOverlap = [], []
 # loop over files
@@ -425,7 +266,6 @@ for gene in Orthos:
             MouseOrthologs[ortho] = [gene]
         else:
             MouseOrthologs[ortho].append(gene)
-
 
 # record adjacent gene pairs in human (remove order)
 HumanAdjacentgenePairs = {}
@@ -491,7 +331,6 @@ for GeneType in HumanAdjacentgenePairs:
                         # record only 1 pair of orthologs if multiple co-ortholiogs exit, exit loop 
                         break
                 
-                
 # make pairs of human orthologs for each mouse gene pair
 PairsOrthos = []
 for i in range(1, len(MmuAllOverlap)):
@@ -514,10 +353,8 @@ for i in range(1, len(JsonFiles)):
     for pair in HumanAdjacentgenePairs[JsonFiles[i]]:
         if set(pair) in PairsOrthos[i-1]:
             ConservedPairs[JsonFiles[i]] += 1
-
 # compute proportions
 for i in ConservedPairs:
-    print(i, ConservedPairs[i] / len(HumanAdjacentgenePairs[i]))                
     ConservedPairs[i] = ConservedPairs[i] / len(HumanAdjacentgenePairs[i])    
     
 # test differences among gene categories
@@ -537,189 +374,260 @@ newfile.close()
     
 
 
-
-
-# make a list of gene category names parallel to the list of gene pairs
-GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
-
-# create figure
-fig = plt.figure(1, figsize = (3, 2))
-# add a plot to figure (N row, N column, plot N)
-ax = fig.add_subplot(1, 1, 1)
-# set colors
-colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
-# plot proportions of gene pairs
-ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85, 2.15], [ConservedPairs[i] for i in GeneTypes], 0.2, color = colorscheme,
-       edgecolor = 'black', linewidth = 0.7)
-# set font for all text in figure
-FigFont = {'fontname':'Arial'}   
-# write y axis label
-ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = 7, ha = 'center', **FigFont)
-# add ticks and lebels
-plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
-
-## add a range for the Y and X axes
-plt.ylim([0, 1])
-# edit y axis ticks
-plt.yticks(np.arange(0, 1.2, 0.2)) 
-plt.xlim([0, 2.45])
-
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(True)    
-ax.spines["right"].set_visible(False)
-ax.spines["left"].set_visible(True)  
-# edit tick parameters    
-plt.tick_params(axis='both', which='both', bottom='on', top='off',
-                right = 'off', left = 'on', labelbottom='on',
-                colors = 'black', labelsize = 7, direction = 'out')  
-# Set the tick labels font name
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')   
-      
-    
-# save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     
 #############################################################        
 
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
+    '''
+    Returns a ax instance in figure
+    '''    
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
 
-## create a function to format the subplots
-#def CreateAx(Columns, Rows, Position, figure, Data, YLabel):
-#    '''
-#    Returns a ax instance in figure
-#    '''    
-#
-#    # add a plot to figure (N row, N column, plot N)
-#    ax = figure.add_subplot(Rows, Columns, Position)
-#
-#    if Position == 1:
-#        BarPos = [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4, 2.7, 2.9, 3.2, 3.4]
-#        XTickpos = [0.4, 0.9, 1.4, 1.9, 2.4, 2.9, 3.4]
-#        Alignment = 'right'
-#        XTicklabels = ['< 0', '0-1', '1-10', '10-50', '50-100', '100-150', '> 150']
-#        # draw x axis line
-#        ax.plot([0, 3.8], [0, 0], lw = 0.7, color = 'black')
-#    else:
-#        BarPos = [0.2, 0.4, 0.7, 0.9, 1.2, 1.4, 1.7, 1.9, 2.2, 2.4]
-#        XTickpos = [0.4, 0.9, 1.4, 1.9, 2.4]
-#        Alignment = 'center'
-#        XTicklabels = ['all', 'nst', 'pbk', 'conv', 'div']
-#        # draw x axis line
-#        ax.plot([0, 2.8], [0, 0], lw = 0.7, color = 'black')
-#    
-#    if Position == 4:
-#        YTicksRange = np.arange(-20, 120, 20)
-#        YMin, YMax = -20, 100
-#    else:
-#        YTicksRange = np.arange(0, 120, 20)
-#        YMin, YMax = 0, 100
-#        
-#    Colors = ['black', 'lightgrey'] * 5
-#
-#    # plot data
-#    ax.bar(BarPos, Data, width = 0.2, color = Colors, edgecolor = 'black', linewidth = 0.7)
-#    
-##    # draw x axis line
-##    if Position == 4:
-##        ax.plot([0, 2.8], [0, 0], lw = 0.7, color = 'black')
-#    
-#    # set font for all text in figure
-#    FigFont = {'fontname':'Arial'}   
-#    # write y axis label
-#    ax.set_ylabel(YLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
-#    # add ticks and lebels
-#    if Position == 1:
-#        Rotation = 30
-#    else:
-#        Rotation = 0
-#    plt.xticks(XTickpos, XTicklabels, rotation = Rotation, size = 7, color = 'black', ha = Alignment, **FigFont)
-#    # edit y axis ticks
-#    plt.yticks(YTicksRange)
-#    # add a range for the Y and X axes
-#    plt.ylim([YMin, YMax])    
-#    # do not show lines around figure  
-#    ax.spines["top"].set_visible(False)    
-#    ax.spines["bottom"].set_visible(False)    
-#    ax.spines["right"].set_visible(False)
-#    ax.spines["left"].set_visible(True)  
-#    # make sure the y axis crosses the x axis at 0
-#    ax.spines['left'].set_position('zero')
-#
-#    # edit tick parameters
-#    if Position == 4:
-#        BottomTicks = 'off'
-#    else:
-#        BottomTicks = 'on'
-#    plt.tick_params(axis='both', which='both', bottom=BottomTicks, top='off',
-#                    right = 'off', left = 'on', labelbottom='on',
-#                    colors = 'black', labelsize = 7, direction = 'out') 
-#    # Set the tick labels font name
-#    for label in ax.get_yticklabels():
-#        label.set_fontname('Arial')   
-#    
-#    ## add margins
-#    #plt.margins(0.1)
-#    return ax
-#
-#
+    if GrahpType == 'heatmap':
+        # plot heatmap (use vmin and vmax to get the full range of values)
+        heatmap = ax.imshow(Data, interpolation = 'nearest', cmap = 'YlGn')
+        # add heatmap scale 
+        cbar = plt.colorbar(heatmap)
+        # edit tcik parameters of the heatmap scale
+        cbar.ax.tick_params(labelsize=7)
+        cbar.ax.tick_params(direction = 'out')
+        # edit xticks
+        plt.xticks([0,1,2,3,4,5,6], ['Not', 'Nst', 'Ext', 'Int', 'Pbk', 'Con', 'Div'])
+        plt.yticks([i for i in range(16)], ['Chimp', 'Gorilla', 'Orangutan', 'Macaque',
+                    'Marmoset', 'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse',
+                    'Sloth', 'Armadillo','Opossum', 'Platypus'])
+        # do not show lines around figure  
+        ax.spines["top"].set_visible(False)    
+        ax.spines["bottom"].set_visible(False)    
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)  
+        # edit tick parameters    
+        plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                        right = 'off', left = 'on', labelbottom='on', labelleft = 'on',
+                        colors = 'black', labelsize = 7, direction = 'out')  
+        # Set the tick labels font name
+        for label in ax.get_yticklabels():
+            label.set_fontname('Arial')   
+    
+    elif GraphType == 'pairs':
+        a, b, c = [i[0] for i in Data], [i[1] for i in Data], [i[2] for i in Data]
+        # make a list for added values for a and b
+        d = [a[i] + b[i] for i in range(len(a))]
+        ## Create a bar plot for proportions of conserved gene pairs
+        ax.bar([0, 0.4, 0.8, 1.2], a, width = 0.3, label = '2 conserved', color= '#9e9ac8', linewidth = 0.7)
+        ax.bar([0, 0.4, 0.8, 1.2], b, width = 0.3, bottom = a, label = '1 conserved', color= '#fd8d3c', linewidth = 0.7)
+        ax.bar([0, 0.4, 0.8, 1.2], c, width = 0.3, bottom = d, label = '0 conserved', color= '#78c679', linewidth = 0.7)
+        LabelSize = 7
+        # set font for all text in figure
+        FigFont = {'fontname':'Arial'}   
+        # write label for y and x axis
+        ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = LabelSize, ha = 'center', **FigFont)
+        # write label for x axis
+        plt.xticks([0.15, 0.55, 0.95, 1.35], ['Nst', 'Pbk', 'Con', 'Div'], ha = 'center', fontsize = LabelSize, **FigFont)
+        # limit the y axis value range
+        plt.ylim([0, 1])   
+        # do not show lines around figure  
+        ax.spines["top"].set_visible(False)    
+        ax.spines["bottom"].set_visible(True)    
+        ax.spines["right"].set_visible(False)    
+        ax.spines["left"].set_visible(True)  
+        # do not show ticks
+        plt.tick_params(axis='both', which='both', bottom='on', top='off', right = 'off',
+                        left = 'on', labelbottom='on', colors = 'black', labelsize = LabelSize, direction = 'out')  
+        # Set the tick labels font name
+        for label in ax.get_yticklabels():
+            label.set_fontname('Arial')   
+        # create a margin around the x axis
+        plt.margins(0.1)
+        # add legend
+        Two = mpatches.Patch(facecolor = '#9e9ac8' , edgecolor = 'black', linewidth = 0.7, label= '2')
+        One = mpatches.Patch(facecolor = '#fd8d3c' , edgecolor = 'black', linewidth = 0.7, label= '1')
+        Zero = mpatches.Patch(facecolor = '#78c679' , edgecolor = 'black', linewidth = 0.7, label= '0')
+        ax.legend(handles = [Two, One, Zero], loc = (-0.3, 1.05), fontsize = LabelSize, frameon = False, ncol = 3)
+    elif GraphType == 'distance':
+        # make a list of gene category names parallel to the list of gene pairs
+        GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
+        GeneTypes = ['Nested', 'PiggyBack', 'Convergent', 'Divergent', 'Proximal', 'Moderate', 'Intermediate', 'Distant']
+        # set colors
+        colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+        # plot proportions of gene pairs
+        ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85, 2.15], [Data[i] for i in GeneTypes], 0.2, color = colorscheme,
+               edgecolor = 'black', linewidth = 0.7)
+        # set font for all text in figure
+        FigFont = {'fontname':'Arial'}   
+        # write y axis label
+        ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = 7, ha = 'center', **FigFont)
+        # add ticks and lebels
+        plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
+
+        ## add a range for the Y and X axes
+        plt.ylim([0, 1])
+        # edit y axis ticks
+        plt.yticks(np.arange(0, 1.2, 0.2)) 
+        plt.xlim([0, 2.45])
+        # do not show lines around figure  
+        ax.spines["top"].set_visible(False)    
+        ax.spines["bottom"].set_visible(True)    
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(True)  
+        # edit tick parameters    
+        plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                        right = 'off', left = 'on', labelbottom='on',
+                        colors = 'black', labelsize = 7, direction = 'out')  
+        # Set the tick labels font name
+        for label in ax.get_yticklabels():
+            label.set_fontname('Arial')   
+      
+    return ax
+
+
+
+
+
+## 1) plot (1)
 #
 ## create figure
-#fig = plt.figure(1, figsize = (5, 4))
+#figure = plt.figure(1, figsize = (5, 5))
+## add a plot to figure (N row, N column, plot N)
+#ax = figure.add_subplot(1, 1, 1)
 #
-#YLabels = ['% with orthologous\nadjacent gene pairs',
-#           '% overlapping gene pairs\nwith conserved topology',
-#           '% with orthologous\noverlapping gene pairs ',
-#           '% excess of orthologous gene\npairs with conserved topology']
+## plot heatmap (use vmin and vmax to get the full range of values)
+#heatmap = ax.imshow(Conserved, interpolation = 'nearest', cmap = 'YlGn')
+## add heatmap scale 
+#cbar = plt.colorbar(heatmap)
+## edit tcik parameters of the heatmap scale
+#cbar.ax.tick_params(labelsize=7)
+#cbar.ax.tick_params(direction = 'out')
+#
+## edit xticks
+#plt.xticks([0,1,2,3,4,5,6], ['Not', 'Nst', 'Ext', 'Int', 'Pbk', 'Con', 'Div'])
+#plt.yticks([i for i in range(16)], ['Chimp', 'Gorilla', 'Orangutan', 'Macaque',
+#           'Marmoset', 'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse',
+#           'Sloth', 'Armadillo','Opossum', 'Platypus'])
 #
 #
-## 1) plot proportions of gene pairs with varying distance conserved in chimp and mouse
-#ax1 = CreateAx(2, 2, 1, fig, NonOverlap, YLabels[0]) 
-## 2) plot proportions of overlapping gene pairs with conserved topology in chimp and mouse
-#ax2 = CreateAx(2, 2, 2, fig, OverlapCat, YLabels[1]) 
-## 3) plot proportions of overlapping gene pairs that are overlapping in chimp and mouse
-#ax3 = CreateAx(2, 2, 3, fig, OverlapAll, YLabels[2]) 
-## 4) plot differences between conservation of human overalapping in chimop and mouse
-##    and overlapping genes in chimp and mouse conserved in human human
-#ax4 = CreateAx(2, 2, 4, fig, Differences, YLabels[3])
+## do not show lines around figure  
+#ax.spines["top"].set_visible(False)    
+#ax.spines["bottom"].set_visible(False)    
+#ax.spines["right"].set_visible(False)
+#ax.spines["left"].set_visible(False)  
+## edit tick parameters    
+#plt.tick_params(axis='both', which='both', bottom='on', top='off',
+#                right = 'off', left = 'on', labelbottom='on', labelleft = 'on',
+#                colors = 'black', labelsize = 7, direction = 'out')  
+## Set the tick labels font name
+#for label in ax.get_yticklabels():
+#    label.set_fontname('Arial')   
+#   
+## save figure
+#figure.savefig('truc.pdf', bbox_inches = 'tight')
 #
-## add subplot labels
-#ax1.text(-0.8, 113, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-#ax2.text(-0.8, 113, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-#ax3.text(-0.8, 113, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-#ax4.text(-0.8, 113, 'D', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+#
+## 2) plot (2)
+#
+#fig = plt.figure(1, figsize = (1.3, 1.3))
+#
+## create subplot in figure
+## add a plot to figure (N row, N column, plot N)
+#ax = fig.add_subplot(1, 1, 1)
+#a, b, c = [i[0] for i in PairCounts], [i[1] for i in PairCounts], [i[2] for i in PairCounts]
+## make a list for added values for a and b
+#d = [a[i] + b[i] for i in range(len(a))]
+#
+### Create a bar plot for proportions of conserved gene pairs
+#ax.bar([0, 0.4, 0.8, 1.2], a, width = 0.3, label = '2 conserved', color= '#9e9ac8', linewidth = 0.7)
+#ax.bar([0, 0.4, 0.8, 1.2], b, width = 0.3, bottom = a, label = '1 conserved', color= '#fd8d3c', linewidth = 0.7)
+#ax.bar([0, 0.4, 0.8, 1.2], c, width = 0.3, bottom = d, label = '0 conserved', color= '#78c679', linewidth = 0.7)
+#
+#
+#LabelSize = 7
+#
+## set font for all text in figure
+#FigFont = {'fontname':'Arial'}   
+## write label for y and x axis
+#ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = LabelSize, ha = 'center', **FigFont)
+## write label for x axis
+#plt.xticks([0.15, 0.55, 0.95, 1.35], ['Nst', 'Pbk', 'Con', 'Div'], ha = 'center', fontsize = LabelSize, **FigFont)
+#
+## limit the y axis value range
+#plt.ylim([0, 1])   
+## do not show lines around figure  
+#ax.spines["top"].set_visible(False)    
+#ax.spines["bottom"].set_visible(True)    
+#ax.spines["right"].set_visible(False)    
+#ax.spines["left"].set_visible(True)  
+#
+## do not show ticks
+#plt.tick_params(axis='both', which='both', bottom='on', top='off', right = 'off',
+#                left = 'on', labelbottom='on', colors = 'black', labelsize = LabelSize, direction = 'out')  
+#  
+## Set the tick labels font name
+#for label in ax.get_yticklabels():
+#    label.set_fontname('Arial')   
+## create a margin around the x axis
+#plt.margins(0.1)
 #
 ## add legend
-#mouse = mpatches.Patch(facecolor = 'lightgrey' , edgecolor = 'black', linewidth = 0.7, label= 'mouse')
-#chimp = mpatches.Patch(facecolor = 'black' , edgecolor = 'black', linewidth = 0.7, label= 'chimp')
-#ax1.legend(handles = [chimp, mouse], loc = (0.17, 1), fontsize = 7, frameon = False, ncol = 2)
+#Two = mpatches.Patch(facecolor = '#9e9ac8' , edgecolor = 'black', linewidth = 0.7, label= '2')
+#One = mpatches.Patch(facecolor = '#fd8d3c' , edgecolor = 'black', linewidth = 0.7, label= '1')
+#Zero = mpatches.Patch(facecolor = '#78c679' , edgecolor = 'black', linewidth = 0.7, label= '0')
+#ax.legend(handles = [Two, One, Zero], loc = (-0.3, 1.05), fontsize = LabelSize, frameon = False, ncol = 3)
 #
-## make sure subplots do not overlap
-#plt.tight_layout()
+## save figure
+#fig.savefig('truc.pdf', bbox_inches = 'tight')
 #
-## save figure to file
-#fig.savefig('ConservationTopology.pdf', bbox_inches = 'tight')
-#fig.savefig('ConservationTopology.eps', bbox_inches = 'tight')
+#
+## 3) plot (3)
+#
+## make a list of gene category names parallel to the list of gene pairs
+#GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
+#
+## create figure
+#fig = plt.figure(1, figsize = (3, 2))
+## add a plot to figure (N row, N column, plot N)
+#ax = fig.add_subplot(1, 1, 1)
+## set colors
+#colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+## plot proportions of gene pairs
+#ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85, 2.15], [ConservedPairs[i] for i in GeneTypes], 0.2, color = colorscheme,
+#       edgecolor = 'black', linewidth = 0.7)
+## set font for all text in figure
+#FigFont = {'fontname':'Arial'}   
+## write y axis label
+#ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = 7, ha = 'center', **FigFont)
+## add ticks and lebels
+#plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
+#
+### add a range for the Y and X axes
+#plt.ylim([0, 1])
+## edit y axis ticks
+#plt.yticks(np.arange(0, 1.2, 0.2)) 
+#plt.xlim([0, 2.45])
+#
+## do not show lines around figure  
+#ax.spines["top"].set_visible(False)    
+#ax.spines["bottom"].set_visible(True)    
+#ax.spines["right"].set_visible(False)
+#ax.spines["left"].set_visible(True)  
+## edit tick parameters    
+#plt.tick_params(axis='both', which='both', bottom='on', top='off',
+#                right = 'off', left = 'on', labelbottom='on',
+#                colors = 'black', labelsize = 7, direction = 'out')  
+## Set the tick labels font name
+#for label in ax.get_yticklabels():
+#    label.set_fontname('Arial')   
+#      
+#    
+## save figure
+#fig.savefig('truc.pdf', bbox_inches = 'tight')
 
 
-
-
-
-
-
-
-
+# create figure
+figure = plt.figure(1, figsize = (5, 5))
+ax1 = CreateAx(1, 2, 1, figure, Conserved, 'heatmap')
+ax2 = CreateAx(2, 1, 2, figure, PairCounts, 'pairs')
+ax3 = CreateAx(2, 2, 3, figure, ConservedPairs, 'distance')
+# save figure
+fig.savefig('truc.pdf', bbox_inches = 'tight')
