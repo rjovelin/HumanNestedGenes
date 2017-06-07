@@ -170,7 +170,8 @@ for i in range(1, len(JsonFiles)):
 # compute proportions
 for i in ConservedPairs:
     print(i, ConservedPairs[i] / len(HumanAdjacentgenePairs[i]))                
-
+    ConservedPairs[i] = ConservedPairs[i] / len(HumanAdjacentgenePairs[i])    
+    
 # test differences among gene categories
 # write P values to file
 newfile = open('TopologyConservationPvalues.txt', 'w')
@@ -190,16 +191,63 @@ newfile.close()
 
 
 
+# make a list of gene category names parallel to the list of gene pairs
+GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
 
+# create figure
+fig = plt.figure(1, figsize = (3, 2))
+# add a plot to figure (N row, N column, plot N)
+ax = fig.add_subplot(1, 1, 1)
+# set colors
+colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
+# plot proportions of gene pairs
+ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85, 2.15], [ConservedPairs[i] for i in GeneTypes], 0.2, color = colorscheme,
+       edgecolor = 'black', linewidth = 0.7)
+# set font for all text in figure
+FigFont = {'fontname':'Arial'}   
+# write y axis label
+ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = 7, ha = 'center', **FigFont)
+# add ticks and lebels
+plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
 
+## add a range for the Y and X axes
+plt.ylim([0, 1])
+# edit y axis ticks
+plt.yticks(np.arange(0, 1.2, 0.2)) 
+plt.xlim([0, 2.45])
 
-
-
-
-
-
+# do not show lines around figure  
+ax.spines["top"].set_visible(False)    
+ax.spines["bottom"].set_visible(True)    
+ax.spines["right"].set_visible(False)
+ax.spines["left"].set_visible(True)  
+# edit tick parameters    
+plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                right = 'off', left = 'on', labelbottom='on',
+                colors = 'black', labelsize = 7, direction = 'out')  
+# Set the tick labels font name
+for label in ax.get_yticklabels():
+    label.set_fontname('Arial')   
       
-        
+    
+# save figure
+fig.savefig('truc.pdf', bbox_inches = 'tight')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+#############################################################        
 
 
 ## create a function to format the subplots
