@@ -122,6 +122,10 @@ cbar.ax.tick_params(direction = 'out')
 
 # edit xticks
 plt.xticks([0,1,2,3,4,5,6], ['Not', 'Nst', 'Ext', 'Int', 'Pbk', 'Con', 'Div'])
+plt.yticks([i for i in range(16)], ['Chimp', 'Gorilla', 'Orangutan', 'Macaque',
+           'Marmoset', 'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse',
+           'Sloth', 'Armadillo','Opossum', 'Platypus'])
+
 
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
@@ -130,7 +134,7 @@ ax.spines["right"].set_visible(False)
 ax.spines["left"].set_visible(False)  
 # edit tick parameters    
 plt.tick_params(axis='both', which='both', bottom='on', top='off',
-                right = 'off', left = 'off', labelbottom='on', labelleft = 'off',
+                right = 'off', left = 'on', labelbottom='on', labelleft = 'on',
                 colors = 'black', labelsize = 7, direction = 'out')  
 # Set the tick labels font name
 for label in ax.get_yticklabels():
@@ -139,6 +143,8 @@ for label in ax.get_yticklabels():
 # save figure
 figure.savefig('truc.pdf', bbox_inches = 'tight')
 
+
+#https://pythonhosted.org/DendroPy/primer/trees.html
 #http://huboqiang.cn/2016/02/13/PyHeatMapHcl
 #https://stackoverflow.com/questions/33282368/plotting-a-2d-heatmap-with-matplotlib
 #http://seaborn.pydata.org/generated/seaborn.heatmap.html
