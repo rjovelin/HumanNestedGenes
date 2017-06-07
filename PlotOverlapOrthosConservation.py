@@ -103,6 +103,56 @@ for i in range(len(GenesInterest)):
     Conserved.append(ConservedAccrossSpecies)
 
 
+truc = copy.deepcopy(Conserved)
+truc = np.array(truc)
+truc = np.transpose(truc)
+
+for L in truc:
+    print(L)
+
+print('\n\n')
 for L in Conserved:
     print(L)
 
+
+
+# create figure
+figure = plt.figure(1, figsize = (5, 5))
+# add a plot to figure (N row, N column, plot N)
+ax = figure.add_subplot(1, 1, 1)
+
+#heatmap = ax.imshow(truc, interpolation = 'nearest', cmap = 'YlGn', vmin = 0, vmax = 1)
+heatmap = ax.imshow(truc, interpolation = 'nearest', cmap = 'YlGn')
+cbar = plt.colorbar(heatmap)
+cbar.ax.tick_params(labelsize=7)
+cbar.ax.tick_params(direction = 'out')
+
+# do not show lines around figure  
+ax.spines["top"].set_visible(False)    
+ax.spines["bottom"].set_visible(False)    
+ax.spines["right"].set_visible(False)
+ax.spines["left"].set_visible(False)  
+# edit tick parameters    
+plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                right = 'off', left = 'off', labelbottom='on', labelleft = 'off',
+                colors = 'black', labelsize = 7, direction = 'out')  
+# Set the tick labels font name
+for label in ax.get_yticklabels():
+    label.set_fontname('Arial')   
+   
+## add margins
+#plt.margins(0.1)
+
+# save figure
+figure.savefig('truc.pdf', bbox_inches = 'tight')
+
+
+
+
+
+
+
+#http://huboqiang.cn/2016/02/13/PyHeatMapHcl
+#https://stackoverflow.com/questions/33282368/plotting-a-2d-heatmap-with-matplotlib
+#http://seaborn.pydata.org/generated/seaborn.heatmap.html
+#https://matplotlib.org/examples/pylab_examples/pcolor_small.html
