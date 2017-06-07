@@ -112,9 +112,11 @@ figure = plt.figure(1, figsize = (5, 5))
 # add a plot to figure (N row, N column, plot N)
 ax = figure.add_subplot(1, 1, 1)
 
-#heatmap = ax.imshow(truc, interpolation = 'nearest', cmap = 'YlGn', vmin = 0, vmax = 1)
-heatmap = ax.imshow(truc, interpolation = 'nearest', cmap = 'YlGn')
+# plot heatmap (use vmin and vmax to get the full range of values)
+heatmap = ax.imshow(Conserved, interpolation = 'nearest', cmap = 'YlGn')
+# add heatmap scale 
 cbar = plt.colorbar(heatmap)
+# edit tcik parameters of the heatmap scale
 cbar.ax.tick_params(labelsize=7)
 cbar.ax.tick_params(direction = 'out')
 
