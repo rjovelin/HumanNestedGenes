@@ -2351,7 +2351,7 @@ def AssignGenesToRecombSpots(Overlapping, RecombSpots, GeneCoord):
     coordinates, the dictionary of gene coordinates and return a list of gene
     sets that are respectively in hot and cold spots
     '''
-    
+    Size = set()
     # make sets of genes in hot and cold spots
     HotSpots, ColdSpots = set(), set()
     # loop over overlapping genes
@@ -2370,11 +2370,13 @@ def AssignGenesToRecombSpots(Overlapping, RecombSpots, GeneCoord):
                             # verify that gene overlap with spot
                             assert len(set(range(spot[0], spot[1])).intersection(set(range(start, end)))) != 0
                             GeneInSpot = True
+                            Size.add(len(set(range(spot[0], spot[1])).intersection(set(range(start, end)))))
                     elif spot[0] <= start:
                         if start < spot[1]:
                             # verify that gene overlap with spot
                             assert len(set(range(spot[0], spot[1])).intersection(set(range(start, end)))) != 0
                             GeneInSpot = True
+                            Size.add(len(set(range(spot[0], spot[1])).intersection(set(range(start, end)))))
                     if GeneInSpot == True:
                         if region == 'CS':
                             ColdSpots.add(gene)
@@ -2385,5 +2387,7 @@ def AssignGenesToRecombSpots(Overlapping, RecombSpots, GeneCoord):
     for gene in to_remove:
         HotSpots.remove(gene)
         ColdSpots.remove(gene)
+    Size = list(Size)
+    print(min(Size), max(Size), np.mean(Size), np.median(Size))    
     return [HotSpots, ColdSpots]
    
