@@ -413,16 +413,21 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
         # make a list for added values for a and b
         d = [a[i] + b[i] for i in range(len(a))]
         ## Create a bar plot for proportions of conserved gene pairs
-        ax.bar([0, 0.4, 0.8, 1.2], a, width = 0.3, label = '2 conserved', color= '#9e9ac8', linewidth = 0.7)
-        ax.bar([0, 0.4, 0.8, 1.2], b, width = 0.3, bottom = a, label = '1 conserved', color= '#fd8d3c', linewidth = 0.7)
-        ax.bar([0, 0.4, 0.8, 1.2], c, width = 0.3, bottom = d, label = '0 conserved', color= '#78c679', linewidth = 0.7)
+        #ax.bar([0, 0.4, 0.8, 1.2], a, width = 0.3, label = '2 conserved', color= '#9e9ac8', linewidth = 0.7)
+        #ax.bar([0, 0.4, 0.8, 1.2], b, width = 0.3, bottom = a, label = '1 conserved', color= '#fd8d3c', linewidth = 0.7)
+        #ax.bar([0, 0.4, 0.8, 1.2], c, width = 0.3, bottom = d, label = '0 conserved', color= '#78c679', linewidth = 0.7)
+        
+        ax.bar([0, 0.3, 0.6, 0.9], a, width = 0.2, label = '2 conserved', color= '#9e9ac8', linewidth = 0.7)
+        ax.bar([0, 0.3, 0.6, 0.9], b, width = 0.2, bottom = a, label = '1 conserved', color= '#fd8d3c', linewidth = 0.7)
+        ax.bar([0, 0.3, 0.6, 0.9], c, width = 0.2, bottom = d, label = '0 conserved', color= '#78c679', linewidth = 0.7)
+        
         LabelSize = 7
         # set font for all text in figure
         FigFont = {'fontname':'Arial'}   
         # write label for y and x axis
         ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = LabelSize, ha = 'center', **FigFont)
         # write label for x axis
-        plt.xticks([0.15, 0.55, 0.95, 1.35], ['Nst', 'Pbk', 'Con', 'Div'], ha = 'center', fontsize = LabelSize, **FigFont)
+        plt.xticks([0.1, 0.4, 0.7, 1], ['Nst', 'Pbk', 'Con', 'Div'], ha = 'center', fontsize = LabelSize, **FigFont)
         # limit the y axis value range
         plt.ylim([0, 1])   
         # do not show lines around figure  
