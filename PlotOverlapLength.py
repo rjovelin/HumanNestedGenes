@@ -18,6 +18,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from matplotlib import rc
 rc('mathtext', default='regular')
+import matplotlib.gridspec as gridspec
 import json
 import random
 import copy
@@ -180,15 +181,12 @@ OppositeStrdProba = [Proba[1], Proba[3], Proba[4], Proba[6]]
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Data, Proba, Labels, YLabel, XLabel, TickPos, TickLabel, Colors, AddTitle = False, Title = ''):
     '''
-    (int, int, int, figure_object, list, list, list, list, list, str, str, int)
-    Take the number of a column, and rows in the figure object and the position of
-    the ax in figure, 2 lists of data, a list of bar positions, the list of tick
-    positions and their labels, a list of colors, a label for the Y axis,
-    a maximum value for the Y axis and return an ax instance in the figure
+    Returns a ax instance in figure
     '''    
     # create subplot in figure
     # add a plot to figure (N row, N column, plot N)
     ax = figure.add_subplot(Rows, Columns, Position)
+        
     # plot data
     for i in range(len(Data)):
         graph = ax.step(Data[i], Proba[i], linewidth = 1.2, linestyle = '-', color = Colors[i])
@@ -228,10 +226,8 @@ def CreateAx(Columns, Rows, Position, figure, Data, Proba, Labels, YLabel, XLabe
 # create figure
 fig = plt.figure(1, figsize = (5, 3.3))
 
-
 # make list of labels
 Label1 = ['Nst', 'Pbk', 'Con', 'Div']
-
 # compare distributions based using Kolmogorov-Smirnov statistic on 2 samples.
 Label2 = ['Nst', 'Pbk', 'Not']
 for i in range(0, len(SameStrdData) -1):
@@ -262,14 +258,10 @@ ax1 = CreateAx(2, 1, 1, fig, LengthData, ProbaLength, Label1, 'Probability', 'Ov
 ax2 = CreateAx(2, 2, 2, fig, SameStrdData, SameStrdProba, Label2, 'Probability', 'Length ratio (%)', [i for i in range(0, 110, 10)], [str(i) for i in range(0, 110, 10)], ['#f03b20', '#43a2ca', 'lightgrey'], True, 'Same strand')
 ax3 = CreateAx(2, 2, 4, fig, OppositeStrdData, OppositeStrdProba, Label3, 'Probability', 'Length ratio (%)', [i for i in range(0, 110, 10)], [str(i) for i in range(0, 110, 10)], ['#f03b20', '#fee391', '#74c476', 'lightgrey'], True, 'Opposite strand')
 
-
 # add subplot labels
-ax2.text(-160, 1.2, 'A', horizontalalignment='center', verticalalignment='center',
-         color = 'black', fontname = 'Arial', size = 8)
-ax2.text(-20, 1.2, 'B', horizontalalignment='center', verticalalignment='center',
-         color = 'black', fontname = 'Arial', size = 8)
-ax3.text(-20, 1.2, 'C', horizontalalignment='center', verticalalignment='center',
-         color = 'black', fontname = 'Arial', size = 8)
+ax2.text(-160, 1.2, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
+ax2.text(-20, 1.2, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
+ax3.text(-20, 1.2, 'C', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
          
 # make sure subplots do not overlap
 plt.tight_layout()
