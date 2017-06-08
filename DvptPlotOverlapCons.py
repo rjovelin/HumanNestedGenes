@@ -7,15 +7,6 @@ Created on Wed Jun  7 18:25:55 2017
 
 # use this script to plot conservation of overlapping genes
 
-
-#https://pythonhosted.org/DendroPy/primer/trees.html
-#http://huboqiang.cn/2016/02/13/PyHeatMapHcl
-#https://stackoverflow.com/questions/33282368/plotting-a-2d-heatmap-with-matplotlib
-#http://seaborn.pydata.org/generated/seaborn.heatmap.html
-#https://matplotlib.org/examples/pylab_examples/pcolor_small.html
-
-
-
 # import modules
 # use Agg backend on server without X server
 import matplotlib as mpl
@@ -480,6 +471,11 @@ gs = gridspec.GridSpec(2, 3, width_ratios=[3, 1])
 ax1 = CreateAx(2, 2, 2, 3, 0, 0, figure, gs, Conserved, 'heatmap')
 ax2 = CreateAx(1, 1, 2, 3, 0, 2, figure, gs, PairCounts, 'pairs')
 ax3 = CreateAx(1, 1, 2, 3, 1, 2, figure, gs, ConservedPairs, 'distance')
+
+# add subplot labels
+ax2.text(-2.5, 1.1, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
+ax2.text(-0.3, 1.1, 'B', horizontalalignment='center', verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
+ax3.text(-0.3, 1.1, 'C', horizontalalignment='center', verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
 
 # make sure subplots do not overlap
 plt.tight_layout()
