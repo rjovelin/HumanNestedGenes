@@ -374,16 +374,13 @@ newfile.close()
     
 
 
-    
-#############################################################        
-
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
+def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, GraphType):
     '''
     Returns a ax instance in figure
     '''    
-    # add a plot to figure (N row, N column, plot N)
-    ax = figure.add_subplot(Rows, Columns, Position)
+    # add a plot using gridspec
+    ax = plt.subplot2grid((Grid1,Grid2), (RowPos,ColPos), colspan=NColumns, rowspan=NRows)
 
     if GraphType == 'heatmap':
         # plot heatmap (use vmin and vmax to get the full range of values)
@@ -483,152 +480,15 @@ def CreateAx(Columns, Rows, Position, figure, Data, GraphType):
     return ax
 
 
-
-
-
-## 1) plot (1)
-#
-## create figure
-#figure = plt.figure(1, figsize = (5, 5))
-## add a plot to figure (N row, N column, plot N)
-#ax = figure.add_subplot(1, 1, 1)
-#
-## plot heatmap (use vmin and vmax to get the full range of values)
-#heatmap = ax.imshow(Conserved, interpolation = 'nearest', cmap = 'YlGn')
-## add heatmap scale 
-#cbar = plt.colorbar(heatmap)
-## edit tcik parameters of the heatmap scale
-#cbar.ax.tick_params(labelsize=7)
-#cbar.ax.tick_params(direction = 'out')
-#
-## edit xticks
-#plt.xticks([0,1,2,3,4,5,6], ['Not', 'Nst', 'Ext', 'Int', 'Pbk', 'Con', 'Div'])
-#plt.yticks([i for i in range(16)], ['Chimp', 'Gorilla', 'Orangutan', 'Macaque',
-#           'Marmoset', 'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse',
-#           'Sloth', 'Armadillo','Opossum', 'Platypus'])
-#
-#
-## do not show lines around figure  
-#ax.spines["top"].set_visible(False)    
-#ax.spines["bottom"].set_visible(False)    
-#ax.spines["right"].set_visible(False)
-#ax.spines["left"].set_visible(False)  
-## edit tick parameters    
-#plt.tick_params(axis='both', which='both', bottom='on', top='off',
-#                right = 'off', left = 'on', labelbottom='on', labelleft = 'on',
-#                colors = 'black', labelsize = 7, direction = 'out')  
-## Set the tick labels font name
-#for label in ax.get_yticklabels():
-#    label.set_fontname('Arial')   
-#   
-## save figure
-#figure.savefig('truc.pdf', bbox_inches = 'tight')
-#
-#
-## 2) plot (2)
-#
-#fig = plt.figure(1, figsize = (1.3, 1.3))
-#
-## create subplot in figure
-## add a plot to figure (N row, N column, plot N)
-#ax = fig.add_subplot(1, 1, 1)
-#a, b, c = [i[0] for i in PairCounts], [i[1] for i in PairCounts], [i[2] for i in PairCounts]
-## make a list for added values for a and b
-#d = [a[i] + b[i] for i in range(len(a))]
-#
-### Create a bar plot for proportions of conserved gene pairs
-#ax.bar([0, 0.4, 0.8, 1.2], a, width = 0.3, label = '2 conserved', color= '#9e9ac8', linewidth = 0.7)
-#ax.bar([0, 0.4, 0.8, 1.2], b, width = 0.3, bottom = a, label = '1 conserved', color= '#fd8d3c', linewidth = 0.7)
-#ax.bar([0, 0.4, 0.8, 1.2], c, width = 0.3, bottom = d, label = '0 conserved', color= '#78c679', linewidth = 0.7)
-#
-#
-#LabelSize = 7
-#
-## set font for all text in figure
-#FigFont = {'fontname':'Arial'}   
-## write label for y and x axis
-#ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = LabelSize, ha = 'center', **FigFont)
-## write label for x axis
-#plt.xticks([0.15, 0.55, 0.95, 1.35], ['Nst', 'Pbk', 'Con', 'Div'], ha = 'center', fontsize = LabelSize, **FigFont)
-#
-## limit the y axis value range
-#plt.ylim([0, 1])   
-## do not show lines around figure  
-#ax.spines["top"].set_visible(False)    
-#ax.spines["bottom"].set_visible(True)    
-#ax.spines["right"].set_visible(False)    
-#ax.spines["left"].set_visible(True)  
-#
-## do not show ticks
-#plt.tick_params(axis='both', which='both', bottom='on', top='off', right = 'off',
-#                left = 'on', labelbottom='on', colors = 'black', labelsize = LabelSize, direction = 'out')  
-#  
-## Set the tick labels font name
-#for label in ax.get_yticklabels():
-#    label.set_fontname('Arial')   
-## create a margin around the x axis
-#plt.margins(0.1)
-#
-## add legend
-#Two = mpatches.Patch(facecolor = '#9e9ac8' , edgecolor = 'black', linewidth = 0.7, label= '2')
-#One = mpatches.Patch(facecolor = '#fd8d3c' , edgecolor = 'black', linewidth = 0.7, label= '1')
-#Zero = mpatches.Patch(facecolor = '#78c679' , edgecolor = 'black', linewidth = 0.7, label= '0')
-#ax.legend(handles = [Two, One, Zero], loc = (-0.3, 1.05), fontsize = LabelSize, frameon = False, ncol = 3)
-#
-## save figure
-#fig.savefig('truc.pdf', bbox_inches = 'tight')
-#
-#
-## 3) plot (3)
-#
-## make a list of gene category names parallel to the list of gene pairs
-#GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
-#
-## create figure
-#fig = plt.figure(1, figsize = (3, 2))
-## add a plot to figure (N row, N column, plot N)
-#ax = fig.add_subplot(1, 1, 1)
-## set colors
-#colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
-## plot proportions of gene pairs
-#ax.bar([0.05, 0.35, 0.65, 0.95, 1.25, 1.55, 1.85, 2.15], [ConservedPairs[i] for i in GeneTypes], 0.2, color = colorscheme,
-#       edgecolor = 'black', linewidth = 0.7)
-## set font for all text in figure
-#FigFont = {'fontname':'Arial'}   
-## write y axis label
-#ax.set_ylabel('Proportion of gene pairs', color = 'black',  size = 7, ha = 'center', **FigFont)
-## add ticks and lebels
-#plt.xticks([0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
-#
-### add a range for the Y and X axes
-#plt.ylim([0, 1])
-## edit y axis ticks
-#plt.yticks(np.arange(0, 1.2, 0.2)) 
-#plt.xlim([0, 2.45])
-#
-## do not show lines around figure  
-#ax.spines["top"].set_visible(False)    
-#ax.spines["bottom"].set_visible(True)    
-#ax.spines["right"].set_visible(False)
-#ax.spines["left"].set_visible(True)  
-## edit tick parameters    
-#plt.tick_params(axis='both', which='both', bottom='on', top='off',
-#                right = 'off', left = 'on', labelbottom='on',
-#                colors = 'black', labelsize = 7, direction = 'out')  
-## Set the tick labels font name
-#for label in ax.get_yticklabels():
-#    label.set_fontname('Arial')   
-#      
-#    
-## save figure
-#fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
 # create figure
 figure = plt.figure(1, figsize = (8, 5))
-ax1 = CreateAx(2, 1, 1, figure, Conserved, 'heatmap')
-ax2 = CreateAx(2, 2, 2, figure, PairCounts, 'pairs')
-ax3 = CreateAx(2, 2, 4, figure, ConservedPairs, 'distance')
+# set up grid
+gs = gridspec.GridSpec(2, 3, width_ratios=[3, 1]) 
+# plot data
+ax1 = CreateAx(2, 2, 2, 3, 0, 0, figure, gs, Conserved, 'heatmap')
+ax2 = CreateAx(1, 1, 2, 3, 0, 2, figure, gs, PairCounts, 'pairs')
+ax3 = CreateAx(1, 1, 2, 3, 1, 2, figure, gs, ConservedPairs, 'distance')
+
 # make sure subplots do not overlap
 plt.tight_layout()
 # save figure
