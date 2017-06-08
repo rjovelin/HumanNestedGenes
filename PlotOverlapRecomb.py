@@ -146,6 +146,3 @@ plt.margins(0.1)
 # save figure
 figure.savefig('truc.pdf', bbox_inches = 'tight')
 
-#https://stackoverflow.com/questions/33282368/plotting-a-2d-heatmap-with-matplotlib
-#http://seaborn.pydata.org/generated/seaborn.heatmap.html
-#https://matplotlib.org/examples/pylab_examples/pcolor_small.html
