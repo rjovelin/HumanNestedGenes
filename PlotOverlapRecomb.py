@@ -129,7 +129,7 @@ FigFont = {'fontname':'Arial'}
 # write y axis label
 ax.set_ylabel('Odds ratios', color = 'black',  size = 7, ha = 'center', **FigFont)
 # add ticks and lebels
-plt.xticks([0.1, 0.2, 0.3, 0.4, 0.5], ['All', 'Nst', 'Pbk', 'Conv', 'Div'], rotation = 0, size = 7, color = 'black', ha = 'right', **FigFont)
+plt.xticks([0.1, 0.2, 0.3, 0.4, 0.5], ['All', 'Nst', 'Pbk', 'Con', 'Div'], rotation = 0, size = 7, color = 'black', ha = 'center', **FigFont)
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
 ax.spines["bottom"].set_visible(True)    
