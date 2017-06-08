@@ -31,7 +31,8 @@ from HsaNestedGenes import *
 
 Species = sys.argv[1]
 assert Species in ['chimp', 'mouse']
-
+Conserved = sys.argv[2]
+assert Conserved in ['Conserved', 'NotConserved']
 
 # load dictionaries of overlapping genes
 JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json',
@@ -86,6 +87,80 @@ GeneCats = ['Not', 'Nst', 'Int', 'Ext', 'Pbk', 'Con', 'Div']
 AllPairs = []
 AllGenes = [NonOverlappingGenes, OverlappingGeneSets[1], InternalGenes, ExternalGenes,
             OverlappingGeneSets[2], OverlappingGeneSets[3], OverlappingGeneSets[4]] 
+
+# reverse dictionary if Conserved
+if Conserved == 'Conserved':
+    # reverse dictionary 
+    Sp2Orthos = {}
+    for gene in Orthos:
+        for ortho in Orthos[gene]:
+            if ortho not in Sp2Orthos:
+                Sp2Orthos[ortho] = [gene]
+            else:
+                Sp2Orthos[ortho].append(gene)
+    # load the dictionaries of second species
+    Sp2Files = ['Overlapping', 'Nested', 'PiggyBack', 'Convergent', 'Divergent']
+    # make a list of dictionaries
+    Sp2Overlap = []
+    # loop over files
+    for i in range(len(Sp2Files)):
+        # load dictionary of overlapping gene pairs
+        json_data = open(Species.title() + Sp2Files[i] + 'Genes.json')
+        overlapping = json.load(json_data)
+        json_data.close()
+        Sp2Overlap.append(overlapping)
+    # get GFF file
+    if Species == 'chimp':
+        Sp2GFF = 'Pan_troglodytes.CHIMP2.1.4.88.gff3'
+    elif Species == 'mouse':
+        Sp2GFF = 'Mus_musculus.GRCm38.88.gff3'
+    # get the coordinates of genes on each chromo
+    # {chromo: {gene:[chromosome, start, end, sense]}}
+    Sp2GeneChromoCoord = ChromoGenesCoord(Sp2GFF)
+    # map each gene to its mRNA transcripts
+    Sp2MapGeneTranscript = GeneToTranscripts(Sp2GFF)
+    # remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
+    Sp2GeneChromoCoord = FilterOutGenesWithoutValidTranscript(Sp2GeneChromoCoord, Sp2MapGeneTranscript)
+    # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+    Sp2GeneCoord = FromChromoCoordToGeneCoord(Sp2GeneChromoCoord)
+    # generate gene sets
+    Sp2OverlappingGeneSets = []
+    for i in range(len(Sp2Overlap)):
+        Sp2OverlappingGeneSets.append(MakeFullPartialOverlapGeneSet(Sp2Overlap[i]))
+    # make a set of non-overlapping genes
+    Sp2NonOverlappingGenes = MakeNonOverlappingGeneSet(Sp2Overlap[0], Sp2GeneCoord)
+    # create sets of internal and external nested gene pairs
+    Sp2NestedPairs = GetHostNestedPairs(Sp2Overlap[1])
+    Sp2InternalGenes, Sp2ExternalGenes = set(), set()
+    for pair in Sp2NestedPairs:
+        Sp2ExternalGenes.add(pair[0])
+        Sp2InternalGenes.add(pair[1])
+    # create lists of gene sets in second species 
+    Sp2AllGenes = [Sp2NonOverlappingGenes, Sp2OverlappingGeneSets[1], Sp2InternalGenes, Sp2ExternalGenes,
+                Sp2OverlappingGeneSets[2], Sp2OverlappingGeneSets[3], Sp2OverlappingGeneSets[4]] 
+    # remove human genes if their orthologs are not in the same class 
+    for i in range(len(AllGenes)):
+        to_remove = set()
+        # loop over human gene
+        for gene in AllGenes[i]:
+            # set boolean to check if ortholog is in the same gene class in second species
+            PresentInSp2 = False
+            # check if ortho present in same gene class of second species
+            if gene in Orthos:
+                for ortho in Orthos[gene]:
+                    if ortho in Sp2AllGenes[i]:
+                        # update boolean
+                        PresentInSp2 = True
+                # check if ortho is present in sp2
+                if PresentInSp2 == False:
+                    to_remove.add(gene)
+            else:
+                to_remove.add(gene)
+        # remove genes
+        if len(to_remove) != 0:
+            for gene in to_remove:
+                AllGenes[i].remove(gene)
+        
 # loop over gene sets
 for i in range(len(AllGenes)):
     # create a list of gene pairs
@@ -126,6 +201,8 @@ for i in range(len(AllPairs)):
             if pair[1] in SeqDiv[pair[0]]:
                 nucldiv.append(SeqDiv[pair[0]][pair[1]])
     Divergence.append(nucldiv)
+    
+ 
     
  # create lists with means and SEM for divergence for each gene category
 MeanDiverg, SEMDiverg = [], []
@@ -238,7 +315,7 @@ if Species == 'chimp':
 elif Species == 'mouse':
     YMaxSeq, YMaxExp = 0.305, 0.505
     
-ax1 = CreateAx(2, 1, 1, fig, [MeanDiverg, SEMDiverg], GeneCats, 'Nucleotide divergence (dN/dS)', YMaxSeq)
+ax1 = CreateAx(2, 1, 1, fig, [MeanDiverg, SEMDiverg], GeneCats, 'Nucleotide divergence ' + '(' + '$\mathit{dN/dS}$' + ')', YMaxSeq)
 ax2 = CreateAx(2, 1, 2, fig, [MeanExpDiv, SEMExpDiv], GeneCats, 'Expression divergence', YMaxExp)
 
 # annotate figure to add significance
