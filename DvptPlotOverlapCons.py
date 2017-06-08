@@ -117,9 +117,6 @@ Conserved = np.array(Conserved)
 Conserved = np.transpose(Conserved)
 
 
-
-##########################
-
 # 2) plot conservation of gene pairs, full, partial or none between human and mouse
 
 # make parallel lists of json files with each overlapping classes [human, mouse]
@@ -208,11 +205,6 @@ for i in range(len(AllPairs)):
         counts[j] = counts[j] / len(AllPairs[i][0])
     PairCounts.append(counts)
     assert sum(counts) == 1
-
-
-
-
-##############################
 
 
 # 3) plot the % of orthologous gene pairs with same topology between human and mouse
@@ -413,14 +405,9 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
         # make a list for added values for a and b
         d = [a[i] + b[i] for i in range(len(a))]
         ## Create a bar plot for proportions of conserved gene pairs
-        #ax.bar([0, 0.4, 0.8, 1.2], a, width = 0.3, label = '2 conserved', color= '#9e9ac8', linewidth = 0.7)
-        #ax.bar([0, 0.4, 0.8, 1.2], b, width = 0.3, bottom = a, label = '1 conserved', color= '#fd8d3c', linewidth = 0.7)
-        #ax.bar([0, 0.4, 0.8, 1.2], c, width = 0.3, bottom = d, label = '0 conserved', color= '#78c679', linewidth = 0.7)
-        
         ax.bar([0, 0.3, 0.6, 0.9], a, width = 0.2, label = '2 conserved', color= '#9e9ac8', linewidth = 0.7)
         ax.bar([0, 0.3, 0.6, 0.9], b, width = 0.2, bottom = a, label = '1 conserved', color= '#fd8d3c', linewidth = 0.7)
         ax.bar([0, 0.3, 0.6, 0.9], c, width = 0.2, bottom = d, label = '0 conserved', color= '#78c679', linewidth = 0.7)
-        
         LabelSize = 7
         # set font for all text in figure
         FigFont = {'fontname':'Arial'}   
@@ -447,7 +434,7 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
         Two = mpatches.Patch(facecolor = '#9e9ac8' , edgecolor = 'black', linewidth = 0.7, label= '2')
         One = mpatches.Patch(facecolor = '#fd8d3c' , edgecolor = 'black', linewidth = 0.7, label= '1')
         Zero = mpatches.Patch(facecolor = '#78c679' , edgecolor = 'black', linewidth = 0.7, label= '0')
-        ax.legend(handles = [Two, One, Zero], loc = (-0.3, 1.05), fontsize = LabelSize, frameon = False, ncol = 3)
+        ax.legend(handles = [Two, One, Zero], loc = (0.1, 1.05), fontsize = LabelSize, frameon = False, ncol = 3)
     elif GraphType == 'distance':
         # make a list of gene category names parallel to the list of gene pairs
         GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
