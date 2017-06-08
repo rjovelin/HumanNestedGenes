@@ -111,14 +111,14 @@ colorscheme = ['#8856a7', '#f03b20', '#43a2ca', '#fee391', '#74c476']
 #ax.errorbar([0.1, 0.2, 0.3, 0.4, 0.5], OddsRatios, yerr = [LowerConf, UpperConf], fmt = 'o',
 #            color = colorscheme, linewidth = 0.7, ecolor = colorscheme, elinewidth = 0.7, capsize = None,
 #            capthick = None)
- 
+ax.errorbar([0.1, 0.2, 0.3, 0.4, 0.5], OddsRatios, yerr = [LowerConf, UpperConf], fmt = 'o',
+            color = colorscheme, linewidth = 0.7, ecolor = colorscheme, elinewidth = 0.7)
 # make a list of xtick positions
 XPos = [0.1, 0.2, 0.3, 0.4, 0.5]
-for i in range(len(OddsRatios)):
-    ax.errorbar(XPos[i], OddsRatios[i], yerr = [LowerConf[i], UpperConf[i]], fmt = 'o',
-                elinewidth = 0.7)
+#for i in range(len(OddsRatios)):
+#    ax.errorbar(XPos[i], OddsRatios[i], yerr = [LowerConf[i], UpperConf[i]], fmt = 'o')
 # set Y axis limits
-ax.ylim([0, 1.2])
+plt.ylim([0, 1.2])
 # draw a vertical line y = 1
 plt.plot((0.1, 0.5), (1, 1), 'k--', lw = 0.7)
 # set font for all text in figure
