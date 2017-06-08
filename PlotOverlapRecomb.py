@@ -60,10 +60,11 @@ for i in range(len(Overlap)):
     GeneSets.append(MakeFullPartialOverlapGeneSet(Overlap[i]))
 # make a set of non-overlapping genes
 NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
-
+print('made gene sets')
 
 # get the coordinates of recombination hot and cold spots on each chromo
 RecombSpots = GetColdHotRecomSport('CS_HRR_autosomes_final.bed')
+print('parsed recombination file')
 
 # assign overlapping genes to hot and cold spots
 OverlappingHotColdSpots = []
@@ -71,6 +72,7 @@ for i in range(len(GeneSets)):
     OverlappingHotColdSpots.append(AssignGenesToRecombSpots(GeneSets[i], RecombSpots, GeneCoord))
 # assign non-overlapping genes to hot and cold spots
 NonOverlappingHotColdSpots = AssignGenesToRecombSpots(NonOverlappingGenes, RecombSpots, GeneCoord)
+print('assign hot and cold spots')
 
 # make lists of hot and cold spots [[overlap hot, non-overlap hot], [overlap cold, non-overlap cold]]
 GetL = lambda x: len(x)
@@ -79,6 +81,7 @@ NestedHotColdSpots = list(zip(map(GetL, OverlappingHotColdSpots[1]), map(GetL, N
 PbkHotColdSpots = list(zip(map(GetL, OverlappingHotColdSpots[2]), map(GetL, NonOverlappingHotColdSpots)))
 ConHotColdSpots = list(zip(map(GetL, OverlappingHotColdSpots[3]), map(GetL, NonOverlappingHotColdSpots)))
 DivHotColdSpots = list(zip(map(GetL, OverlappingHotColdSpots[4]), map(GetL, NonOverlappingHotColdSpots)))
+print('made lists of hot and cold spots')
 
 #for L in [AllHotColdSpots, NestedHotColdSpots, PbkHotColdSpots, ConHotColdSpots, DivHotColdSpots]:
 #    print(L[0][0]/sum(L[0]), L[1][0]/sum(L[1]), stats.fisher_exact(L)[1])
@@ -97,7 +100,7 @@ for i in range(len(OddsRatios)):
     # store distance between odds ratio and 95% CI
     LowerConf.append(math.exp(math.log(OddsRatios[i]) - (1.96 * SEOdds[i])))
     UpperConf.append(math.exp(math.log(OddsRatios[i]) + (1.96 * SEOdds[i])))
-
+print('computed odds ration and CI')
 
 # create figure
 figure = plt.figure(1, figsize = (0.7, 1.5))
@@ -112,7 +115,7 @@ colorscheme = ['#8856a7', '#f03b20', '#43a2ca', '#fee391', '#74c476']
 #            color = colorscheme, linewidth = 0.7, ecolor = colorscheme, elinewidth = 0.7, capsize = None,
 #            capthick = None)
 ax.errorbar([0.1, 0.2, 0.3, 0.4, 0.5], OddsRatios, yerr = [LowerConf, UpperConf], fmt = 'o',
-            color = colorscheme, linewidth = 0.7, ecolor = colorscheme, elinewidth = 0.7)
+            linewidth = 0.7, elinewidth = 0.7)
 # make a list of xtick positions
 XPos = [0.1, 0.2, 0.3, 0.4, 0.5]
 #for i in range(len(OddsRatios)):
