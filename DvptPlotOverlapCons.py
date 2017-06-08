@@ -428,7 +428,7 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
         ax.legend(handles = [Two, One, Zero], loc = (0.1, 1.05), fontsize = LabelSize, frameon = False, ncol = 3)
     elif GraphType == 'distance':
         # make a list of gene category names parallel to the list of gene pairs
-        GeneCats = ['Nst', 'Pbk', 'Conv', 'Div', 'Prox', 'Mod', 'Int', 'Dist']
+        GeneCats = ['Nst', 'Pbk', 'Con', 'Div', 'Prx', 'Mod', 'Int', 'Dst']
         GeneTypes = ['Nested', 'PiggyBack', 'Convergent', 'Divergent', 'Proximal', 'Moderate', 'Intermediate', 'Distant']
         # set colors
         colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
