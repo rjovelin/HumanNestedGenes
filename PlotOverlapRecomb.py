@@ -83,8 +83,8 @@ ConHotColdSpots = list(zip(map(GetL, OverlappingHotColdSpots[3]), map(GetL, NonO
 DivHotColdSpots = list(zip(map(GetL, OverlappingHotColdSpots[4]), map(GetL, NonOverlappingHotColdSpots)))
 print('made lists of hot and cold spots')
 
-#for L in [AllHotColdSpots, NestedHotColdSpots, PbkHotColdSpots, ConHotColdSpots, DivHotColdSpots]:
-#    print(L[0][0]/sum(L[0]), L[1][0]/sum(L[1]), stats.fisher_exact(L)[1])
+for L in [AllHotColdSpots, NestedHotColdSpots, PbkHotColdSpots, ConHotColdSpots, DivHotColdSpots]:
+    print(L[0][0]/sum(L[0]), L[1][0]/sum(L[1]), stats.fisher_exact(L)[1])
 
 # compute odds ratios and standard error
 OddsRatios, SEOdds = [], []
@@ -100,6 +100,9 @@ for i in range(len(OddsRatios)):
     # store distance between odds ratio and 95% CI
     LowerConf.append(math.exp(math.log(OddsRatios[i]) - (1.96 * SEOdds[i])))
     UpperConf.append(math.exp(math.log(OddsRatios[i]) + (1.96 * SEOdds[i])))
+print(OddsRatios)
+print(UpperConf)
+print(LowerConf)
 print('computed odds ration and CI')
 
 # create figure
