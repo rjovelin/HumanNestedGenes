@@ -462,9 +462,8 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
       
     return ax
 
-
 # create figure
-figure = plt.figure(1, figsize = (8, 5))
+figure = plt.figure(1, figsize = (6.8, 3.8))
 # set up grid
 gs = gridspec.GridSpec(2, 3, width_ratios=[3, 1]) 
 # plot data
