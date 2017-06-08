@@ -98,8 +98,8 @@ for L in [AllHotColdSpots, NestedHotColdSpots, PbkHotColdSpots, ConHotColdSpots,
 LowerConf, UpperConf = [], []
 for i in range(len(OddsRatios)):
     # store distance between odds ratio and 95% CI
-    LowerConf.append(math.exp(math.log(OddsRatios[i]) - (1.96 * SEOdds[i])))
-    UpperConf.append(math.exp(math.log(OddsRatios[i]) + (1.96 * SEOdds[i])))
+    LowerConf.append(OddsRatios[i] - math.exp(math.log(OddsRatios[i]) - (1.96 * SEOdds[i])))
+    UpperConf.append(math.exp(math.log(OddsRatios[i]) + (1.96 * SEOdds[i])) - OddsRatios[i])
 print(OddsRatios)
 print(UpperConf)
 print(LowerConf)
