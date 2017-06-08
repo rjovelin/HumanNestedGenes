@@ -103,7 +103,7 @@ for i in range(len(OddsRatios)):
 print('computed odds ration and CI')
 
 # create figure
-figure = plt.figure(1, figsize = (0.7, 1.5))
+figure = plt.figure(1, figsize = (1, 1.5))
 # add a plot to figure (N row, N column, plot N)
 ax = figure.add_subplot(1, 1, 1)
 
