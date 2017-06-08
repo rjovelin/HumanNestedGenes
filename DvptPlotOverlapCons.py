@@ -472,9 +472,9 @@ ax2 = CreateAx(1, 1, 2, 3, 0, 2, figure, gs, PairCounts, 'pairs')
 ax3 = CreateAx(1, 1, 2, 3, 1, 2, figure, gs, ConservedPairs, 'distance')
 
 # add subplot labels
-ax2.text(-2.5, 1.1, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
-ax2.text(-0.3, 1.1, 'B', horizontalalignment='center', verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
-ax3.text(-0.3, 1.1, 'C', horizontalalignment='center', verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
+ax2.text(-2.8, 1.1, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
+ax2.text(-0.4, 1.1, 'B', horizontalalignment='center', verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
+ax3.text(-0.4, 1.1, 'C', horizontalalignment='center', verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
 
 # make sure subplots do not overlap
 plt.tight_layout()
