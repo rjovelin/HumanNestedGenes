@@ -103,7 +103,7 @@ for i in range(len(OddsRatios)):
 print('computed odds ration and CI')
 
 # create figure
-figure = plt.figure(1, figsize = (1, 1.5))
+figure = plt.figure(1, figsize = (1.8, 1.5))
 # add a plot to figure (N row, N column, plot N)
 ax = figure.add_subplot(1, 1, 1)
 
@@ -111,19 +111,15 @@ ax = figure.add_subplot(1, 1, 1)
 colorscheme = ['#8856a7', '#f03b20', '#43a2ca', '#fee391', '#74c476']
 
 # plot odds ratio and confidence intervals
-#ax.errorbar([0.1, 0.2, 0.3, 0.4, 0.5], OddsRatios, yerr = [LowerConf, UpperConf], fmt = 'o',
-#            color = colorscheme, linewidth = 0.7, ecolor = colorscheme, elinewidth = 0.7, capsize = None,
-#            capthick = None)
 ax.errorbar([0.1, 0.2, 0.3, 0.4, 0.5], OddsRatios, yerr = [LowerConf, UpperConf], fmt = 'o',
-            linewidth = 0.7, elinewidth = 0.7)
+            linewidth = 0.7, elinewidth = 0.7, color = 'black', ecolor = 'black')
 # make a list of xtick positions
 XPos = [0.1, 0.2, 0.3, 0.4, 0.5]
-#for i in range(len(OddsRatios)):
-#    ax.errorbar(XPos[i], OddsRatios[i], yerr = [LowerConf[i], UpperConf[i]], fmt = 'o')
 # set Y axis limits
 plt.ylim([0, 1.2])
+plt.yticks(np.arange(0, 1.4, 0.2)) 
 # draw a vertical line y = 1
-plt.plot((0.1, 0.5), (1, 1), 'k--', lw = 0.7)
+plt.plot((0, 0.6), (1, 1), color = 'grey', ls = ':', lw = 0.7)
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
 # write y axis label
@@ -143,8 +139,8 @@ plt.tick_params(axis='both', which='both', bottom='on', top='off',
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
    
-# add margins
-plt.margins(0.1)
+## add margins
+#plt.margins(0.1)
 
 # save figure
 figure.savefig('truc.pdf', bbox_inches = 'tight')
