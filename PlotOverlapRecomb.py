@@ -63,7 +63,8 @@ NonOverlappingGenes = MakeNonOverlappingGeneSet(Overlap[0], GeneCoord)
 print('made gene sets')
 
 # get the coordinates of recombination hot and cold spots on each chromo
-RecombSpots = GetColdHotRecomSport('CS_HRR_autosomes_final.bed')
+# use recombination hot and cold spot coordinates convereted from GRCH37 to GRCH38 with Ensembl online tool
+RecombSpots = GetColdHotRecomSport('CS_HRR_autosomes_final_GRCH38converted.bed')
 print('parsed recombination file')
 
 # assign overlapping genes to hot and cold spots
