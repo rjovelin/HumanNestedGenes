@@ -98,7 +98,6 @@ for i in range(len(AllGenes)):
                 orthologs.append([gene, homolog])
     AllPairs.append(orthologs)
 
-
 # 1) plot sequence divergence between orthologs for genes in each category
 
 # create a dict with divergence values {human_gene: {ortholog: divergence}}
