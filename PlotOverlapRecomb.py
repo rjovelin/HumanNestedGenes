@@ -139,9 +139,7 @@ plt.tick_params(axis='both', which='both', bottom='on', top='off',
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
    
-## add margins
-#plt.margins(0.1)
-
 # save figure
-figure.savefig('truc.pdf', bbox_inches = 'tight')
+figure.savefig('OverlapRecombSpots.pdf', bbox_inches = 'tight')
+figure.savefig('OverlapRecombSpots.eps', bbox_inches = 'tight')
 
