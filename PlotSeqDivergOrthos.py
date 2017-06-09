@@ -26,6 +26,9 @@ import numpy as np
 from scipy import stats
 from HsaNestedGenes import *
 
+Species = sys.argv[1]
+
+
 
 # load dictionary of overlapping gene pairs
 json_data = open('HumanOverlappingGenes.json')
@@ -49,7 +52,7 @@ Divergent = json.load(json_data)
 json_data.close()
 
 # get GFF file
-GFF = 'Homo_sapiens.GRCh38.86.gff3'
+GFF = 'Homo_sapiens.GRCh38.88.gff3'
 # get the coordinates of genes on each chromo
 # {chromo: {gene:[chromosome, start, end, sense]}}
 GeneChromoCoord = ChromoGenesCoord(GFF)
@@ -77,8 +80,8 @@ for pair in NestedPairs:
     ExternalGenes.add(pair[0])
     InternalGenes.add(pair[1])
     
-# get 1:1 orthologs between human and chimp
-Orthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
+# get orthologs
+Orthos = MatchOrthologs('Human' + Species.title() + 'Orthologs.txt')
 
 # create lists of orthologous pairs for each gene category 
 GeneCats = ['NoOv', 'Nst', 'Int', 'Ext', 'Pbk', 'Conv', 'Div']
@@ -93,28 +96,45 @@ for i in range(len(AllGenes)):
     for gene in AllGenes[i]:
         # check that gene has ortholog
         if gene in Orthos:
-            orthologs.append([gene, Orthos[gene]])
+            for ortho in Orthos[gene]:
+                orthologs.append([gene, ortho])
     AllPairs.append(orthologs)
 
     
 # create a dict with divergence values
 SeqDiv = {}
-infile = open('HumanChimpSeqDiverg.txt')
+infile = open('Human' + Species.title() + 'SeqDiverg.txt')
 infile.readline()
 for line in infile:
     if line.startswith('ENSG'):
         line = line.rstrip().split('\t')
-        SeqDiv[line[0]] = [float(line[2]), float(line[3])]
+        SeqDiv[line[0]] = {}
+        SeqDiv[line[0]][line[1]] = [float(line[2]), float(line[3])]
 infile.close()            
+ 
+
+           
     
+# make list of divergence for each gene category
+Divergence = []
+for i in range(len(AllPairs)):
+    nucldiv = []
+    for pair in AllPairs[i]:
+        if pair[0] in SeqDiv:
+            if pair[1] in SeqDiv[pair[0]]:
+                nucldiv.append(SeqDiv[pair[0]][pair[1]])
+    Divergence.append(nucldiv)
+
+
 # make lists of dN, dS and omega values for each gene category
 dN, dS = [], []
 for i in range(len(AllPairs)):
     nonsyn, syn = [], []
     for pair in AllPairs[i]:
         if pair[0] in SeqDiv:
-            nonsyn.append(SeqDiv[pair[0]][0])
-            syn.append(SeqDiv[pair[0]][1])
+            if pair[1] in SeqDiv[pair[0]]:
+                nonsyn.append(SeqDiv[pair[0]][pair[1]][0])
+                syn.append(SeqDiv[pair[0]][pair[1]][1])
     dN.append(nonsyn)
     dS.append(syn)
     
@@ -233,6 +253,8 @@ for i in range(len(PValdS)):
 plt.tight_layout()
 
 # save figure
-figure.savefig('NucleotideDivergenceOrthos.pdf', bbox_inches = 'tight')
-figure.savefig('NucleotideDivergenceOrthos.eps', bbox_inches = 'tight')
+figure.savefig('truc.pdf', bbox_inches = 'tight')
+
+#figure.savefig('NucleotideDivergenceOrthos.pdf', bbox_inches = 'tight')
+#figure.savefig('NucleotideDivergenceOrthos.eps', bbox_inches = 'tight')
 
