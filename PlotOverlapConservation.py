@@ -30,9 +30,9 @@ from HsaNestedGenes import *
 # 1) plot the proportion of gene in each overlapping gene category that has orthologs in other species
 
 # make a parallel list of Species names
-Species = ['Human', 'Chimp', 'Gorilla', 'Macaque', 'Orangutan', 'Marmoset',
-           'Mouse', 'Cow', 'Dog', 'Sloth', 'Armadillo', 'Horse', 'Hedgehog',
-           'Cat', 'Opossum', 'Platypus', 'Shrew']
+Species = ['Human', 'Chimp', 'Gorilla', 'Orangutan', 'Macaque', 'Marmoset',
+           'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse', 'Sloth',
+           'Armadillo', 'Opossum', 'Platypus']
 
 # make a list of json files
 JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json', 'HumanPiggyBackGenes.json', 'HumanConvergentGenes.json', 'HumanDivergentGenes.json']
