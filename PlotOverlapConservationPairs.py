@@ -111,10 +111,10 @@ for i in range(len(AllGenePairs)):
     SpeciesOrthos = {}
     for gene in Orthos:
         for ortho in Orthos[gene]:
-            if ortho not in SpeciesOrthologs:
-                SpeciesOrthologs[ortho] = [gene]
+            if ortho not in SpeciesOrthos:
+                SpeciesOrthos[ortho] = [gene]
             else:
-                SpeciesOrthologs[ortho].append(gene)
+                SpeciesOrthos[ortho].append(gene)
     # loop over overlapping gene class
     for j in range(len(AllGenePairs[i])):
         # make pairs of human genes
