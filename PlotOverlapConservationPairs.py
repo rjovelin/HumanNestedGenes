@@ -118,7 +118,7 @@ for i in range(len(AllGenePairs)):
     # loop over overlapping gene class
     for j in range(len(AllGenePairs[i])):
         # make pairs of human genes
-        HumanPairs = GetHostNestedPairs(HsaAllOverlap[j])
+        HumanPairs = GetHostNestedPairs(HumanAllOverlap[j])
         # remove pairs if any gene is lacking an ortholog
         to_remove = [L for L in HumanPairs if L[0] not in Orthos or L[1] not in Orthos]
         for L in to_remove:
@@ -127,7 +127,7 @@ for i in range(len(AllGenePairs)):
         PairsOrthos = []            
         for pair in AllGenePairs[i][j]:
             # check that both genes have corodinates
-            assert pair[0] in AllCoordinates[i] and pair[1] in AllCoordinates
+            assert pair[0] in AllCoordinates[i] and pair[1] in AllCoordinates[i]
             # count only pairs in which both genes have orthos in human
             if pair[0] in SpeciesOrthos and pair[1] in SpeciesOrthos:
                 for ortho1 in SpeciesOrthos[pair[0]]:
