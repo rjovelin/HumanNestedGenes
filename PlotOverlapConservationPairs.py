@@ -140,7 +140,7 @@ for i in range(len(AllGenePairs)):
                 # update counter for the given gene class
                 ConservedPairs[j] += 1
         # compute proportion
-        ConservedPairs[j] = ConservedPairs[j] / len(humanPairs)
+        ConservedPairs[j] = ConservedPairs[j] / len(HumanPairs)
     # populate l;ist for the given species
     ConservedAcrossSpecies.append(ConservedPairs)
         
