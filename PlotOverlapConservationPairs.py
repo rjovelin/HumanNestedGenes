@@ -111,7 +111,7 @@ for i in range(len(AllGenePairs)):
     SpeciesOrthos = {}
     for gene in Orthos:
         for ortho in Orthos[gene]:
-            if ortho not in MouseOrthologs:
+            if ortho not in SpeciesOrthologs:
                 SpeciesOrthologs[ortho] = [gene]
             else:
                 SpeciesOrthologs[ortho].append(gene)
