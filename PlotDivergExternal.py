@@ -90,7 +90,7 @@ for i in range(len(ExpDivergOrientation)):
 
 
 # create figure
-fig = plt.figure(1, figsize = (2, 2))
+fig = plt.figure(1, figsize = (1.5, 2))
 
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
