@@ -144,9 +144,6 @@ for i in range(len(AllGenePairs)):
     # populate l;ist for the given species
     ConservedAcrossSpecies.append(ConservedPairs)
         
-for i in range(len(ConservedAcrossSpecies)):
-    print(i, Species[i+1], ConservedAcrossSpecies[i])
-    
     
     
 ## convert list to numpy array
