@@ -336,9 +336,6 @@ for i in range(1, len(JsonFiles)):
     for pair in HumanAdjacentgenePairs[JsonFiles[i]]:
         if set(pair) in PairsOrthos[i-1]:
             ConservedPairs[JsonFiles[i]] += 1
-# compute proportions
-for i in ConservedPairs:
-    ConservedPairs[i] = ConservedPairs[i] / len(HumanAdjacentgenePairs[i])    
     
 # test differences among gene categories
 # write P values to file
@@ -354,7 +351,12 @@ for i in range(len(GeneTypes)):
         Line.append(str(stats.fisher_exact([[ConservedPairs[GeneTypes[i]], len(HumanAdjacentgenePairs[GeneTypes[i]])-ConservedPairs[GeneTypes[i]]], [ConservedPairs[GeneTypes[j]], len(HumanAdjacentgenePairs[GeneTypes[j]])-ConservedPairs[GeneTypes[j]]]])[1]))
     newfile.write('\t'.join(Line) + '\n')
 newfile.close()
-    
+ 
+# compute proportions
+for i in ConservedPairs:
+    ConservedPairs[i] = ConservedPairs[i] / len(HumanAdjacentgenePairs[i])
+
+   
 
 # count pairs of overlapping genes for which orthologs are adjacent
 OvlOrthoAdjacent = {}
