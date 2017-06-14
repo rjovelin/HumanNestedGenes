@@ -135,7 +135,7 @@ for GeneType in HumanAdjacentgenePairs:
             FoundAdjacent = False
             # loop over the mouse gene pairs
             for i in range(len(L)):
-                gene1, gene2 = L[0], L[1]
+                gene1, gene2 = L[i][0], L[i][1]
                 # get indices of gene1 and gene2
                 I1, I2 = MouseOrdered[MouseCoord[gene1][0]].index(gene1), MouseOrdered[MouseCoord[gene2][0]].index(gene2)
                 # check if genes are adjacent
