@@ -238,7 +238,7 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
         cbar.ax.tick_params(labelsize=7)
         cbar.ax.tick_params(direction = 'out')
         # edit xticks
-        plt.xticks([0,1], ['Same', 'Opp'])
+        plt.xticks([0,1], ['S', 'O'])
    
     plt.yticks([i for i in range(16)], ['Chimp', 'Gorilla', 'Orangutan', 'Macaque',
                'Marmoset', 'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse',
