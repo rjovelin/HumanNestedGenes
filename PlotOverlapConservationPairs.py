@@ -264,16 +264,17 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
     return ax
 
 # create figure
-figure = plt.figure(1, figsize = (6.5, 4))
+figure = plt.figure(1, figsize = (5, 4))
 # set up grid
-gs = gridspec.GridSpec(1, 2, width_ratios=[3, 1]) 
+#gs = gridspec.GridSpec(1, 2, width_ratios=[3, 1]) 
+gs = gridspec.GridSpec(1, 2) 
 # plot data
 ax1 = CreateAx(1, 1, 1, 2, 0, 0, figure, gs, ConservedAcrossSpecies, 'pairs')
 ax2 = CreateAx(1, 1, 1, 2, 0, 1, figure, gs, ConservedNested, 'nested')
 
-## add subplot labels
-ax2.text(-2.8, 1.1, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
-ax2.text(-0.4, 1.1, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
+### add subplot labels
+#ax2.text(-2.8, 1.1, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
+#ax2.text(-0.4, 1.1, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
 
 # make sure subplots do not overlap
 plt.tight_layout()
