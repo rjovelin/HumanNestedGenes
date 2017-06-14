@@ -227,8 +227,10 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
         # edit tcik parameters of the heatmap scale
         cbar.ax.tick_params(labelsize=7)
         cbar.ax.tick_params(direction = 'out')
+        # set font for all text in figure
+        FigFont = {'fontname':'Arial'}   
         # edit xticks
-        plt.xticks([0,1,2,3], ['Nst', 'Pbk', 'Con', 'Div'])
+        plt.xticks([0,1,2,3], ['Nst', 'Pbk', 'Con', 'Div'], size = 7, color = 'black', ha = 'center', **FigFont)
     elif GraphType == 'nested':
         # plot heatmap (use vmin and vmax to get the full range of values)
         heatmap = ax.imshow(Data, interpolation = 'nearest', cmap = 'Oranges')
@@ -237,9 +239,13 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
         # edit tcik parameters of the heatmap scale
         cbar.ax.tick_params(labelsize=7)
         cbar.ax.tick_params(direction = 'out')
+        # set font for all text in figure
+        FigFont = {'fontname':'Arial'}   
         # edit xticks
-        plt.xticks([0,1], ['S', 'O'])
-   
+        plt.xticks([0,1], ['S', 'O'], size = 7, color = 'black', ha = 'center', **FigFont)
+        # add x axis label
+        ax.set_xlabel('Nested', color = 'black', size = 7, ha = 'center', **FigFont)  
+
     plt.yticks([i for i in range(16)], ['Chimp', 'Gorilla', 'Orangutan', 'Macaque',
                'Marmoset', 'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse',
                'Sloth', 'Armadillo','Opossum', 'Platypus'])
