@@ -6,14 +6,6 @@ Created on Tue Jun 13 18:58:58 2017
 """
 
 
-
-# -*- coding: utf-8 -*-
-"""
-Created on Mon Jun 12 14:07:23 2017
-
-@author: RJovelin
-"""
-
 #  use this script to plot conservation of overlapping pairs in mammals
 
 # import modules
@@ -43,7 +35,7 @@ Species = ['Human', 'Chimp', 'Gorilla', 'Orangutan',
            'Armadillo', 'Opossum', 'Platypus']
 
 # make a list of json files
-JsonFiles = ['Overlapping', 'Nested', 'PiggyBack', 'Convergent', 'Divergent']
+JsonFiles = ['Nested', 'PiggyBack', 'Convergent', 'Divergent']
 
 # make a list of lists of dictionaries for each type of overlapping gene in each species
 AllOverlap = []
@@ -57,7 +49,6 @@ for i in range(len(Species)):
         json_data.close()
     AllOverlap.append(ovlp)
 
-   
 # make a parallel list of ortholog files
 OrthoFiles = ['Human' + i + 'Orthologs.txt' for i in Species[1:]]
 
@@ -73,7 +64,7 @@ GFF_Files = ['Homo_sapiens.GRCh38.88.gff3', 'Pan_troglodytes.CHIMP2.1.4.88.gff3'
              'Ornithorhynchus_anatinus.OANA5.88.gff3']
 
 # make a list of gene coordinates       
-AllCoordinates, AllOrdered = [], []
+AllCoordinates = []
 # loop over GFF files
 for i in range(len(GFF_Files)):
     # get the coordinates of genes on each chromo
@@ -85,11 +76,8 @@ for i in range(len(GFF_Files)):
     GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
     # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
     GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
-    # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
-    OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
     AllCoordinates.append(GeneCoord)
-    AllOrdered.append(OrderedGenes)
-
+    
 # make a list of lists of pairs of genes
 AllGenePairs = []
 for i in range(len(AllOverlap)):
@@ -99,63 +87,9 @@ for i in range(len(AllOverlap)):
     AllGenePairs.append(sppairs)
 
 # extract human coordinates, ordered genes, and overlapping gene pairs
-HumanCoord, HumanOrdered, HumanGenePairs, HumanAllOverlap = AllCoordinates.pop(0), AllOrdered.pop(0), AllGenePairs.pop(0), AllOverlap.pop(0)
+HumanCoord, HumanGenePairs, HumanAllOverlap = AllCoordinates.pop(0), AllGenePairs.pop(0), AllOverlap.pop(0)
  
 assert len(AllOverlap) == len(AllGenePairs) == len(OrthoFiles) == len(Species[1:])
-
-
-# 1) plot the proportion of gene pairs in each overlapping gene category that are conserved in other species
-
-# make a list with counts of conserved pairs for each class of overlapping genes in each species
-ConservedAcrossSpecies = []
-# loop over species
-for i in range(len(AllGenePairs)):
-    # make a list with coutns of conserved pairs for each type of overlapping genes
-    ConservedPairs = [0] * len(AllGenePairs[i])
-    # get the orthologs for that species
-    Orthos = MatchOrthologs(OrthoFiles[i])
-    # reverse dictionary
-    SpeciesOrthos = {}
-    for gene in Orthos:
-        for ortho in Orthos[gene]:
-            if ortho not in SpeciesOrthos:
-                SpeciesOrthos[ortho] = [gene]
-            else:
-                SpeciesOrthos[ortho].append(gene)
-    # loop over overlapping gene class
-    for j in range(len(AllGenePairs[i])):
-        # make pairs of human genes
-        HumanPairs = GetHostNestedPairs(HumanAllOverlap[j])
-        # remove pairs if any gene is lacking an ortholog
-        to_remove = [L for L in HumanPairs if L[0] not in Orthos or L[1] not in Orthos]
-        for L in to_remove:
-            HumanPairs.remove(L)
-        # make pairs of human orthologs for each species gene pairs
-        PairsOrthos = []            
-        for pair in AllGenePairs[i][j]:
-            # check that both genes have corodinates
-            assert pair[0] in AllCoordinates[i] and pair[1] in AllCoordinates[i]
-            # count only pairs in which both genes have orthos in human
-            if pair[0] in SpeciesOrthos and pair[1] in SpeciesOrthos:
-                for ortho1 in SpeciesOrthos[pair[0]]:
-                    for ortho2 in SpeciesOrthos[pair[1]]:
-                        # remove order
-                        PairsOrthos.append(set([ortho1, ortho2]))
-        # check if human pairs are conserved
-        for pair in HumanPairs:
-            if set(pair) in PairsOrthos:
-                # update counter for the given gene class
-                ConservedPairs[j] += 1
-        # compute proportion
-        ConservedPairs[j] = ConservedPairs[j] / len(HumanPairs)
-    # populate l;ist for the given species
-    ConservedAcrossSpecies.append(ConservedPairs)
-        
-# convert list to numpy array
-ConservedAcrossSpecies = np.array(ConservedAcrossSpecies) 
-    
-## transpose array to get gene categories as columns and species as rows
-#Conserved = np.transpose(Conserved)
 
 
 # 2) plot the proportion of nested gene pairs conserved in each species when human gene pairs have same or oppositte strand orientation
@@ -226,7 +160,7 @@ ConservedNested = np.array(ConservedNested)
 
 
 
-# 3)
+# 3) plot the proportion of gene pairs that are overlapping in each species 
 
 # make a list with counts of conserved pairs in each species for overlapping genes defined by strand orientation
 ConservedOrientation = []
