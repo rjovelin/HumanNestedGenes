@@ -146,10 +146,7 @@ for GeneType in HumanAdjacentgenePairs:
             if FoundAdjacent == True:
                 ConservedPairs[GeneType] += 1
                                        
-# compute proportions
-for i in ConservedPairs:
-    ConservedPairs[i] = ConservedPairs[i] / len(HumanAdjacentgenePairs[i])    
-    
+   
 # test differences among gene categories
 # write P values to file
 newfile = open('AdjacentPairsPvalues.txt', 'w')
@@ -164,7 +161,23 @@ for i in range(len(GeneTypes)):
         Line.append(str(stats.fisher_exact([[ConservedPairs[GeneTypes[i]], len(HumanAdjacentgenePairs[GeneTypes[i]])-ConservedPairs[GeneTypes[i]]], [ConservedPairs[GeneTypes[j]], len(HumanAdjacentgenePairs[GeneTypes[j]])-ConservedPairs[GeneTypes[j]]]])[1]))
     newfile.write('\t'.join(Line) + '\n')
 newfile.close()
+   
+   
+for i in range(len(GeneTypes)):
+    for j in range(len(GeneTypes)):
+        P = stats.fisher_exact([[ConservedPairs[GeneTypes[i]], len(HumanAdjacentgenePairs[GeneTypes[i]])-ConservedPairs[GeneTypes[i]]], [ConservedPairs[GeneTypes[j]], len(HumanAdjacentgenePairs[GeneTypes[j]])-ConservedPairs[GeneTypes[j]]]])[1]
+        print (GeneTypes[i], GeneTypes[j], ConservedPairs[GeneTypes[i]], len(HumanAdjacentgenePairs[GeneTypes[i]])-ConservedPairs[GeneTypes[i]], ConservedPairs[GeneTypes[j]], len(HumanAdjacentgenePairs[GeneTypes[j]])-ConservedPairs[GeneTypes[j]], P)        
+   
+   
+# compute proportions
+for i in ConservedPairs:
+    ConservedPairs[i] = ConservedPairs[i] / len(HumanAdjacentgenePairs[i])    
     
+   
+   
+   
+   
+   
 
 # create figure
 figure = plt.figure(1, figsize = (2.5, 2))
