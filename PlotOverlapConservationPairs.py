@@ -61,9 +61,7 @@ MapGeneTranscript = GeneToTranscripts(GFF)
 GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
 # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
 HumanCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
-# Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
-AllCoordinates.append(GeneCoord)
-    
+   
 # make a list of lists of pairs of genes
 AllGenePairs = []
 for i in range(len(AllOverlap)):
@@ -202,7 +200,7 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
 
     if GraphType == 'pairs':
         # plot heatmap (use vmin and vmax to get the full range of values)
-        heatmap = ax.imshow(Data, interpolation = 'nearest', cmap = 'Purples')
+        heatmap = ax.imshow(Data, interpolation = 'nearest', cmap = 'Purples', vmin = 0, vmax = 0.5)
         # add heatmap scale 
         cbar = plt.colorbar(heatmap)
         # edit tcik parameters of the heatmap scale
@@ -214,7 +212,7 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
         plt.xticks([0,1,2,3], ['Nst', 'Pbk', 'Con', 'Div'], size = 7, color = 'black', ha = 'center', **FigFont)
     elif GraphType == 'nested':
         # plot heatmap (use vmin and vmax to get the full range of values)
-        heatmap = ax.imshow(Data, interpolation = 'nearest', cmap = 'Oranges')
+        heatmap = ax.imshow(Data, interpolation = 'nearest', cmap = 'Oranges', vmin = 0, vmax = 0.5)
         # add heatmap scale 
         cbar = plt.colorbar(heatmap)
         # edit tcik parameters of the heatmap scale
