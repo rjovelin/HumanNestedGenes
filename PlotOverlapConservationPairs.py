@@ -28,18 +28,13 @@ from HsaNestedGenes import *
 
 
 # make a parallel list of Species names
-Species = ['Human', 'Chimp',
-           'Gorilla', 'Orangutan',
-           'Macaque', 'Marmoset',
-           'Hedgehog', 'Shrew',
-           'Cat', 'Dog',
-           'Mouse', 'Cow',
-           'Horse', 'Sloth',
-           'Armadillo', 'Opossum',
-           'Platypus']
+Species = ['Human', 'Chimp', 'Gorilla', 'Orangutan',
+           'Macaque', 'Marmoset', 'Hedgehog', 'Shrew',
+           'Cat', 'Dog', 'Mouse', 'Cow', 'Horse', 'Sloth',
+           'Armadillo', 'Opossum', 'Platypus']
 
 # make a list of json files
-JsonFiles = ['Overlapping', 'Nested', 'PiggyBack', 'Convergent', 'Divergent']
+JsonFiles = ['Nested', 'PiggyBack', 'Convergent', 'Divergent']
 
 # make a list of lists of dictionaries for each type of overlapping gene in each species
 AllOverlap = []
@@ -53,7 +48,6 @@ for i in range(len(Species)):
         json_data.close()
     AllOverlap.append(ovlp)
 
-   
 # make a parallel list of ortholog files
 OrthoFiles = ['Human' + i + 'Orthologs.txt' for i in Species[1:]]
 
@@ -69,7 +63,7 @@ GFF_Files = ['Homo_sapiens.GRCh38.88.gff3', 'Pan_troglodytes.CHIMP2.1.4.88.gff3'
              'Ornithorhynchus_anatinus.OANA5.88.gff3']
 
 # make a list of gene coordinates       
-AllCoordinates, AllOrdered = [], []
+AllCoordinates = []
 # loop over GFF files
 for i in range(len(GFF_Files)):
     # get the coordinates of genes on each chromo
@@ -82,10 +76,8 @@ for i in range(len(GFF_Files)):
     # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
     GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
     # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
-    OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
     AllCoordinates.append(GeneCoord)
-    AllOrdered.append(OrderedGenes)
-
+    
 # make a list of lists of pairs of genes
 AllGenePairs = []
 for i in range(len(AllOverlap)):
@@ -95,7 +87,7 @@ for i in range(len(AllOverlap)):
     AllGenePairs.append(sppairs)
 
 # extract human coordinates, ordered genes, and overlapping gene pairs
-HumanCoord, HumanOrdered, HumanGenePairs, HumanAllOverlap = AllCoordinates.pop(0), AllOrdered.pop(0), AllGenePairs.pop(0), AllOverlap.pop(0)
+HumanCoord, HumanGenePairs, HumanAllOverlap = AllCoordinates.pop(0), AllGenePairs.pop(0), AllOverlap.pop(0)
  
 assert len(AllOverlap) == len(AllGenePairs) == len(OrthoFiles) == len(Species[1:])
 
@@ -150,24 +142,22 @@ for i in range(len(AllGenePairs)):
 # convert list to numpy array
 ConservedAcrossSpecies = np.array(ConservedAcrossSpecies) 
     
-## transpose array to get gene categories as columns and species as rows
-#Conserved = np.transpose(Conserved)
-
 
 # 2) plot the proportion of nested gene pairs conserved in each species when human gene pairs have same or oppositte strand orientation
 
-# make a list with counts of conserved pairs in each species for nested pairs separretely for same and possite orientation
+# make a list with counts of conserved pairs in each species for nested pairs separetely for same and oposite orientation
 ConservedNested = []
-HumanNested = [copy.deepcopy(HumanAllOverlap[1]), copy.deepcopy(HumanAllOverlap[1])]
+# get the dictionary of human nested gene
+HumanNested = copy.deepcopy(HumanAllOverlap[0])
 # make a list of nested pairs for each species
 SpeciesNested = []
 for i in range(len(AllGenePairs)):
-    SpeciesNested.append([copy.deepcopy(AllGenePairs[i][1]), copy.deepcopy(AllGenePairs[i][1])])
+    SpeciesNested.append(copy.deepcopy(AllGenePairs[i][0]))
 
 # loop over species
 for i in range(len(SpeciesNested)):
-    # make a list with coutns of conserved pairs for each type of overlapping genes
-    ConservedPairs = [0] * len(SpeciesNested[i])
+    # make a list with counts of conserved pairs for each type of overlapping genes [same, opposite]
+    ConservedPairs = [0, 0]
     # get the orthologs for that species
     Orthos = MatchOrthologs(OrthoFiles[i])
     # reverse dictionary
@@ -178,10 +168,21 @@ for i in range(len(SpeciesNested)):
                 SpeciesOrthos[ortho] = [gene]
             else:
                 SpeciesOrthos[ortho].append(gene)
-    # loop over overlapping gene class
-    for j in range(len(SpeciesNested[i])):
+    # make pairs of human orthologs for each species gene pairs
+    PairsOrthos = []            
+    for pair in SpeciesNested[i]:
+        # check that both genes have corodinates
+        assert pair[0] in AllCoordinates[i] and pair[1] in AllCoordinates[i]
+        # count only pairs in which both genes have orthos in human
+        if pair[0] in SpeciesOrthos and pair[1] in SpeciesOrthos:
+            for ortho1 in SpeciesOrthos[pair[0]]:
+                for ortho2 in SpeciesOrthos[pair[1]]:
+                    # remove order
+                    PairsOrthos.append(set([ortho1, ortho2]))
+    # count human gene pairs conserved in other species
+    for j in range(2):
         # make pairs of human genes
-        HumanPairs = GetHostNestedPairs(HumanNested[j])
+        HumanPairs = GetHostNestedPairs(HumanNested)
         # remove pairs if any gene is lacking an ortholog
         to_remove = [L for L in HumanPairs if L[0] not in Orthos or L[1] not in Orthos]
         for L in to_remove:
@@ -196,17 +197,6 @@ for i in range(len(SpeciesNested)):
             to_remove = [L for L in HumanPairs if len(set(GenePairOrientation(L, HumanCoord))) == 1]
             for L in to_remove:
                 HumanPairs.remove(L)
-        # make pairs of human orthologs for each species gene pairs
-        PairsOrthos = []            
-        for pair in SpeciesNested[i][j]:
-            # check that both genes have corodinates
-            assert pair[0] in AllCoordinates[i] and pair[1] in AllCoordinates[i]
-            # count only pairs in which both genes have orthos in human
-            if pair[0] in SpeciesOrthos and pair[1] in SpeciesOrthos:
-                for ortho1 in SpeciesOrthos[pair[0]]:
-                    for ortho2 in SpeciesOrthos[pair[1]]:
-                        # remove order
-                        PairsOrthos.append(set([ortho1, ortho2]))
         # check if human pairs are conserved
         for pair in HumanPairs:
             if set(pair) in PairsOrthos:
@@ -221,236 +211,6 @@ for i in range(len(SpeciesNested)):
 ConservedNested = np.array(ConservedNested) 
 
 
-
-# 3)
-
-# make a list with counts of conserved pairs in each species for overlapping genes defined by strand orientation
-ConservedOrientation = []
-
-# make a list of gene pairs by pooling same and opposite strand overlapping gene pairs [[same], [opposite]]
-HumanOrientation = [[], []]
-for i in range(1, len(HumanAllOverlap)):
-    # make a list of human pairs
-    pairs = GetHostNestedPairs(HumanAllOverlap[i])
-    if i == 1:
-        # check if nested pairs are same or opposite strand
-        for L in pairs:
-            if len(set(GenePairOrientation(L, HumanCoord))) == 2:
-                HumanOrientation[1].append(L)
-            elif len(set(GenePairOrientation(L, HumanCoord))) == 1:
-                HumanOrientation[0].append(L)
-    elif i == 2:
-        # add all pbk pairs to same strand list
-        for L in pairs:
-            HumanOrientation[0].append(L)
-    elif i == 3 or i == 4:
-        # add convergent or divergent pairs to opposite strand list
-        for L in pairs:
-            HumanOrientation[1].append(L)
-
-# make a list of all overlapping gene pairs for each species
-SpeciesOverlap = []
-for i in range(len(AllOverlap)):
-    SpeciesOverlap.append(GetHostNestedPairs(AllOverlap[i][0]))
-    
-# loop over species
-for i in range(len(SpeciesOverlap)):
-    # make a list with coutns of conserved pairs for each orientation [same, opposite]
-    ConservedPairs = [0, 0]
-    # get the orthologs for that species
-    Orthos = MatchOrthologs(OrthoFiles[i])
-    # reverse dictionary
-    SpeciesOrthos = {}
-    for gene in Orthos:
-        for ortho in Orthos[gene]:
-            if ortho not in SpeciesOrthos:
-                SpeciesOrthos[ortho] = [gene]
-            else:
-                SpeciesOrthos[ortho].append(gene)
-    # make pairs of human orthologs for each species gene pairs
-    PairsOrthos = []            
-    for pair in SpeciesOverlap[i]:
-        # check that both genes have corodinates
-        assert pair[0] in AllCoordinates[i] and pair[1] in AllCoordinates[i]
-        # count only pairs in which both genes have orthos in human
-        if pair[0] in SpeciesOrthos and pair[1] in SpeciesOrthos:
-            for ortho1 in SpeciesOrthos[pair[0]]:
-                for ortho2 in SpeciesOrthos[pair[1]]:
-                    # remove order
-                    PairsOrthos.append(set([ortho1, ortho2]))
-    # loop over lists of human pairs
-    for j in range(len(HumanOrientation)):
-        # make a copy of the list iof human pairs
-        HumanPairs = copy.deepcopy(HumanOrientation[j])
-        # remove pairs if any gene is lacking an ortholog
-        to_remove = [L for L in HumanPairs if L[0] not in Orthos or L[1] not in Orthos]
-        for L in to_remove:
-            HumanPairs.remove(L)
-        # check if human pairs are conserved
-        for pair in HumanPairs:
-            if set(pair) in PairsOrthos:
-                # update counter for the given gene class
-                ConservedPairs[j] += 1
-        # compute proportion
-        ConservedPairs[j] = ConservedPairs[j] / len(HumanPairs)
-    # populate l;ist for the given species
-    ConservedOrientation.append(ConservedPairs)
-        
-# convert list to numpy array
-ConservedOrientation = np.array(ConservedOrientation) 
-    
-
-
-# 4) plot the proportion of gene pairs overlapping in each otehr species
-
-ConservedOverlap = []
-# loop over species
-for i in range(len(SpeciesOverlap)):
-    # make a list with coutns of conserved pairs for each type of overlapping genes
-    ConservedPairs = [0] * len(HumanGenePairs)
-    # get the orthologs for that species
-    Orthos = MatchOrthologs(OrthoFiles[i])
-    # reverse dictionary
-    SpeciesOrthos = {}
-    for gene in Orthos:
-        for ortho in Orthos[gene]:
-            if ortho not in SpeciesOrthos:
-                SpeciesOrthos[ortho] = [gene]
-            else:
-                SpeciesOrthos[ortho].append(gene)
-    # make pairs of human orthologs for each species gene pairs
-    PairsOrthos = []            
-    for pair in SpeciesOverlap[i]:
-        # check that both genes have corodinates
-        assert pair[0] in AllCoordinates[i] and pair[1] in AllCoordinates[i]
-        # count only pairs in which both genes have orthos in human
-        if pair[0] in SpeciesOrthos and pair[1] in SpeciesOrthos:
-            for ortho1 in SpeciesOrthos[pair[0]]:
-                for ortho2 in SpeciesOrthos[pair[1]]:
-                    # remove order
-                    PairsOrthos.append(set([ortho1, ortho2]))
-    # loop over lists of human pairs
-    for j in range(len(HumanGenePairs)):
-        # make a copy of the list iof human pairs
-        HumanPairs = copy.deepcopy(HumanGenePairs[j])
-        # remove pairs if any gene is lacking an ortholog
-        to_remove = [L for L in HumanPairs if L[0] not in Orthos or L[1] not in Orthos]
-        for L in to_remove:
-            HumanPairs.remove(L)
-        # check if human pairs are conserved
-        for pair in HumanPairs:
-            if set(pair) in PairsOrthos:
-                # update counter for the given gene class
-                ConservedPairs[j] += 1
-        # compute proportion
-        ConservedPairs[j] = ConservedPairs[j] / len(HumanPairs)
-    # populate l;ist for the given species
-    ConservedOverlap.append(ConservedPairs)
-        
-# convert list to numpy array
-ConservedOverlap = np.array(ConservedOverlap) 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## make a list with counts of conserved pairs in each species for overlapping genes defined by strand orientation
-#ConservedOrientation = []
-#
-## make a list of dicts in human with [nested, nested, pbk, con, div] 
-## remove dict of non-overlapping gene
-#HumanAllOverlap.remove(HumanAllOverlap[0])
-## insert a copy of dict with nested genes
-#HumanAllOverlap.insert(0, copy.deepcopy(HumanAllOverlap[0]))
-#
-## for each species, remove the pairs of non-overlapping genes and make a copy of the nested pairs
-#for i in range(len(AllGenePairs)):
-#    # remove the pairs of non-overlapping genes
-#    AllGenePairs[i].remove(AllGenePairs[i][0])
-#    # make a copy of the nested gene pairs
-#    AllGenePairs[i].insert(0, copy.deepcopy(AllGenePairs[i][0]))
-#
-## loop over species
-#for i in range(len(AllGenePairs)):
-#    # make a list with coutns of conserved pairs for each type of overlapping genes
-#    ConservedPairs = [0] * len(AllGenePairs[i])
-#    # get the orthologs for that species
-#    Orthos = MatchOrthologs(OrthoFiles[i])
-#    # reverse dictionary
-#    SpeciesOrthos = {}
-#    for gene in Orthos:
-#        for ortho in Orthos[gene]:
-#            if ortho not in SpeciesOrthos:
-#                SpeciesOrthos[ortho] = [gene]
-#            else:
-#                SpeciesOrthos[ortho].append(gene)
-#    # loop over overlapping gene class
-#    for j in range(len(AllGenePairs[i])):
-#        # make pairs of human genes
-#        HumanPairs = GetHostNestedPairs(HumanAllOverlap[j])
-#        # remove pairs if any gene is lacking an ortholog
-#        to_remove = [L for L in HumanPairs if L[0] not in Orthos or L[1] not in Orthos]
-#        for L in to_remove:
-#            HumanPairs.remove(L)
-#        if j == 0:
-#            # remove human nested pairs if genes have opposite orientation
-#            to_remove = [L for L in HumanPairs if len(set(GenePairOrientation(L, HumanCoord))) == 2]
-#            for L in to_remove:
-#                HumanPairs.remove(L)
-#        elif j == 1:
-#            # remove human nested pairs if genes have same orientation
-#            to_remove = [L for L in HumanPairs if len(set(GenePairOrientation(L, HumanCoord))) == 1]
-#            for L in to_remove:
-#                HumanPairs.remove(L)
-#        # make pairs of human orthologs for each species gene pairs
-#        PairsOrthos = []            
-#        for pair in AllGenePairs[i][j]:
-#            # check that both genes have corodinates
-#            assert pair[0] in AllCoordinates[i] and pair[1] in AllCoordinates[i]
-#            # count only pairs in which both genes have orthos in human
-#            if pair[0] in SpeciesOrthos and pair[1] in SpeciesOrthos:
-#                for ortho1 in SpeciesOrthos[pair[0]]:
-#                    for ortho2 in SpeciesOrthos[pair[1]]:
-#                        # remove order
-#                        PairsOrthos.append(set([ortho1, ortho2]))
-#        # check if human pairs are conserved
-#        for pair in HumanPairs:
-#            if set(pair) in PairsOrthos:
-#                # update counter for the given gene class
-#                ConservedPairs[j] += 1
-#        # compute proportion
-#        ConservedPairs[j] = ConservedPairs[j] / len(HumanPairs)
-#    # populate l;ist for the given species
-#    ConservedOrientation.append(ConservedPairs)
-#        
-## convert list to numpy array
-#ConservedOrientation = np.array(ConservedOrientation) 
-    
-## transpose array to get gene categories as columns and species as rows
-#Conserved = np.transpose(Conserved)
-
-   
 # create a function to format the subplots
 def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, GraphType):
     '''
@@ -468,18 +228,7 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
         cbar.ax.tick_params(labelsize=7)
         cbar.ax.tick_params(direction = 'out')
         # edit xticks
-        plt.xticks([0,1,2,3,4], ['Not', 'Nst', 'Pbk', 'Con', 'Div'])
-    elif GraphType == 'orientation':
-        # plot heatmap (use vmin and vmax to get the full range of values)
-        heatmap = ax.imshow(Data, interpolation = 'nearest', cmap = 'Oranges')
-        # add heatmap scale 
-        cbar = plt.colorbar(heatmap)
-        # edit tcik parameters of the heatmap scale
-        cbar.ax.tick_params(labelsize=7)
-        cbar.ax.tick_params(direction = 'out')
-        # edit xticks
-        plt.xticks([0,1,2,3,4], ['NstS', 'NstO', 'Pbk', 'Con', 'Div'])
-   
+        plt.xticks([0,1,2,3], ['Nst', 'Pbk', 'Con', 'Div'])
     elif GraphType == 'nested':
         # plot heatmap (use vmin and vmax to get the full range of values)
         heatmap = ax.imshow(Data, interpolation = 'nearest', cmap = 'Oranges')
@@ -489,7 +238,7 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
         cbar.ax.tick_params(labelsize=7)
         cbar.ax.tick_params(direction = 'out')
         # edit xticks
-        plt.xticks([0,1], ['NstS', 'NstO'])
+        plt.xticks([0,1], ['Same', 'Opp'])
    
     plt.yticks([i for i in range(16)], ['Chimp', 'Gorilla', 'Orangutan', 'Macaque',
                'Marmoset', 'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse',
@@ -514,17 +263,7 @@ figure = plt.figure(1, figsize = (6.5, 4))
 gs = gridspec.GridSpec(1, 2, width_ratios=[3, 1]) 
 # plot data
 ax1 = CreateAx(1, 1, 1, 2, 0, 0, figure, gs, ConservedAcrossSpecies, 'pairs')
-#ax2 = CreateAx(1, 1, 1, 2, 0, 1, figure, gs, ConservedOrientation, 'orientation')
-
-
-#ax2 = CreateAx(1, 1, 1, 2, 0, 1, figure, gs, ConservedNested, 'nested')
-
-
-
-
-#ax2 = CreateAx(1, 1, 1, 2, 0, 1, figure, gs, ConservedOrientation, 'nested')
-
-ax2 = CreateAx(1, 1, 1, 2, 0, 1, figure, gs, ConservedOverlap, 'pairs')
+ax2 = CreateAx(1, 1, 1, 2, 0, 1, figure, gs, ConservedNested, 'nested')
 
 ## add subplot labels
 #ax2.text(-2.8, 1.1, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
