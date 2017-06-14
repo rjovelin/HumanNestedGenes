@@ -126,8 +126,8 @@ for GeneType in HumanAdjacentgenePairs:
             for ortho2 in Orthos[pair[1]]:
                 # check that both genes have coordinates in mouse
                 if ortho1 in MouseCoord and ortho2 in MouseCoord:
-                    # check that genes are on the same chromo
-                    if MouseCoord[ortho1][0] == MouseCoord[ortho2][0]:
+                    # check that genes are different and on the same chromo 
+                    if ortho1 != ortho2 and MouseCoord[ortho1][0] == MouseCoord[ortho2][0]:
                         L.append([ortho1, ortho2])
         # check if a pair of orthologs exist
         if len(L) != 0:
