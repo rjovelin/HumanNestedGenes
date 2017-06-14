@@ -272,9 +272,8 @@ ax1 = CreateAx(1, 1, 1, 2, 0, 0, figure, gs, ConservedAcrossSpecies, 'pairs')
 ax2 = CreateAx(1, 1, 1, 2, 0, 1, figure, gs, ConservedNested, 'nested')
 
 ## add subplot labels
-#ax2.text(-2.8, 1.1, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
-#ax2.text(-0.4, 1.1, 'B', horizontalalignment='center', verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
-#ax3.text(-0.4, 1.1, 'C', horizontalalignment='center', verticalalignment='center', color = 'black', fontname = 'Arial', size = 8)
+ax2.text(-2.8, 1.1, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
+ax2.text(-0.4, 1.1, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
 
 # make sure subplots do not overlap
 plt.tight_layout()
