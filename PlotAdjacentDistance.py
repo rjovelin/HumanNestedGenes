@@ -150,20 +150,20 @@ for GeneType in HumanAdjacentgenePairs:
 for i in ConservedPairs:
     ConservedPairs[i] = ConservedPairs[i] / len(HumanAdjacentgenePairs[i])    
     
-## test differences among gene categories
-## write P values to file
-#newfile = open('TopologyConservationPvalues.txt', 'w')
-#GeneTypes = JsonFiles[1:] + ['Proximal', 'Moderate', 'Intermediate', 'Distant']
-#Header = '\t'.join(['\t']+GeneTypes)
-#newfile.write(Header + '\n')
-#for i in range(len(GeneTypes)):
-#    # create a list with pvalues for each line
-#    Line = [GeneTypes[i]]
-#    for j in range(len(GeneTypes)):
-#        # add p values for each pairwise comparison
-#        Line.append(str(stats.fisher_exact([[ConservedPairs[GeneTypes[i]], len(HumanAdjacentgenePairs[GeneTypes[i]])-ConservedPairs[GeneTypes[i]]], [ConservedPairs[GeneTypes[j]], len(HumanAdjacentgenePairs[GeneTypes[j]])-ConservedPairs[GeneTypes[j]]]])[1]))
-#    newfile.write('\t'.join(Line) + '\n')
-#newfile.close()
+# test differences among gene categories
+# write P values to file
+newfile = open('AdjacentPairsPvalues.txt', 'w')
+GeneTypes = JsonFiles + ['Proximal', 'Moderate', 'Intermediate', 'Distant']
+Header = '\t'.join(['\t']+GeneTypes)
+newfile.write(Header + '\n')
+for i in range(len(GeneTypes)):
+    # create a list with pvalues for each line
+    Line = [GeneTypes[i]]
+    for j in range(len(GeneTypes)):
+        # add p values for each pairwise comparison
+        Line.append(str(stats.fisher_exact([[ConservedPairs[GeneTypes[i]], len(HumanAdjacentgenePairs[GeneTypes[i]])-ConservedPairs[GeneTypes[i]]], [ConservedPairs[GeneTypes[j]], len(HumanAdjacentgenePairs[GeneTypes[j]])-ConservedPairs[GeneTypes[j]]]])[1]))
+    newfile.write('\t'.join(Line) + '\n')
+newfile.close()
     
 
 # create figure
@@ -173,7 +173,6 @@ ax = figure.add_subplot(1, 1, 1)
 
 # make a list of gene category names parallel to the list of gene pairs
 GeneCats = ['Nst', 'Pbk', 'Con', 'Div', 'Prx', 'Mod', 'Int', 'Dst']
-GeneTypes = ['Nested', 'PiggyBack', 'Convergent', 'Divergent', 'Proximal', 'Moderate', 'Intermediate', 'Distant']
 # set colors
 colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476', 'lightgrey', 'lightgrey', 'lightgrey', 'lightgrey']
 # plot proportions of gene pairs
