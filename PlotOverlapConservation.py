@@ -356,44 +356,7 @@ newfile.close()
 for i in ConservedPairs:
     ConservedPairs[i] = ConservedPairs[i] / len(HumanAdjacentgenePairs[i])
 
-   
-
-# count pairs of overlapping genes for which orthologs are adjacent
-OvlOrthoAdjacent = {}
-for GeneType in ['Nested', 'PiggyBack', 'Convergent', 'Divergent']:
-    # initialize counters
-    OvlOrthoAdjacent[GeneType] = 0
-    # check if mouse orthologs are adjacent
-    for pair in HumanAdjacentgenePairs[GeneType]:
-        pair = list(pair)
-        # make a list of orthologs in mouse that are on the same chromo
-        L = []
-        for ortho1 in Orthos[pair[0]]:
-            for ortho2 in Orthos[pair[1]]:
-                # check that genes are not the same and that both genes have coordinates in mouse
-                if ortho1 != ortho2 and ortho1 in MouseCoord and ortho2 in MouseCoord:
-                    # check that genes are on the same chromo
-                        if MouseCoord[ortho1][0] == MouseCoord[ortho2][0]:
-                            L.append([ortho1, ortho2])
-        # pick a pair of mouse gene at random
-        if len(L) != 0:
-            genes = L[random.randint(0, len(L)-1)]       
-            gene1, gene2 = genes[0], genes[1]
-            # get indices of gene1 and gene2
-            I1, I2 = MouseOrdered[MouseCoord[gene1][0]].index(gene1), MouseOrdered[MouseCoord[gene2][0]].index(gene2)
-            assert I1 != I2                        
-            # check if genes are adjacent
-            if I1 == I2 + 1 or I2 == I1 + 1:
-                OvlOrthoAdjacent[GeneType] += 1
-# compute proportions
-for i in OvlOrthoAdjacent:
-    OvlOrthoAdjacent[i] = OvlOrthoAdjacent[i] / len(HumanAdjacentgenePairs[i])    
-for i in ['Nested', 'PiggyBack', 'Convergent', 'Divergent']:
-    print(i, OvlOrthoAdjacent[i])
-for i in ['Proximal', 'Moderate', 'Intermediate', 'Distant']:
-    print(i, ConservedPairs[i])
-    
-    
+       
 # create a function to format the subplots
 def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, GraphType):
     '''
