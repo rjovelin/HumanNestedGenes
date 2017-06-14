@@ -51,32 +51,18 @@ for i in range(len(Species)):
 # make a parallel list of ortholog files
 OrthoFiles = ['Human' + i + 'Orthologs.txt' for i in Species[1:]]
 
-# make a list of GFF files
-GFF_Files = ['Homo_sapiens.GRCh38.88.gff3', 'Pan_troglodytes.CHIMP2.1.4.88.gff3',
-             'Gorilla_gorilla.gorGor3.1.88.gff3', 'Pongo_abelii.PPYG2.88.gff3',
-             'Macaca_mulatta.Mmul_8.0.1.88.gff3', 'Callithrix_jacchus.C_jacchus3.2.1.88.gff3',
-             'Erinaceus_europaeus.HEDGEHOG.88.gff3', 'Sorex_araneus.COMMON_SHREW1.88.gff3',
-             'Felis_catus.Felis_catus_6.2.88.gff3', 'Canis_familiaris.CanFam3.1.88.gff3',
-             'Mus_musculus.GRCm38.88.gff3', 'Bos_taurus.UMD3.1.88.gff3',
-             'Equus_caballus.EquCab2.88.gff3', 'Choloepus_hoffmanni.choHof1.88.gff3',
-             'Dasypus_novemcinctus.Dasnov3.0.88.gff3', 'Monodelphis_domestica.BROADO5.88.gff3',
-             'Ornithorhynchus_anatinus.OANA5.88.gff3']
-
-# make a list of gene coordinates       
-AllCoordinates = []
-# loop over GFF files
-for i in range(len(GFF_Files)):
-    # get the coordinates of genes on each chromo
-    # {chromo: {gene:[chromosome, start, end, sense]}}
-    GeneChromoCoord = ChromoGenesCoord(GFF_Files[i])
-    # map each gene to its mRNA transcripts
-    MapGeneTranscript = GeneToTranscripts(GFF_Files[i])
-    # remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
-    GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
-    # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
-    GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
-    # Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
-    AllCoordinates.append(GeneCoord)
+# get human gene coordinates
+GFF = 'Homo_sapiens.GRCh38.88.gff3'
+# get the coordinates of genes on each chromo {chromo: {gene:[chromosome, start, end, sense]}}
+GeneChromoCoord = ChromoGenesCoord(GFF)
+# map each gene to its mRNA transcripts
+MapGeneTranscript = GeneToTranscripts(GFF)
+# remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
+GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
+# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+HumanCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
+# Order genes along chromo {chromo: [gene1, gene2, gene3...]} 
+AllCoordinates.append(GeneCoord)
     
 # make a list of lists of pairs of genes
 AllGenePairs = []
@@ -86,9 +72,8 @@ for i in range(len(AllOverlap)):
         sppairs.append(GetHostNestedPairs(AllOverlap[i][j]))
     AllGenePairs.append(sppairs)
 
-# extract human coordinates, ordered genes, and overlapping gene pairs
-HumanCoord, HumanGenePairs, HumanAllOverlap = AllCoordinates.pop(0), AllGenePairs.pop(0), AllOverlap.pop(0)
- 
+# extract human overlapping gene pairs
+HumanGenePairs, HumanAllOverlap = AllGenePairs.pop(0), AllOverlap.pop(0)
 assert len(AllOverlap) == len(AllGenePairs) == len(OrthoFiles) == len(Species[1:])
 
 
@@ -121,8 +106,6 @@ for i in range(len(AllGenePairs)):
         # make pairs of human orthologs for each species gene pairs
         PairsOrthos = []            
         for pair in AllGenePairs[i][j]:
-            # check that both genes have corodinates
-            assert pair[0] in AllCoordinates[i] and pair[1] in AllCoordinates[i]
             # count only pairs in which both genes have orthos in human
             if pair[0] in SpeciesOrthos and pair[1] in SpeciesOrthos:
                 for ortho1 in SpeciesOrthos[pair[0]]:
@@ -171,8 +154,6 @@ for i in range(len(SpeciesNested)):
     # make pairs of human orthologs for each species gene pairs
     PairsOrthos = []            
     for pair in SpeciesNested[i]:
-        # check that both genes have corodinates
-        assert pair[0] in AllCoordinates[i] and pair[1] in AllCoordinates[i]
         # count only pairs in which both genes have orthos in human
         if pair[0] in SpeciesOrthos and pair[1] in SpeciesOrthos:
             for ortho1 in SpeciesOrthos[pair[0]]:
