@@ -167,7 +167,7 @@ for i in ConservedPairs:
     
 
 # create figure
-figure = plt.figure(1, figsize = (6.5, 4))
+figure = plt.figure(1, figsize = (2.5, 2))
 # add a plot to figure (N row, N column, plot N)
 ax = figure.add_subplot(1, 1, 1)
 
