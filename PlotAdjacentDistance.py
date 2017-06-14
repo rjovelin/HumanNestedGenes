@@ -163,20 +163,9 @@ for i in range(len(GeneTypes)):
 newfile.close()
    
    
-for i in range(len(GeneTypes)):
-    for j in range(len(GeneTypes)):
-        P = stats.fisher_exact([[ConservedPairs[GeneTypes[i]], len(HumanAdjacentgenePairs[GeneTypes[i]])-ConservedPairs[GeneTypes[i]]], [ConservedPairs[GeneTypes[j]], len(HumanAdjacentgenePairs[GeneTypes[j]])-ConservedPairs[GeneTypes[j]]]])[1]
-        print (GeneTypes[i], GeneTypes[j], ConservedPairs[GeneTypes[i]], len(HumanAdjacentgenePairs[GeneTypes[i]])-ConservedPairs[GeneTypes[i]], ConservedPairs[GeneTypes[j]], len(HumanAdjacentgenePairs[GeneTypes[j]])-ConservedPairs[GeneTypes[j]], P)        
-   
-   
 # compute proportions
 for i in ConservedPairs:
     ConservedPairs[i] = ConservedPairs[i] / len(HumanAdjacentgenePairs[i])    
-    
-   
-   
-   
-   
    
 
 # create figure
@@ -216,4 +205,5 @@ for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
       
 # save figure
-figure.savefig('truc.pdf', bbox_inches = 'tight')
+figure.savefig('AdjacentPairs.pdf', bbox_inches = 'tight')
+figure.savefig('AdjacentPairs.eps', bbox_inches = 'tight')
