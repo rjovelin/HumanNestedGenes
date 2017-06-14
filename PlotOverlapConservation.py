@@ -303,17 +303,22 @@ for GeneType in HumanAdjacentgenePairs:
                         # check that genes are on the same chromo
                         if MouseCoord[ortho1][0] == MouseCoord[ortho2][0]:
                             L.append([ortho1, ortho2])
-            # pick a pair of mouse gene at random
+            # check if aan adjacent pair of orthologs exist
             if len(L) != 0:
-                genes = L[random.randint(0, len(L)-1)]       
-                gene1, gene2 = genes[0], genes[1]
-                # get indices of gene1 and gene2
-                I1, I2 = MouseOrdered[MouseCoord[gene1][0]].index(gene1), MouseOrdered[MouseCoord[gene2][0]].index(gene2)
-                assert I1 != I2                        
-                # check if genes are adjacent
-                if I1 == I2 + 1 or I2 == I1 + 1:
+                # set up boolean to be changed if an adjacent pair is found
+                FoundAdjacent = False
+                # loop over the mouse gene pairs
+                for i in range(len(L)):
+                    gene1, gene2 = L[i][0], L[i][1]
+                    # get indices of gene1 and gene2
+                    I1, I2 = MouseOrdered[MouseCoord[gene1][0]].index(gene1), MouseOrdered[MouseCoord[gene2][0]].index(gene2)
+                    # check if genes are adjacent
+                    if I1 == I2 + 1 or I2 == I1 + 1:
+                        FoundAdjacent = True
+                # update counter if at least 1 pair of adjacent orthologs exist in mouse
+                if FoundAdjacent == True:
                     ConservedPairs[GeneType] += 1
-                                       
+                    
 # make pairs of human orthologs for each mouse gene pair
 PairsOrthos = []
 for i in range(1, len(MmuAllOverlap)):
