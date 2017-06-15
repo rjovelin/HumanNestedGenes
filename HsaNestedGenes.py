@@ -2425,9 +2425,9 @@ def RandomizeGenePosition(ChromoGeneCoord, ChromoLength):
     RandomCoord = {}
     for chromo in ChromoGeneCoord:
         # loop over gene, pick a random start position
-        for gene in ChromoGeneCoord:
-            start = random.randint(0, ChromoLength[chromo] - (ChromoGeneCoord[gene][2] - ChromogeneCoord[gene][1]))
-            end = start + (ChromoGeneCoord[gene][2] - ChromogeneCoord[gene][1])
+        for gene in ChromoGeneCoord[chromo]:
+            start = random.randint(0, ChromoLength[chromo] - (ChromoGeneCoord[chromo][gene][2] - ChromoGeneCoord[chromo][gene][1]))
+            end = start + (ChromoGeneCoord[chromo][gene][2] - ChromoGeneCoord[chromo][gene][1])
             if chromo not in RandomCoord:
                 RandomCoord[chromo] = {}
             RandomCoord[chromo][gene] = [chromo, start, end, ChromoGeneCoord[chromo][gene[-1]]]
