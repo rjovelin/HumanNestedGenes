@@ -2385,4 +2385,26 @@ def AssignGenesToRecombSpots(Overlapping, RecombSpots, GeneCoord):
         HotSpots.remove(gene)
         ColdSpots.remove(gene)
     return [HotSpots, ColdSpots]
-   
+
+
+# use this fucntion to get the length of each chromosome
+def GetChromosomeLength(GFF):
+    '''
+    (file) -> dict
+    Return a dictionary with chromosome length by parsing the GFF file    
+    '''
+    
+    # create a dict {chromosome: length}
+    ChromoLength = {}
+    infile = open(GFF)
+    for line in file:
+        if line.startswith('##sequence-region'):
+            line = line.rstrip().split()
+            assert len(line) == 4
+            # get chromo, start and end positions
+            chromo = line[1], start = int(line[2]) -1, end = int(line[3])
+            L = end - start
+            assert chromo not in ChromoLength
+            ChromoLength[chromo] = L
+    infile.close()
+    return ChromoLength
