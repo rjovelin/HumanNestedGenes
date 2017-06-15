@@ -10,13 +10,12 @@ import sys
 
 species = sys.argv[1]
 
-
 # open file for writing command
-outputfile = 'CountOrthologsConservedTopology.sh' 
+outputfile = 'PerformNeutralSimulations.sh' 
 newfile = open(outputfile, 'w')
 newfile.write('cd /RQusagers/rjovelin/richard/Richard/Nested_Genes/')
 newfile.write('\n')
-newfile.write('python3 PlotTopologyConservationDistance.py ' + species)
+newfile.write('python3 SimulationsNeutralOverlap.py')
 newfile.close()            
 
 MyCommand = 'qsub -l walltime=10:00:00,nodes=1:ppn=12,mem=46g ' + outputfile
