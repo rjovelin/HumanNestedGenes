@@ -99,7 +99,7 @@ for i in range(10):
         nonovlp = MakeNonOverlappingGeneSet(OverlapRandom, RandomGeneCoord)    
         print(i, Species[j], len(ovlp), len(nonovlp))
         # record number of overlapping and non-overlapping genes
-        Simulations[Species[j]].append(len(ovlp), len(nonovlp))
+        Simulations[Species[j]].append([len(ovlp), len(nonovlp)])
 
 # save results of simulation as json file
 newfile = open('SimulationsOverlap.json', 'w')  
