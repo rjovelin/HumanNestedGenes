@@ -2430,6 +2430,6 @@ def RandomizeGenePosition(ChromoGeneCoord, ChromoLength):
             end = start + (ChromoGeneCoord[chromo][gene][2] - ChromoGeneCoord[chromo][gene][1])
             if chromo not in RandomCoord:
                 RandomCoord[chromo] = {}
-            RandomCoord[chromo][gene] = [chromo, start, end, ChromoGeneCoord[chromo][gene[-1]]]
+            RandomCoord[chromo][gene] = [chromo, start, end, ChromoGeneCoord[chromo][gene][-1]]
     return RandomCoord
     
