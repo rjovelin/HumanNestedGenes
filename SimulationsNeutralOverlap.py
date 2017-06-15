@@ -5,13 +5,6 @@ Created on Thu Jun 15 18:14:00 2017
 @author: RJovelin
 """
 
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Jun 15 13:51:07 2017
-
-@author: RJovelin
-"""
-
 #  use this script to perform simulations and get expected number of overlap and non-overlap genes 
 
 # import modules
@@ -50,14 +43,12 @@ GFF = ['Homo_sapiens.GRCh38.88.gff3', 'Pan_troglodytes.CHIMP2.1.4.88.gff3',
        'Dasypus_novemcinctus.Dasnov3.0.88.gff3', 'Monodelphis_domestica.BROADO5.88.gff3',
        'Ornithorhynchus_anatinus.OANA5.88.gff3']
 
-
 # make a list with gene coordinates in each species {gene:[chromosome, start, end, sense]}
 SpGeneCoordinates = []
 # make a list with gene corodinates on each chromo in each species {chromo: {gene:[chromosome, start, end, sense]}}
 SpChromoGeneCoord = []
 # make a list with chromosome length for each species
 SpChromoLength = []
-
 
 # populate lists
 for i in range(len(GFF)):
@@ -76,21 +67,6 @@ for i in range(len(GFF)):
     # get chromosome length
     ChromoL = GetChromosomeLength(GFF[0])
     SpChromoLength.append(ChromoL)
-    
-    
-# count the number of observed overlapping and non-overlapping genes in each species {sp: [overlap, non-overlap]}
-ObservedOverlaGenes = {}
-# loop over species
-for i in range(len(Species)):
-    # load dict of overlapping genes
-    json_data = open(Species[i] + 'Overlapping' + 'Genes.json')
-    overlapping = json.load(json_data)
-    json_data.close()
-    # count the number of overlapping genes, store in list
-    ObservedOverlaGenes[Species[i]] = [len(MakeFullPartialOverlapGeneSet(overlapping))]
-    # count the number of non-overlapping genes, store in list
-    ObservedOverlaGenes[Species[i]].append(len(MakeNonOverlappingGeneSet(overlapping, SpGeneCoordinates[i])))    
-
     
 # create a dict to store the count of overlapping and non-overlapping genes for each simulation
 Simulations = {}
