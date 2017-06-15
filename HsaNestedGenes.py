@@ -2408,3 +2408,28 @@ def GetChromosomeLength(GFF):
             ChromoLength[chromo] = L
     infile.close()
     return ChromoLength
+
+    
+# use this function to randomize gene positions along chromsome
+def RandomizeGenePosition(ChromoGeneCoord, ChromoLength):
+    '''
+    (dict, dict) -> dict
+    Take the dictionary of gene coordinates on each chromo and the dictionary 
+    chromo: length pairs and return a dictionary of randomized gene coordinates
+    (keeping the same length and chromo assignment) on each chromo
+    '''
+    # ChromoGeneCoord is {chromo: {gene:[chromosome, start, end, sense]}}
+    # ChromoLength is {chromo: chromo length}
+    
+    # create a dict to store the randomized gene coordinates
+    RandomCoord = {}
+    for chromo in ChromoGeneCoord:
+        # loop over gene, pick a random start position
+        for gene in ChromoGeneCoord:
+            start = random.randint(0, ChromoLength[chromo] - (ChromoGeneCoord[gene][2] - ChromogeneCoord[gene][1]))
+            end = start + (ChromoGeneCoord[gene][2] - ChromogeneCoord[gene][1])
+            if chromo not in RandomCoord:
+                RandomCoord[chromo] = {}
+            RandomCoord[chromo][gene] = [chromo, start, end, ChromoGeneCoord[chromo][gene[-1]]]
+    return RandomCoord
+    
