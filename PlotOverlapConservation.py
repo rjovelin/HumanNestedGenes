@@ -177,10 +177,11 @@ for i in range(len(AllPairs)):
     counts = [0, 0, 0]
     # make a set of orthologous overlapping gene
     orthosovlp = set()
-    for pair in PairsOrthos[i]:
-        pair = list(pair)
-        for item in pair:
-            orthosovlp.add(item)
+    for pair in AllPairs[i][1]:
+        for gene in pair:
+            if gene in MouseOrthologs:
+                for ortho in MouseOrthologs[gene]:
+                    orthosovlp.add(ortho)
     # loop over human gene pairs
     for pair in AllPairs[i][0]:
         if set(pair) in PairsOrthos[i]:
