@@ -6,9 +6,6 @@ Created on Wed Feb 15 14:40:43 2017
 """
 
 import os
-import sys
-
-species = sys.argv[1]
 
 # open file for writing command
 outputfile = 'PerformNeutralSimulations.sh' 
