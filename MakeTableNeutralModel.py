@@ -105,7 +105,7 @@ for i in range(3):
     # order genes along chromosomes    
     OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
     # randomize gene positions along each chromo
-    RandomCoord = RandomizeGenePosition(ChromoGeneCoord, ChromoLength)
+    RandomCoord = RandomizeGenePosition(GeneChromoCoord, ChromoLength)
     # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
     RandomGeneCoord = FromChromoCoordToGeneCoord(RandomCoord)    
     # order randomized genes on each chromo
