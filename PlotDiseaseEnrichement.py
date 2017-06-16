@@ -216,5 +216,5 @@ plt.tight_layout()
 
 # save figure to file
 outputfile = 'ProportionDiseaseGenes'
-fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig(outputfile + extension, bbox_inches = 'tight')

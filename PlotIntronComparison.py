@@ -218,5 +218,5 @@ plt.tight_layout()
 #gs.update(wspace=0.3, hspace=0) # set the spacing between axes. 
 
 # save figure
-fig.savefig('IntronDifferences.pdf', bbox_inches = 'tight')
-fig.savefig('IntronDifferences.eps', bbox_inches = 'tight')
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig('IntronDifferences' + extension, bbox_inches = 'tight')

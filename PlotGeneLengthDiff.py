@@ -193,5 +193,5 @@ ax1.text(0.85, 705, 'B', horizontalalignment='center', verticalalignment='center
 plt.tight_layout()
 
 # save figure
-fig.savefig('LengthDifferences.pdf', bbox_inches = 'tight')
-fig.savefig('LengthDifferences.eps', bbox_inches = 'tight')
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig('LengthDifferences' + extension, bbox_inches = 'tight')

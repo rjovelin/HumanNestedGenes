@@ -265,5 +265,6 @@ for i in range(len(PVals)):
         elif i == 2:
             ax3.text(0.4, 0.3, PVals[i], color = 'black', size = 5, fontname = 'Arial')
 
-fig.savefig('IntronPositionInternalGenes.pdf', bbox_inches = 'tight')
-fig.savefig('IntronPositionInternalGenes.eps', bbox_inches = 'tight')
+# save figure
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig('IntronPositionInternalGenes' + extension, bbox_inches = 'tight')

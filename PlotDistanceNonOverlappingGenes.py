@@ -303,5 +303,5 @@ for i in range(len(PropLabels)):
 # make sure subplots do not overlap
 plt.tight_layout()
 
-fig.savefig('IntergenicDistanceChimpOrthos.pdf', bbox_inches = 'tight')
-fig.savefig('IntergenicDistanceChimpOrthos.eps', bbox_inches = 'tight')
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig('IntergenicDistanceChimpOrthos' + extension, bbox_inches = 'tight')

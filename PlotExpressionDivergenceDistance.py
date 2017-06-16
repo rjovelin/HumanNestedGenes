@@ -152,5 +152,5 @@ for i in range(len(Diff)):
     ax.text(xpos[i], ypos[i], Diff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
     
 # save figure
-fig.savefig('ExpressionDivergenceDistance.pdf', bbox_inches = 'tight')
-fig.savefig('ExpressionDivergenceDistance.eps', bbox_inches = 'tight')
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig('ExpressionDivergenceDistance' + extension, bbox_inches = 'tight')

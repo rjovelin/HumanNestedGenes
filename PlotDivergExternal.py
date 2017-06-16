@@ -136,5 +136,5 @@ if PValsOrientation != '':
 
   
 # save figure
-fig.savefig('ExpDivNestedOrientation.pdf', bbox_inches = 'tight')
-fig.savefig('ExpDivNestedOrientation.eps', bbox_inches = 'tight')
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig('ExpDivNestedOrientation' + extension, bbox_inches = 'tight')

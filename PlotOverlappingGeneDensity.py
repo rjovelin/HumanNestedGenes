@@ -327,6 +327,7 @@ elif BackGround == 'All' and Vals == 'Numbs':
     outputfile = 'AllGenesDensityCounts'
 elif BackGround == 'NoOverlap' and Vals == 'Numbs':
     outputfile = 'NonOverlapGeneDensityCounts'
-     
-fig.savefig(outputfile + '.pdf', bbox_inches = 'tight')
-fig.savefig(outputfile + '.eps', bbox_inches = 'tight')
+
+# save figure
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig(outputfile + extension, bbox_inches = 'tight')

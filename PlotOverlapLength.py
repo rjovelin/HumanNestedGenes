@@ -266,6 +266,6 @@ ax3.text(-20, 1.2, 'C', ha='center', va='center', color = 'black', fontname = 'A
 # make sure subplots do not overlap
 plt.tight_layout()
 
-# save figure file    
-fig.savefig('OverlapLength.pdf', bbox_inches = 'tight')
-fig.savefig('OverlapLength.eps', bbox_inches = 'tight')
+# save figure file
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig('OverlapLength' + extension, bbox_inches = 'tight')

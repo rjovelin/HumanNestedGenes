@@ -263,5 +263,7 @@ elif GOClass == 'celcomp':
     FigName = 'FunctionalSimilarityCelComp'        
 elif GOClass == 'biolproc':
     FigName = 'FunctionalSimilarityBiolProc'
-fig.savefig(FigName + '.pdf', bbox_inches = 'tight')
-fig.savefig(FigName + '.eps', bbox_inches = 'tight')
+
+# save figure
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig(FigName + extension, bbox_inches = 'tight')

@@ -485,5 +485,5 @@ ax3.text(-0.4, 1.1, 'C', horizontalalignment='center', verticalalignment='center
 # make sure subplots do not overlap
 plt.tight_layout()
 # save figure
-figure.savefig('ConservationOverlap.pdf', bbox_inches = 'tight')
-figure.savefig('ConservationOverlap.eps', bbox_inches = 'tight')
+for extension in ['.pdf', '.eps', '.png']:
+    figure.savefig('ConservationOverlap' + extension, bbox_inches = 'tight')

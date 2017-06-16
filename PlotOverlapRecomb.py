@@ -141,6 +141,5 @@ for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
    
 # save figure
-figure.savefig('OverlapRecombSpots.pdf', bbox_inches = 'tight')
-figure.savefig('OverlapRecombSpots.eps', bbox_inches = 'tight')
-
+for extension in ['.pdf', '.eps', '.png']:
+    figure.savefig('OverlapRecombSpots' + extension, bbox_inches = 'tight')

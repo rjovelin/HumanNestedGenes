@@ -130,5 +130,5 @@ O = mpatches.Patch(facecolor = '#dadaeb' , edgecolor = 'black', linewidth = 0.7,
 ax.legend(handles = [S, O], loc = (-0.3, 1.05), fontsize = LabelSize, frameon = False, ncol = 2)
 
 # save figure
-fig.savefig('ProportionSameOppositeStrands.pdf', bbox_inches = 'tight')
-fig.savefig('ProportionSameOppositeStrands.eps', bbox_inches = 'tight')
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig('ProportionSameOppositeStrands' + extension, bbox_inches = 'tight')

@@ -266,6 +266,5 @@ plt.tight_layout()
 # build figure name with option
 FigName = 'DivergenceOrthos' + Species.title()
 # save figure
-fig.savefig(FigName + '.pdf', bbox_inches = 'tight')
-fig.savefig(FigName + '.eps', bbox_inches = 'tight')
-
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig(FigName + extension, bbox_inches = 'tight')

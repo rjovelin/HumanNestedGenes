@@ -274,5 +274,5 @@ ax2.text(-3.5, -1, 'B', ha='center', va='center', color = 'black', fontname = 'A
 # make sure subplots do not overlap
 plt.tight_layout()
 # save figure
-figure.savefig('HeatmapConservationOverlap.pdf', bbox_inches = 'tight')
-figure.savefig('HeatmapConservationOverlap.eps', bbox_inches = 'tight')
+for extension in ['.pdf', '.eps', '.png']:
+    figure.savefig('HeatmapConservationOverlap' + extension, bbox_inches = 'tight')

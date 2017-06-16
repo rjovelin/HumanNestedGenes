@@ -205,5 +205,5 @@ for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
       
 # save figure
-figure.savefig('AdjacentPairs.pdf', bbox_inches = 'tight')
-figure.savefig('AdjacentPairs.eps', bbox_inches = 'tight')
+for extension in ['.pdf', '.eps', '.png']:
+    figure.savefig('AdjacentPairs' + extension, bbox_inches = 'tight')

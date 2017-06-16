@@ -381,6 +381,6 @@ FigName = 'HighestExpression' + Species.title() + GenesOfInterest.title()
 if Breadth != '':
     FigName += Breadth.title()
 
-fig.savefig(FigName + '.pdf', bbox_inches = 'tight')
-fig.savefig(Figname + '.eps', bbox_inches = 'tight')
-
+# save figure
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig(FigName + extension, bbox_inches = 'tight')
