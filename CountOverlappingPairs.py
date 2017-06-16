@@ -5,6 +5,8 @@ Created on Thu May 11 13:06:34 2017
 @author: RJovelin
 """
 
+# use this script to make a table with counts of overlapping pairs and genes in each species
+
 # import modules
 # use Agg backend on server without X server
 import matplotlib as mpl
@@ -25,46 +27,58 @@ from HsaNestedGenes import *
 
 
 # make a parallel list of Species names
-Species = ['Human', 'Chimp', 'Gorilla', 'Macaque', 'Orangutan', 'Marmoset',
-           'Mouse', 'Cow', 'Dog', 'Sloth', 'Armadillo', 'Horse', 'Hedgehog',
-           'Cat', 'Opossum', 'Platypus', 'Shrew']
+Species = ['Human', 'Chimp', 'Gorilla', 'Orangutan', 'Macaque', 'Marmoset',
+           'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse', 'Sloth',
+           'Armadillo', 'Opossum', 'Platypus']
 
-# make a parallel list of json files with nested genes
-NestedFiles = [i + 'NestedGenes.json' for i in Species]
-PiggybackFiles = [i + 'PiggyBackGenes.json' for i in Species]
-ConvergentFiles = [i + 'ConvergentGenes.json' for i in Species]
-DivergentFiles = [i + 'DivergentGenes.json' for i in Species]
+# make a list of GFF files
+GFF = ['Homo_sapiens.GRCh38.88.gff3', 'Pan_troglodytes.CHIMP2.1.4.88.gff3',
+       'Gorilla_gorilla.gorGor3.1.88.gff3', 'Pongo_abelii.PPYG2.88.gff3',
+       'Macaca_mulatta.Mmul_8.0.1.88.gff3', 'Callithrix_jacchus.C_jacchus3.2.1.88.gff3',
+       'Erinaceus_europaeus.HEDGEHOG.88.gff3', 'Sorex_araneus.COMMON_SHREW1.88.gff3',
+       'Felis_catus.Felis_catus_6.2.88.gff3', 'Canis_familiaris.CanFam3.1.88.gff3',
+       'Mus_musculus.GRCm38.88.gff3', 'Bos_taurus.UMD3.1.88.gff3', 
+       'Equus_caballus.EquCab2.88.gff3', 'Choloepus_hoffmanni.choHof1.88.gff3',
+       'Dasypus_novemcinctus.Dasnov3.0.88.gff3', 'Monodelphis_domestica.BROADO5.88.gff3',
+       'Ornithorhynchus_anatinus.OANA5.88.gff3']
 
 
+# create a dict with gene counts for all species
+GeneCounts = {}
+# make a list with types of gene overlaps
+GeneTypes = ['Overlapping', 'Nested', 'PiggyBack', 'Convergent', 'Divergent']
 
-def LoadDicts(L):
-    Dicts = []
-    for i in range(len(L)):
-        # load dictionary of overlapping gene pairs
-        json_data = open(L[i])
-        overlap = json.load(json_data)
+# loop over species
+for i in range(len(Species)):
+    GeneCounts[Species[i]] = []
+    # count the number of valid protein coding genes
+    # get the coordinates of genes on each chromo {chromo: {gene:[chromosome, start, end, sense]}}
+    GeneChromoCoord = ChromoGenesCoord(GFF[i])
+    # map each gene to its mRNA transcripts
+    MapGeneTranscript = GeneToTranscripts(GFF[i])
+    # remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
+    GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
+    # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+    GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
+    # add total number of genes to list  
+    total = len(set(GeneCoord.keys()))
+    GeneCounts[Species[i]].append(total)    
+    # loop over type of overlapping genes
+    for j in range(len(GeneTypes)):
+        # load dictionary
+        json_data = open(Species[i] + GeneTypes[j] + 'Genes.json')
+        overlapping = json.load(json_data)
         json_data.close()
-        Dicts.append(overlap)
-    return Dicts
+        # count the number of gene pairs 
+        Pairs = len(GetHostNestedPairs(overlapping))
+        # count the number of overlapping genes
+        Genes = len(MakeFullPartialOverlapGeneSet(overlapping))
+        # compute percent of overlapping genes
+        percent = round(Genes / total * 100, 2)
+        # populate dict
+        for item in [Pairs, Genes, percent]:
+            GeneCounts[Species[i]].append(item)
 
-
-# make a list of dictionaries
-AllNestedGenes = LoadDicts(NestedFiles)
-AllPbkGenes = LoadDicts(PiggybackFiles)
-AllConGenes = LoadDicts(ConvergentFiles)
-AllDivGenes = LoadDicts(DivergentFiles)
-
-
-# get nested pairs 
-NestedPairs = [GetHostNestedPairs(AllNestedGenes[i]) for i in range(len(AllNestedGenes))]
-PgkPairs = [GetHostNestedPairs(AllPbkGenes[i]) for i in range(len(AllPbkGenes))]
-ConPairs = [GetHostNestedPairs(AllConGenes[i]) for i in range(len(AllConGenes))]
-DivPairs = [GetHostNestedPairs(AllDivGenes[i]) for i in range(len(AllDivGenes))]
-
-for i in [NestedPairs, PgkPairs, ConPairs, DivPairs]:
-    print(list(map(lambda x: len(x), i)))
-
-
-
-
+for i in range(len(Species)):
+    print(Species[i], GeneCounts[Species[i]])
 
