@@ -85,7 +85,7 @@ newfile = open('OverlappingGeneCounts.txt', 'w')
 Header1 = ['Species', 'AllGenes', '\t', 'All', '\t', '\t', 'Nst', '\t', '\t', 'Pbk', '\t', '\t', 'Con', '\t', '\t', 'Div']
 Header2 = ['\t', '\t']
 for i in range(5):
-    Header2.expend(['Pairs', 'Genes', '(%)'])
+    Header2.extend(['Pairs', 'Genes', '(%)'])
 # write headers to file, tab seperated
 newfile.write('\t'.join(Header1) + '\n')
 newfile.write('\t'.join(Header2) + '\n')
