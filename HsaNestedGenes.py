@@ -2398,7 +2398,7 @@ def GetChromosomeLength(GFF):
     ChromoLength = {}
     infile = open(GFF)
     for line in infile:
-        if line.startswith('##sequence-region'):
+        if line.startswith('##sequence'):
             line = line.rstrip().split()
             assert len(line) == 4
             # get chromo, start and end positions
