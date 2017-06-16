@@ -75,25 +75,35 @@ for i in range(len(Species)):
     ObservedOverlaGenes[Species[i]].append(len(MakeNonOverlappingGeneSet(overlapping, SpGeneCoordinates[i])))    
 
 # make a dict with mean and standard error from simulations
-Mean, SEM = {}, {}
+SimulMean, SimulSEM = {}, {}
 for species in Simulations:
-    NO = [Simulations[species][0] for species in Simulations]
-    NN = [Simulations[species][1] for species in Simulations]
-    Mean[species] = [np.mean(NO), np.mean(NN)]    
-    SEM[species] = [np.std(NO) / math.sqrt(len(NO)), np.std(NN) / math.sqrt(len(NN))]     
-        
+    # get the counts of overlapping genes from each simulations
+    OvlNum = [Simulations[species][i][0] for i in range(len(Simulations[species]))]
+    NonOvlNum = [Simulations[species][i][1] for i in range(len(Simulations[species]))]    
+    SimulMean[species] = [np.mean(OvlNum), np.mean(NonOvlNum)]    
+    SimulSEM[species] = [np.std(OvlNum) / math.sqrt(len(OvlNum)), np.std(NonOvlNum) / math.sqrt(len(NonOvlNum))]     
+ 
 # compute P values of differences between observations and expectations
 PVals = {}
 for species in ObservedOverlaGenes:
-    P = stats.fisher_exact([ObservedOverlaGenes[species], Mean[species]])[1]     
+    P = stats.fisher_exact([ObservedOverlaGenes[species], list(map(lambda x: round(x), SimulMean[species]))])[1]     
     PVals[species] = P
     
 for species in ObservedOverlaGenes:
-    print(species, ObservedOverlaGenes[species][0], ObservedOverlaGenes[species][1], Mean[species][0], Mean[species][1], PVals[species])
+    print(species, ObservedOverlaGenes[species][0], ObservedOverlaGenes[species][1], SimulMean[species][0], SimulMean[species][1], PVals[species])
     
-    
-    
-    
+# write results to file
+newfile = open('NeutralSimulations.txt', 'w')
+Header = ['Species', 'Observed_Overlapping', 'Observed_NonOverlapping', 'Expected_Overlapping (SEM)', 'Expected_NonOverlapping (SEM)', 'P']    
+newfile.write('\t'.join(Header) + '\n')
+# write results for each species in phylogenetic order
+for i in range(len(Species)):
+    line = [Species[i]] + list(map(lambda x: str(x), [ObservedOverlaGenes[Species[i]][0], ObservedOverlaGenes[Species[i]][1], SimulMean[Species[i]][0], SimulMean[Species[i]][1], PVals[Species[i]]]))
+    # add SEM
+    line[3] = line[3] + ' (' + str(round(SimulSEM[Species[i]][0], 2)) + ')'
+    line[4] = line[4] + ' (' + str(round(SimulSEM[Species[i]][1], 2)) + ')'
+    newfile.write('\t'.join(line) + '\n')
+newfile.close()
     
     
     
