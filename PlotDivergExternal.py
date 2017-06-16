@@ -87,8 +87,6 @@ for i in range(len(ExpDivergOrientation)):
     MeanOrientation.append(np.mean(ExpDivergOrientation[i]))
     SEMOrientation.append(np.std(ExpDivergOrientation[i]) / math.sqrt(len(ExpDivergOrientation[i])))
 
-
-
 # create figure
 fig = plt.figure(1, figsize = (1.5, 2))
 
@@ -127,6 +125,12 @@ for label in ax.get_yticklabels():
 
 # perform statistical tests between gene categories
 PValsOrientation = [PermutationResampling(ExpDivergOrientation[0], ExpDivergOrientation[1], 1000, statistic = np.mean)]
+
+# print results to screen
+print('same:', MeanOrientation[0], '+-', SEMOrientation[0])
+print('opposite:', MeanOrientation[1], '+-', SEMOrientation[1])
+print('P: ', PValsOrientation[0])
+
 # convert P values to stars
 PValsOrientation = ConvertPToStars(PValsOrientation)[0]
 
