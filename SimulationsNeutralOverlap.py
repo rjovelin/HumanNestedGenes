@@ -43,6 +43,12 @@ GFF = ['Homo_sapiens.GRCh38.88.gff3', 'Pan_troglodytes.CHIMP2.1.4.88.gff3',
        'Dasypus_novemcinctus.Dasnov3.0.88.gff3', 'Monodelphis_domestica.BROADO5.88.gff3',
        'Ornithorhynchus_anatinus.OANA5.88.gff3']
 
+# make a list with assembly names
+AssemblyRef = ['GRCh38', 'CHIMP2.1.4', 'gorGor3.1', 'PPYG2',
+               'Mmul_8.0.1', 'C_jacchus3.2.1', 'HEDGEHOG', 'COMMON_SHREW1',
+               'Felis_catus_6.2', 'CanFam3.1', 'GRCm38', 'UMD3.1', 
+               'EquCab2', 'choHof1', 'Dasnov3.0', 'BROADO5', 'OANA5']
+
 # make a list with gene coordinates in each species {gene:[chromosome, start, end, sense]}
 SpGeneCoordinates = []
 # make a list with gene corodinates on each chromo in each species {chromo: {gene:[chromosome, start, end, sense]}}
@@ -52,6 +58,7 @@ SpChromoLength = []
 
 # populate lists
 for i in range(len(GFF)):
+    print(i, Species[i])
     # get the coordinates of genes on each chromo {chromo: {gene:[chromosome, start, end, sense]}}
     GeneChromoCoord = ChromoGenesCoord(GFF[i])
     # map each gene to its mRNA transcripts
@@ -62,12 +69,15 @@ for i in range(len(GFF)):
     # get the coordinates of each gene {gene:[chromosome, start, end, sense]}
     GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
     SpGeneCoordinates.append(GeneCoord)    
-    # odrder genes along chromo {chromo: [gene1, gene2, gene3...]} 
-    OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
     # get chromosome length
-    ChromoL = GetChromosomeLength(GFF[0])
+    ChromoL = GetChromosomeLength(GFF[i], GeneChromoCoord, AssemblyRef[i])
     SpChromoLength.append(ChromoL)
-    
+    # do some QC
+    # make a set of chromo
+    a, b = set(ChromoL.keys()), set(GeneChromoCoord.keys())
+    assert a == b
+
+
 # create a dict to store the count of overlapping and non-overlapping genes for each simulation
 Simulations = {}
 for species in Species:
