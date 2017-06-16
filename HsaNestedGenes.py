@@ -2388,27 +2388,31 @@ def AssignGenesToRecombSpots(Overlapping, RecombSpots, GeneCoord):
 
 
 # use this fucntion to get the length of each chromosome
-def GetChromosomeLength(GFF):
+def GetChromosomeLength(GFF, ChromoGeneCoord, AssemblyRef):
     '''
-    (file) -> dict
-    Return a dictionary with chromosome length by parsing the GFF file    
+    (file, dict. str) -> dict
+    Take the GFF file, and a dictionary with gene coordinates on each chromosome,
+    a string with the assembly name and and return a dictionary with pairs of chromosome and their length    
     '''
     
+    # make a list of chromosomes of interest
+    Chromos = list(ChromoGeneCoord.keys())
     # create a dict {chromosome: length}
     ChromoLength = {}
     infile = open(GFF)
     for line in infile:
-        if line.startswith('##sequence'):
-            line = line.rstrip().split()
-            assert len(line) == 4
-            # get chromo, start and end positions
-            chromo, start, end = line[1], int(line[2]) -1, int(line[3])
-            L = end - start
-            assert chromo not in ChromoLength
-            ChromoLength[chromo] = L
+        if AssemblyRef in line and not line.startswith('#'):
+            line = line.rstrip().split('\t')
+            if line[1] == AssemblyRef:
+                if line[0] in Chromos:
+                    assert line[0] not in ChromoLength
+                    # get chromo, start and end positions
+                    chromo, start, end = line[0], int(line[3]) -1, int(line[4])
+                    L = end - start
+                    ChromoLength[chromo] = L
     infile.close()
     return ChromoLength
-
+    
     
 # use this function to randomize gene positions along chromsome
 def RandomizeGenePosition(ChromoGeneCoord, ChromoLength):
