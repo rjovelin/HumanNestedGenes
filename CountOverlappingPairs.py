@@ -82,3 +82,20 @@ for i in range(len(Species)):
 for i in range(len(Species)):
     print(Species[i], GeneCounts[Species[i]])
 
+
+# save counts to file
+newfile = open('OverlappingGeneCounts.txt', 'w')
+# build headers
+Header1 = ['Species', 'AllGenes', '\t', 'All', '\t', '\t', 'Nst', '\t', '\t', 'Pbk', '\t', '\t', 'Con', '\t', '\t', 'Div']
+Header2 = ['\t', '\t']
+for i in range(5):
+    Header2.expend(['Pairs', 'Genes', '(%)'])
+# write headers to file, tab seperated
+newfile.write('\t'.join(Header1) + '\n')
+newfile.write('\t'.join(Header2) + '\n')
+# write counts to file for each species, keep the phylogenetic order
+for i in range(len(Species)):
+    line = [Species[i]] + list(map(lambda x: str(x), GeneCounts[Species[i]]))
+    newfile.write('\t'.join(line) + '\n')
+newfile.close()
+
