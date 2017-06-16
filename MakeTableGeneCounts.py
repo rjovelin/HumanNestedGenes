@@ -82,8 +82,8 @@ for i in range(len(Species)):
 # save counts to file
 newfile = open('OverlappingGeneCounts.txt', 'w')
 # build headers
-Header1 = ['Species', 'AllGenes', '\t', 'All', '\t', '\t', 'Nst', '\t', '\t', 'Pbk', '\t', '\t', 'Con', '\t', '\t', 'Div']
-Header2 = ['\t', '\t']
+Header1 = ['Species', 'AllGenes', ' ', 'All', ' ', ' ', 'Nst', ' ', ' ', 'Pbk', ' ', ' ', 'Con', ' ', ' ', 'Div']
+Header2 = [' ', ' ']
 for i in range(5):
     Header2.extend(['Pairs', 'Genes', '(%)'])
 # write headers to file, tab seperated
