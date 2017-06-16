@@ -79,10 +79,6 @@ for i in range(len(Species)):
         for item in [Pairs, Genes, percent]:
             GeneCounts[Species[i]].append(item)
 
-for i in range(len(Species)):
-    print(Species[i], GeneCounts[Species[i]])
-
-
 # save counts to file
 newfile = open('OverlappingGeneCounts.txt', 'w')
 # build headers
