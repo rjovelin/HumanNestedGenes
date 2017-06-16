@@ -75,7 +75,7 @@ for i in range(len(Species)):
     ObservedOverlaGenes[Species[i]].append(len(MakeNonOverlappingGeneSet(overlapping, SpGeneCoordinates[i])))    
 
 # make a dict with mean and standard error from simulations
-Mean = {}, SEM = {}
+Mean, SEM = {}, {}
 for species in Simulations:
     NO = [Simulations[species][0] for species in Simulations]
     NN = [Simulations[species][1] for species in Simulations]
