@@ -183,7 +183,7 @@ fig = plt.figure(1, figsize = (4.5, 2))
 # plot data for intron numner
 ax1 = CreateAx(3, 1, 1, fig, NumMeans, NumSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Ext', 'Int', 'Not'], ['#43a2ca','#ccebc5','lightgrey'], 'Introns / gene', 20)
 ax2 = CreateAx(3, 1, 2, fig, LengthMeans, LengthSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Ext', 'Int', 'Not'], ['#43a2ca','#ccebc5','lightgrey'], 'Intron length (Kbp)', 20)
-ax3 = CreateAx(3, 1, 3, fig, HostIntronMeans, HostIntronSEM, [0, 0.2], [0.1, 0.3], ['Yes', 'No'], ['#43a2ca', '#ccebc5'], 'Intron length of external (Kbp)', 70, True)
+ax3 = CreateAx(3, 1, 3, fig, HostIntronMeans, HostIntronSEM, [0, 0.2], [0.1, 0.3], ['Yes', 'No'], ['#43a2ca', '#ccebc5'], 'Intron length (Kbp)', 70, True)
 
 # make lists with bracket and star positions
 XPosNum = [[0.1, 0.28, 13, 0.2, 13.8], [0.1, 0.5, 14, 0.3, 15.5], [0.32, 0.5, 13, 0.4, 13.8]]
