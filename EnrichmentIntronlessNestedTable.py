@@ -41,7 +41,7 @@ with open('HumanNestedGenes.json') as human_json_data:
     Nested = json.load(human_json_data)
 
 # get GFF file
-GFF = 'Homo_sapiens.GRCh38.86.gff3'
+GFF = 'Homo_sapiens.GRCh38.88.gff3'
  
 # count internal (nested) intronless genes, genes with introns that are on the
 # same strand and opposite strand relative to their hosts
