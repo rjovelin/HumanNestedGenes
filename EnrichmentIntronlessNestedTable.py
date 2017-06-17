@@ -7,8 +7,6 @@ Created on Tue Nov 22 11:57:29 2016
 
 
 # use this script to test for over-representation of intronless nested genes in same sense orientation
-# generate a contagency table with number of nested intronless-same sense, intronless opposite sense,
-# with introns same sense, and with introns opposite sense
 
 # usage python3 EnrichmentIntronlessNestedTable.py
 
@@ -43,8 +41,8 @@ with open('HumanNestedGenes.json') as human_json_data:
 # get GFF file
 GFF = 'Homo_sapiens.GRCh38.88.gff3'
  
-# count internal (nested) intronless genes, genes with introns that are on the
-# same strand and opposite strand relative to their hosts
+# count gene pairs for which internal genes are intronless genes or which introns,
+# and if internal and external genes have same strand or opposite strand orientation
 NoIntronSame, NoIntronOpposite, WithIntronSame, WithIntronOpposite = 0, 0, 0, 0
 
 # find nested and intronic-nested genes 
@@ -74,53 +72,47 @@ Matches = MatchHostTranscriptWithNestedTranscript(Nested, MapGeneTranscript, Gen
 # list all host, nested transcript pairs [[host, nested]]
 HostNestedPairs = GetHostNestedPairs(Matches)
 
-# make a set of internal genes already counted
-# note that some genes may be internal to multiple hosts
-# do not count the same internal gene multiple times
-AlreadyRecorded = set()
-
+# make a list of nested pairs
+NestedPairs = GetHostNestedPairs(Nested)
+# check that the number of gene pairs and the number of transcript pairs are the same
+assert len(NestedPairs) == len(HostNestedPairs)
 
 # loop over host-nested transcript pairs
 for i in range(len(HostNestedPairs)):
     # check that both transcripts have coordinates and have corresponding gene names    
-    assert HostNestedPairs[i][0] in MapTranscriptGene
-    assert HostNestedPairs[i][0] in TranscriptCoordinates    
-    assert HostNestedPairs[i][1] in MapTranscriptGene
-    assert HostNestedPairs[i][1] in TranscriptCoordinates    
+    assert HostNestedPairs[i][0] in MapTranscriptGene and HostNestedPairs[i][1] in MapTranscriptGene
+    assert HostNestedPairs[i][0] in TranscriptCoordinates and HostNestedPairs[i][1] in TranscriptCoordinates    
     # do not count the same internal gene multiple times
-    if HostNestedPairs[i][1] not in AlreadyRecorded:
-        # get the orientation of each transcript [+,+]
-        OrientationPair = GenePairOrientation(HostNestedPairs[i], TranscriptCoordinates)
-        # determine if the nested transcript has introns
-        if HostNestedPairs[i][1] in IntronCoord:
-            IntronLess = False
-        else:
-            IntronLess = True
-        # check presence of intron and orientation of host and nested transcripts
-        if IntronLess == True and len(set(OrientationPair)) == 1:
-            # intronless, same orientation
-            NoIntronSame += 1
-            assert set(OrientationPair) == {'-', '-'} or set(OrientationPair) == {'+', '+'}
-        elif IntronLess == True and len(set(OrientationPair)) == 2:
-            # intronless, differente orientation
-            NoIntronOpposite += 1
-            assert set(OrientationPair) == {'-', '+'} 
-        elif IntronLess == False and len(set(OrientationPair)) == 1:
-            # with introns and same orientation
-            WithIntronSame += 1
-            assert set(OrientationPair) == {'-', '-'} or set(OrientationPair) == {'+', '+'}
-        elif IntronLess == False and len(set(OrientationPair)) == 2:
-            # with introns and opposite orientation
-            WithIntronOpposite += 1
-            assert set(OrientationPair) == {'-', '+'}
-        # record internal gene
-        AlreadyRecorded.add(HostNestedPairs[i][1])
+    # get the orientation of each transcript [+,+]
+    OrientationPair = GenePairOrientation(HostNestedPairs[i], TranscriptCoordinates)
+    # determine if the nested transcript has introns
+    if HostNestedPairs[i][1] in IntronCoord:
+        IntronLess = False
+    else:
+        IntronLess = True
+    # check presence of intron and orientation of host and nested transcripts
+    if IntronLess == True and len(set(OrientationPair)) == 1:
+        # intronless, same orientation
+        NoIntronSame += 1
+        assert set(OrientationPair) == {'-', '-'} or set(OrientationPair) == {'+', '+'}
+    elif IntronLess == True and len(set(OrientationPair)) == 2:
+        # intronless, differente orientation
+        NoIntronOpposite += 1
+        assert set(OrientationPair) == {'-', '+'} 
+    elif IntronLess == False and len(set(OrientationPair)) == 1:
+        # with introns and same orientation
+        WithIntronSame += 1
+        assert set(OrientationPair) == {'-', '-'} or set(OrientationPair) == {'+', '+'}
+    elif IntronLess == False and len(set(OrientationPair)) == 2:
+        # with introns and opposite orientation
+        WithIntronOpposite += 1
+        assert set(OrientationPair) == {'-', '+'}
 
-# test that the proportions of intron-less and with-intron genes are the same on both strands
+# test that the proportions of intron-less and with-intron gene pairs are the same on both strands
 P = stats.fisher_exact([[NoIntronSame, NoIntronOpposite], [WithIntronSame, WithIntronOpposite]])[1]
 
 # create contingency table table
-newfile.write('Table 1. Number of internal (nested genes) with and without introns and their orientation\n')
+newfile.write('Table 1. Number of gene pairs for which internal genes are intronless or with introns and their orientation\n')
 newfile.write('\t'.join(['', 'Intronless', 'WithIntron', 'Ratio Intronless/Total', 'P']) + '\n')
 newfile.write('\t'.join(['Same', str(NoIntronSame), str(WithIntronSame), str(round(NoIntronSame / (NoIntronSame + WithIntronSame), 4)), str(P)]) + '\n')
 newfile.write('\t'.join(['Opposite', str(NoIntronOpposite), str(WithIntronOpposite), str(round(NoIntronOpposite / (NoIntronOpposite + WithIntronOpposite), 4)), str(P)]) + '\n')
