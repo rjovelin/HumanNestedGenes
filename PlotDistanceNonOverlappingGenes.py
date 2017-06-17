@@ -43,7 +43,7 @@ for i in range(len(jsonFiles)):
     AllOverlap.append(overlapping)
 
 # get GFF file
-GFF = ['Homo_sapiens.GRCh38.86.gff3', 'Pan_troglodytes.CHIMP2.1.4.86.gff3']
+GFF = ['Homo_sapiens.GRCh38.88.gff3', 'Pan_troglodytes.CHIMP2.1.4.88.gff3']
 
 # make a list of gene coordinates       
 AllCoordinates, AllOrdered = [], []
@@ -66,7 +66,7 @@ HumanOrdered, ChimpOrdered = AllOrdered[0], AllOrdered[1]
 HumanCoord, ChimpCoord = AllCoordinates[0], AllCoordinates[1]
 
 # get 1:1 orthologs between human and chimp
-Orthos = MatchOrthologPairs('HumanChimpOrthologs.txt')
+Orthos = MatchOrthologs('HumanChimpOrthologs.txt')
 
 # make pairs of overlapping genes
 AllPairs = []
