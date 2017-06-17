@@ -134,7 +134,7 @@ for i in PValues:
 
 
 # create a function to format the subplots
-def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Ticklabel, ColorScheme, YLabel, YMax):
+def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Ticklabel, ColorScheme, YLabel, YMax, IsXLabel = False):
     '''
     (int, int, int, figure_object, list, list, list, list, list, str, str, int)
     Take the number of a column, and rows in the figure object and the position of
@@ -153,13 +153,9 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Tickl
     FigFont = {'fontname':'Arial'}   
     # write label for y
     ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-    
     # write label for x
     if IsYLabel == True:
-        ax.set_xlabel(XLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
-    
-    
-    
+        ax.set_xlabel('Introns in internal', color = 'black',  size = 8, ha = 'center', **FigFont)
     # add a range for the Y axis
     plt.ylim([0, YMax])
     # do not show lines around figure  
@@ -187,7 +183,7 @@ fig = plt.figure(1, figsize = (4.5, 2))
 # plot data for intron numner
 ax1 = CreateAx(3, 1, 1, fig, NumMeans, NumSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Ext', 'Int', 'Not'], ['#43a2ca','#ccebc5','lightgrey'], 'Introns / gene', 20)
 ax2 = CreateAx(3, 1, 2, fig, LengthMeans, LengthSEM, [0, 0.2, 0.4], [0.1, 0.3, 0.5], ['Ext', 'Int', 'Not'], ['#43a2ca','#ccebc5','lightgrey'], 'Intron length (Kbp)', 20)
-ax3 = CreateAx(3, 1, 3, fig, HostIntronMeans, HostIntronSEM, [0, 0.2], [0.1, 0.3], ['Yes', 'No'], ['#43a2ca', '#ccebc5'], 'Intron length (Kbp)', 70)
+ax3 = CreateAx(3, 1, 3, fig, HostIntronMeans, HostIntronSEM, [0, 0.2], [0.1, 0.3], ['Yes', 'No'], ['#43a2ca', '#ccebc5'], 'Intron length of external (Kbp)', 70, True)
 
 # make lists with bracket and star positions
 XPosNum = [[0.1, 0.28, 13, 0.2, 13.8], [0.1, 0.5, 14, 0.3, 15.5], [0.32, 0.5, 13, 0.4, 13.8]]
