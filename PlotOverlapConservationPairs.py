@@ -28,10 +28,9 @@ from HsaNestedGenes import *
 
 
 # make a parallel list of Species names
-Species = ['Human', 'Chimp', 'Gorilla', 'Orangutan',
-           'Macaque', 'Marmoset', 'Hedgehog', 'Shrew',
-           'Cat', 'Dog', 'Mouse', 'Cow', 'Horse', 'Sloth',
-           'Armadillo', 'Opossum', 'Platypus']
+Species = ['Human', 'Chimp', 'Gorilla', 'Orangutan', 'Macaque', 'Marmoset',
+           'Mouse', 'Cat', 'Dog', 'Cow', 'Horse', 'Hedgehog', 'Shrew',
+           'Sloth', 'Armadillo', 'Opossum', 'Platypus']
 
 # make a list of json files
 JsonFiles = ['Nested', 'PiggyBack', 'Convergent', 'Divergent']
@@ -226,8 +225,8 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
         ax.set_xlabel('Nested', color = 'black', size = 7, ha = 'center', **FigFont)  
 
     plt.yticks([i for i in range(16)], ['Chimp', 'Gorilla', 'Orangutan', 'Macaque',
-               'Marmoset', 'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse',
-               'Sloth', 'Armadillo','Opossum', 'Platypus'])
+               'Marmoset', 'Mouse', 'Cat', 'Dog', 'Cow', 'Horse', 'Hedgehog', 'Shrew',
+               'Sloth', 'Armadillo', 'Opossum', 'Platypus'])
     # do not show lines around figure  
     ax.spines["top"].set_visible(False)    
     ax.spines["bottom"].set_visible(False)    

@@ -31,8 +31,9 @@ from HsaNestedGenes import *
 
 # make a parallel list of Species names
 Species = ['Human', 'Chimp', 'Gorilla', 'Orangutan', 'Macaque', 'Marmoset',
-           'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse', 'Sloth',
-           'Armadillo', 'Opossum', 'Platypus']
+           'Mouse', 'Cat', 'Dog', 'Cow', 'Horse', 'Hedgehog', 'Shrew',
+           'Sloth', 'Armadillo', 'Opossum', 'Platypus']
+
 
 # make a list of json files
 JsonFiles = ['HumanOverlappingGenes.json', 'HumanNestedGenes.json', 'HumanPiggyBackGenes.json', 'HumanConvergentGenes.json', 'HumanDivergentGenes.json']
@@ -381,9 +382,9 @@ def CreateAx(NColumns, NRows, Grid1, Grid2, RowPos,ColPos, figure, gs, Data, Gra
         cbar.ax.tick_params(direction = 'out')
         # edit xticks
         plt.xticks([0,1,2,3,4,5,6], ['Not', 'Nst', 'Ext', 'Int', 'Pbk', 'Con', 'Div'])
-        plt.yticks([i for i in range(16)], ['Chimp', 'Gorilla', 'Orangutan', 'Macaque',
-                    'Marmoset', 'Hedgehog', 'Shrew', 'Cat', 'Dog', 'Mouse', 'Cow', 'Horse',
-                    'Sloth', 'Armadillo','Opossum', 'Platypus'])
+        plt.yticks([i for i in range(16)], ['Chimp', 'Gorilla', 'Orangutan',
+                   'Macaque', 'Marmoset', 'Mouse', 'Cat', 'Dog', 'Cow', 'Horse',
+                   'Hedgehog', 'Shrew', 'Sloth', 'Armadillo', 'Opossum', 'Platypus'])
         # do not show lines around figure  
         ax.spines["top"].set_visible(False)    
         ax.spines["bottom"].set_visible(False)    
