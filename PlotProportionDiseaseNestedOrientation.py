@@ -70,7 +70,7 @@ DiseaseGenes = GAD.union(GWAS).union(Drivers).union(OMIM)
 NestedPairs = GetHostNestedPairs(Nested)
 
 # make a list with counts of disease, non disease for same and opposite strand for each disease
-PairCountsDisease, PairCountsNoDisease = [], []
+PairCounts = []
 # loop over disease types
 for D in [GAD, GWAS, Drivers, OMIM, DiseaseGenes]:
     SameDisease, SameNoDisease, OppDisease, OppNoDisease = 0, 0, 0, 0
@@ -92,96 +92,86 @@ for D in [GAD, GWAS, Drivers, OMIM, DiseaseGenes]:
             else:
                 OppNoDisease += 1
     assert SameDisease + SameNoDisease + OppDisease + OppNoDisease == len(NestedPairs)
-    PairCountsDisease.append([SameDisease / (SameDisease + SameNoDisease), OppDisease / (OppDisease + OppNoDisease)])
-    PairCountsNoDisease.append([SameNoDisease / (SameDisease + SameNoDisease), OppNoDisease / (OppDisease + OppNoDisease)])
-        
-for i in range(len(PairCountsDisease)):
-    print(PairCountsDisease[i])
- 
+    PairCounts.append([[SameDisease, SameNoDisease], [OppDisease, OppNoDisease]])
+    
+# make a list with Proportions of pairs with disease genes for same and oppoiste strands
+ProportionDisease = []
+for L in PairCounts:
+    print(L[0][0] / sum(L[0]), L[1][0] / sum(L[1]), stats.fisher_exact(L)[1])    
+    ProportionDisease.append([L[0][0] / sum(L[0]), L[1][0] / sum(L[1])])
+    
+    
 
-## create a function to format the subplots
-#def CreateAx(Columns, Rows, Position, figure, Data, XLabel, isYLabel):
-#    '''
-#    Returns a ax instance in figure
-#    '''    
-#    
-#    # add a plot to figure (N row, N column, plot N)
-#    ax = figure.add_subplot(Rows, Columns, Position)
-#    # Create a horizontal bar plot for proportions of disease genes
-#    ax.bar([0, 0.2, 0.4, 0.6, 0.8], Data[0], width = 0.2, label = 'disease', color= ['#2b8cbe'] * len(Data[0]), edgecolor = 'white', linewidth = 0.7)
-#    # Create a horizontal bar plot for proportions of non-disease genes
-#    ax.bar([0, 0.2, 0.4, 0.6, 0.8], Data[1], width = 0.2, bottom = Data[0], label = 'non-disease', color= ['#88419d'] * len(Data[1]), edgecolor = 'white', linewidth = 0.7)
-#
-#    # set font for all text in figure
-#    FigFont = {'fontname':'Arial'}   
-#    # write y axis label
-#    if isYLabel == True:
-#        YLabel = 'Proportions'
-#        ax.set_ylabel(YLabel, color = 'black',  size = 6, ha = 'center', **FigFont)
-#        # edit y axis ticks
-#        plt.yticks(np.arange(0, 1.25, 0.25))    
-#    # add ticks and lebels
-#    plt.xticks([0.1, 0.3, 0.5, 0.7, 0.9], ['Not', 'Nst', 'Pgk', 'Con', 'Div'], rotation = 0, size = 6, color = 'black', ha = 'center', **FigFont)
-#    # add x label
-#    ax.set_xlabel(XLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
-#    # add a range for the Y axis
-#    plt.ylim([0, 1])    
-#    # do not show lines around figure  
-#    ax.spines["top"].set_visible(False)    
-#    ax.spines["bottom"].set_visible(True)    
-#    ax.spines["right"].set_visible(False)
-#    if isYLabel == True:
-#        ax.spines["left"].set_visible(True)
-#    else:
-#        ax.spines['left'].set_visible(False)
-#    # offset the spines
-#    for spine in ax.spines.values():
-#        spine.set_position(('outward', 3))           
-#    # edit tick parameters    
-#    if isYLabel == True:
-#        plt.tick_params(axis='both', which='both', bottom='on', top='off',
-#                        right = 'off', left = 'on', labelbottom='on',
-#                        colors = 'black', labelsize = 6, direction = 'out')  
-#        # Set the tick labels font name
-#        for label in ax.get_yticklabels():
-#            label.set_fontname('Arial')
-#    else:
-#        plt.tick_params(axis='both', which='both', bottom='on', top='off',
-#                        right = 'off', left = 'off', labelbottom='on', labelleft = 'off',
-#                        colors = 'black', labelsize = 6, direction = 'out')  
-#    # add margins
-#    plt.margins(0.1)
-#    return ax
-#
-#
-## make a figure with proportion of disease and non-disease genes
-#
-## create figure
-#fig = plt.figure(1, figsize = (6.2, 1.8))
-## plot data
-#ax1 = CreateAx(5, 1, 1, fig, [DisProp[0], NonDisProp[0]], 'complex', True)
-#ax2 = CreateAx(5, 1, 2, fig, [DisProp[1], NonDisProp[1]], 'GWAS', False)
-#ax3 = CreateAx(5, 1, 3, fig, [DisProp[2], NonDisProp[2]], 'tumors', False)
-#ax4 = CreateAx(5, 1, 4, fig, [DisProp[3], NonDisProp[3]], 'mendelian', False)
-#ax5 = CreateAx(5, 1, 5, fig, [DisProp[4], NonDisProp[4]], 'all', False)
-#
-#
-#
-### add legend
-##D = mpatches.Patch(facecolor = '#2b8cbe', edgecolor = 'white', linewidth = 0.7, label= 'disease')
-##N = mpatches.Patch(facecolor = '#88419d', edgecolor = 'white', linewidth = 0.7, label= 'non-disease')
-##ax1.legend(handles = [D, N], loc = (0.05, 1.2), fontsize = 6, frameon = False, ncol = 2)
-#
-#
-## make sure subplots do not overlap
-#plt.tight_layout()
-#
-### save figure to file
-##outputfile = 'truc'
-##for extension in ['.pdf', '.eps', '.png']:
-##    fig.savefig(outputfile + extension, bbox_inches = 'tight')
-#
-#
+# create a function to format the subplots
+def CreateAx(Columns, Rows, Position, figure, Data, XLabel):
+    '''
+    Returns a ax instance in figure
+    '''    
+    
+    # add a plot to figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # Create a horizontal bar plot for proportions of disease genes
+    ax.bar([0, 0.2], Data, width = 0.2, label = 'disease', color= ['#2b8cbe', '#88419d'], edgecolor = 'black', linewidth = 0.7)
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    # write y axis label
+    YLabel = 'Proportions of pairs\nwith disease genes'
+    ax.set_ylabel(YLabel, color = 'black',  size = 6, ha = 'center', **FigFont)
+    # edit y axis ticks
+#    plt.yticks(np.arange(0, 1, 0.25))    
+    # add ticks and lebels
+    plt.xticks([0.1, 0.3], ['S', 'O'], rotation = 0, size = 6, color = 'black', ha = 'center', **FigFont)
+    # add x label
+    ax.set_xlabel(XLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
+    # add a range for the Y axis
+    # plt.ylim([0, 1])    
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(True)    
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(True)
+    # offset the spines
+    for spine in ax.spines.values():
+        spine.set_position(('outward', 3))           
+    # edit tick parameters    
+    plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                    right = 'off', left = 'on', labelbottom='on',
+                    colors = 'black', labelsize = 6, direction = 'out')  
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')
+    # add margins
+    plt.margins(0.1)
+    return ax
+
+
+# make a figure with proportion of disease and non-disease genes
+
+# create figure
+fig = plt.figure(1, figsize = (6.2, 1.8))
+# plot data
+ax1 = CreateAx(5, 1, 1, fig, ProportionDisease[0], 'complex')
+ax2 = CreateAx(5, 1, 2, fig, ProportionDisease[1], 'GWAS')
+ax3 = CreateAx(5, 1, 3, fig, ProportionDisease[2], 'tumors')
+ax4 = CreateAx(5, 1, 4, fig, ProportionDisease[3], 'mendelian')
+ax5 = CreateAx(5, 1, 5, fig, ProportionDisease[4], 'all')
+
+
+# add legend
+S = mpatches.Patch(facecolor = '#2b8cbe', edgecolor = 'black', linewidth = 0.7, label= 'same strand')
+O = mpatches.Patch(facecolor = '#88419d', edgecolor = 'black', linewidth = 0.7, label= 'opposite strand')
+ax1.legend(handles = [S, O], loc = (0.05, 1.2), fontsize = 6, frameon = False, ncol = 2)
+
+
+# make sure subplots do not overlap
+plt.tight_layout()
+
 ## save figure to file
-#fig.savefig('truc.pdf', bbox_inches = 'tight')
+#outputfile = 'truc'
+#for extension in ['.pdf', '.eps', '.png']:
+#    fig.savefig(outputfile + extension, bbox_inches = 'tight')
+
+
+# save figure to file
+fig.savefig('truc.pdf', bbox_inches = 'tight')
 
