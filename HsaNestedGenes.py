@@ -10,6 +10,7 @@ import math
 import os
 import random
 import json
+import copy
 
 # use this function to record the gene coordinates on each separate chromosome    
 def ChromoGenesCoord(gff_file):
@@ -2436,4 +2437,43 @@ def RandomizeGenePosition(ChromoGeneCoord, ChromoLength):
                 RandomCoord[chromo] = {}
             RandomCoord[chromo][gene] = [chromo, start, end, ChromoGeneCoord[chromo][gene][-1]]
     return RandomCoord
+    
+
+# use this function to scale expression data
+def ScaleExpression(ExpressionProfile, scaling):
+    '''
+    (dict, str) -> dict
+    Take the dictionary of expression profile for each gene and a string with 
+    the type of scaling to perform and return a dictionary in which each tissue
+    expression is scaled
+    '''
+    # create new dict with scaled expression
+    ScaledExpression = {}
+    # make a list with expression values across tissues and genes
+    L = []
+    for gene in ExpressionProfile:
+        for val in ExpressionProfile[gene]:
+            L.append(val)
+    # check which type of scaling to be performed
+    if scaling == 'autoscaling':
+        # scale using mean and standard deviation
+        # compute mean and standard deviation of expression across genes and tissues
+        ExpMean, ExpStd = np.mean(L), np.std(L)
+        for gene in ExpressionProfile:
+            ScaledExpression[gene] = []
+            for i in range(len(ExpressionProfile[gene])):
+                # computed scaled expression value
+                j = (ExpressionProfile[gene][i] - ExpMean) / ExpStd
+                ScaleExpression[gene].append(j)
+    elif scaling == 'level_scaling':
+        # scale using meadian expression
+        # compute median expression across genes and tissues
+        ExpMed = np.median(L)
+        for gene in ExpressionProfile:
+            ScaledExpression[gene] = []
+            for i in range(len(ExpressionProfile[gene])):
+                # computed scaled expression value
+                j = (ExpressionProfile[gene][i] - ExpMed) / ExpMed
+                ScaleExpression[gene].append(j)
+    return ScaleExpression
     
