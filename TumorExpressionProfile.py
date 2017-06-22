@@ -170,6 +170,11 @@ for gene in to_remove:
         del TumorExp[gene]
 print('removed genes without paired expression: ', 'normal', len(NormalExp), 'tumor', len(TumorExp))       
 
+# sacle expression data
+NormalExp = ScaleExpression(NormalExp, 'level_scaling')
+TumorExp = ScaleExpression(TumorExp, 'level_scaling')
+print('scaled expression using median: ', 'normal', len(NormalExp), 'tumor', len(TumorExp))
+
 # get relative expression
 NormalExp = TransformRelativeExpression(NormalExp)
 TumorExp = TransformRelativeExpression(TumorExp)
