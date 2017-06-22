@@ -169,6 +169,11 @@ for gene in to_remove:
     if gene in TumorExp:
         del TumorExp[gene]
 print('removed genes without paired expression: ', 'normal', len(NormalExp), 'tumor', len(TumorExp))       
+
+# get relative expression
+NormalExp = TransformRelativeExpression(NormalExp)
+TumorExp = TransformRelativeExpression(TumorExp)
+print('transformed relative expression: ', 'normal', len(NormalExp), 'tumor', len(TumorExp))
         
 
 # load dictionary of nested genes
@@ -214,8 +219,8 @@ ax.spines["right"].set_visible(False)
 ax.spines["left"].set_visible(True)  
     
 # edit tick paramters
-plt.tick_params(axis='both', which='both', bottom='off', top='off', 
-                right = 'off', left = 'on', labelbottom='off', colors = 'black',
+plt.tick_params(axis='both', which='both', bottom='on', top='off', 
+                right = 'off', left = 'on', labelbottom='on', colors = 'black',
                 labelsize = 8, direction = 'out')  
 # set x axis ticks
 #plt.xticks([], [])
