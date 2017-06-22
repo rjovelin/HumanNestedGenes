@@ -156,6 +156,39 @@ elif SisterSp == 'mouse':
 # remove genes without expression
 HumanExpression = RemoveGenesLackingExpression(HumanExpression)
 SisterSpExpression = RemoveGenesLackingExpression(SisterSpExpression)
+
+
+# compute median and variance in each species
+L = []
+for gene in HumanExpression:
+    for val in HumanExpression[gene]:
+        L.append(val)
+HsaMedian, HsaVar = np.median(L), np.var(L)
+L = []
+for gene in SisterSpExpression:
+    for val in SisterSpExpression[gene]:
+        L.append(val)
+SpMedian, SpVar = np.median(L), np.var(L)
+
+#for gene in HumanExpression:
+#    for i in range(len(HumanExpression[gene])):
+#        HumanExpression[gene][i] = (HumanExpression[gene][i] - HsaMedian) / HsaVar 
+#for gene in SisterSpExpression:
+#    for i in range(len(SisterSpExpression[gene])):
+#        SisterSpExpression[gene][i] = (SisterSpExpression[gene][i] - HsaMedian) / HsaVar
+
+
+
+for gene in HumanExpression:
+    for i in range(len(HumanExpression[gene])):
+        HumanExpression[gene][i] = (HumanExpression[gene][i] - HsaMedian) / HsaMedian 
+for gene in SisterSpExpression:
+    for i in range(len(SisterSpExpression[gene])):
+        SisterSpExpression[gene][i] = (SisterSpExpression[gene][i] - SpMedian) / SpMedian
+
+
+
+
 # get relative expression
 HumanExpression = TransformRelativeExpression(HumanExpression)
 SisterSpExpression = TransformRelativeExpression(SisterSpExpression)
