@@ -135,19 +135,27 @@ for i in range(len(PtrDivergence)):
     PtrSEMExpDiv.append(np.std(PtrDivergence[i]) / math.sqrt(len(PtrDivergence[i])))
 print('computed means and SEM')
 
+
+
+
 # perform statistical tests between gene categories
-# create list to store the p-values
-MmuPValues = []
+# save P values to file
+newfile = open('MouseChimpExpDivergDistancePVals.txt', 'w')
+newfile.write('\t'.join(['Species', 'Genes1', 'Genes2', 'index1', 'index2', 'P']) + '\n')        
 # loop over inner list, compare gene categories
 for i in range(0, len(MmuDivergence) -1):
     for j in range(i+1, len(MmuDivergence)):
-        P = stats.ranksums(MmuDivergence[i], MmuDivergence[j])[1]
-        print('mouse', GeneCats[i], GeneCats[j], P)
+        P = PermutationResampling(MmuDivergence[i], MmuDivergence[j], 1000, statistic = np.mean)
+        print('Mouse', GeneCats[i], GeneCats[j], i, j, P)
+        newfile.write('\t'.join(['Mouse', GeneCats[i], GeneCats[j], str(i), str(j), str(P)]) + '\n')        
+# loop over inner list, compare gene categories
 for i in range(0, len(PtrDivergence) -1):
     for j in range(i+1, len(PtrDivergence)):
-        P = stats.ranksums(PtrDivergence[i], PtrDivergence[j])[1]
-        print('chimp', GeneCats[i], GeneCats[j], P)
-print('performed rank sum tests')
+        P = PermutationResampling(PtrDivergence[i], PtrDivergence[j], 1000, statistic = np.mean)
+        print('Chimp', GeneCats[i], GeneCats[j], i, j, P)
+        newfile.write('\t'.join(['Chimp', GeneCats[i], GeneCats[j], str(i), str(j), str(P)]) + '\n')        
+newfile.close()
+
 
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Data, XTickLabel, Species):
@@ -198,19 +206,6 @@ colorscheme = ['#f03b20', '#43a2ca', '#fee391', '#74c476', 'lightgrey', 'lightgr
 ax1 = CreateAx(2, 1, 1, fig, [MmuMeanExpDiv, MmuSEMExpDiv], GeneCats, 'Mouse')
 ax2 = CreateAx(2, 1, 2, fig, [PtrMeanExpDiv, PtrSEMExpDiv], GeneCats, 'Chimp')
 
-## perform statistical tests between gene categories
-## create list to store the p-values
-#PValues = []
-## save P values to file
-#newfile = open('ExpressionDivergDistancePVals.txt', 'w')
-#newfile.write('\t'.join(['Genes1', 'Genes2', 'index1', 'index2', 'P']) + '\n')        
-## loop over inner list, compare gene categories
-#for i in range(0, len(Divergence) -1):
-#    for j in range(i+1, len(Divergence)):
-#        P = PermutationResampling(Divergence[i], Divergence[j], 1000, statistic = np.mean)
-#        print(GeneCats[i], GeneCats[j], i, j, P)
-#        newfile.write('\t'.join([GeneCats[i], GeneCats[j], str(i), str(j), str(P)]) + '\n')        
-#        PValues.append(P)
 
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
