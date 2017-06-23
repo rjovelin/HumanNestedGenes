@@ -2448,7 +2448,7 @@ def ScaleExpression(ExpressionProfile, scaling):
     expression is scaled
     '''
     # create new dict with scaled expression
-    ScaledExpression = {}
+    Scaled = {}
     # make a list with expression values across tissues and genes
     L = []
     for gene in ExpressionProfile:
@@ -2460,20 +2460,20 @@ def ScaleExpression(ExpressionProfile, scaling):
         # compute mean and standard deviation of expression across genes and tissues
         ExpMean, ExpStd = np.mean(L), np.std(L)
         for gene in ExpressionProfile:
-            ScaledExpression[gene] = []
+            Scaled[gene] = []
             for i in range(len(ExpressionProfile[gene])):
                 # computed scaled expression value
                 j = (ExpressionProfile[gene][i] - ExpMean) / ExpStd
-                ScaleExpression[gene].append(j)
+                Scaled[gene].append(j)
     elif scaling == 'level_scaling':
         # scale using meadian expression
         # compute median expression across genes and tissues
         ExpMed = np.median(L)
         for gene in ExpressionProfile:
-            ScaledExpression[gene] = []
+            Scaled[gene] = []
             for i in range(len(ExpressionProfile[gene])):
                 # computed scaled expression value
                 j = (ExpressionProfile[gene][i] - ExpMed) / ExpMed
-                ScaleExpression[gene].append(j)
-    return ScaleExpression
+                Scaled[gene].append(j)
+    return Scaled
     
