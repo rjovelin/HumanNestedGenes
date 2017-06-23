@@ -223,14 +223,10 @@ for i in range(len(PtrDiff)):
 ax1.text(-0.5, 0.8, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)   
 ax1.text(2.8, 0.8, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
 
-
 # make sure subplots do not overlap
 plt.tight_layout() 
 
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
-
-## save figure
-#for extension in ['.pdf', '.eps', '.png']:
-#    fig.savefig('truc' + extension, bbox_inches = 'tight')
+# save figure
+outputfile = 'MouseChimpExpDivgDist'
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig(outputfile + extension, bbox_inches = 'tight')
