@@ -114,7 +114,6 @@ for i in range(len(AllPairs)):
         DiseaseClasses[i].remove(item)
     for L in PairsToRemove:
         AllPairs[i].remove(L)
-print(DiseaseClasses)
 
 # do QC
 for i in range(len(AllPairs)):
