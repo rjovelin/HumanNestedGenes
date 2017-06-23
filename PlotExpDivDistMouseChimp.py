@@ -215,15 +215,19 @@ ax2 = CreateAx(2, 1, 2, fig, [PtrMeanExpDiv, PtrSEMExpDiv], GeneCats, 'Chimp')
 # annotate figure to add significance
 # significant comparisons were already determined, add letters to show significance
 MmuDiff = ['A', 'B', 'C', 'B', 'D', 'E', 'F', 'A']
-PtrDiff = ['ADE', 'ABCDEF', 'C', 'C', 'C', 'D', 'E', 'F']
+PtrDiff = ['A', 'AB', 'BC', 'BC', 'BC', 'ABD', 'ABE', 'BF']
 
 ypos = [0.65] * 8
 xpos = [0.15, 0.45, 0.75, 1.05, 1.35, 1.65, 1.95, 2.25]
 for i in range(len(MmuDiff)):
-    ax1.text(xpos[i], ypos[i], MmuDiff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+    ax1.text(xpos[i], ypos[i], MmuDiff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 6)
 for i in range(len(PtrDiff)):
-    ax2.text(xpos[i], ypos[i], PtrDiff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
-    
+    ax2.text(xpos[i], ypos[i], PtrDiff[i], ha='center', va='center', color = 'black', fontname = 'Arial', size = 6)
+
+# add subplot labels
+ax1.text(-0.5, 0.8, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)   
+ax1.text(2.8, 0.8, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 7)
+
 
 # make sure subplots do not overlap
 plt.tight_layout() 
