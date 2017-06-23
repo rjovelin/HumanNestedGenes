@@ -24,6 +24,26 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
+# get GFF file
+GFF = 'Homo_sapiens.GRCh38.88.gff3'
+# get the coordinates of genes on each chromo
+# {chromo: {gene:[chromosome, start, end, sense]}}
+GeneChromoCoord = ChromoGenesCoord(GFF)
+# map each gene to its mRNA transcripts
+MapGeneTranscript = GeneToTranscripts(GFF)
+# remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
+GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
+# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
+GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
+print('gene coord', len(GeneCoord))
+
+# load dictionary of nested genes
+json_data = open('HumanNestedGenes.json')
+Nested = json.load(json_data)
+json_data.close()
+# make a list of gene pairs
+NestedPairs = GetHostNestedPairs(Nested)
+print('generated gene pairs', len(NestedPairs))
 
 
 # create a dictionary with {sample_ID: [cancer, disease_status]} 
@@ -77,10 +97,21 @@ for line in infile:
             # get expression data for that gene in given sample
             Genes[gene][ID] = int(vals[i])
 infile.close()
-print('recorded expression for each gene')
-print(len(Genes))
+print('recorded expression for each gene: ', len(Genes))
 
-# create 2 separate dicts for expression in normal and tumor {gene: tissue: [expression]}
+
+# remove genes without coordinates
+to_remove = [gene for gene in Genes if gene not in GeneCoord]
+for gene in to_remove:
+    del Genes[gene]
+print('removed genes without coordinates: ', len(Genes))
+
+
+# remove pairs for which genes have missing expression
+NestedPairs = FilterGenePairsWithoutExpression(NestedPairs, Genes, 'strict')
+print('deleted pairs lacking expression', len(NestedPairs))
+
+# create 2 separate dicts for expression in normal and tumor {gene: {tissue: {participant: expression}
 NormalTissue, TumorTissue = {}, {}
 # loop over genes
 for gene in Genes:
@@ -89,150 +120,306 @@ for gene in Genes:
     for ID in Genes[gene]:
         # determine cancer and disease status and participant ID
         cancer, status = Samples[ID][0], Samples[ID][1]
+        participant = Participants[ID]
         if status == 'normal':
             # check if cancer (tissue) is recorded in dict
             if cancer not in NormalTissue[gene]:
                 # initialize list
-                NormalTissue[gene][cancer] = [Genes[gene][ID]]
-            else:
-                NormalTissue[gene][cancer].append(Genes[gene][ID])
+                NormalTissue[gene][cancer] = {}
+            # populate dict with participant: expression pairs
+            assert participant not in NormalTissue[gene][cancer]
+            NormalTissue[gene][cancer][participant] = Genes[gene][ID]    
         elif status == 'tumour':
             # check if cancer (tissue) is recorded in dict
             if cancer not in TumorTissue[gene]:
-                # initialize list
-                TumorTissue[gene][cancer] = [Genes[gene][ID]]
-            else:
-                TumorTissue[gene][cancer].append(Genes[gene][ID])
+                # initialize dict
+                TumorTissue[gene][cancer] = {}
+            # populate dict with participant: expression pairs
+            assert participant not in TumorTissue[gene][cancer]
+            TumorTissue[gene][cancer][participant] = Genes[gene][ID]
+
 print('recorded expression for cancer: ', 'normal', len(NormalTissue), 'tissue', len(TumorTissue))
 
-# compute the median expression across samples for a given tissue
+
+# make a dict {tissue: {participant: {gene: expression}}}
+TissueHealthy, TissueCancer = {}, {}
 for gene in NormalTissue:
-    for cancer in NormalTissue[gene]:
-        NormalTissue[gene][cancer] = np.median(NormalTissue[gene][cancer])
+    for tissue in NormalTissue[gene]:
+        # initialize dict if tissue not in dict
+        if tissue not in TissueHealthy:
+            TissueHealthy[tissue] = {}
+        for participant in NormalTissue[gene][tissue]:
+            # initialize dict if participant not in dict
+            if participant not in TissueHealthy[tissue]:
+                TissueHealthy[tissue][participant] = {}
+            # populate dict
+            assert gene not in TissueHealthy[tissue][participant]
+            TissueHealthy[tissue][participant][gene] = NormalTissue[gene][tissue][participant]
 for gene in TumorTissue:
-    for cancer in TumorTissue[gene]:
-        TumorTissue[gene][cancer] = np.median(TumorTissue[gene][cancer])
-print('computed median expression: ', 'normal', len(NormalTissue), 'tissue', len(TumorTissue))
-
-# make a dict with expression profile for each gene for normal and tumor
-NormalExp, TumorExp = {}, {}
-# loop for genes
-for gene in NormalTissue:
-    # make a list of tissue
-    NormalExp[gene] = []
-    for cancer in Tissues:
-        NormalExp[gene].append(NormalTissue[gene][cancer])
-for gene in TumorTissue:
-    # make a list of tissue
-    TumorExp[gene] = []
-    for cancer in Tissues:
-        TumorExp[gene].append(TumorTissue[gene][cancer])
-print('recorded expression profile: ', 'normal', len(NormalExp), 'tumor', len(TumorExp))
+    for tissue in TumorTissue[gene]:
+        # initialize dict if tissue not in dict
+        if tissue not in TissueCancer:
+            TissueCancer[tissue] = {}
+        for participant in TumorTissue[gene][tissue]:
+            # initialize dict if participant not in dict
+            if participant not in TissueCancer[tissue]:
+                TissueCancer[tissue][participant] = {}
+            # populate dict
+            assert gene not in TissueCancer[tissue][participant]
+            TissueCancer[tissue][participant][gene] = TumorTissue[gene][tissue][participant]
 
 
+print(len(TissueHealthy), len(TissueCancer))
+for tissue in TissueHealthy:
+    print(tissue, len(TissueHealthy[tissue]), len(TissueCancer[tissue]))
 
-# get GFF file
-GFF = 'Homo_sapiens.GRCh38.88.gff3'
-# get the coordinates of genes on each chromo
-# {chromo: {gene:[chromosome, start, end, sense]}}
-GeneChromoCoord = ChromoGenesCoord(GFF)
-# map each gene to its mRNA transcripts
-MapGeneTranscript = GeneToTranscripts(GFF)
-# remove genes that do not have a mRNA transcripts (may have abberant transcripts, NMD processed transcripts, etc)
-GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneTranscript)
-# get the coordinates of each gene {gene:[chromosome, start, end, sense]}
-GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
-print('gene coord', len(GeneCoord))
-
-# record only genes with coordinates
-to_remove = [gene for gene in NormalExp if gene not in GeneCoord]
-for gene in to_remove:
-    del NormalExp[gene]
-to_remove = [gene for gene in TumorExp if gene not in GeneCoord]
-for gene in to_remove:
-    del TumorExp[gene]
-print('removed genes without coordinates: ', 'normal', len(NormalExp), 'tumor', len(TumorExp))
 
 # remove genes without expression
-NormalExp = RemoveGenesLackingExpression(NormalExp)
-TumorExp = RemoveGenesLackingExpression(TumorExp)
-print('removed genes without expression: ', 'normal', len(NormalExp), 'tumor', len(TumorExp))
+for tissue in TissueHealthy:
+    for participant in TissueHealthy[tissue]:
+        to_remove = [gene for gene in TissueHealthy[tissue][participant] if TissueHealthy[tissue][participant][gene] == 0]
+        for gene in to_remove:
+            del TissueHealthy[tissue][participant][gene]
+for tissue in TissueCancer:
+    for participant in TissueCancer[tissue]:
+        to_remove = [gene for gene in TissueCancer[tissue][participant] if TissueCancer[tissue][participant][gene] == 0]
+        for gene in to_remove:
+            del TissueCancer[tissue][participant][gene]
+print('removed genes without expression')
 
-# remove genes that do not have expression in both normal and tumor
-to_remove = [gene for gene in NormalExp if gene not in TumorExp]
-for gene in TumorExp:
-    if gene not in NormalExp:
-        to_remove.append(gene)
-for gene in to_remove:
-    if gene in NormalExp:
-        del NormalExp[gene]
-    if gene in TumorExp:
-        del TumorExp[gene]
-print('removed genes without paired expression: ', 'normal', len(NormalExp), 'tumor', len(TumorExp))       
 
-# sacle expression data
-NormalExp = ScaleExpression(NormalExp, 'level_scaling')
-TumorExp = ScaleExpression(TumorExp, 'level_scaling')
-print('scaled expression using median: ', 'normal', len(NormalExp), 'tumor', len(TumorExp))
+# count the number of pairs in which genes are coexpressed, discordantly expressed or not expressed
+CoExpBoth, CoExpCancerDiscordNorm, CoExpCancerNotNorm = 0, 0, 0
+DiscordCancerCoExpNorm, DiscordBoth, DiscordCancerNotNorm = 0, 0, 0
+NotCancerCoExpNorm, NotCancerDiscordNorm, NotBoth = 0, 0, 0
 
-# get relative expression
-NormalExp = TransformRelativeExpression(NormalExp)
-TumorExp = TransformRelativeExpression(TumorExp)
-print('transformed relative expression: ', 'normal', len(NormalExp), 'tumor', len(TumorExp))
-        
+for pair in NestedPairs:
+    # loop over tissue
+    for tissue in TissueCancer:
+        # loop over participant
+        for participant in TissueCancer[tissue]:
+            # check expression in cancer and normal
+            if pair[0] in TissueCancer[tissue][participant] and pair[1] in TissueCancer[tissue][participant]:
+                # gene coexpressed in cancer
+                if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
+                    # gene coexpressed in normal
+                    CoExpBoth += 1
+                elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
+                    # gene discordant in normal
+                    CoExpCancerDiscordNorm += 1
+                elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
+                    # gene not expressed in normal
+                    CoExpCancerNotNorm += 1
+            elif (pair[0] in TissueCancer[tissue][participant] and pair[1] not in TissueCancer[tissue][participant]) or (pair[0] not in TissueCancer[tissue][participant] and pair[1] in TissueCancer[tissue][participant]):
+                # gene discordant in cancer
+                if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
+                    # gene coexpressed in normal
+                    DiscordCancerCoExpNorm += 1
+                elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
+                    # gene discordant in normal
+                    DiscordBoth += 1
+                elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
+                    # gene not expressed in normal
+                    DiscordCancerNotNorm += 1
+            elif pair[0] not in TissueCancer[tissue][participant] and pair[1] not in TissueCancer[tissue][participant]:
+                # gene not expressed in cancer
+                if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
+                    # gene coexpressed in normal
+                    NotCancerCoExpNorm += 1
+                elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
+                    # gene discordant in normal
+                    NotCancerDiscordNorm += 1
+                elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
+                    # gene not expressed in normal
+                    NotBoth += 1
+                
+         
+print('CoExpBoth', CoExpBoth)
+print('CoExpCancerDiscordNorm', CoExpCancerDiscordNorm)
+print('CoExpCancerNotNorm', CoExpCancerNotNorm)
+print('DiscordCancerCoExpNorm', DiscordCancerCoExpNorm)
+print('DiscordBoth', DiscordBoth)
+print('DiscordCancerNotNorm', DiscordCancerNotNorm)
+print('NotCancerCoExpNorm', NotCancerCoExpNorm) 
+print('NotCancerDiscordNorm', NotCancerDiscordNorm)
+print('NotBoth', NotBoth)
 
-# load dictionary of nested genes
-json_data = open('HumanNestedGenes.json')
-Nested = json.load(json_data)
-json_data.close()
+            
 
-# make a list of gene pairs
-NestedPairs = GetHostNestedPairs(Nested)
-print('generated gene pairs', len(NestedPairs))
 
-# remove pairs for which both genes are not expressed
-NestedPairs = FilterGenePairsWithoutExpression(NestedPairs, NormalExp, 'strict')
-print('filtered gene pairs lacking expression', len(NestedPairs))
-
-# make parallel lists with euclidian distances between external and internal genes for normal and tumor 
-ExpDivNormal = ComputeExpressionDivergenceGenePairs(NestedPairs, NormalExp)
-ExpDivTumor = ComputeExpressionDivergenceGenePairs(NestedPairs, TumorExp)
-print('computed expression divergence')
-print('normal', np.mean(ExpDivNormal))
-print('tumor', np.mean(ExpDivTumor))
-
+x = [1, 1, 1, 2, 2, 2, 3, 3, 3]
+y = [1, 2, 3, 1, 2, 3, 1, 2, 3]
+area = [CoExpBoth, CoExpCancerDiscordNorm, CoExpCancerNotNorm, DiscordCancerCoExpNorm, DiscordBoth, DiscordCancerNotNorm, NotCancerCoExpNorm, NotCancerDiscordNorm, NotBoth]
+area = list(map(lambda x: math.sqrt(x), area))
+color = ['#2b8cbe'] * len(area)
 
 # create figure
-fig = plt.figure(1, figsize = (6, 2.5))
+fig = plt.figure(1, figsize = (5, 5))
 # create subplot in figure
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 # plot all gene or non-overlapping gene density first
-ax.plot(ExpDivNormal, ExpDivTumor, marker = 'o', markeredgecolor = 'black',
-        markeredgewidth = 1, markerfacecolor = 'red',  markersize = 4)      
+ax.scatter(x, y, c = color, s = area, linewidths = 2, edgecolor = 'black', alpha = 0.75)      
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
 # set axis labels
-ax.set_ylabel('Expression divergence in tumors', size = 8, color = 'black', ha = 'center', **FigFont)
-ax.set_xlabel('Expression divergence in normal', size = 8, color = 'black', ha = 'center', **FigFont )        
+ax.set_ylabel('Expression in normal', size = 8, color = 'black', ha = 'center', **FigFont)
+ax.set_xlabel('Expression in tumor', size = 8, color = 'black', ha = 'center', **FigFont )        
+# set x axis ticks
+plt.xticks([1, 2, 3], ['CoExpressed', 'Discordnant', 'No Expression'])
+plt.yticks([1, 2, 3], ['CoExpressed', 'Discordnant', 'No Expression'])
 # add a range for the Y axis
 #plt.ylim([0, YMax])
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(True)    
+ax.spines["bottom"].set_visible(False)    
 ax.spines["right"].set_visible(False) 
-ax.spines["left"].set_visible(True)  
-    
+ax.spines["left"].set_visible(False)  
 # edit tick paramters
 plt.tick_params(axis='both', which='both', bottom='on', top='off', 
                 right = 'off', left = 'on', labelbottom='on', colors = 'black',
                 labelsize = 8, direction = 'out')  
-# set x axis ticks
-#plt.xticks([], [])
-    
 # Set the tick labels font name
 for label in ax.get_yticklabels():
     label.set_fontname('Arial')   
-          
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+#
+#
+#####################################
+#
+##https://stackoverflow.com/questions/15504331/pythonplotting-a-bubble-chart-of-location-data
+#
+##I have a list with a pair of tuples to represent the x and y coordinates of location for a GPS log. This is simply like [(x1, y1), (x2,y2), (x3, y3)....].
+##
+##There can be several repetition of the same (x,y) location in the list. Now, what I want to do is to draw a figure representing these locations and also show the relative frequency, i.e places visited most often. I would guess either a bubble chart with the size of bubble representing the number of times the place is visited or a heatmap would be the most useful way.
+##
+##What would be the simplest way to do this in python using the matplotlib library?
+##
+##python matplotlib data-visualization
+##shareimprove this question
+##asked Mar 19 '13 at 15:57
+##
+##sfactor
+##3,2331761112
+##add a comment
+##1 Answer
+##active oldest votes
+##up vote
+##3
+##down vote
+##accepted
+##Use a collections.Counter to count the frequency of (x,y) pairs. Use plt.scatter's s parameter to control the sizes, and the c parameter to control the colors. Both the s and c parameters can take a sequence as their argument.
+##
+##import matplotlib.pyplot as plt
+##import collections
+##import numpy as np
+##
+##data = [tuple(pair)
+##        for pair in np.random.uniform(5, size=(20,2))
+##        for c in range(np.random.random_integers(50))]
+##count = collections.Counter(data)
+##
+##points = count.keys()
+##x, y = zip(*points)
+##sizes = np.array(count.values())**2
+##plt.scatter(x, y, s=sizes, marker='o', c=sizes)
+##plt.show()
+#
+#
+#
+## https://pythonjp.wordpress.com/2013/12/15/bubble-chart-with-matplotlib/
+#
+#
+#import matplotlib.pyplot as plt
+#import numpy
+# 
+#n = 50
+#x = numpy.random.rand(n)
+#y = numpy.random.rand(n)
+#z = numpy.random.rand(n)
+#cm = plt.cm.get_cmap('jet')
+# 
+#fig, ax = plt.subplots()
+#sc = ax.scatter(x,y,s=z*500,c=z,cmap=cm,linewidth=0,alpha=0.5)
+#ax.grid()
+#fig.colorbar(sc)
+#plt.show()
+#
+#
+#
+#
+#
+#
+#
+#
+##"""
+##Simple demo of a scatter plot.
+##"""
+##import numpy as np
+##import matplotlib.pyplot as plt
+##
+##N = 50
+##x = np.random.rand(N)
+##y = np.random.rand(N)
+##colors = np.random.rand(N)
+##area = np.pi * (15 * np.random.rand(N))**2 # 0 to 15 point radiuses
+##
+##plt.scatter(x, y, s=area, c=colors, alpha=0.5)
+##plt.show()
+#
+#
+#
+#
+#
+#
+#
+#
+#
+##http://glowingpython.blogspot.ca/2011/11/how-to-make-bubble-charts-with.html
+##from pylab import *
+##from scipy import *
+##
+### reading the data from a csv file
+##durl = 'http://datasets.flowingdata.com/crimeRatesByState2005.csv'
+##rdata = genfromtxt(durl,dtype='S8,f,f,f,f,f,f,f,i',delimiter=',')
+##
+##rdata[0] = zeros(8) # cutting the label's titles
+##rdata[1] = zeros(8) # cutting the global statistics
+##
+##x = []
+##y = []
+##color = []
+##area = []
+##
+##for data in rdata:
+## x.append(data[1]) # murder
+## y.append(data[5]) # burglary
+## color.append(data[6]) # larceny_theft 
+## area.append(sqrt(data[8])) # population
+## # plotting the first eigth letters of the state's name
+## text(data[1], data[5], 
+##      data[0],size=11,horizontalalignment='center')
+##
+### making the scatter plot
+##sct = scatter(x, y, c=color, s=area, linewidths=2, edgecolor='w')
+##sct.set_alpha(0.75)
+##
+##axis([0,11,200,1280])
+##xlabel('Murders per 100,000 population')
+##ylabel('Burglaries per 100,000 population')
+##show()
