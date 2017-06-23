@@ -150,8 +150,6 @@ for i in range(len(Divergence)):
     Means.append(average)
     SEMs.append(error)        
 
-print(Means)
-
 # perform statistical tests between gene categories
 PValues = []
 # loop over overlapping groups
@@ -162,14 +160,9 @@ for i in range(len(Divergence)):
         P = PermutationResampling(Divergence[i][j][0], Divergence[i][j][1], 1000, statistic = np.mean)
         pvals.append(P)
     PValues.append(pvals)
-print(PValues)
 # convert P to stars
 for i in range(len(PValues)):
     PValues[i] = ConvertPToStars(PValues[i])
-print(PValues)        
-        
-    
-
    
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Data, XTickLabel, YRange, Title):
@@ -234,7 +227,6 @@ for i in range(len(Means)):
         # update positions of p values (add 0.50 to all positions)
         if j != 0:
             XPos += 0.50
-        print(i, j, PValues[i][j])
         if PValues[i][j] != '':
             # add stars for significance
             ax = AddSignificanceToBars(ax, PValues[i][j], XPos[0], XPos[1], 0.36, XPos[2], 0.39)
