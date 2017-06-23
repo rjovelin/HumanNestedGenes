@@ -248,11 +248,6 @@ for i in range(len(Means)):
 plt.tight_layout()    
     
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-    
-    
-    
-## save figure
-#outputfile = 'truc'
-#for extension in ['.pdf', '.eps', '.png']:
-#    fig.savefig(outputfile + extension, bbox_inches = 'tight')
+outputfile = 'ExpDivOvlpDisease'
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig(outputfile + extension, bbox_inches = 'tight')
