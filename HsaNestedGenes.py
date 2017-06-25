@@ -2487,12 +2487,6 @@ def ScaleExpression(ExpressionProfile, scaling):
     
     
     
-    
-    
-    
-    
-    
-    
 # use this function to count the number of pairs in reciprocal expression in tumor and normal tissues
 def ReciprocalExpressionTumorNormal(GenePairs, Tissues, TissueCancer, TissueHealthy):
     '''
