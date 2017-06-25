@@ -38,7 +38,12 @@ GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
 print('gene coord', len(GeneCoord))
 
 # load dictionary of nested genes
-json_data = open('HumanNestedGenes.json')
+#json_data = open('HumanNestedGenes.json')
+
+
+json_data = open('HumanOverlappingGenes.json')
+
+
 Nested = json.load(json_data)
 json_data.close()
 # make a list of gene pairs
@@ -107,9 +112,11 @@ for gene in to_remove:
 print('removed genes without coordinates: ', len(Genes))
 
 
-# remove pairs for which genes have missing expression
-NestedPairs = FilterGenePairsWithoutExpression(NestedPairs, Genes, 'strict')
-print('deleted pairs lacking expression', len(NestedPairs))
+## remove pairs for which genes have missing expression
+#NestedPairs = FilterGenePairsWithoutExpression(NestedPairs, Genes, 'strict')
+#print('deleted pairs lacking expression', len(NestedPairs))
+
+
 
 # create 2 separate dicts for expression in normal and tumor {gene: {tissue: {participant: expression}
 NormalTissue, TumorTissue = {}, {}
@@ -177,12 +184,12 @@ for tissue in TissueHealthy:
 # remove genes without expression
 for tissue in TissueHealthy:
     for participant in TissueHealthy[tissue]:
-        to_remove = [gene for gene in TissueHealthy[tissue][participant] if TissueHealthy[tissue][participant][gene] == 0]
+        to_remove = [gene for gene in TissueHealthy[tissue][participant] if TissueHealthy[tissue][participant][gene] in [0, 1]]
         for gene in to_remove:
             del TissueHealthy[tissue][participant][gene]
 for tissue in TissueCancer:
     for participant in TissueCancer[tissue]:
-        to_remove = [gene for gene in TissueCancer[tissue][participant] if TissueCancer[tissue][participant][gene] == 0]
+        to_remove = [gene for gene in TissueCancer[tissue][participant] if TissueCancer[tissue][participant][gene] in [0,1]]
         for gene in to_remove:
             del TissueCancer[tissue][participant][gene]
 print('removed genes without expression')
@@ -193,47 +200,84 @@ CoExpBoth, CoExpCancerDiscordNorm, CoExpCancerNotNorm = 0, 0, 0
 DiscordCancerCoExpNorm, DiscordBoth, DiscordCancerNotNorm = 0, 0, 0
 NotCancerCoExpNorm, NotCancerDiscordNorm, NotBoth = 0, 0, 0
 
-for pair in NestedPairs:
-    # loop over tissue
-    for tissue in TissueCancer:
+          
+#a, b, c, d, e, f, g, h, i = [], [], [], [], [], [], [], [], []
+
+
+
+total = 0
+
+# loop over tissue
+for tissue in TissueCancer:
+    if tissue in Tissues:
         # loop over participant
         for participant in TissueCancer[tissue]:
-            # check expression in cancer and normal
-            if pair[0] in TissueCancer[tissue][participant] and pair[1] in TissueCancer[tissue][participant]:
-                # gene coexpressed in cancer
-                if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
-                    # gene coexpressed in normal
-                    CoExpBoth += 1
-                elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
-                    # gene discordant in normal
-                    CoExpCancerDiscordNorm += 1
-                elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
-                    # gene not expressed in normal
-                    CoExpCancerNotNorm += 1
-            elif (pair[0] in TissueCancer[tissue][participant] and pair[1] not in TissueCancer[tissue][participant]) or (pair[0] not in TissueCancer[tissue][participant] and pair[1] in TissueCancer[tissue][participant]):
-                # gene discordant in cancer
-                if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
-                    # gene coexpressed in normal
-                    DiscordCancerCoExpNorm += 1
-                elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
-                    # gene discordant in normal
-                    DiscordBoth += 1
-                elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
-                    # gene not expressed in normal
-                    DiscordCancerNotNorm += 1
-            elif pair[0] not in TissueCancer[tissue][participant] and pair[1] not in TissueCancer[tissue][participant]:
-                # gene not expressed in cancer
-                if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
-                    # gene coexpressed in normal
-                    NotCancerCoExpNorm += 1
-                elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
-                    # gene discordant in normal
-                    NotCancerDiscordNorm += 1
-                elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
-                    # gene not expressed in normal
-                    NotBoth += 1
-                
-         
+#            CoExpBoth, CoExpCancerDiscordNorm, CoExpCancerNotNorm = 0, 0, 0
+#            DiscordCancerCoExpNorm, DiscordBoth, DiscordCancerNotNorm = 0, 0, 0
+#            NotCancerCoExpNorm, NotCancerDiscordNorm, NotBoth = 0, 0, 0
+            for pair in NestedPairs:
+                total += 1
+                # check expression in cancer and normal
+                if pair[0] in TissueCancer[tissue][participant] and pair[1] in TissueCancer[tissue][participant]:
+                    # gene coexpressed in cancer
+                    if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
+                        # gene coexpressed in normal
+                        CoExpBoth += 1
+                    elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
+                        # gene discordant in normal
+                        CoExpCancerDiscordNorm += 1
+                    elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
+                        # gene not expressed in normal
+                        CoExpCancerNotNorm += 1
+                elif (pair[0] in TissueCancer[tissue][participant] and pair[1] not in TissueCancer[tissue][participant]) or (pair[0] not in TissueCancer[tissue][participant] and pair[1] in TissueCancer[tissue][participant]):
+                    # gene discordant in cancer
+                    if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
+                        # gene coexpressed in normal
+                        DiscordCancerCoExpNorm += 1
+                    elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
+                        # gene discordant in normal
+                        DiscordBoth += 1
+                    elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
+                        # gene not expressed in normal
+                        DiscordCancerNotNorm += 1
+                elif pair[0] not in TissueCancer[tissue][participant] and pair[1] not in TissueCancer[tissue][participant]:
+                    # gene not expressed in cancer
+                    if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
+                        # gene coexpressed in normal
+                        NotCancerCoExpNorm += 1
+                    elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
+                        # gene discordant in normal
+                        NotCancerDiscordNorm += 1
+                    elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
+                        # gene not expressed in normal
+                        NotBoth += 1
+#            a.append(CoExpBoth)
+#            b.append(CoExpCancerDiscordNorm)
+#            c.append(CoExpCancerNotNorm)
+#            d.append(DiscordCancerCoExpNorm)
+#            e.append(DiscordBoth)
+#            f.append(DiscordCancerNotNorm)
+#            g.append(NotCancerCoExpNorm)
+#            h.append(NotCancerDiscordNorm)
+#            i.append(NotBoth)        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+       
 print('CoExpBoth', CoExpBoth)
 print('CoExpCancerDiscordNorm', CoExpCancerDiscordNorm)
 print('CoExpCancerNotNorm', CoExpCancerNotNorm)
@@ -250,8 +294,39 @@ print('NotBoth', NotBoth)
 x = [1, 1, 1, 2, 2, 2, 3, 3, 3]
 y = [1, 2, 3, 1, 2, 3, 1, 2, 3]
 area = [CoExpBoth, CoExpCancerDiscordNorm, CoExpCancerNotNorm, DiscordCancerCoExpNorm, DiscordBoth, DiscordCancerNotNorm, NotCancerCoExpNorm, NotCancerDiscordNorm, NotBoth]
-area = list(map(lambda x: math.sqrt(x), area))
-color = ['#2b8cbe'] * len(area)
+
+assert sum(area) == total
+
+
+area = list(map(lambda x: x / 1000, area))
+
+#area = list(map(lambda x: np.median(x) * 10, [a, b, c, d, e, f, g, h, i]))
+
+
+
+
+##area = np.pi * (15 * np.random.rand(N))**2 # 0 to 15 point radiuses
+
+#cm = plt.cm.get_cmap('jet')
+#sc = ax.scatter(x,y,s=z*500,c=z,cmap=cm,linewidth=0,alpha=0.5)
+#ax.grid()
+#fig.colorbar(sc)
+
+# color.append(data[6]) # larceny_theft 
+
+
+#area = list(map(lambda x: math.sqrt(x) * 10, area))
+
+
+
+#color = ['#2b8cbe'] * len(area)
+
+#color = area
+
+
+
+cm = plt.cm.get_cmap('Blues')
+
 
 # create figure
 fig = plt.figure(1, figsize = (5, 5))
@@ -259,15 +334,30 @@ fig = plt.figure(1, figsize = (5, 5))
 # add a plot to figure (N row, N column, plot N)
 ax = fig.add_subplot(1, 1, 1)
 # plot all gene or non-overlapping gene density first
-ax.scatter(x, y, c = color, s = area, linewidths = 2, edgecolor = 'black', alpha = 0.75)      
+#sc = ax.scatter(x, y, c = color, s = area, linewidths = 0.7, edgecolor = 'black', alpha = 1)      
+
+
+sc = ax.scatter(x, y, s = area, c = area, cmap = 'Blues', linewidths = 0.7, edgecolor = 'black', alpha = 1)      
+
+
+
+# add color scale
+plt.colorbar(sc)
+
+
+ax.yaxis.grid(color='gray', linestyle='dotted', linewidth = 0.7)
+ax.xaxis.grid(color='gray', linestyle='dotted', linewidth = 0.7)
+ax.set_axisbelow(True)
+
+
 # set font for all text in figure
 FigFont = {'fontname':'Arial'}   
 # set axis labels
 ax.set_ylabel('Expression in normal', size = 8, color = 'black', ha = 'center', **FigFont)
 ax.set_xlabel('Expression in tumor', size = 8, color = 'black', ha = 'center', **FigFont )        
 # set x axis ticks
-plt.xticks([1, 2, 3], ['CoExpressed', 'Discordnant', 'No Expression'])
-plt.yticks([1, 2, 3], ['CoExpressed', 'Discordnant', 'No Expression'])
+plt.xticks([1, 2, 3], ['Co-expressed', 'Discordant', 'Not expressed'])
+plt.yticks([1, 2, 3], ['Co-expressed', 'Discordant', 'Not expressed'])
 # add a range for the Y axis
 #plt.ylim([0, YMax])
 # do not show lines around figure  
@@ -286,140 +376,3 @@ for label in ax.get_yticklabels():
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 
 
-
-
-
-
-
-
-
-
-
-
-
-#
-#
-#
-#####################################
-#
-##https://stackoverflow.com/questions/15504331/pythonplotting-a-bubble-chart-of-location-data
-#
-##I have a list with a pair of tuples to represent the x and y coordinates of location for a GPS log. This is simply like [(x1, y1), (x2,y2), (x3, y3)....].
-##
-##There can be several repetition of the same (x,y) location in the list. Now, what I want to do is to draw a figure representing these locations and also show the relative frequency, i.e places visited most often. I would guess either a bubble chart with the size of bubble representing the number of times the place is visited or a heatmap would be the most useful way.
-##
-##What would be the simplest way to do this in python using the matplotlib library?
-##
-##python matplotlib data-visualization
-##shareimprove this question
-##asked Mar 19 '13 at 15:57
-##
-##sfactor
-##3,2331761112
-##add a comment
-##1 Answer
-##active oldest votes
-##up vote
-##3
-##down vote
-##accepted
-##Use a collections.Counter to count the frequency of (x,y) pairs. Use plt.scatter's s parameter to control the sizes, and the c parameter to control the colors. Both the s and c parameters can take a sequence as their argument.
-##
-##import matplotlib.pyplot as plt
-##import collections
-##import numpy as np
-##
-##data = [tuple(pair)
-##        for pair in np.random.uniform(5, size=(20,2))
-##        for c in range(np.random.random_integers(50))]
-##count = collections.Counter(data)
-##
-##points = count.keys()
-##x, y = zip(*points)
-##sizes = np.array(count.values())**2
-##plt.scatter(x, y, s=sizes, marker='o', c=sizes)
-##plt.show()
-#
-#
-#
-## https://pythonjp.wordpress.com/2013/12/15/bubble-chart-with-matplotlib/
-#
-#
-#import matplotlib.pyplot as plt
-#import numpy
-# 
-#n = 50
-#x = numpy.random.rand(n)
-#y = numpy.random.rand(n)
-#z = numpy.random.rand(n)
-#cm = plt.cm.get_cmap('jet')
-# 
-#fig, ax = plt.subplots()
-#sc = ax.scatter(x,y,s=z*500,c=z,cmap=cm,linewidth=0,alpha=0.5)
-#ax.grid()
-#fig.colorbar(sc)
-#plt.show()
-#
-#
-#
-#
-#
-#
-#
-#
-##"""
-##Simple demo of a scatter plot.
-##"""
-##import numpy as np
-##import matplotlib.pyplot as plt
-##
-##N = 50
-##x = np.random.rand(N)
-##y = np.random.rand(N)
-##colors = np.random.rand(N)
-##area = np.pi * (15 * np.random.rand(N))**2 # 0 to 15 point radiuses
-##
-##plt.scatter(x, y, s=area, c=colors, alpha=0.5)
-##plt.show()
-#
-#
-#
-#
-#
-#
-#
-#
-#
-##http://glowingpython.blogspot.ca/2011/11/how-to-make-bubble-charts-with.html
-##from pylab import *
-##from scipy import *
-##
-### reading the data from a csv file
-##durl = 'http://datasets.flowingdata.com/crimeRatesByState2005.csv'
-##rdata = genfromtxt(durl,dtype='S8,f,f,f,f,f,f,f,i',delimiter=',')
-##
-##rdata[0] = zeros(8) # cutting the label's titles
-##rdata[1] = zeros(8) # cutting the global statistics
-##
-##x = []
-##y = []
-##color = []
-##area = []
-##
-##for data in rdata:
-## x.append(data[1]) # murder
-## y.append(data[5]) # burglary
-## color.append(data[6]) # larceny_theft 
-## area.append(sqrt(data[8])) # population
-## # plotting the first eigth letters of the state's name
-## text(data[1], data[5], 
-##      data[0],size=11,horizontalalignment='center')
-##
-### making the scatter plot
-##sct = scatter(x, y, c=color, s=area, linewidths=2, edgecolor='w')
-##sct.set_alpha(0.75)
-##
-##axis([0,11,200,1280])
-##xlabel('Murders per 100,000 population')
-##ylabel('Burglaries per 100,000 population')
-##show()
