@@ -38,9 +38,6 @@ if FocalSp == 'human':
     SisterSp = 'mouse'
 elif FocalSp == 'mouse':
     SisterSp = 'human'
-FilterGenes = sys.argv[2]
-assert FilterGenes in ['nested', 'overlap']
-
 
 
 
@@ -216,40 +213,29 @@ for pair in to_remove:
     AncestralPairs.remove(pair)        
 print('{0} ancestral pairs after removing pairs without coordinates'. format(len(AncestralPairs)))    
 
-# remove pairs if any gene is overlapping or nested
-if FilterGenes == 'overlap':
-    to_remove = [pair for pair in AncestralPairs if pair[0] in SisterSpOverlapGenes or pair[1] in SisterSpOverlapGenes]
-elif FilterGenes == 'nested':
-    to_remove = [pair for pair in AncestralPairs if pair[0] in SisterSpNestedGenes or pair[1] in SisterSpNestedGenes]
+# remove pairs if any gene is nested
+to_remove = [pair for pair in AncestralPairs if pair[0] in SisterSpNestedGenes or pair[1] in SisterSpNestedGenes]
 for pair in to_remove:
     AncestralPairs.remove(pair)
-print('{0} ancestral pairs after removing {1} genes'.format(len(AncestralPairs), FilterGenes))    
+print('{0} ancestral pairs after removing nested genes'.format(len(AncestralPairs)))    
    
     
-    
-
-## crop list to keep the same numbers of pairs NOTE THAT IT MAY BE BETTER TO KEEP TRACK OF PAIRS AND MAKING SURE THAN EACH ORHOS ARE PRESENT ONCE    
-#SisterSpAncestralPairs = SisterSpAncestralPairs[:len(YoungNested)]
-
-# pick random pairs if size ancestralapirs > youngnested
-L = []
-while len(L) != len(YoungNested):
-    # pick pair and populate new list
-   i = random.randint(0, len(AncestralPairs) -1) 
-   pair = AncestralPairs[i]
-   L.append(pair)
-   # remove pair from list
-   AncestralPairs.remove(pair)
-# reassign variable name
-AncestralPairs = copy.deepcopy(L)
-print('{0} ancestral pairs after randomly picking up pairs of orthologs'.format(len(AncestralPairs)))    
+## pick random pairs if size ancestralapirs > youngnested
+#L = []
+#while len(L) != len(YoungNested):
+#    # pick pair and populate new list
+#   i = random.randint(0, len(AncestralPairs) -1) 
+#   pair = AncestralPairs[i]
+#   L.append(pair)
+#   # remove pair from list
+#   AncestralPairs.remove(pair)
+## reassign variable name
+#AncestralPairs = copy.deepcopy(L)
+#print('{0} ancestral pairs after randomly picking up pairs of orthologs'.format(len(AncestralPairs)))    
 
 
 # generate a list of control un-nested pairs
-if FilterGenes == 'nested':
-    SisterSpRandomGenes = GenerateAllUnNestedGenes(SisterSpNestedGenes, AllOrdered[1], SisterSpExpression)
-elif FilterGenes == 'overlap':
-    SisterSpRandomGenes = GenerateAllUnNestedGenes(SisterSpOverlapGenes, AllOrdered[1], SisterSpExpression)
+SisterSpRandomGenes = GenerateAllUnNestedGenes(SisterSpNestedGenes, AllOrdered[1], SisterSpExpression)
 # make a list of control un-nested pairs in sister species
 SisterSpControlPairs = []
 for pair in AncestralPairs:
@@ -262,12 +248,7 @@ for pair in AncestralPairs:
     
     
 # generate a list of control genes in focal species
-if FilterGenes == 'nested':
-    FocalSpRandomGenes = GenerateAllUnNestedGenes(FocalSpNestedGenes, AllOrdered[0], FocalSpExpression)
-elif FilterGenes == 'overlap':
-    FocalSpRandomGenes = GenerateAllUnNestedGenes(FocalSpOverlapGenes, AllOrdered[0], FocalSpExpression)
-    
-    
+FocalSpRandomGenes = GenerateAllUnNestedGenes(FocalSpNestedGenes, AllOrdered[0], FocalSpExpression)
 # make a list of control un-nested (non-overlapping) pars in focal species
 FocalSpControlPairs = []
 for pair in YoungNested:
@@ -279,8 +260,6 @@ for pair in YoungNested:
     FocalSpControlPairs.append(PairPool[i])
     assert PairPool[i][0] not in FocalSpNestedGenes
     assert PairPool[i][1] not in FocalSpNestedGenes
-#    assert PairPool[i][0] not in FocalSpOverlapGenes
-#    assert PairPool[i][1] not in FocalSpOverlapGenes
     
     
 # compute divergence in young nested pairs
