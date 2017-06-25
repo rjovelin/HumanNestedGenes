@@ -316,7 +316,10 @@ plt.xticks([0.15, 0.45], GeneCatOrientation, size = 7, color = 'black', ha = 'ce
 # add title
 ax.set_xlabel('Orientation', color = 'black', size = 7, ha = 'center', **FigFont)    
 # add a range for the Y and X axes
-plt.ylim([0, 1.5])
+MaxVal = Means[0] + SEM[0] + 0.2
+print(Means[0] + SEM[0], MaxVal)
+
+#plt.ylim([0, 1.5])
 plt.xlim([0, 0.6])
 # edit y axis ticks
 plt.yticks(np.arange(0, 1.5, 0.1)) 
@@ -336,8 +339,10 @@ for label in ax.get_yticklabels():
 
 # annotate figure to add significance
 if PValues != '':
-    ax = AddSignificanceToBars(ax, PValues, 0.15, 0.45, 0.68, 0.3, 0.72)
-
+    if FocalSp == 'human':
+        ax = AddSignificanceToBars(ax, PValues, 0.15, 0.45, 1.5, 0.3, 1.6)
+    elif FocalSp == 'mouse':
+        ax = AddSignificanceToBars(ax, PValues, 0.15, 0.45, 1.1, 0.3, 1.2)
 
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
