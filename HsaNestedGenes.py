@@ -2484,3 +2484,86 @@ def ScaleExpression(ExpressionProfile, scaling):
                 Scaled[gene].append(j)
     return Scaled
     
+    
+    
+    
+    
+    
+    
+    
+    
+    
+# use this function to count the number of pairs in reciprocal expression in tumor and normal tissues
+def ReciprocalExpressionTumorNormal(GenePairs, Tissues, TissueCancer, TissueHealthy):
+    '''
+    (list, list, dict, dict) -> list    
+    Take a list of gene pairs, a list of tissues, 2 dictionaries of gene expression
+    for each participant and tissue for cancer and normal biopsies of the same organ
+    and return a list with counts of pairs in each reciprocal expression configuration
+    in each individual across tissue types
+    '''
+    
+    # TissueCancer and TissueHealthy are in the form {tissue: {participant: gene: expression}}
+    # genes without expression have been removed from each participant, expression/no expression is assed by membership
+    
+    # make lists to store the proportions of pairs in each category
+    a, b, c, d, e, f, g, h, i = [], [], [], [], [], [], [], [], []   
+
+    # loop over tissue
+    for tissue in TissueCancer:
+        if tissue in Tissues:
+            # loop over participant
+            for participant in TissueCancer[tissue]:
+                # keep track of the number of pairs among individuals and tissues          
+                total = 0
+                # count the number of pairs in which genes are coexpressed, discordantly expressed or not expressed
+                CoExpBoth, CoExpCancerDiscordNorm, CoExpCancerNotNorm = 0, 0, 0
+                DiscordCancerCoExpNorm, DiscordBoth, DiscordCancerNotNorm = 0, 0, 0
+                NotCancerCoExpNorm, NotCancerDiscordNorm, NotBoth = 0, 0, 0
+                for pair in GenePairs:
+                    total += 1
+                    # check expression in cancer and normal
+                    if pair[0] in TissueCancer[tissue][participant] and pair[1] in TissueCancer[tissue][participant]:
+                        # gene coexpressed in cancer
+                        if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
+                            # gene coexpressed in normal
+                            CoExpBoth += 1
+                        elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
+                            # gene discordant in normal
+                            CoExpCancerDiscordNorm += 1
+                        elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
+                            # gene not expressed in normal
+                            CoExpCancerNotNorm += 1
+                    elif (pair[0] in TissueCancer[tissue][participant] and pair[1] not in TissueCancer[tissue][participant]) or (pair[0] not in TissueCancer[tissue][participant] and pair[1] in TissueCancer[tissue][participant]):
+                        # gene discordant in cancer
+                        if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
+                            # gene coexpressed in normal
+                            DiscordCancerCoExpNorm += 1
+                        elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
+                            # gene discordant in normal
+                            DiscordBoth += 1
+                        elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
+                            # gene not expressed in normal
+                            DiscordCancerNotNorm += 1
+                    elif pair[0] not in TissueCancer[tissue][participant] and pair[1] not in TissueCancer[tissue][participant]:
+                        # gene not expressed in cancer
+                        if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
+                            # gene coexpressed in normal
+                            NotCancerCoExpNorm += 1
+                        elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
+                            # gene discordant in normal
+                            NotCancerDiscordNorm += 1
+                        elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
+                            # gene not expressed in normal
+                            NotBoth += 1
+            assert total == len(GenePairs)    
+            a.append(CoExpBoth)
+            b.append(CoExpCancerDiscordNorm)
+            c.append(CoExpCancerNotNorm)
+            d.append(DiscordCancerCoExpNorm)
+            e.append(DiscordBoth)
+            f.append(DiscordCancerNotNorm)
+            g.append(NotCancerCoExpNorm)
+            h.append(NotCancerDiscordNorm)
+            i.append(NotBoth)        
+    return [a, b, c, d, e, f, g, h, i]
