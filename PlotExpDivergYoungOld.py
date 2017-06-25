@@ -220,18 +220,18 @@ for pair in to_remove:
 print('{0} ancestral pairs after removing nested genes'.format(len(AncestralPairs)))    
    
     
-## pick random pairs if size ancestralapirs > youngnested
-#L = []
-#while len(L) != len(YoungNested):
-#    # pick pair and populate new list
-#   i = random.randint(0, len(AncestralPairs) -1) 
-#   pair = AncestralPairs[i]
-#   L.append(pair)
-#   # remove pair from list
-#   AncestralPairs.remove(pair)
-## reassign variable name
-#AncestralPairs = copy.deepcopy(L)
-#print('{0} ancestral pairs after randomly picking up pairs of orthologs'.format(len(AncestralPairs)))    
+# pick random pairs if size ancestralapirs > youngnested
+L = []
+while len(L) != len(YoungNested):
+    # pick pair and populate new list
+   i = random.randint(0, len(AncestralPairs) -1) 
+   pair = AncestralPairs[i]
+   L.append(pair)
+   # remove pair from list
+   AncestralPairs.remove(pair)
+# reassign variable name
+AncestralPairs = copy.deepcopy(L)
+print('{0} ancestral pairs after randomly picking up pairs of orthologs'.format(len(AncestralPairs)))    
 
 
 # generate a list of control un-nested pairs
@@ -281,8 +281,6 @@ P = PermutationResampling(SisterSpAncestralDiv, SisterSpControlDiv , 1000, stati
 print('ancestral vs control', len(SisterSpAncestralDiv), len(SisterSpControlDiv), np.mean(SisterSpAncestralDiv), np.mean(SisterSpControlDiv), P)
 P = PermutationResampling(FocalSpYoungDiv, FocalSpControlDiv, 1000, statistic = np.mean)
 print('young vs contol', len(FocalSpYoungDiv), len(FocalSpControlDiv), np.mean(FocalSpYoungDiv), np.mean(FocalSpControlDiv), P)
-
-
 
 
 # plot results to file
