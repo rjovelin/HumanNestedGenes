@@ -286,7 +286,7 @@ print('young vs contol', len(FocalSpYoungDiv), len(FocalSpControlDiv), np.mean(F
 # plot results to file
 
 # make a list of gene categories
-GeneCatOrientation = ['Derived nested in ' + FocalSp, 'Ancestral non-nested in ' + SisterSp]
+GeneCats = ['Derived\nnested\nin ' + FocalSp, 'Ancestral\nunnested\nin ' + SisterSp]
 # create lists with means and SEM for each gene category
 Means, SEM = [], []
 for L in [FocalSpYoungDiv, SisterSpAncestralDiv]:
@@ -308,17 +308,18 @@ FigFont = {'fontname':'Arial'}
 # write y axis label
 ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
 # add ticks and lebels
-plt.xticks([0.15, 0.45], GeneCatOrientation, size = 7, color = 'black', ha = 'center', **FigFont)
-# add title
-ax.set_xlabel('Orientation', color = 'black', size = 7, ha = 'center', **FigFont)    
+plt.xticks([0.15, 0.45], GeneCats, size = 7, color = 'black', ha = 'center', **FigFont)
 # add a range for the Y and X axes
 MaxVal = Means[0] + SEM[0] + 0.2
 print(Means[0] + SEM[0], MaxVal)
-
-#plt.ylim([0, 1.5])
+if FocalSp == 'human':
+    plt.yticks(np.arange(0, 2.2, 0.2)) 
+#    plt.ylim([0,21])
+elif FocalSp == 'mouse':
+    plt.yticks(np.arange(0, 1.6, 0.2)) 
+#    plt.ylim([0, 1.41])
+# edit x axis ticks
 plt.xlim([0, 0.6])
-# edit y axis ticks
-plt.yticks(np.arange(0, 1.5, 0.1)) 
 # do not show lines around figure  
 ax.spines["top"].set_visible(False)    
 ax.spines["bottom"].set_visible(True)    
@@ -336,16 +337,14 @@ for label in ax.get_yticklabels():
 # annotate figure to add significance
 if PValues != '':
     if FocalSp == 'human':
-        ax = AddSignificanceToBars(ax, PValues, 0.15, 0.45, 1.5, 0.3, 1.6)
+        ax = AddSignificanceToBars(ax, PValues, 0.15, 0.45, 1.7, 0.3, 1.9)
     elif FocalSp == 'mouse':
-        ax = AddSignificanceToBars(ax, PValues, 0.15, 0.45, 1.1, 0.3, 1.2)
+        ax = AddSignificanceToBars(ax, PValues, 0.15, 0.45, 1.2, 0.3, 1.3)
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-  
-## save figure
-#for extension in ['.pdf', '.eps', '.png']:
-#    fig.savefig('truc' + extension, bbox_inches = 'tight')
+outputfile = 'ExpDiv' + FocalSp.title() + 'Nested' + 'SisterSp.title() + 'Ancestral'
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig(outputfile + extension, bbox_inches = 'tight')
 
 
 
