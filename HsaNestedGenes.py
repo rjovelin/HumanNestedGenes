@@ -722,7 +722,7 @@ def MatchOrthologs(OrthoFile):
             line = line.rstrip().split('\t')
             # get gene IDs of the 2 species
             # note that format of ortho file with Platypus isdifferent           
-            if 'Platypus'in OrthoFile:
+            if 'HumanPlatypus'in OrthoFile:
                 gene1, gene2 = line[0], line[3]
             else:
                 gene1, gene2 = line[0], line[2]
@@ -1477,16 +1477,21 @@ def IsNestedPairConserved(pair, Orthologs, OrthoNestedPairs):
     # Orthologs is a dictionary of orthologs {gene: [ortho1, ortho2..]}    
     # OrthoNestedPairs is a list of [host, nested] gene pairs in other species
     
+    # remove gene order
+    L = copy.deepcopy(OrthoNestedPairs)
+    for i in range(len(L)):
+        L[i] = set(L[i])
     # generate a list with all combinations of orthologs of host:nested pairs
     orthopairs = []
     for ortho1 in Orthologs[pair[0]]:
         for ortho2 in Orthologs[pair[1]]:
-            orthopairs.append([ortho1, ortho2])
+            if ortho1 != ortho2:
+                orthopairs.append(set([ortho1, ortho2]))
     # set boolean to be updated if nesting is conserved
     ConservedNesting = False
     # check if at least one ortholog pair is nested in sister species
     for i in orthopairs:
-        if i in OrthoNestedPairs:
+        if i in L:
             # nesting is conserved, update boolean and exit loop 
             ConservedNesting = True
             break
@@ -1541,6 +1546,8 @@ def InferYoungOldNestingEvents(NestedGenes, SpeciesNestedPairs, OrthologPairs):
                         ConservedInOutGroups = True
                 if ConservedInOutGroups == False:
                     Young.append(pair)
+                else:
+                    Old.append(pair)
     return Old, Young
 
 
