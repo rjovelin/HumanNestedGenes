@@ -5,37 +5,12 @@ Created on Fri Nov 25 11:38:39 2016
 @author: RJovelin
 """
 
-#############
+# use this script to plot expression divergence between host-nested pairs and their un-nested orthologs
 
-# modify the function to infer young/old nesting events
-# include multiple outgroups
-# for human-chimp: outgroups = baboon, gorilla, macaque, marmoset, orangoutan, mouse etc
-# for human-mouse: outroups = dog, cat/cow, bat, shrews, hedgehog, marsupial, platypus
-# get pairwise orthologs
-# require presence of both genes in human and chimp or mouse and at least 1 outgroup
-# if gene pair not present in chimp/mouse and not present in all outgroup then young nesting event
-# how to deal with one_to_many and many_to_many orthologs?
-# include all orthology type, if 1_to_many or many_to_many, consider nested if any ortholog is nested (at least 1 ortho of external and 1 ortho of internal must be nested)
-
-# http://tolweb.org/Eutheria/15997
-# http://www.pnas.org/content/suppl/2007/12/14/0705658104.DC1
-# https://research.amnh.org/paleontology/perissodactyl/node/55
-# http://useast.ensembl.org/info/genome/compara/homology_method.html
-
-##############
-
-
-
-
-
-
-# use this script to plot expression divergence between host-nested pairs and
-# their un-nested orthologs and expression divergence between external genes and
-# their un-nested orthologs and between internal and their un-nested orthologs
 
 # usage python3 PlotExpDivergYoungOld.py [options]
-# [mouse/chimp]: sister-species of interest
-# -[pairs/orthos]: expression divergence within gene pairs or between orthologs
+# [human/mouse]: nested genes in human or mouse
+
 
 # import modules
 # use Agg backend on server without X server
@@ -57,70 +32,59 @@ from HsaNestedGenes import *
 
 
 # get option from command
-SisterSp = sys.argv[1]
-Analysis = sys.argv[2]
-assert SisterSp in ['mouse', 'chimp']
-assert Analysis in ['pairs', 'orthos']
+FocalSp = sys.argv[1]
+assert FocalSp in ['mouse', 'human']
+if FocalSp == 'human':
+    SisterSp = 'mouse'
+elif FocalSp == 'mouse':
+    SisterSp = 'human'
+FilterGenes = sys.argv[2]
+assert FilterGenes in ['nested', 'overlap']
 
 
-if SisterSp == 'chimp':
+
+
+if FocalSp == 'human':
     # make a list of GFF files
-    GFF_Files = ['Homo_sapiens.GRCh38.88.gff3', 'Pan_troglodytes.CHIMP2.1.4.88.gff3',
-                 'Gorilla_gorilla.gorGor3.1.88.gff3', 'Macaca_mulatta.Mmul_8.0.1.88.gff3',
-                 'Pongo_abelii.PPYG2.88.gff3', 'Callithrix_jacchus.C_jacchus3.2.1.88.gff3',
-                 'Mus_musculus.GRCm38.88.gff3', 'Bos_taurus.UMD3.1.88.gff3',
+    GFF_Files = ['Homo_sapiens.GRCh38.88.gff3', 'Mus_musculus.GRCm38.88.gff3',
+                 'Pan_troglodytes.CHIMP2.1.4.88.gff3', 'Gorilla_gorilla.gorGor3.1.88.gff3',
+                 'Macaca_mulatta.Mmul_8.0.1.88.gff3', 'Pongo_abelii.PPYG2.88.gff3',
+                 'Callithrix_jacchus.C_jacchus3.2.1.88.gff3', 'Bos_taurus.UMD3.1.88.gff3',
                  'Canis_familiaris.CanFam3.1.88.gff3', 'Choloepus_hoffmanni.choHof1.88.gff3',
                  'Dasypus_novemcinctus.Dasnov3.0.88.gff3', 'Equus_caballus.EquCab2.88.gff3',
                  'Erinaceus_europaeus.HEDGEHOG.88.gff3', 'Felis_catus.Felis_catus_6.2.88.gff3',
                  'Monodelphis_domestica.BROADO5.88.gff3', 'Ornithorhynchus_anatinus.OANA5.88.gff3',
                  'Sorex_araneus.COMMON_SHREW1.88.gff3']
-
     # make a parallel list of Species names
-    Species = ['Human', 'Chimp', 'Gorilla', 'Macaque', 'Orangutan', 'Marmoset',
-               'Mouse', 'Cow', 'Dog', 'Sloth', 'Armadillo', 'Horse', 'Hedgehog',
-               'Cat', 'Opossum', 'Platypus', 'Shrew']
-elif SisterSp == 'mouse':
+    Species = ['Human', 'Mouse', 'Chimp', 'Gorilla', 'Macaque', 'Orangutan', 'Marmoset',
+               'Cow', 'Dog', 'Sloth', 'Armadillo', 'Horse', 'Hedgehog',
+               'Cat', 'Opossum', 'Platypus', 'Shrew']    
     
-    
-#    # make a list of GFF files
-#    GFF_Files = ['Homo_sapiens.GRCh38.88.gff3', 'Mus_musculus.GRCm38.88.gff3',
-#                 'Pan_troglodytes.CHIMP2.1.4.88.gff3',
-#                 'Gorilla_gorilla.gorGor3.1.88.gff3', 'Macaca_mulatta.Mmul_8.0.1.88.gff3',
-#                 'Pongo_abelii.PPYG2.88.gff3', 'Callithrix_jacchus.C_jacchus3.2.1.88.gff3',
-#                 'Bos_taurus.UMD3.1.88.gff3',
-#                 'Canis_familiaris.CanFam3.1.88.gff3', 'Choloepus_hoffmanni.choHof1.88.gff3',
-#                 'Dasypus_novemcinctus.Dasnov3.0.88.gff3', 'Equus_caballus.EquCab2.88.gff3',
-#                 'Erinaceus_europaeus.HEDGEHOG.88.gff3', 'Felis_catus.Felis_catus_6.2.88.gff3',
-#                 'Monodelphis_domestica.BROADO5.88.gff3', 'Ornithorhynchus_anatinus.OANA5.88.gff3',
-#                 'Sorex_araneus.COMMON_SHREW1.88.gff3']
-#
-#    # make a parallel list of Species names
-#    Species = ['Human', 'Mouse', 'Chimp', 'Gorilla', 'Macaque', 'Orangutan', 'Marmoset',
-#               'Cow', 'Dog', 'Sloth', 'Armadillo', 'Horse', 'Hedgehog',
-#               'Cat', 'Opossum', 'Platypus', 'Shrew']    
-    
-    
-    
-    
-    
+elif FocalSp == 'mouse':
     # make a list of GFF files
-    GFF_Files = ['Homo_sapiens.GRCh38.88.gff3', 'Mus_musculus.GRCm38.88.gff3',
-                 'Bos_taurus.UMD3.1.88.gff3', 'Canis_familiaris.CanFam3.1.88.gff3',
-                 'Choloepus_hoffmanni.choHof1.88.gff3', 'Dasypus_novemcinctus.Dasnov3.0.88.gff3',
-                 'Equus_caballus.EquCab2.88.gff3', 'Erinaceus_europaeus.HEDGEHOG.88.gff3',
-                 'Felis_catus.Felis_catus_6.2.88.gff3', 'Monodelphis_domestica.BROADO5.88.gff3',
-                 'Ornithorhynchus_anatinus.OANA5.88.gff3', 'Sorex_araneus.COMMON_SHREW1.88.gff3']
-
+    GFF_Files = ['Mus_musculus.GRCm38.88.gff3', 'Homo_sapiens.GRCh38.88.gff3',
+                 'Pan_troglodytes.CHIMP2.1.4.88.gff3', 'Gorilla_gorilla.gorGor3.1.88.gff3',
+                 'Macaca_mulatta.Mmul_8.0.1.88.gff3', 'Pongo_abelii.PPYG2.88.gff3',
+                 'Callithrix_jacchus.C_jacchus3.2.1.88.gff3', 'Bos_taurus.UMD3.1.88.gff3',
+                 'Canis_familiaris.CanFam3.1.88.gff3', 'Choloepus_hoffmanni.choHof1.88.gff3',
+                 'Dasypus_novemcinctus.Dasnov3.0.88.gff3', 'Equus_caballus.EquCab2.88.gff3',
+                 'Erinaceus_europaeus.HEDGEHOG.88.gff3', 'Felis_catus.Felis_catus_6.2.88.gff3',
+                 'Monodelphis_domestica.BROADO5.88.gff3', 'Ornithorhynchus_anatinus.OANA5.88.gff3',
+                 'Sorex_araneus.COMMON_SHREW1.88.gff3']
     # make a parallel list of Species names
-    Species = ['Human', 'Mouse', 'Cow', 'Dog', 'Sloth', 'Armadillo', 'Horse',
-               'Hedgehog', 'Cat', 'Opossum', 'Platypus', 'Shrew']
-
+    Species = ['Mouse', 'Human', 'Chimp', 'Gorilla', 'Macaque', 'Orangutan', 'Marmoset',
+               'Cow', 'Dog', 'Sloth', 'Armadillo', 'Horse', 'Hedgehog',
+               'Cat', 'Opossum', 'Platypus', 'Shrew']    
+    
+    
 # make a parallel list of json files with nested genes
 JsonFiles = [i + 'NestedGenes.json' for i in Species]
-# make a parallel list of ortholog files
-OrthoFiles = ['Human' + i + 'Orthologs.txt' for i in Species[1:]]
 
-# make a list of dictionaries
+# make a parallel list of ortholog files
+OrthoFiles = [FocalSp.title() + i + 'Orthologs.txt' for i in Species[1:]]
+
+
+# make a list of dictionaries with nested genes
 AllNestedGenes = []
 # loop over files
 for i in range(len(JsonFiles)):
@@ -134,70 +98,63 @@ AllOrthologs = []
 for i in range(len(OrthoFiles)):
     orthologs = MatchOrthologs(OrthoFiles[i])
     AllOrthologs.append(orthologs)
-    
 
-# get nested pairs in human and other species (sister species is 1st in list)
-HumanNestedPairs = GetHostNestedPairs(AllNestedGenes[0])
-# get nested pairs in other species (human is focal species)
+
+# make a set of overlapping genes in the focal species
+json_data = open(FocalSp.title() + 'OverlappingGenes.json')
+FocalSpOverlap = json.load(json_data)
+json_data.close()
+FocalSpOverlapGenes = MakeFullPartialOverlapGeneSet(FocalSpOverlap)
+# make a set of overlapping genes in the sisterspecies
+json_data = open(SisterSp.title() + 'OverlappingGenes.json')
+SisterSpOverlap = json.load(json_data)
+json_data.close()
+SisterSpOverlapGenes = MakeFullPartialOverlapGeneSet(SisterSpOverlap)
+print('generated sets of overlapping genes in {0}  ({1}) and {2} ({3})'.format(FocalSp, len(FocalSpOverlapGenes), SisterSp, len(SisterSpOverlapGenes)))
+
+
+# generate a set of nested genes in focal and sister species
+FocalSpNestedGenes = MakeFullPartialOverlapGeneSet(AllNestedGenes[0])
+SisterSpNestedGenes = MakeFullPartialOverlapGeneSet(AllNestedGenes[1])
+print('nested genes in {0} and {1}: {2}, {3}: '.format(FocalSp, SisterSp, len(FocalSpNestedGenes), len(SisterSpNestedGenes)))
+
+
+# get nested pairs in focal sp and other species (sister species is 1st in list)
+FocalSpNestedPairs = GetHostNestedPairs(AllNestedGenes[0])
+# get nested pairs in other species
 SpeciesNestedPairs = [GetHostNestedPairs(AllNestedGenes[i]) for i in range(1, len(AllNestedGenes))]
-# infer old and young nested events in human
-OldNested, YoungNested = InferYoungOldNestingEvents(HumanNestedPairs, SpeciesNestedPairs, AllOrthologs) 
-print(len(OldNested), len(YoungNested))
+# infer old and young nested events in focal sp
+OldNested, YoungNested = InferYoungOldNestingEvents(FocalSpNestedPairs, SpeciesNestedPairs, AllOrthologs) 
+print('inferred young and old nesting events: ', 'old:', len(OldNested), 'new:', len(YoungNested))
 
-# get expression profiles of human and sister-species
-if SisterSp == 'chimp':
-    HumanExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'human')
-    SisterSpExpression = ParsePrimateExpressionData('NormalizedRPKM_ConstitutiveExons_Primate1to1Orthologues.txt', 'chimp')
-elif SisterSp == 'mouse':
-    HumanExpression = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
+
+
+# get expression profiles of focal and sister species
+if FocalSp == 'human':
+    FocalSpExpression = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
     SisterSpExpression = ParseExpressionFile('Mouse_Median_Normalized_FPKM.txt')
     # match expression profiles between mouse and human 
-    HumanExpression = MatchHumanToMouseExpressionProfiles(HumanExpression)
+    FocalSpExpression = MatchHumanToMouseExpressionProfiles(FocalSpExpression)
+elif FocalSp == 'mouse':
+    SisterSpExpression = ParseExpressionFile('GTEX_Median_Normalized_FPKM.txt')
+    FocalSpExpression = ParseExpressionFile('Mouse_Median_Normalized_FPKM.txt')
+    # match expression profiles between mouse and human 
+    SisterSpExpression = MatchHumanToMouseExpressionProfiles(SisterSpExpression)
 # remove genes without expression
-HumanExpression = RemoveGenesLackingExpression(HumanExpression)
+FocalSpExpression = RemoveGenesLackingExpression(FocalSpExpression)
 SisterSpExpression = RemoveGenesLackingExpression(SisterSpExpression)
-
-
-# compute median and variance in each species
-L = []
-for gene in HumanExpression:
-    for val in HumanExpression[gene]:
-        L.append(val)
-HsaMedian, HsaVar = np.median(L), np.var(L)
-L = []
-for gene in SisterSpExpression:
-    for val in SisterSpExpression[gene]:
-        L.append(val)
-SpMedian, SpVar = np.median(L), np.var(L)
-
-#for gene in HumanExpression:
-#    for i in range(len(HumanExpression[gene])):
-#        HumanExpression[gene][i] = (HumanExpression[gene][i] - HsaMedian) / HsaVar 
-#for gene in SisterSpExpression:
-#    for i in range(len(SisterSpExpression[gene])):
-#        SisterSpExpression[gene][i] = (SisterSpExpression[gene][i] - HsaMedian) / HsaVar
-
-
-
-for gene in HumanExpression:
-    for i in range(len(HumanExpression[gene])):
-        HumanExpression[gene][i] = (HumanExpression[gene][i] - HsaMedian) / HsaMedian 
-for gene in SisterSpExpression:
-    for i in range(len(SisterSpExpression[gene])):
-        SisterSpExpression[gene][i] = (SisterSpExpression[gene][i] - SpMedian) / SpMedian
-
-
-
-
+# scale expression values to the median in each species
+FocalSpExpression = ScaleExpression(FocalSpExpression, 'level_scaling')
+SisterSpExpression = ScaleExpression(SisterSpExpression, 'level_scaling')
 # get relative expression
-HumanExpression = TransformRelativeExpression(HumanExpression)
+FocalSpExpression = TransformRelativeExpression(FocalSpExpression)
 SisterSpExpression = TransformRelativeExpression(SisterSpExpression)
 # compute expression specificity
-HumanSpecificity = ExpressionSpecificity(HumanExpression)
+FocalSpspecificity = ExpressionSpecificity(FocalSpExpression)
 SisterSpSpecificity = ExpressionSpecificity(SisterSpExpression)
 
 
-# make a list of gene coordinates in human, chimp and mouse      
+# make a list of gene coordinates       
 AllCoordinates, AllOrdered = [], []
 # loop over GFF files
 for i in range(len(GFF_Files)):
@@ -214,172 +171,137 @@ for i in range(len(GFF_Files)):
     OrderedGenes = OrderGenesAlongChromo(GeneChromoCoord)
     AllCoordinates.append(GeneCoord)
     AllOrdered.append(OrderedGenes)
+print('extracted gene coordinates and ordered genes')
 
-# generate a set of nested genes in human and in sister species
-HumanNestedGenes = MakeFullPartialOverlapGeneSet(AllNestedGenes[0])
-SisterSpNestedGenes = MakeFullPartialOverlapGeneSet(AllNestedGenes[1])
-print(len(HumanNestedGenes), len(SisterSpNestedGenes))
-
-
-
-if Analysis == 'pairs':
-    
-    # compare expression divergence between gene pairs for young nested pairs in
-    # human with their ancestral non-nested pairs in siste species
-    
-    # remove pairs for which both genes are not expressed
-    YoungNested = FilterGenePairsWithoutExpression(YoungNested, HumanExpression, 'strict')
-    OldNested = FilterGenePairsWithoutExpression(OldNested, HumanExpression, 'strict')
-    print(len(OldNested), len(YoungNested))
-    
-    # generate gene pairs with orthologs of human young nested in sister species
-    AncestralPairs = []
-    for pair in YoungNested:
-        for ortho1 in AllOrthologs[0][pair[0]]:
-            for ortho2 in AllOrthologs[0][pair[1]]:
-                AncestralPairs.append([ortho1, ortho2])
-                assert [ortho1, ortho2] not in SpeciesNestedPairs[0]
-    # remove pairs for which both members are not expressed in sister species            
-    SisterSpAncestralPairs = FilterGenePairsWithoutExpression(AncestralPairs, SisterSpExpression, 'strict')
-    print(len(SisterSpAncestralPairs))    
-    # remove pairs for which members are not valid genes (eg pseudogenes, etc)        
-    to_remove = [pair for pair in SisterSpAncestralPairs if pair[0] not in AllCoordinates[1] or pair[1] not in AllCoordinates[1]]
-    for pair in to_remove:
-        SisterSpAncestralPairs.remove(pair)        
-        
-    # remove pairs if any gene is nested    
-    to_remove = [pair for pair in SisterSpAncestralPairs if pair[0] in SisterSpNestedGenes or pair[1] in SisterSpNestedGenes]
-    for pair in to_remove:
-        SisterSpAncestralPairs.remove(pair)
-    print(len(SisterSpAncestralPairs))
-    
-    # generate a list of control un-nested pairs
-    SisterSpRandomGenes = GenerateAllUnNestedGenes(SisterSpNestedGenes, AllOrdered[1], SisterSpExpression)
-    # make a list of control un-nested pairs in sister species
-    SisterSpControlPairs = []
+# remove orthologs without gene coordinates
+SpeciesCoordinates = AllCoordinates[1:]
+for i in range(len(SpeciesNestedPairs)):
     to_remove = []
-    for pair in SisterSpAncestralPairs:
-        # make a list of matching gene pairs (orientation, chromosome, distance)
-        PairPool = GenerateMatchingPoolPairs(pair, SisterSpRandomGenes, AllCoordinates[1], 2000)
-        # draw a matching gene pair at random
-        i = random.randint(0, len(PairPool) -1)
-        SisterSpControlPairs.append(PairPool[i])
-       
-    # compute divergence in young human nested pairs
-    HumanYoungDiv = ComputeExpressionDivergenceGenePairs(YoungNested, HumanExpression)    
-    # compute divergence in ancestral un-nested pairs
-    SisterSpAncestralDiv = ComputeExpressionDivergenceGenePairs(SisterSpAncestralPairs, SisterSpExpression)
-    # compute expression divergence between un-nested control pairs in sister species    
-    SisterSpControlDiv = ComputeExpressionDivergenceGenePairs(SisterSpControlPairs, SisterSpExpression)
+    for pair in SpeciesNestedPairs[i]:
+        if pair[0] not in SpeciesCoordinates[i] or pair[1] not in SpeciesCoordinates[i]:
+            to_remove.append(pair)
+    print('remove {0} pairs without coordinates in {1}'.format(len(to_remove), Species[i+1]))    
+    for pair in to_remove:
+        SpeciesNestedPairs[i].remove(pair)
 
-    # compute P values using permutation tests
-    P = PermutationResampling(HumanYoungDiv, SisterSpAncestralDiv, 1000, statistic = np.mean)
-    print(len(HumanYoungDiv), len(SisterSpAncestralDiv), np.mean(HumanYoungDiv), np.mean(SisterSpAncestralDiv), P)
-    P = PermutationResampling(SisterSpAncestralDiv, SisterSpControlDiv , 1000, statistic = np.mean)
-    print(len(SisterSpAncestralDiv), len(SisterSpControlDiv), np.mean(SisterSpAncestralDiv), np.mean(SisterSpControlDiv), P)
+
+
+# compare expression divergence between gene pairs for young nested pairs in
+# human or mouse with their ancestral non-overlapping pairs in mouse or human respectively
+    
+  
+# remove pairs for which both genes are not expressed
+YoungNested = FilterGenePairsWithoutExpression(YoungNested, FocalSpExpression, 'strict')
+OldNested = FilterGenePairsWithoutExpression(OldNested, FocalSpExpression, 'strict')
+print('{0} old and {1} new nested pairs after removing genes lacking expression'.format(len(OldNested), len(YoungNested)))
+    
+    
+# generate gene pairs with orthologs of young nested in sister species
+AncestralPairs = []
+for pair in YoungNested:
+    for ortho1 in AllOrthologs[0][pair[0]]:
+        for ortho2 in AllOrthologs[0][pair[1]]:
+            AncestralPairs.append([ortho1, ortho2])
+            # check that pair not in sister species
+            assert [ortho1, ortho2] not in SpeciesNestedPairs[0]
+print('generated {0} ancestral pairs in {1}'.format(len(AncestralPairs), SisterSp))
+
+
+# remove pairs for which both members are not expressed in sister species            
+AncestralPairs = FilterGenePairsWithoutExpression(AncestralPairs, SisterSpExpression, 'strict')
+print('{0} ancestral pairs after removing pairs without expression'. format(len(AncestralPairs)))    
+# remove pairs for which members are not valid genes (eg pseudogenes, etc)        
+to_remove = [pair for pair in AncestralPairs if pair[0] not in AllCoordinates[1] or pair[1] not in AllCoordinates[1]]
+for pair in to_remove:
+    AncestralPairs.remove(pair)        
+print('{0} ancestral pairs after removing pairs without coordinates'. format(len(AncestralPairs)))    
+
+# remove pairs if any gene is overlapping or nested
+if FilterGenes == 'overlap':
+    to_remove = [pair for pair in AncestralPairs if pair[0] in SisterSpOverlapGenes or pair[1] in SisterSpOverlapGenes]
+elif FilterGenes == 'nested':
+    to_remove = [pair for pair in AncestralPairs if pair[0] in SisterSpNestedGenes or pair[1] in SisterSpNestedGenes]
+for pair in to_remove:
+    AncestralPairs.remove(pair)
+print('{0} ancestral pairs after removing {1} genes'.format(len(AncestralPairs), FilterGenes))    
+   
+    
     
 
-elif Analysis == 'orthos':
-    # compare distances between expression profiles of internal/external-like genes and their orthologs
-    # young internal genes and their un-nested orthologs
-    # old internal genes and their nested orthologs
-    # young external genes and their un-nested orthologs
-    # old external genes and their nested orthologs
+## crop list to keep the same numbers of pairs NOTE THAT IT MAY BE BETTER TO KEEP TRACK OF PAIRS AND MAKING SURE THAN EACH ORHOS ARE PRESENT ONCE    
+#SisterSpAncestralPairs = SisterSpAncestralPairs[:len(YoungNested)]
+
+# pick random pairs if size ancestralapirs > youngnested
+L = []
+while len(L) != len(YoungNested):
+    # pick pair and populate new list
+   i = random.randint(0, len(AncestralPairs) -1) 
+   pair = AncestralPairs[i]
+   L.append(pair)
+   # remove pair from list
+   AncestralPairs.remove(pair)
+# reassign variable name
+AncestralPairs = copy.deepcopy(L)
+print('{0} ancestral pairs after randomly picking up pairs of orthologs'.format(len(AncestralPairs)))    
 
 
-    # create a list of young external genes in human and sister species
-    HumanYoungExt = list(set([pair[0] for pair in YoungNested if pair[0] in HumanExpression]))
-    # create a list of young internal genes in human and sister species    
-    HumanYoungInt = list(set([pair[1] for pair in YoungNested if pair[1] in HumanExpression]))
-    # create a list of old external genes in human and sister species
-    HumanOldExt = list(set([pair[0] for pair in OldNested if pair[0] in HumanExpression]))
-    # create a list of old internal genes in human and sister species
-    HumanOldInt = list(set([pair[1] for pair in OldNested if pair[1] in HumanExpression]))
+# generate a list of control un-nested pairs
+if FilterGenes == 'nested':
+    SisterSpRandomGenes = GenerateAllUnNestedGenes(SisterSpNestedGenes, AllOrdered[1], SisterSpExpression)
+elif FilterGenes == 'overlap':
+    SisterSpRandomGenes = GenerateAllUnNestedGenes(SisterSpOverlapGenes, AllOrdered[1], SisterSpExpression)
+# make a list of control un-nested pairs in sister species
+SisterSpControlPairs = []
+for pair in AncestralPairs:
+    # make a list of matching gene pairs (orientation, chromosome, distance)
+    PairPool = GenerateMatchingPoolPairs(pair, SisterSpRandomGenes, AllCoordinates[1], 1000)
+    print('sp control', len(PairPool))
+    # draw a matching gene pair at random
+    i = random.randint(0, len(PairPool) -1)
+    SisterSpControlPairs.append(PairPool[i])
     
-    # make pairs of orthologs
-    YoungExtPairs, YoungIntPairs, OldExtPairs, OldIntPairs = [], [], [], []
-    for gene in HumanYoungExt:
-        for ortho in AllOrthologs[0][gene]:
-            # check that ortholog is expressed, is valid and is not nested
-            if ortho in SisterSpExpression and ortho in AllCoordinates[1] and ortho not in SisterSpNestedGenes:
-                YoungExtPairs.append([gene, ortho])
-    for gene in HumanYoungInt:
-        for ortho in AllOrthologs[0][gene]:
-            # check that ortholog is expressed, is valid and is not nested
-            if ortho in SisterSpExpression and ortho in AllCoordinates[1] and ortho not in SisterSpNestedGenes:
-                YoungIntPairs.append([gene, ortho])
-    for gene in HumanOldExt:
-        for ortho in AllOrthologs[0][gene]:
-            # check that ortholog is expressed, is valid and is nested
-            if ortho in SisterSpExpression and ortho in AllCoordinates[1] and ortho in SisterSpNestedGenes:
-                OldExtPairs.append([gene, ortho])
-    for gene in HumanOldInt:
-        for ortho in AllOrthologs[0][gene]:
-            # check that ortholog is expressed, is valid and is nested
-            if ortho in SisterSpExpression and ortho in AllCoordinates[1] and ortho in SisterSpNestedGenes:
-                OldIntPairs.append([gene, ortho])
-        
-    # generate a dict to draw genes in human    
-    HumanRandomGenes = GenerateAllUnNestedGenes(HumanNestedGenes, AllOrdered[0], HumanExpression)
-
-    # make lists of human genes
-    HumanExternal = list(set([pair[0] for pair in YoungExtPairs]))
-    HumanInternal = list(set([pair[0] for pair in YoungIntPairs]))
     
-    # generate lists of control genes, match genes by chromosome and tissue specificity
-    HumanExtLike = GenerateMatchingGenes(HumanExternal, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, AllOrthologs[0], SisterSpExpression)
-    HumanIntLike = GenerateMatchingGenes(HumanInternal, AllCoordinates[0], HumanRandomGenes, HumanSpecificity, AllOrthologs[0], SisterSpExpression)
+# generate a list of control genes in focal species
+if FilterGenes == 'nested':
+    FocalSpRandomGenes = GenerateAllUnNestedGenes(FocalSpNestedGenes, AllOrdered[0], FocalSpExpression)
+elif FilterGenes == 'overlap':
+    FocalSpRandomGenes = GenerateAllUnNestedGenes(FocalSpOverlapGenes, AllOrdered[0], FocalSpExpression)
     
-    print(len(HumanExtLike))
-    print(len(HumanIntLike))
     
-    # make list of gene pairs
-    HumanControlExt = []
-    for gene in HumanExtLike:
-        assert gene in HumanExpression
-        assert gene in AllOrthologs[0]
-        for ortho in AllOrthologs[0][gene]:
-            if ortho in SisterSpExpression:
-                HumanControlExt.append([gene, ortho])
-    HumanControlInt = []
-    for gene in HumanIntLike:
-        assert gene in HumanExpression
-        assert gene in AllOrthologs[0]
-        for ortho in AllOrthologs[0][gene]:
-            if ortho in SisterSpExpression:
-                HumanControlInt.append([gene, ortho])
-       
-    # compute expression divergence between orthologs
-    HumanControlExtDiv = ComputeExpressionDivergenceOrthologs(HumanControlExt, HumanExpression, SisterSpExpression)
-    HumanControlIntDiv = ComputeExpressionDivergenceOrthologs(HumanControlInt, HumanExpression, SisterSpExpression)    
-    YoungExtDiv = ComputeExpressionDivergenceOrthologs(YoungExtPairs, HumanExpression, SisterSpExpression)
-    YoungIntDiv = ComputeExpressionDivergenceOrthologs(YoungIntPairs, HumanExpression, SisterSpExpression)
-    OldExtDiv = ComputeExpressionDivergenceOrthologs(OldExtPairs, HumanExpression, SisterSpExpression)
-    OldIntDiv = ComputeExpressionDivergenceOrthologs(OldIntPairs, HumanExpression, SisterSpExpression)
+# make a list of control un-nested (non-overlapping) pars in focal species
+FocalSpControlPairs = []
+for pair in YoungNested:
+    # make a list of matching gene pairs (orientation, chromosome, distance)
+    PairPool = GenerateMatchingPoolPairs(pair, FocalSpRandomGenes, AllCoordinates[0], 1000)
+    print('focal control', len(PairPool))
+    # draw a matching gene pair at random
+    i = random.randint(0, len(PairPool)-1)
+    FocalSpControlPairs.append(PairPool[i])
+    assert PairPool[i][0] not in FocalSpNestedGenes
+    assert PairPool[i][1] not in FocalSpNestedGenes
+#    assert PairPool[i][0] not in FocalSpOverlapGenes
+#    assert PairPool[i][1] not in FocalSpOverlapGenes
     
-    # compare expression divergence among genes
-    P = PermutationResampling(YoungExtDiv, HumanControlExtDiv, 1000, statistic = np.mean)
-    print(len(YoungExtDiv), len(HumanControlExtDiv), np.mean(YoungExtDiv), np.mean(HumanControlExtDiv), P)
-    P = PermutationResampling(YoungIntDiv, HumanControlIntDiv, 1000, statistic = np.mean)
-    print(len(YoungIntDiv), len(HumanControlIntDiv), np.mean(YoungIntDiv), np.mean(HumanControlIntDiv), P)
-    P = PermutationResampling(YoungExtDiv, YoungIntDiv, 1000, statistic = np.mean)
-    print(len(YoungExtDiv), len(YoungIntDiv), np.mean(YoungExtDiv), np.mean(YoungIntDiv), P)
-
-#    P = PermutationResampling(OldExtDiv, HumanControlExtDiv, 1000, statistic = np.median)    
-#    print(len(OldExtDiv), len(HumanControlExtDiv), np.median(OldExtDiv), np.median(HumanControlExtDiv), P)
-#    P = PermutationResampling(OldExtDiv, YoungExtDiv, 1000, statistic = np.median)    
-#    print(len(OldExtDiv), len(YoungExtDiv), np.median(OldExtDiv), np.median(YoungExtDiv), P)
-#    
-#    
-#    P = PermutationResampling(OldIntDiv, HumanControlIntDiv, 1000, statistic = np.median)    
-#    print(len(OldIntDiv), len(HumanControlIntDiv), np.median(OldIntDiv), np.median(HumanControlIntDiv), P)
-#    P = PermutationResampling(OldIntDiv, YoungIntDiv, 1000, statistic = np.median)    
-#    print(len(OldIntDiv), len(YoungIntDiv), np.median(OldIntDiv), np.median(YoungIntDiv), P)
     
+# compute divergence in young nested pairs
+FocalSpYoungDiv = ComputeExpressionDivergenceGenePairs(YoungNested, FocalSpExpression)    
+# compute divergence in ancestral un-nested pairs
+SisterSpAncestralDiv = ComputeExpressionDivergenceGenePairs(AncestralPairs, SisterSpExpression)
+# compute expression divergence between un-nested control pairs in sister species    
+SisterSpControlDiv = ComputeExpressionDivergenceGenePairs(SisterSpControlPairs, SisterSpExpression)
+# compute expression divergence between un-nested control pairs in focal species
+FocalSpControlDiv = ComputeExpressionDivergenceGenePairs(FocalSpControlPairs, FocalSpExpression)
+
+
+# compute P values using permutation tests
+P = PermutationResampling(FocalSpYoungDiv, SisterSpAncestralDiv, 1000, statistic = np.mean)
+print('young vs ancestral', len(FocalSpYoungDiv), len(SisterSpAncestralDiv), np.mean(FocalSpYoungDiv), np.mean(SisterSpAncestralDiv), P)
+P = PermutationResampling(SisterSpAncestralDiv, SisterSpControlDiv , 1000, statistic = np.mean)
+print('ancestral vs control', len(SisterSpAncestralDiv), len(SisterSpControlDiv), np.mean(SisterSpAncestralDiv), np.mean(SisterSpControlDiv), P)
+P = PermutationResampling(FocalSpYoungDiv, FocalSpControlDiv, 1000, statistic = np.mean)
+print('young vs contol', len(FocalSpYoungDiv), len(FocalSpControlDiv), np.mean(FocalSpYoungDiv), np.mean(FocalSpControlDiv), P)
 
 
 
 
 
-
-    
