@@ -274,6 +274,10 @@ FocalSpControlDiv = ComputeExpressionDivergenceGenePairs(FocalSpControlPairs, Fo
 
 # compute P values using permutation tests
 P = PermutationResampling(FocalSpYoungDiv, SisterSpAncestralDiv, 1000, statistic = np.mean)
+# add P to list
+PValues = [P]
+# convert P to star significance
+PValues = ConvertPToStars(PValues)[0]
 print('young vs ancestral', len(FocalSpYoungDiv), len(SisterSpAncestralDiv), np.mean(FocalSpYoungDiv), np.mean(SisterSpAncestralDiv), P)
 P = PermutationResampling(SisterSpAncestralDiv, SisterSpControlDiv , 1000, statistic = np.mean)
 print('ancestral vs control', len(SisterSpAncestralDiv), len(SisterSpControlDiv), np.mean(SisterSpAncestralDiv), np.mean(SisterSpControlDiv), P)
@@ -281,6 +285,66 @@ P = PermutationResampling(FocalSpYoungDiv, FocalSpControlDiv, 1000, statistic = 
 print('young vs contol', len(FocalSpYoungDiv), len(FocalSpControlDiv), np.mean(FocalSpYoungDiv), np.mean(FocalSpControlDiv), P)
 
 
+
+
+# plot results to file
+
+# make a list of gene categories
+GeneCatOrientation = ['Derived nested in ' + FocalSp, 'Ancestral non-nested in ' + SisterSp]
+# create lists with means and SEM for each gene category
+Means, SEM = [], []
+for L in [FocalSpYoungDiv, SisterSpAncestralDiv]:
+    Means.append(np.mean(L))
+    SEM.append(np.std(L) / math.sqrt(len(L)))
+
+# create figure
+fig = plt.figure(1, figsize = (1.5, 2))
+
+# add a plot to figure (N row, N column, plot N)
+ax = fig.add_subplot(1, 1, 1)
+# set colors
+colorscheme = ['#225ea8', '#e31a1c']
+# plot nucleotide divergence
+ax.bar([0.05, 0.35], Means, 0.2, yerr = SEM, color = colorscheme,
+        edgecolor = 'black', linewidth = 0.7, error_kw=dict(elinewidth=0.7, ecolor='black', markeredgewidth = 0.7))
+# set font for all text in figure
+FigFont = {'fontname':'Arial'}   
+# write y axis label
+ax.set_ylabel('Expression divergence', color = 'black',  size = 7, ha = 'center', **FigFont)
+# add ticks and lebels
+plt.xticks([0.15, 0.45], GeneCatOrientation, size = 7, color = 'black', ha = 'center', **FigFont)
+# add title
+ax.set_xlabel('Orientation', color = 'black', size = 7, ha = 'center', **FigFont)    
+# add a range for the Y and X axes
+plt.ylim([0, 1.5])
+plt.xlim([0, 0.6])
+# edit y axis ticks
+plt.yticks(np.arange(0, 1.5, 0.1)) 
+# do not show lines around figure  
+ax.spines["top"].set_visible(False)    
+ax.spines["bottom"].set_visible(True)    
+ax.spines["right"].set_visible(False)
+ax.spines["left"].set_visible(True)
+# edit tick parameters    
+plt.tick_params(axis='both', which='both', bottom='on', top='off',
+                right = 'off', left = 'on', labelbottom='on',
+                colors = 'black', labelsize = 7, direction = 'out')  
+# Set the tick labels font name
+for label in ax.get_yticklabels():
+    label.set_fontname('Arial')    
+
+
+# annotate figure to add significance
+if PValsOrientation != '':
+    ax = AddSignificanceToBars(ax, PValsOrientation, 0.15, 0.45, 0.68, 0.3, 0.72)
+
+
+# save figure
+fig.savefig('truc.pdf', bbox_inches = 'tight')
+  
+## save figure
+#for extension in ['.pdf', '.eps', '.png']:
+#    fig.savefig('truc' + extension, bbox_inches = 'tight')
 
 
 
