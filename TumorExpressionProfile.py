@@ -5,6 +5,12 @@ Created on Wed Jun 21 14:00:08 2017
 @author: RJovelin
 """
 
+
+# use this script to plot the median number of pairs per individuals with reciprocal
+# expression in tumor and normal tissue
+
+
+
 # import modules
 # use Agg backend on server without X server
 import matplotlib as mpl
@@ -227,7 +233,7 @@ def CreateAx(Columns, Rows, Position, figure, XCoord, YCoord, Data, Title, MaxVa
     
     # plot data 
     sc1 = ax.scatter(XCoord, YCoord, s = area1, c = area1, cmap = 'Purples', linewidths = 0.7, edgecolor = 'black', alpha = 1, vmin = 0, vmax = MaxVal)      
-    sc2 = ax.scatter(XCoord, YCoord, s = area2, c = area2, cmap = 'Greens', linewidths = 0.7, edgecolor = 'black', alpha = 1,  vmin = 0, vmax = MaxVal)      
+    sc2 = ax.scatter(XCoord, YCoord, s = area2, c = area2, cmap = 'Greens', linewidths = 0.7, edgecolor = 'black', alpha = 1)      
 
     # add color scale
     cbar = plt.colorbar(sc1)
@@ -268,7 +274,7 @@ def CreateAx(Columns, Rows, Position, figure, XCoord, YCoord, Data, Title, MaxVa
 
 
 # create figure
-fig = plt.figure(1, figsize = (4, 4))
+fig = plt.figure(1, figsize = (8.8, 4))
 
 # make a list with x and y coordinates
 x = [1, 1, 1, 2, 2, 2, 3, 3, 3]
@@ -286,19 +292,13 @@ for L in [A, B, C, D]:
 ax1 = CreateAx(2, 1, 1, fig, x, y, PairCountsOverlap, 'Overlapping pairs', MaxVal)
 ax2 = CreateAx(2, 1, 2, fig, x, y, PairCountsRandom, 'Random pairs', MaxVal)
 
-
-#
-## compute areas of bubbles with median and standard deviation
-#area1 = list(map(lambda x: np.median(x), PairCountsOverlap))
-#area2 = list(map(lambda x: np.std(x), PairCountsOverlap))
-#area3 = list(map(lambda x: np.median(x), PairCountsRandom))
-#area4 = list(map(lambda x: np.std(x), PairCountsRandom))
-
+## add subplot labels
+ax1.text(-0.9, 3.8, 'A', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
+ax2.text(-0.9, 3.8, 'B', ha='center', va='center', color = 'black', fontname = 'Arial', size = 8)
 
 # make sure subplots do not overlap
 plt.tight_layout()
 
 # save figure
-fig.savefig('truc.pdf', bbox_inches = 'tight')
-
-
+for extension in ['.pdf', '.eps', '.png']:
+    fig.savefig('ReciprocalExpNormalTumor' + extension, bbox_inches = 'tight')
