@@ -241,7 +241,6 @@ SisterSpControlPairs = []
 for pair in AncestralPairs:
     # make a list of matching gene pairs (orientation, chromosome, distance)
     PairPool = GenerateMatchingPoolPairs(pair, SisterSpRandomGenes, AllCoordinates[1], 1000)
-    print('sp control', len(PairPool))
     # draw a matching gene pair at random
     i = random.randint(0, len(PairPool) -1)
     SisterSpControlPairs.append(PairPool[i])
@@ -254,13 +253,12 @@ FocalSpControlPairs = []
 for pair in YoungNested:
     # make a list of matching gene pairs (orientation, chromosome, distance)
     PairPool = GenerateMatchingPoolPairs(pair, FocalSpRandomGenes, AllCoordinates[0], 1000)
-    print('focal control', len(PairPool))
     # draw a matching gene pair at random
     i = random.randint(0, len(PairPool)-1)
     FocalSpControlPairs.append(PairPool[i])
     assert PairPool[i][0] not in FocalSpNestedGenes
     assert PairPool[i][1] not in FocalSpNestedGenes
-    
+print('generated control pairs')    
     
 # compute divergence in young nested pairs
 FocalSpYoungDiv = ComputeExpressionDivergenceGenePairs(YoungNested, FocalSpExpression)    
