@@ -342,7 +342,7 @@ if PValues != '':
         ax = AddSignificanceToBars(ax, PValues, 0.15, 0.45, 1.2, 0.3, 1.3)
 
 # save figure
-outputfile = 'ExpDiv' + FocalSp.title() + 'Nested' + 'SisterSp.title()' + Ancestral
+outputfile = 'ExpDiv' + FocalSp.title() + 'Nested' + SisterSp.title() + 'Ancestral'
 for extension in ['.pdf', '.eps', '.png']:
     fig.savefig(outputfile + extension, bbox_inches = 'tight')
 
