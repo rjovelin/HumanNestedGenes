@@ -335,8 +335,8 @@ for label in ax.get_yticklabels():
 
 
 # annotate figure to add significance
-if PValsOrientation != '':
-    ax = AddSignificanceToBars(ax, PValsOrientation, 0.15, 0.45, 0.68, 0.3, 0.72)
+if PValues != '':
+    ax = AddSignificanceToBars(ax, PValues, 0.15, 0.45, 0.68, 0.3, 0.72)
 
 
 # save figure
