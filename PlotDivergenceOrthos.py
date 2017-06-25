@@ -181,6 +181,8 @@ MeanExpDiv, SEMExpDiv = [], []
 for i in range(len(ExpressionDivergence)):
     MeanExpDiv.append(np.mean(ExpressionDivergence[i]))
     SEMExpDiv.append(np.std(ExpressionDivergence[i]) / math.sqrt(len(ExpressionDivergence[i])))
+print(MeanExpDiv)
+
 
 # perform statistical tests between gene categories using permutation test
 PValExpDiv = []
@@ -190,7 +192,7 @@ for i in range(1, len(ExpressionDivergence)):
     PValExpDiv.append(P)
 # convert p-values to star significance level
 PValExpDiv = ConvertPToStars(PValExpDiv)
-
+print(PValExpDiv)
     
 # create a function to format the subplots
 def CreateAx(Columns, Rows, Position, figure, Data, XLabel, YLabel, YMax):
