@@ -37,18 +37,29 @@ GeneChromoCoord = FilterOutGenesWithoutValidTranscript(GeneChromoCoord, MapGeneT
 GeneCoord = FromChromoCoordToGeneCoord(GeneChromoCoord)
 print('gene coord', len(GeneCoord))
 
-# load dictionary of nested genes
-#json_data = open('HumanNestedGenes.json')
-
-
+# load dictionary of overlapping genes
 json_data = open('HumanOverlappingGenes.json')
-
-
-Nested = json.load(json_data)
+Overlap = json.load(json_data)
 json_data.close()
 # make a list of gene pairs
-NestedPairs = GetHostNestedPairs(Nested)
-print('generated gene pairs', len(NestedPairs))
+OverlapPairs = GetHostNestedPairs(Overlap)
+print('generated gene pairs', len(OverlapPairs))
+
+# make a list of non-overlapping genes
+NonOverlappingGenes = list(MakeNonOverlappingGeneSet(Overlap,  GeneCoord))
+
+
+# make a list of random gene pairs
+RandomPairs = []
+while len(RandomPairs) != len(OverlapPairs):
+    # pick 2 genes at random
+    j, k = random.randint(0, len(NonOverlappingGenes) -1), random.randint(0, len(NonOverlappingGenes) -1)
+    # do not form pairs of the same gene
+    if j != k:
+        gene1, gene2 = NonOverlappingGenes[j], NonOverlappingGenes[k]
+        RandomPairs.append([gene1, gene2])
+print('generated random pairs')
+
 
 
 # create a dictionary with {sample_ID: [cancer, disease_status]} 
@@ -110,12 +121,6 @@ to_remove = [gene for gene in Genes if gene not in GeneCoord]
 for gene in to_remove:
     del Genes[gene]
 print('removed genes without coordinates: ', len(Genes))
-
-
-## remove pairs for which genes have missing expression
-#NestedPairs = FilterGenePairsWithoutExpression(NestedPairs, Genes, 'strict')
-#print('deleted pairs lacking expression', len(NestedPairs))
-
 
 
 # create 2 separate dicts for expression in normal and tumor {gene: {tissue: {participant: expression}
@@ -184,194 +189,115 @@ for tissue in TissueHealthy:
 # remove genes without expression
 for tissue in TissueHealthy:
     for participant in TissueHealthy[tissue]:
-        to_remove = [gene for gene in TissueHealthy[tissue][participant] if TissueHealthy[tissue][participant][gene] in [0, 1]]
+        to_remove = [gene for gene in TissueHealthy[tissue][participant] if TissueHealthy[tissue][participant][gene] == 0]
         for gene in to_remove:
             del TissueHealthy[tissue][participant][gene]
 for tissue in TissueCancer:
     for participant in TissueCancer[tissue]:
-        to_remove = [gene for gene in TissueCancer[tissue][participant] if TissueCancer[tissue][participant][gene] in [0,1]]
+        to_remove = [gene for gene in TissueCancer[tissue][participant] if TissueCancer[tissue][participant][gene] == 0]
         for gene in to_remove:
             del TissueCancer[tissue][participant][gene]
 print('removed genes without expression')
 
 
-# count the number of pairs in which genes are coexpressed, discordantly expressed or not expressed
-CoExpBoth, CoExpCancerDiscordNorm, CoExpCancerNotNorm = 0, 0, 0
-DiscordCancerCoExpNorm, DiscordBoth, DiscordCancerNotNorm = 0, 0, 0
-NotCancerCoExpNorm, NotCancerDiscordNorm, NotBoth = 0, 0, 0
 
-          
-#a, b, c, d, e, f, g, h, i = [], [], [], [], [], [], [], [], []
-
-
-
-total = 0
-
-# loop over tissue
-for tissue in TissueCancer:
-    if tissue in Tissues:
-        # loop over participant
-        for participant in TissueCancer[tissue]:
-#            CoExpBoth, CoExpCancerDiscordNorm, CoExpCancerNotNorm = 0, 0, 0
-#            DiscordCancerCoExpNorm, DiscordBoth, DiscordCancerNotNorm = 0, 0, 0
-#            NotCancerCoExpNorm, NotCancerDiscordNorm, NotBoth = 0, 0, 0
-            for pair in NestedPairs:
-                total += 1
-                # check expression in cancer and normal
-                if pair[0] in TissueCancer[tissue][participant] and pair[1] in TissueCancer[tissue][participant]:
-                    # gene coexpressed in cancer
-                    if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
-                        # gene coexpressed in normal
-                        CoExpBoth += 1
-                    elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
-                        # gene discordant in normal
-                        CoExpCancerDiscordNorm += 1
-                    elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
-                        # gene not expressed in normal
-                        CoExpCancerNotNorm += 1
-                elif (pair[0] in TissueCancer[tissue][participant] and pair[1] not in TissueCancer[tissue][participant]) or (pair[0] not in TissueCancer[tissue][participant] and pair[1] in TissueCancer[tissue][participant]):
-                    # gene discordant in cancer
-                    if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
-                        # gene coexpressed in normal
-                        DiscordCancerCoExpNorm += 1
-                    elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
-                        # gene discordant in normal
-                        DiscordBoth += 1
-                    elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
-                        # gene not expressed in normal
-                        DiscordCancerNotNorm += 1
-                elif pair[0] not in TissueCancer[tissue][participant] and pair[1] not in TissueCancer[tissue][participant]:
-                    # gene not expressed in cancer
-                    if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
-                        # gene coexpressed in normal
-                        NotCancerCoExpNorm += 1
-                    elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
-                        # gene discordant in normal
-                        NotCancerDiscordNorm += 1
-                    elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
-                        # gene not expressed in normal
-                        NotBoth += 1
-#            a.append(CoExpBoth)
-#            b.append(CoExpCancerDiscordNorm)
-#            c.append(CoExpCancerNotNorm)
-#            d.append(DiscordCancerCoExpNorm)
-#            e.append(DiscordBoth)
-#            f.append(DiscordCancerNotNorm)
-#            g.append(NotCancerCoExpNorm)
-#            h.append(NotCancerDiscordNorm)
-#            i.append(NotBoth)        
+     
+# count pairs with reciprocal expression arrangements for normal and tumor
+# qet counts for oiverlapping gene pairs
+PairCountsOverlap = ReciprocalExpressionTumorNormal(OverlapPairs, Tissues, TissueCancer, TissueHealthy)
+# get counts for random pairs
+PairCountsRandom = ReciprocalExpressionTumorNormal(RandomPairs, Tissues, TissueCancer, TissueHealthy)
 
 
 
+# create plotting function
+def CreateAx(Columns, Rows, Position, figure, XCoord, YCoord, Data, Title, MaxVal):
+    '''
+    return an ax in figure
+    '''    
+        
+    # create subplot in figure (N row, N column, plot N)
+    ax = figure.add_subplot(Rows, Columns, Position)
+    # get colors    
+    #cm = plt.cm.get_cmap('Blues')
+    
+    # compute median and standard deviation of the data, use as bubble size
+    area1 = list(map(lambda x: np.median(x), Data))
+    area2 = list(map(lambda x: np.std(x), Data))
+    
+    # plot data 
+    sc1 = ax.scatter(XCoord, YCoord, s = area1, c = area1, cmap = 'Purples', linewidths = 0.7, edgecolor = 'black', alpha = 1, vmin = 0, vmax = MaxVal)      
+    sc2 = ax.scatter(XCoord, YCoord, s = area2, c = area2, cmap = 'Greens', linewidths = 0.7, edgecolor = 'black', alpha = 1,  vmin = 0, vmax = MaxVal)      
+
+    # add color scale
+    cbar = plt.colorbar(sc1)
+    # edit tcik parameters of the scale
+    cbar.ax.tick_params(labelsize=7)
+    cbar.ax.tick_params(direction = 'out')
+    
+    # add grid behind plot
+    ax.yaxis.grid(color='gray', linestyle='dotted', linewidth = 0.7)
+    ax.xaxis.grid(color='gray', linestyle='dotted', linewidth = 0.7)
+    ax.set_axisbelow(True)
+
+    # set font for all text in figure
+    FigFont = {'fontname':'Arial'}   
+    # set axis labels
+    ax.set_ylabel('Expression in normal', size = 8, color = 'black', ha = 'center', **FigFont)
+    ax.set_xlabel('Expression in tumor', size = 8, color = 'black', ha = 'center', **FigFont )        
+    # add title
+    ax.set_title(Title, size = 8, color = 'black', ha = 'center', **FigFont )     
+    # set x axis ticks
+    plt.xticks([1, 2, 3], ['Co-expressed', 'Discordant', 'Not expressed'])
+    plt.yticks([1, 2, 3], ['Co-expressed', 'Discordant', 'Not expressed'])
+    # do not show lines around figure  
+    ax.spines["top"].set_visible(False)    
+    ax.spines["bottom"].set_visible(False)    
+    ax.spines["right"].set_visible(False) 
+    ax.spines["left"].set_visible(False)  
+    # edit tick paramters
+    plt.tick_params(axis='both', which='both', bottom='on', top='off', 
+                    right = 'off', left = 'on', labelbottom='on', colors = 'black',
+                    labelsize = 8, direction = 'out')  
+    # Set the tick labels font name
+    for label in ax.get_yticklabels():
+        label.set_fontname('Arial')   
+    return ax
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-       
-print('CoExpBoth', CoExpBoth)
-print('CoExpCancerDiscordNorm', CoExpCancerDiscordNorm)
-print('CoExpCancerNotNorm', CoExpCancerNotNorm)
-print('DiscordCancerCoExpNorm', DiscordCancerCoExpNorm)
-print('DiscordBoth', DiscordBoth)
-print('DiscordCancerNotNorm', DiscordCancerNotNorm)
-print('NotCancerCoExpNorm', NotCancerCoExpNorm) 
-print('NotCancerDiscordNorm', NotCancerDiscordNorm)
-print('NotBoth', NotBoth)
-
-            
-
-
-x = [1, 1, 1, 2, 2, 2, 3, 3, 3]
-y = [1, 2, 3, 1, 2, 3, 1, 2, 3]
-area = [CoExpBoth, CoExpCancerDiscordNorm, CoExpCancerNotNorm, DiscordCancerCoExpNorm, DiscordBoth, DiscordCancerNotNorm, NotCancerCoExpNorm, NotCancerDiscordNorm, NotBoth]
-
-assert sum(area) == total
-
-
-area = list(map(lambda x: x / 1000, area))
-
-#area = list(map(lambda x: np.median(x) * 10, [a, b, c, d, e, f, g, h, i]))
-
-
-
-
-##area = np.pi * (15 * np.random.rand(N))**2 # 0 to 15 point radiuses
-
-#cm = plt.cm.get_cmap('jet')
-#sc = ax.scatter(x,y,s=z*500,c=z,cmap=cm,linewidth=0,alpha=0.5)
-#ax.grid()
-#fig.colorbar(sc)
-
-# color.append(data[6]) # larceny_theft 
-
-
-#area = list(map(lambda x: math.sqrt(x) * 10, area))
-
-
-
-#color = ['#2b8cbe'] * len(area)
-
-#color = area
-
-
-
-cm = plt.cm.get_cmap('Blues')
 
 
 # create figure
-fig = plt.figure(1, figsize = (5, 5))
-# create subplot in figure
-# add a plot to figure (N row, N column, plot N)
-ax = fig.add_subplot(1, 1, 1)
-# plot all gene or non-overlapping gene density first
-#sc = ax.scatter(x, y, c = color, s = area, linewidths = 0.7, edgecolor = 'black', alpha = 1)      
+fig = plt.figure(1, figsize = (4, 4))
+
+# make a list with x and y coordinates
+x = [1, 1, 1, 2, 2, 2, 3, 3, 3]
+y = [1, 2, 3, 1, 2, 3, 1, 2, 3]
+
+# compute maximum value for color scale
+A, B = list(map(lambda x: np.median(x), PairCountsOverlap)), list(map(lambda x: np.std(x), PairCountsOverlap))
+C, D = list(map(lambda x: np.median(x), PairCountsRandom)), list(map(lambda x: np.std(x), PairCountsRandom))
+MaxVal = 0
+for L in [A, B, C, D]:
+    for val in L:
+        if val >= MaxVal:
+            MaxVal = val
+# generate subplots
+ax1 = CreateAx(2, 1, 1, fig, x, y, PairCountsOverlap, 'Overlapping pairs', MaxVal)
+ax2 = CreateAx(2, 1, 2, fig, x, y, PairCountsRandom, 'Random pairs', MaxVal)
 
 
-sc = ax.scatter(x, y, s = area, c = area, cmap = 'Blues', linewidths = 0.7, edgecolor = 'black', alpha = 1)      
+#
+## compute areas of bubbles with median and standard deviation
+#area1 = list(map(lambda x: np.median(x), PairCountsOverlap))
+#area2 = list(map(lambda x: np.std(x), PairCountsOverlap))
+#area3 = list(map(lambda x: np.median(x), PairCountsRandom))
+#area4 = list(map(lambda x: np.std(x), PairCountsRandom))
 
 
+# make sure subplots do not overlap
+plt.tight_layout()
 
-# add color scale
-plt.colorbar(sc)
-
-
-ax.yaxis.grid(color='gray', linestyle='dotted', linewidth = 0.7)
-ax.xaxis.grid(color='gray', linestyle='dotted', linewidth = 0.7)
-ax.set_axisbelow(True)
-
-
-# set font for all text in figure
-FigFont = {'fontname':'Arial'}   
-# set axis labels
-ax.set_ylabel('Expression in normal', size = 8, color = 'black', ha = 'center', **FigFont)
-ax.set_xlabel('Expression in tumor', size = 8, color = 'black', ha = 'center', **FigFont )        
-# set x axis ticks
-plt.xticks([1, 2, 3], ['Co-expressed', 'Discordant', 'Not expressed'])
-plt.yticks([1, 2, 3], ['Co-expressed', 'Discordant', 'Not expressed'])
-# add a range for the Y axis
-#plt.ylim([0, YMax])
-# do not show lines around figure  
-ax.spines["top"].set_visible(False)    
-ax.spines["bottom"].set_visible(False)    
-ax.spines["right"].set_visible(False) 
-ax.spines["left"].set_visible(False)  
-# edit tick paramters
-plt.tick_params(axis='both', which='both', bottom='on', top='off', 
-                right = 'off', left = 'on', labelbottom='on', colors = 'black',
-                labelsize = 8, direction = 'out')  
-# Set the tick labels font name
-for label in ax.get_yticklabels():
-    label.set_fontname('Arial')   
 # save figure
 fig.savefig('truc.pdf', bbox_inches = 'tight')
 
