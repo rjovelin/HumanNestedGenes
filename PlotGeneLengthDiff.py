@@ -103,6 +103,10 @@ for i in range(len(GeneLength)):
     DnaMeans.append(np.mean(GeneLength[i]))
     DnaSEM.append(np.std(GeneLength[i]) / math.sqrt(len(GeneLength[i])))
 
+# print means to screen
+print('mean protein length: ', ProtMeans)
+print('mean gene length: ', DnaMeans)
+
 # perform statistical tests between non-overlapping genes and each overlapping category
 #using Kolmogorov-Smirnof test
 # create list to store the P values
