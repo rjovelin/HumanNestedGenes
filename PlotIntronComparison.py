@@ -155,7 +155,7 @@ def CreateAx(Columns, Rows, Position, figure, Means, SEM, BarPos, TickPos, Tickl
     ax.set_ylabel(YLabel, color = 'black',  size = 8, ha = 'center', **FigFont)
     # write label for x
     if IsXLabel == True:
-        ax.set_xlabel('Introns in internal', color = 'black',  size = 8, ha = 'center', **FigFont)
+        ax.set_xlabel('Internal in introns', color = 'black',  size = 8, ha = 'center', **FigFont)
     # add a range for the Y axis
     plt.ylim([0, YMax])
     # do not show lines around figure  
