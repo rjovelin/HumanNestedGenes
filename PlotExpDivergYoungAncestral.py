@@ -198,9 +198,11 @@ AncestralPairs = []
 for pair in YoungNested:
     for ortho1 in AllOrthologs[0][pair[0]]:
         for ortho2 in AllOrthologs[0][pair[1]]:
-            AncestralPairs.append([ortho1, ortho2])
-            # check that pair not in sister species
-            assert [ortho1, ortho2] not in SpeciesNestedPairs[0]
+            # check that genes are not the same
+            if ortho1 != ortho2:
+                # check that pair not in sister species
+                assert [ortho1, ortho2] not in SpeciesNestedPairs[0]
+                AncestralPairs.append([ortho1, ortho2])
 print('generated {0} ancestral pairs in {1}'.format(len(AncestralPairs), SisterSp))
 
 
