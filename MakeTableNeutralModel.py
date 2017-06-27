@@ -29,7 +29,7 @@ from HsaNestedGenes import *
 
 # option to use shuffling or gene length simulation results
 NeutralModel = sys.argv[1]
-assert Neutral in ['Shuffling', 'GeneLength']
+assert NeutralModel in ['Shuffling', 'GeneLength']
 
 # load dictionary of counts of overlapping and non-overlapping genes from simulations
 if NeutralModel == 'Shuffling':
