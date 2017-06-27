@@ -27,8 +27,15 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
+# option to use shuffling or gene length simulation results
+NeutralModel = sys.argv[1]
+assert Neutral in ['Shuffling', 'GeneLength']
+
 # load dictionary of counts of overlapping and non-overlapping genes from simulations
-infile = open('SimulationsOverlap.json')  
+if NeutralModel == 'Shuffling':
+    infile = open('SimulationsOverlap.json')  
+elif NeutralModel == 'GeneLength':
+    infile = open('SimulationsGeneLength.json')
 Simulations = json.load(infile)
 infile.close()
 
@@ -94,7 +101,10 @@ for species in ObservedOverlaGenes:
     print(species, ObservedOverlaGenes[species][0], ObservedOverlaGenes[species][1], SimulMean[species][0], SimulMean[species][1], PVals[species])
     
 # write results to file
-newfile = open('NeutralSimulations.txt', 'w')
+if NeutralModel == 'Shuffling':
+    newfile = open('NeutralSimulations.txt', 'w')
+elif NeutralModel == 'GeneLength':
+    newfile = open('NeutralModelGeneLength.txt', 'w')
 Header = ['Species', 'Observed_Overlapping', 'Observed_NonOverlapping', 'Expected_Overlapping (SEM)', 'Expected_NonOverlapping (SEM)', 'P']    
 newfile.write('\t'.join(Header) + '\n')
 # write results for each species in phylogenetic order
