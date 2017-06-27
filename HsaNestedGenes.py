@@ -2477,7 +2477,7 @@ def RandomizeGeneLength(ChromoGeneCoord):
                 newstart, newend = start, end
             elif Event.count('_') == 1:
                 # extend or shrink from 1 end from 1nt up to 50% of L
-                pos = random.randint(1, int(L/2) -1)
+                pos = random.randint(1, int(L/2))
                 if Event == 'extend_start':
                     newstart, newend = start - pos, end 
                 elif Event == 'shrink_start':
@@ -2488,9 +2488,9 @@ def RandomizeGeneLength(ChromoGeneCoord):
                     newstart, newend = start, end - pos
             elif Event.count('_') == 3:
                 # extend or shrink in both direction
-                pos = random.randint(1, int(L/2) -1)
+                pos = random.randint(1, int(L/2))
                 # partition the length to add/substract between start and end
-                k = random.randint(1, pos-1)
+                k = random.randint(1, pos)
                 j = pos - k
                 if Event == 'extend_start_extend_end':
                     newstart, newend = start - k, end + j
