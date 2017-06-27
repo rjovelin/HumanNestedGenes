@@ -2444,8 +2444,74 @@ def RandomizeGenePosition(ChromoGeneCoord, ChromoLength):
                 RandomCoord[chromo] = {}
             RandomCoord[chromo][gene] = [chromo, start, end, ChromoGeneCoord[chromo][gene][-1]]
     return RandomCoord
-    
 
+
+# use this function to randomize gene length along chromosome
+def RandomizeGeneLength(ChromoGeneCoord):
+    '''
+    (dict) -> dict
+    Take the dictionary of gene coordinates on each chromo and return a
+    dictionary of new gene coordinates keep the original chromo but allowing
+    genes to expend or shrink in size 
+    '''
+    # ChromoGeneCoord is {chromo: {gene:[chromosome, start, end, sense]}}
+        
+    # make a list of possible events, all have equal weights
+    PossibleEvents = ['nothing', 'extend_start', 'extend_end', 
+                      'extend_start_extend_end', 'extend_start_shrink_end',
+                      'shrink_start_shrink_end', 'shrink_start_extend_end',
+                      'shrink_start', 'shrink_end']
+    # create a dict to store the randomized gene coordinates
+    RandomCoord = {}
+    for chromo in ChromoGeneCoord:
+        # loop over gene
+        for gene in ChromoGeneCoord[chromo]:
+            # get gene start, end and gene length
+            start, end = ChromoGeneCoord[chromo][gene][1], ChromoGeneCoord[chromo][gene][2] 
+            L = end - start
+            # randonly pick an event
+            Event = PossibleEvents[random.randint(0, len(PossibleEvents)-1)]
+            # check event
+            if Event == 'nothing':
+                # keep same coordinates, do nothing
+                newstart, newend = start, end
+            elif Event.count('_') == 1:
+                # extend or shrink from 1 end from 1nt up to 50% of L
+                pos = random.randint(1, int(L/2) -1)
+                if Event == 'extend_start':
+                    newstart, newend = start - pos, end 
+                elif Event == 'shrink_start':
+                    newstart, newend = start + pos, end
+                elif Event == 'extend_end':
+                    newstart, newend = start, end + pos
+                elif Event == 'shrink_end':
+                    newstart, newend = start, end - pos
+            elif Event.count('_') == 3:
+                # extend or shrink in both direction
+                pos = random.randint(1, int(L/2) -1)
+                # partition the length to add/substract between start and end
+                k = random.randint(1, pos-1)
+                j = pos - k
+                if Event == 'extend_start_extend_end':
+                    newstart, newend = start - k, end + j
+                elif Event == 'extend_start_shrink_end':
+                    newstart, newend = start - k, end - j
+                elif Event == 'shrink_start_shrink_end':
+                    newstart, newend = start + k, end - j
+                elif Event == 'shrink_start_extend_end':
+                    newstart, newend = start + k, end + j
+            # do QC
+            assert newstart < newend
+            # chromosomes cannot extend their length in 5'
+            if newstart < 0:
+                newstart = 0
+            # populate dict
+            if chromo not in RandomCoord:
+                RandomCoord[chromo] = {}
+            RandomCoord[chromo][gene] = [chromo, newstart, newend, ChromoGeneCoord[chromo][gene][-1]]
+    return RandomCoord
+    
+    
 # use this function to scale expression data
 def ScaleExpression(ExpressionProfile, scaling):
     '''
