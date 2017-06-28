@@ -86,6 +86,12 @@ Same.append(GetSameOppositeStrandProportions(HostNestedPairs, GeneCoord)[0])
 Opposite.append(GetSameOppositeStrandProportions(HostNestedPairs, GeneCoord)[1])
 
 
+# print proportions of opposite strand pairs
+a = ['Not', 'Ovl', 'Nst']
+for i in range(len(Opposite)):
+    print(a[i], Opposite[i], sep = '\t')
+
+
 # create figure
 fig = plt.figure(1, figsize = (1.3, 1.3))
 
