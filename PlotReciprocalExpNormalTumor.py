@@ -7,8 +7,7 @@ Created on Wed Jun 21 14:00:08 2017
 
 
 # use this script to plot the median number of pairs per individuals with reciprocal
-# expression in tumor and normal tissue
-
+# expression in tumor and normal tissue from public TCGA data
 
 
 # import modules
@@ -51,22 +50,6 @@ json_data.close()
 OverlapPairs = GetHostNestedPairs(Overlap)
 print('generated gene pairs', len(OverlapPairs))
 
-# make a list of non-overlapping genes
-NonOverlappingGenes = list(MakeNonOverlappingGeneSet(Overlap,  GeneCoord))
-
-
-# make a list of random gene pairs
-RandomPairs = []
-while len(RandomPairs) != len(OverlapPairs):
-    # pick 2 genes at random
-    j, k = random.randint(0, len(NonOverlappingGenes) -1), random.randint(0, len(NonOverlappingGenes) -1)
-    # do not form pairs of the same gene
-    if j != k:
-        gene1, gene2 = NonOverlappingGenes[j], NonOverlappingGenes[k]
-        RandomPairs.append([gene1, gene2])
-print('generated random pairs')
-
-
 
 # create a dictionary with {sample_ID: [cancer, disease_status]} 
 Samples = {}
@@ -95,7 +78,20 @@ Tissues = ['BLCA', 'BRCA', 'CESC', 'CHOL', 'COAD', 'ESCA', 'HNSC', 'KICH', 'KIRC
            'KIRP', 'LIHC', 'LIRI', 'LUAD', 'LUSC', 'PAAD', 'PCPG', 'PRAD', 'READ',
            'RECA', 'SARC', 'STAD', 'THCA', 'THYM', 'UCEC']
 
-								
+
+
+# make a set with aliquot IDs from TCGA
+TCGA = set()
+infile = open('DGE_paired_TCGA_meta_1_to_9_raw_count_FLAMAZE_for_methods_Dec_8_2016.tsv')
+infile.readline()
+for line in infile:
+    if line.rstrip() != '':
+        line = line.rstrip().split('\t')
+        TCGA.add(line[4])
+infile.close()
+print('extracted valid participant IDs from TCGA')
+
+
 # make a dict with aliquotID: expression pairs for each gene {gene: aliquot: expression}
 Genes = {}
 infile = open('DGE_paired_PCAWG_TCGA_rowENSGids_colAliquotIds_FLAMAZE_for_methods_Dec_8_2016.tsv')
@@ -116,8 +112,10 @@ for line in infile:
             # grab the corresponding aliquot ID
             ID = aliquots[i]
             assert ID not in Genes[gene]
-            # get expression data for that gene in given sample
-            Genes[gene][ID] = int(vals[i])
+            # check that aliquot ID is in TCGA data
+            if ID in TCGA:
+                # get expression data for that gene in given sample
+                Genes[gene][ID] = int(vals[i])
 infile.close()
 print('recorded expression for each gene: ', len(Genes))
 
@@ -185,9 +183,9 @@ for gene in TumorTissue:
             # populate dict
             assert gene not in TissueCancer[tissue][participant]
             TissueCancer[tissue][participant][gene] = TumorTissue[gene][tissue][participant]
+print('recorded expression per participant and tissue')
 
-
-print(len(TissueHealthy), len(TissueCancer))
+print('number of healthy and tumor tissues', len(TissueHealthy), len(TissueCancer))
 for tissue in TissueHealthy:
     print(tissue, len(TissueHealthy[tissue]), len(TissueCancer[tissue]))
 
@@ -205,14 +203,46 @@ for tissue in TissueCancer:
             del TissueCancer[tissue][participant][gene]
 print('removed genes without expression')
 
-
-
      
 # count pairs with reciprocal expression arrangements for normal and tumor
 # qet counts for oiverlapping gene pairs
 PairCountsOverlap = ReciprocalExpressionTumorNormal(OverlapPairs, Tissues, TissueCancer, TissueHealthy)
-# get counts for random pairs
-PairCountsRandom = ReciprocalExpressionTumorNormal(RandomPairs, Tissues, TissueCancer, TissueHealthy)
+
+# generate distributions of reciprocal expression by resampling random pairs
+# make a list with all genes
+AllGenes = list(GeneCoord.keys())
+
+# create a list to store the counts of each for each reciprocal arrangement
+PairCountsRandom = []
+for i in range(9):
+    PairCountsRandom.append([])
+
+for i in range(1000):
+    # make a list of random gene pairs
+    RandomPairs = []
+    while len(RandomPairs) != len(OverlapPairs):
+        # pick 2 genes at random
+        j, k = random.randint(0, len(AllGenes) -1), random.randint(0, len(AllGenes) -1)
+        # do not form pairs of the same gene
+        if j != k:
+            gene1, gene2 = AllGenes[j], AllGenes[k]
+            RandomPairs.append([gene1, gene2])
+    # get counts for random pairs
+    CountsRun = ReciprocalExpressionTumorNormal(RandomPairs, Tissues, TissueCancer, TissueHealthy)
+    for m in range(len(CountsRun)):
+        PairCountsRandom[m].extend(CountsRun[m])
+print('generated random distribution of median reciprocal expression')
+
+
+# compare reciprocal expressions between overlap and random
+Pattern = ['CoExpBoth', 'CoExpCancerDiscordNorm', 'CoExpCancerNotNorm',
+            'DiscordCancerCoExpNorm', 'DiscordBoth', 'DiscordCancerNotNorm',
+            'NotCancerCoExpNorm', 'NotCancerDiscordNorm', 'NotBoth']        
+for i in range(len(PairCountsOverlap)):
+    print(Pattern[i], np.median(PairCountsOverlap[i]), np.median(PairCountsRandom[i]),
+          np.mean(PairCountsOverlap[i]), np.mean(PairCountsRandom[i]),
+          stats.ranksums(PairCountsOverlap[i], PairCountsRandom[i])[1])
+
 
 
 
