@@ -34,16 +34,16 @@ from HsaNestedGenes import *
 newfile = open('ContingencyTableIntronlessGenes.txt', 'w')
 
 # load dictionaries of host and nested genes 
-# gene names have wormbase ID for cel and cbr, but transcript names for cr
 with open('HumanNestedGenes.json') as human_json_data:
     Nested = json.load(human_json_data)
+
+# load dictionary with overlapping genes
+with open('HumanOverlappingGenes.json') as json_data:
+    Overlap = json.load(json_data)
 
 # get GFF file
 GFF = 'Homo_sapiens.GRCh38.88.gff3'
  
-# count gene pairs for which internal genes are intronless genes or which introns,
-# and if internal and external genes have same strand or opposite strand orientation
-NoIntronSame, NoIntronOpposite, WithIntronSame, WithIntronOpposite = 0, 0, 0, 0
 
 # find nested and intronic-nested genes 
 # get the coordinates of genes on each chromo
@@ -67,15 +67,28 @@ IntronCoord = CleanGeneFeatureCoord(IntronCoord, MapTranscriptGene)
 TranscriptCoordinates = TranscriptsCoord(GFF)
 # map genes to their longest transcript {gene: longest_transcript}
 GeneLongestTranscript = LongestTranscript(TranscriptCoordinates, MapGeneTranscript)
+
 # match longest transcript of the nested genes to transcript of the host gene (longest transcript in priority)
-Matches = MatchHostTranscriptWithNestedTranscript(Nested, MapGeneTranscript, GeneLongestTranscript, TranscriptCoordinates, IntronCoord)
+NstMatches = MatchHostTranscriptWithNestedTranscript(Nested, MapGeneTranscript, GeneLongestTranscript, TranscriptCoordinates, IntronCoord)
 # list all host, nested transcript pairs [[host, nested]]
-HostNestedPairs = GetHostNestedPairs(Matches)
+HostNestedPairs = GetHostNestedPairs(NstMatches)
 
 # make a list of nested pairs
 NestedPairs = GetHostNestedPairs(Nested)
 # check that the number of gene pairs and the number of transcript pairs are the same
 assert len(NestedPairs) == len(HostNestedPairs)
+
+# make a list of overlapping gene pairs
+OverlapGenePairs = GetHostNestedPairs(Overlap)
+
+
+
+
+# 1) test differences between proportions of internal genes with intron with same and opposite strand direction
+
+# count gene pairs for which internal genes are intronless genes or which introns,
+# and if internal and external genes have same strand or opposite strand orientation
+NoIntronSame, NoIntronOpposite, WithIntronSame, WithIntronOpposite = 0, 0, 0, 0
 
 # loop over host-nested transcript pairs
 for i in range(len(HostNestedPairs)):
@@ -119,10 +132,11 @@ newfile.write('\t'.join(['Opposite', str(NoIntronOpposite), str(WithIntronOpposi
 
 
 
-# perform a test that the proportion of host:nested pairs with opposite orientation
+
+# 2) perform a test that the proportion of host:nested pairs with opposite orientation
 # is greater than expected by chance alone
 
-# 1) perform a fisher exact test with random, equal proportions of same and opposite sens pairs
+# 2.1) perform a fisher exact test with random, equal proportions of same and opposite sens pairs
 # count the number of nested pairs with same and different orientations
 same, opposite = 0, 0
 # loop over host-nested transcript pairs
@@ -146,13 +160,49 @@ newfile.write('\t'.join(['', 'Same', 'Opposite', 'Ratio Intronless/Total', 'P'])
 newfile.write('\t'.join(['Nested', str(same), str(opposite), str(round(opposite / (same + opposite), 4)), str(P)]) + '\n')
 newfile.write('\t'.join(['Expected', str(expsame), str(expopp), str(round(expopp / (expsame + expopp), 4)), str(P)]) + '\n')
 
-# 2) perform a binomial test that the proportion of host-nested pairs on opposite strands
+# 2.2) perform a binomial test that the proportion of host-nested pairs on opposite strands
 # is greater than 0.5
 assert same + opposite == len(HostNestedPairs)
 P = stats.binom_test(opposite, (same + opposite), 0.5)
 
 newfile.write('\n\n')
 newfile.write('The proportion of gene pairs with opposite orientation ({0})\n'.format(round((opposite / (same+opposite)) * 100, 2)))
+newfile.write('is greater than expected by chance (P = {0}, binomial test with p = 0.5'.format(P))
+
+
+# 3) perform a test that the proportion of overlapping gene pairs with opposite orientation
+# is greater than expected by chance alone
+
+# 3.1) perform a fisher exact test with random, equal proportions of same and opposite sens pairs
+# count the number of nested pairs with same and different orientations
+same, opposite = 0, 0
+# loop over host-nested transcript pairs
+for i in range(len(OverlapGenePairs)):
+    # get the orientation of each transcript [+,+]
+    OrientationPair = GenePairOrientation(OverlapGenePairs[i], GeneCoord)
+    if len(set(OrientationPair)) == 1:
+        # same orientation
+        same += 1
+    elif len(set(OrientationPair)) == 2:
+        # differente orientation
+        opposite += 1
+# computed expected numbers of same and oppsote pairs under the assumption of random (equal proportions)
+expsame = (same + opposite) * (50/100)        
+expopp = expsame        
+P = stats.fisher_exact([[same, opposite], [expsame, expopp]])[1]
+
+newfile.write('\n\n')
+newfile.write('Table 3. Number of overlapping gene pairs with same and opposite orientation\n')
+newfile.write('\t'.join(['', 'Same', 'Opposite', 'Ratio Intronless/Total', 'P']) + '\n')
+newfile.write('\t'.join(['Nested', str(same), str(opposite), str(round(opposite / (same + opposite), 4)), str(P)]) + '\n')
+newfile.write('\t'.join(['Expected', str(expsame), str(expopp), str(round(expopp / (expsame + expopp), 4)), str(P)]) + '\n')
+
+# 3.2) perform a binomial test that the proportion of overlaping gene pairs on opposite strands > 0.5
+assert same + opposite == len(OverlapGenePairs)
+P = stats.binom_test(opposite, (same + opposite), 0.5)
+
+newfile.write('\n\n')
+newfile.write('The proportion of overlapping gene pairs with opposite orientation ({0})\n'.format(round((opposite / (same+opposite)) * 100, 2)))
 newfile.write('is greater than expected by chance (P = {0}, binomial test with p = 0.5'.format(P))
 
 # close file after writing
