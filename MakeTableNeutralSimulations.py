@@ -120,7 +120,7 @@ for i in range(2):
         SEMOvlNum = np.std(OvlNum) / math.sqrt(len(OvlNum))
         SEMNonOvlNum = np.std(NonOvlNum) / math.sqrt(len(NonOvlNum))
         # compute P values of differences between observations and expectations
-        P = stats.fisher([ObservedOvlGenes[species], [round(np.mean(OvlNum)), round(np.mean(NonOvlNum))]])[1]
+        P = stats.fisher_exact([ObservedOvlGenes[species], [round(np.mean(OvlNum)), round(np.mean(NonOvlNum))]])[1]
         if i == 0:
             ResultsShuffle[species] = [np.mean(OvlNum), SEMOvlNum, np.mean(NonOvlNum), SEMNonOvlNum, P]
         elif i == 1:
