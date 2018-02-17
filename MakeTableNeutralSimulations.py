@@ -27,29 +27,24 @@ from scipy import stats
 from HsaNestedGenes import *
 
 
-# make a list of simulation runs for all species for randomization model
-ShufflingJson = [i for i in os.listdir() if 'Simulations_' in i and '_Randomization.json']
-# make a list of simulation runs for all species for gene extension model
-GeneExtensionJson = [i for i in os.listdir() if 'Simulations_' in i and '_Extension.json']
-JsonFiles = [ShufflingJson, GeneExtensionJson]
-
+# make a list of simulation runs for all species
+JsonFiles = [i for i in os.listdir() if 'Simulations_' in i and ('_Extension.json' in i or '_Randomization.json' in i)]
 # make a dict for each model {species: [json simulations runs]}
 Shuffling, GeneExtension = {}, {}
 
 # get the gene counts for each run for each species and model
-for i in range(len(JsonFiles)):
-    for filename in JsonFiles[i]:
-        # get the species name
-        species = filename[filename.index('_')+1: filename.find('_', filename.index('_')+1)]
-        # load json dict
-        infile = open(filename)
-        runs = json.load(infile)
-        infile.close()
-        # get counts of ovlp and non-ovl genes for each run for that species
-        if i == 0:
-            Shuffling[species] = [runs[k] for k in runs]
-        elif i == 1:
-            GeneExtension[species] = [runs[k] for k in runs]
+for filename in JsonFiles:
+    # get the species name
+    species = filename[filename.index('_')+1: filename.find('_', filename.index('_')+1)]
+    # load json dict
+    infile = open(filename)
+    runs = json.load(infile)
+    infile.close()
+    # get counts of ovlp and non-ovl genes for each run for that species
+    if 'Randomization' in filename:
+        Shuffling[species] = [runs[k] for k in runs]
+    elif 'Extension' in filename:
+        GeneExtension[species] = [runs[k] for k in runs]
 
 
 # make a dict of {species names: GFF file} pairs
@@ -116,7 +111,7 @@ for i in range(2):
             NonOvlNum = [item[1] for item in Shuffling[species]]
         elif i == 1:
             OvlNum = [item[0] for item in GeneExtension[species]]
-            NonOvlNum = [item[0] for item in GeneExtension[species]]
+            NonOvlNum = [item[1] for item in GeneExtension[species]]
         SEMOvlNum = np.std(OvlNum) / math.sqrt(len(OvlNum))
         SEMNonOvlNum = np.std(NonOvlNum) / math.sqrt(len(NonOvlNum))
         # compute P values of differences between observations and expectations
