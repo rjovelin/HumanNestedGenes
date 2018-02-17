@@ -128,7 +128,7 @@ for i in range(2):
 
 # write results to file
 newfile = open('NeutralSimulations.txt', 'w')
-Header = ['Species', 'Obs_Ovl', 'Obs_NonOvl', 'Shuffle_Ovl (SEM)', 'Shuffle_NonOvl (SEM)', 'P', 'Extension_Ovl (SEM), Extension_NonOvl (SEM)', 'P']    
+Header = ['Species', 'Obs_Ovl', 'Obs_NonOvl', 'Shuffle_Ovl (SEM)', 'Shuffle_NonOvl (SEM)', 'P', 'Extension_Ovl (SEM)', 'Extension_NonOvl (SEM)', 'P']    
 newfile.write('\t'.join(Header) + '\n')
 for species in SpeciesNames:
     # make the line
