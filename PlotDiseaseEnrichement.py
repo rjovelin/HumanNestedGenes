@@ -87,7 +87,7 @@ AllGenes = [NonOverlappingGenes]
 for i in range(1, len(GeneSets)):
     AllGenes.append(GeneSets[i])
 # create a parallel list of gene categories
-GeneCats = ['NoOvl', 'Nst', 'Pgk', 'Con', 'Div'] 
+GeneCats = ['Not', 'Nst', 'Pbk', 'Con', 'Div'] 
 
 # make a list of counts for each disease and gene category[[[disease, non_disease],... ], ....]
 GeneCounts = CountDiseaseGenes(AllGenes, [GAD, GWAS, Drivers, OMIM, DiseaseGenes])
@@ -139,7 +139,7 @@ def CreateAx(Columns, Rows, Position, figure, Data, XLabel, isYLabel):
         # edit y axis ticks
         plt.yticks(np.arange(0, 1.25, 0.25))    
     # add ticks and lebels
-    plt.xticks([0.1, 0.3, 0.5, 0.7, 0.9], ['Not', 'Nst', 'Pgk', 'Con', 'Div'], rotation = 0, size = 6, color = 'black', ha = 'center', **FigFont)
+    plt.xticks([0.1, 0.3, 0.5, 0.7, 0.9], ['Not', 'Nst', 'Pbk', 'Con', 'Div'], rotation = 0, size = 6, color = 'black', ha = 'center', **FigFont)
     # add x label
     ax.set_xlabel(XLabel, color = 'black',  size = 7, ha = 'center', **FigFont)
     # add a range for the Y axis

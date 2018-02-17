@@ -34,7 +34,7 @@ from HsaNestedGenes import *
 # load dictionaries of overlapping genes
 JsonFiles = ['Nested', 'PiggyBack', 'Convergent', 'Divergent']
 # make a list of dictionaries
-HsaAllOverlap = []
+HsaAllOverlap, MmuAllOverlap = [], []
 # loop over files
 for i in range(len(JsonFiles)):
     # load dictionary of overlapping gene pairs
@@ -42,6 +42,11 @@ for i in range(len(JsonFiles)):
     overlapping = json.load(json_data)
     json_data.close()
     HsaAllOverlap.append(overlapping)
+    data = open('Mouse' + JsonFiles[i] + 'Genes.json')
+    overlapping = json.load(data)
+    data.close()
+    MmuAllOverlap.append(overlapping)
+
 
 # get GFF file
 GFF = ['Homo_sapiens.GRCh38.88.gff3', 'Mus_musculus.GRCm38.88.gff3']
@@ -103,6 +108,7 @@ for chromo in HumanOrdered:
             elif D >= 50000:
                 HumanAdjacentgenePairs['Distant'].append(set([HumanOrdered[chromo][i], HumanOrdered[chromo][i+1]]))
 
+
 # make pairs of overlapping genes
 for i in range(len(HsaAllOverlap)):
     pairs = GetHostNestedPairs(HsaAllOverlap[i])
@@ -112,9 +118,30 @@ for i in range(len(HsaAllOverlap)):
         pairs.remove(L)
     HumanAdjacentgenePairs[JsonFiles[i]] = pairs    
     
+    
+# make pairs of human orthologs for each mouse gene pair
+PairsOrthos = []
+for i in range(len(MmuAllOverlap)):
+    # create a list to store the gene pairs
+    GenePairs = []
+    Pairs = GetHostNestedPairs(MmuAllOverlap[i])
+    # loop over mouse gene pairs
+    for pair in Pairs:
+        # check that both genes have coordinates
+        assert pair[0] in MouseCoord and pair[1] in MouseCoord
+        # count only pairs in which both genes have orthologs in human
+        if pair[0] in MouseOrthologs and pair[1] in MouseOrthologs:
+            for ortho1 in MouseOrthologs[pair[0]]:
+                for ortho2 in MouseOrthologs[pair[1]]:
+                    # remove order
+                    GenePairs.append(set([ortho1, ortho2]))
+    PairsOrthos.append(GenePairs)
+
+
+    
 # count gene pairs adjacent in mouse    
 ConservedPairs = {}
-for GeneType in HumanAdjacentgenePairs:
+for GeneType in ['Proximal', 'Moderate', 'Intermediate', 'Distant']:
     # initialize counters
     ConservedPairs[GeneType] = 0
     # check if mouse orthologs are adjacent
@@ -145,7 +172,45 @@ for GeneType in HumanAdjacentgenePairs:
             # update counter if at least 1 pair of adjacent orthologs exist in mouse
             if FoundAdjacent == True:
                 ConservedPairs[GeneType] += 1
-                                       
+
+
+for i in range(len(JsonFiles)):
+    ConservedPairs[JsonFiles[i]] = 0
+    # count conserved pairs and adjacent pairs
+    for pair in HumanAdjacentgenePairs[JsonFiles[i]]:
+        if set(pair) in PairsOrthos[i]:
+            # count conserved pairs
+            ConservedPairs[JsonFiles[i]] += 1
+        else:
+            # check if orthologs are adjacent
+            pair = list(pair)
+            # make a list of orthologs in mouse
+            L = []
+            for ortho1 in Orthos[pair[0]]:
+                for ortho2 in Orthos[pair[1]]:
+                    # check that both genes have coordinates in mouse
+                    if ortho1 in MouseCoord and ortho2 in MouseCoord:
+                        # check that genes are different and on the same chromo 
+                        if ortho1 != ortho2 and MouseCoord[ortho1][0] == MouseCoord[ortho2][0]:
+                            L.append([ortho1, ortho2])
+            # check if a pair of orthologs exist
+            if len(L) != 0:
+                # set up boolean to be changed if an adjacent pair is found
+                FoundAdjacent = False
+                # loop over the mouse gene pairs
+                for j in range(len(L)):
+                    gene1, gene2 = L[j][0], L[j][1]
+                    # get indices of gene1 and gene2
+                    I1, I2 = MouseOrdered[MouseCoord[gene1][0]].index(gene1), MouseOrdered[MouseCoord[gene2][0]].index(gene2)
+                    # check if genes are adjacent
+                    if I1 == I2 + 1 or I2 == I1 + 1:
+                        # update boolean
+                        FoundAdjacent = True
+                # update counter if at least 1 pair of adjacent orthologs exist in mouse
+                if FoundAdjacent == True:
+                    ConservedPairs[JsonFiles[i]] += 1
+
+              
    
 # test differences among gene categories
 # write P values to file
@@ -166,6 +231,9 @@ newfile.close()
 # compute proportions
 for i in ConservedPairs:
     ConservedPairs[i] = ConservedPairs[i] / len(HumanAdjacentgenePairs[i])    
+   
+   
+GeneTypes = JsonFiles + ['Proximal', 'Moderate', 'Intermediate', 'Distant']   
    
 
 # create figure
@@ -207,3 +275,5 @@ for label in ax.get_yticklabels():
 # save figure
 for extension in ['.pdf', '.eps', '.png']:
     figure.savefig('AdjacentPairs' + extension, bbox_inches = 'tight')
+
+

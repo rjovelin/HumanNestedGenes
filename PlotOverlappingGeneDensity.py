@@ -117,9 +117,10 @@ for i in range(len(content)):
 # set up minimum overlapping gene frequency (in %)
 MinimumFreq = 1
 # consider chromosomes with frequency of overlapping genes > minimum frequency
-Chromosomes = [chromo for chromo in Freq if Freq[chromo] > MinimumFreq]
-Chromosomes.sort()
-
+#Chromosomes = [chromo for chromo in Freq if Freq[chromo] > MinimumFreq]
+# consider all chromosomes
+Chromosomes = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12',
+               '13', '14', '15', '16', '17', '18', '19', '20', '21', '22', 'X', 'Y']
 # look for clusters of overlapping genes on each chromo
 # create a dict {chromo: [positions]}
 OverlapStart = {}
@@ -292,9 +293,8 @@ def CreateAx(Columns, Rows, Position, figure, Data, chromo, YMax, YLabel):
 fig = plt.figure(1, figsize = (6, 2.5))
 
 j = 1
-LG = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15', '16', '17', '19', '20', '21', '22', 'X']
-for i in range(len(LG)):
-    if i == 0 or i == 11:
+for i in range(len(Chromosomes)):
+    if i == 0 or i == 12:
         YLabel = True
     else:
         YLabel = False
@@ -302,9 +302,9 @@ for i in range(len(LG)):
         Data = [GeneWindowCount, OverlapWindowCount]
     elif BackGround == 'NoOverlap':
         Data = [NonOverlapWindowCount, OverlapWindowCount]
-    ax = CreateAx(11, 2, j, fig, Data, LG[i], Maximum, YLabel)
+    ax = CreateAx(12, 2, j, fig, Data, Chromosomes[i], Maximum, YLabel)
     j += 1
-    if i == 10:
+    if i == 11:
         # create legend
         if BackGround == 'All':
             Label1 = 'All'

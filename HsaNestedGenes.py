@@ -10,6 +10,7 @@ import math
 import os
 import random
 import json
+import copy
 
 # use this function to record the gene coordinates on each separate chromosome    
 def ChromoGenesCoord(gff_file):
@@ -721,7 +722,7 @@ def MatchOrthologs(OrthoFile):
             line = line.rstrip().split('\t')
             # get gene IDs of the 2 species
             # note that format of ortho file with Platypus isdifferent           
-            if 'Platypus'in OrthoFile:
+            if 'HumanPlatypus'in OrthoFile:
                 gene1, gene2 = line[0], line[3]
             else:
                 gene1, gene2 = line[0], line[2]
@@ -1476,16 +1477,21 @@ def IsNestedPairConserved(pair, Orthologs, OrthoNestedPairs):
     # Orthologs is a dictionary of orthologs {gene: [ortho1, ortho2..]}    
     # OrthoNestedPairs is a list of [host, nested] gene pairs in other species
     
+    # remove gene order
+    L = copy.deepcopy(OrthoNestedPairs)
+    for i in range(len(L)):
+        L[i] = set(L[i])
     # generate a list with all combinations of orthologs of host:nested pairs
     orthopairs = []
     for ortho1 in Orthologs[pair[0]]:
         for ortho2 in Orthologs[pair[1]]:
-            orthopairs.append([ortho1, ortho2])
+            if ortho1 != ortho2:
+                orthopairs.append(set([ortho1, ortho2]))
     # set boolean to be updated if nesting is conserved
     ConservedNesting = False
     # check if at least one ortholog pair is nested in sister species
     for i in orthopairs:
-        if i in OrthoNestedPairs:
+        if i in L:
             # nesting is conserved, update boolean and exit loop 
             ConservedNesting = True
             break
@@ -1540,6 +1546,8 @@ def InferYoungOldNestingEvents(NestedGenes, SpeciesNestedPairs, OrthologPairs):
                         ConservedInOutGroups = True
                 if ConservedInOutGroups == False:
                     Young.append(pair)
+                else:
+                    Old.append(pair)
     return Old, Young
 
 
@@ -2436,4 +2444,186 @@ def RandomizeGenePosition(ChromoGeneCoord, ChromoLength):
                 RandomCoord[chromo] = {}
             RandomCoord[chromo][gene] = [chromo, start, end, ChromoGeneCoord[chromo][gene][-1]]
     return RandomCoord
+
+
+# use this function to randomize gene length along chromosome
+def RandomizeGeneLength(ChromoGeneCoord):
+    '''
+    (dict) -> dict
+    Take the dictionary of gene coordinates on each chromo and return a
+    dictionary of new gene coordinates keep the original chromo but allowing
+    genes to expend or shrink in size 
+    '''
+    # ChromoGeneCoord is {chromo: {gene:[chromosome, start, end, sense]}}
+        
+    # make a list of possible events, all have equal weights
+    PossibleEvents = ['nothing', 'extend_start', 'extend_end', 
+                      'extend_start_extend_end', 'extend_start_shrink_end',
+                      'shrink_start_shrink_end', 'shrink_start_extend_end',
+                      'shrink_start', 'shrink_end']
+    # create a dict to store the randomized gene coordinates
+    RandomCoord = {}
+    for chromo in ChromoGeneCoord:
+        # loop over gene
+        for gene in ChromoGeneCoord[chromo]:
+            # get gene start, end and gene length
+            start, end = ChromoGeneCoord[chromo][gene][1], ChromoGeneCoord[chromo][gene][2] 
+            L = end - start
+            # randonly pick an event
+            Event = PossibleEvents[random.randint(0, len(PossibleEvents)-1)]
+            # check event
+            if Event == 'nothing':
+                # keep same coordinates, do nothing
+                newstart, newend = start, end
+            elif Event.count('_') == 1:
+                # extend or shrink from 1 end from 1nt up to 50% of L
+                pos = random.randint(1, int(L/2))
+                if Event == 'extend_start':
+                    newstart, newend = start - pos, end 
+                elif Event == 'shrink_start':
+                    newstart, newend = start + pos, end
+                elif Event == 'extend_end':
+                    newstart, newend = start, end + pos
+                elif Event == 'shrink_end':
+                    newstart, newend = start, end - pos
+            elif Event.count('_') == 3:
+                # extend or shrink in both direction
+                pos = random.randint(1, int(L/2))
+                # partition the length to add/substract between start and end
+                k = random.randint(1, pos)
+                j = pos - k
+                if Event == 'extend_start_extend_end':
+                    newstart, newend = start - k, end + j
+                elif Event == 'extend_start_shrink_end':
+                    newstart, newend = start - k, end - j
+                elif Event == 'shrink_start_shrink_end':
+                    newstart, newend = start + k, end - j
+                elif Event == 'shrink_start_extend_end':
+                    newstart, newend = start + k, end + j
+            # do QC
+            assert newstart < newend
+            # chromosomes cannot extend their length in 5'
+            if newstart < 0:
+                newstart = 0
+            # populate dict
+            if chromo not in RandomCoord:
+                RandomCoord[chromo] = {}
+            RandomCoord[chromo][gene] = [chromo, newstart, newend, ChromoGeneCoord[chromo][gene][-1]]
+    return RandomCoord
     
+    
+# use this function to scale expression data
+def ScaleExpression(ExpressionProfile, scaling):
+    '''
+    (dict, str) -> dict
+    Take the dictionary of expression profile for each gene and a string with 
+    the type of scaling to perform and return a dictionary in which each tissue
+    expression is scaled
+    '''
+    # create new dict with scaled expression
+    Scaled = {}
+    # make a list with expression values across tissues and genes
+    L = []
+    for gene in ExpressionProfile:
+        for val in ExpressionProfile[gene]:
+            L.append(val)
+    # check which type of scaling to be performed
+    if scaling == 'autoscaling':
+        # scale using mean and standard deviation
+        # compute mean and standard deviation of expression across genes and tissues
+        ExpMean, ExpStd = np.mean(L), np.std(L)
+        for gene in ExpressionProfile:
+            Scaled[gene] = []
+            for i in range(len(ExpressionProfile[gene])):
+                # computed scaled expression value
+                j = (ExpressionProfile[gene][i] - ExpMean) / ExpStd
+                Scaled[gene].append(j)
+    elif scaling == 'level_scaling':
+        # scale using meadian expression
+        # compute median expression across genes and tissues
+        ExpMed = np.median(L)
+        for gene in ExpressionProfile:
+            Scaled[gene] = []
+            for i in range(len(ExpressionProfile[gene])):
+                # computed scaled expression value
+                j = (ExpressionProfile[gene][i] - ExpMed) / ExpMed
+                Scaled[gene].append(j)
+    return Scaled
+    
+    
+    
+    
+# use this function to count the number of pairs in reciprocal expression in tumor and normal tissues
+def ReciprocalExpressionTumorNormal(GenePairs, Tissues, TissueCancer, TissueHealthy):
+    '''
+    (list, list, dict, dict) -> list    
+    Take a list of gene pairs, a list of tissues, 2 dictionaries of gene expression
+    for each participant and tissue for cancer and normal biopsies of the same organ
+    and return a list with counts of pairs in each reciprocal expression configuration
+    in each individual across tissue types
+    '''
+    
+    # TissueCancer and TissueHealthy are in the form {tissue: {participant: gene: expression}}
+    # genes without expression have been removed from each participant, expression/no expression is assed by membership
+    
+    # make lists to store the proportions of pairs in each category
+    a, b, c, d, e, f, g, h, i = [], [], [], [], [], [], [], [], []   
+
+    # loop over tissue
+    for tissue in TissueCancer:
+        if tissue in Tissues:
+            # loop over participant
+            for participant in TissueCancer[tissue]:
+                # keep track of the number of pairs among individuals and tissues          
+                total = 0
+                # count the number of pairs in which genes are coexpressed, discordantly expressed or not expressed
+                CoExpBoth, CoExpCancerDiscordNorm, CoExpCancerNotNorm = 0, 0, 0
+                DiscordCancerCoExpNorm, DiscordBoth, DiscordCancerNotNorm = 0, 0, 0
+                NotCancerCoExpNorm, NotCancerDiscordNorm, NotBoth = 0, 0, 0
+                for pair in GenePairs:
+                    total += 1
+                    # check expression in cancer and normal
+                    if pair[0] in TissueCancer[tissue][participant] and pair[1] in TissueCancer[tissue][participant]:
+                        # gene coexpressed in cancer
+                        if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
+                            # gene coexpressed in normal
+                            CoExpBoth += 1
+                        elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
+                            # gene discordant in normal
+                            CoExpCancerDiscordNorm += 1
+                        elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
+                            # gene not expressed in normal
+                            CoExpCancerNotNorm += 1
+                    elif (pair[0] in TissueCancer[tissue][participant] and pair[1] not in TissueCancer[tissue][participant]) or (pair[0] not in TissueCancer[tissue][participant] and pair[1] in TissueCancer[tissue][participant]):
+                        # gene discordant in cancer
+                        if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
+                            # gene coexpressed in normal
+                            DiscordCancerCoExpNorm += 1
+                        elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
+                            # gene discordant in normal
+                            DiscordBoth += 1
+                        elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
+                            # gene not expressed in normal
+                            DiscordCancerNotNorm += 1
+                    elif pair[0] not in TissueCancer[tissue][participant] and pair[1] not in TissueCancer[tissue][participant]:
+                        # gene not expressed in cancer
+                        if pair[0] in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]:
+                            # gene coexpressed in normal
+                            NotCancerCoExpNorm += 1
+                        elif (pair[0] in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]) or (pair[0] not in TissueHealthy[tissue][participant] and pair[1] in TissueHealthy[tissue][participant]):
+                            # gene discordant in normal
+                            NotCancerDiscordNorm += 1
+                        elif pair[0] not in TissueHealthy[tissue][participant] and pair[1] not in TissueHealthy[tissue][participant]:
+                            # gene not expressed in normal
+                            NotBoth += 1
+            assert total == len(GenePairs)    
+            a.append(CoExpBoth)
+            b.append(CoExpCancerDiscordNorm)
+            c.append(CoExpCancerNotNorm)
+            d.append(DiscordCancerCoExpNorm)
+            e.append(DiscordBoth)
+            f.append(DiscordCancerNotNorm)
+            g.append(NotCancerCoExpNorm)
+            h.append(NotCancerDiscordNorm)
+            i.append(NotBoth)        
+    return [a, b, c, d, e, f, g, h, i]
