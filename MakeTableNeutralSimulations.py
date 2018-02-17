@@ -136,8 +136,8 @@ for species in SpeciesNames:
             '{0} ({1})'.format(ResultsShuffle[species][0], ResultsShuffle[species][1]),
             '{0} ({1})'.format(ResultsShuffle[species][2], ResultsShuffle[species][3]),
             ResultsShuffle[species][4],
-             + '{0} ({1})'.format(ResultsGeneExtention[species][0], ResultsGeneExtention[species][1]),
-             + '{0} ({1})'.format(ResultsGeneExtention[species][2], ResultsGeneExtention[species][3]),
+            '{0} ({1})'.format(ResultsGeneExtention[species][0], ResultsGeneExtention[species][1]),
+            '{0} ({1})'.format(ResultsGeneExtention[species][2], ResultsGeneExtention[species][3]),
              ResultsGeneExtention[species][4]]
     newfile.write('\t'.join(list(map(lambda x: str(x), line))) + '\n')
 newfile.close()
