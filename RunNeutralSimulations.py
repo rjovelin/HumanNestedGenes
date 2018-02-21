@@ -16,7 +16,7 @@ Species = ['Human', 'Chimp', 'Gorilla', 'Orangutan', 'Macaque', 'Marmoset',
 # make a list of models to use
 Models = ['randomization', 'extension']
 # set number of simulations
-Iterations = 100
+Iterations = 1000
 
 # write shell script to launch the job
 # loop over models
