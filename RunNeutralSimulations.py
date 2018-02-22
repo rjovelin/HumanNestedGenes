@@ -16,7 +16,7 @@ Species = ['Human', 'Chimp', 'Gorilla', 'Orangutan', 'Macaque', 'Marmoset',
 # make a list of models to use
 Models = ['randomization', 'extension']
 # set number of simulations
-Iterations = 1000
+Iterations = 500
 
 # write shell script to launch the job
 # loop over models
@@ -30,7 +30,7 @@ for model in Models:
         newfile.write('\n')
         newfile.write('python3 NeutralSimulations.py ' + model + ' ' + species + ' ' + str(Iterations))
         newfile.close()            
-        MyCommand = 'qsub -l walltime=30:00:00,nodes=1:ppn=12,mem=46g ' + outputfile
+        MyCommand = 'qsub -l walltime=50:00:00,nodes=1:ppn=12,mem=46g ' + outputfile
         os.system(MyCommand)
         print(MyCommand)
         
