@@ -30,7 +30,7 @@ for model in Models:
         newfile.write('\n')
         newfile.write('python3 NeutralSimulations.py ' + model + ' ' + species + ' ' + str(Iterations))
         newfile.close()            
-        MyCommand = 'qsub -l walltime=50:00:00,nodes=1:ppn=12,mem=46g ' + outputfile
+        MyCommand = 'qsub -l walltime=72:00:00,nodes=1:ppn=12,mem=46g ' + outputfile
         os.system(MyCommand)
         print(MyCommand)
         
