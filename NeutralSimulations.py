@@ -76,6 +76,7 @@ Simulations = {}
 
 # perform N simulations for given species    
 for i in range(iterations):
+    print(i)
     # check model
     if model == 'randomization':
         # randomize gene positions along each chromo
